@@ -94,8 +94,8 @@ function initModels(sequelize) {
   area.hasMany(topico, { as: "topicos", foreignKey: "area_id"});
   presenca_form_sinc.belongsTo(aula, { as: "aula", foreignKey: "aula_id"});
   aula.hasMany(presenca_form_sinc, { as: "presenca_form_sincs", foreignKey: "aula_id"});
-  area.belongsTo(categoria, { as: "categorium", foreignKey: "categoria_id"});
-  categoria.hasMany(area, { as: "areas", foreignKey: "categoria_id"});
+  area.belongsTo(categoria, { as: "area_categoria", foreignKey: "categoria_id"});
+  categoria.hasMany(area, { as: "categoria_area", foreignKey: "categoria_id"});
   preferencias_categoria.belongsTo(categoria, { as: "categorium", foreignKey: "categoria_id"});
   categoria.hasMany(preferencias_categoria, { as: "preferencias_categoria", foreignKey: "categoria_id"});
   credenciais.belongsTo(colaborador, { as: "credenciais_colaborador", foreignKey: "colaborador_id"});
