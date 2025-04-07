@@ -23,18 +23,57 @@ const controladorThreads = {
         include: [
           {
             model: models.forum,
-            as: 'forum',  // Incluindo o fórum associado
+            as: 'threads_forum',
           },
           {
             model: models.credenciais,
-            as: 'user',  // Incluindo o usuário associado
+            as: 'user',
+            include: [
+              {
+                model: models.colaborador,
+                as: 'credenciais_colaborador',
+                attributes: ['colaborador_id', 'nome', 'email', 'idade', 'cargo', 'departamento', 'telefone', 'score'],
+              },
+            ],
           },
         ],
       });
-      res.json(threads);
+  
+      if (!threads || threads.length === 0) {
+        return res.status(404).json({ message: "Threads não encontradas" });
+      }
+  
+      // Manipula o retorno para incluir 'user_id' e mover 'credenciais_colaborador' para a estrutura correta
+      const result = threads.map(thread => {
+        const threadJSON = thread.toJSON();
+  
+        // Adiciona o 'user_id' diretamente no resultado
+        threadJSON.user_id = threadJSON.user.credencial_id;
+  
+        // Mover 'credenciais_colaborador' para baixo de 'user_id'
+        threadJSON.user_id = {
+          ...threadJSON.user_id,
+          credenciais_colaborador: threadJSON.user.credenciais_colaborador,
+        };
+  
+        // Remove os campos desnecessários
+        delete threadJSON.user.credencial_id;
+        delete threadJSON.user.credenciais_colaborador;
+        delete threadJSON.user;
+        delete threadJSON.user_id.credenciais_colaborador.email;
+        delete threadJSON.user_id.credenciais_colaborador.idade;
+        delete threadJSON.user_id.credenciais_colaborador.cargo;
+        delete threadJSON.user_id.credenciais_colaborador.departamento;
+        delete threadJSON.user_id.credenciais_colaborador.telefone;
+        delete threadJSON.user_id.credenciais_colaborador.score;
+  
+        return threadJSON;
+      });
+  
+      res.json(result);
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: "Erro ao buscar threads" });
+      res.status(500).json({ message: "Erro ao procurar threads" });
     }
   },
 
