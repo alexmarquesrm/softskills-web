@@ -1,0 +1,1 @@
+npx sequelize-auto -o "./src/models" -d "softskills_testes" -h "minecraftatm9.serveminecraft.net" -u postgres -p 9001 -x "Pint@2025!" -e postgres
