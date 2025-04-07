@@ -126,7 +126,6 @@ const controladorFormandos = {
       res.status(500).json({ message: "Erro ao criar o formando" });
     }
   },
-  
 
   updateFormando: async (req, res) => {
     const { id } = req.params;
@@ -155,24 +154,21 @@ const controladorFormandos = {
 
   deleteFormando: async (req, res) => {
     const { id } = req.params;
-
+  
     try {
       const formando = await models.formando.findOne({
         where: { formando_id: id },
       });
-
+  
       if (!formando) {
         return res.status(404).json({ message: "Formando não encontrado" });
       }
-
+  
+      // Apenas apagar o registo da tabela formando
       await models.formando.destroy({
         where: { formando_id: id },
       });
-
-      await models.credenciais.destroy({
-        where: { credencial_id: formando.formando_id },
-      });
-
+  
       res.json({ message: "Formando apagado com sucesso" });
     } catch (error) {
       console.error(error);

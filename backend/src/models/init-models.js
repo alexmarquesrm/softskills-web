@@ -106,8 +106,8 @@ function initModels(sequelize) {
   comentarios.hasMany(comentario_resposta, { as: "resposta_comentario_resposta", foreignKey: "resposta_id"});
   comentarios.belongsTo(credenciais, { as: "user", foreignKey: "user_id"});
   credenciais.hasMany(comentarios, { as: "comentarios", foreignKey: "user_id"});
-  formador.belongsTo(credenciais, { as: "formador", foreignKey: "formador_id"});
-  credenciais.hasOne(formador, { as: "formador", foreignKey: "formador_id"});
+  formador.belongsTo(credenciais, { as: "formador_credenciais", foreignKey: "formador_id"});
+  credenciais.hasOne(formador, { as: "credenciais_formador", foreignKey: "formador_id"});
   formando.belongsTo(credenciais, { as: "formando_credenciais", foreignKey: "formando_id"});
   credenciais.hasOne(formando, { as: "formando", foreignKey: "formando_id"});
   gestor.belongsTo(credenciais, { as: "gestor", foreignKey: "gestor_id"});
