@@ -41,7 +41,7 @@ CREATE TABLE CATEGORIA (
 );
 
 /*==============================================================*/
-/* Table: AREA                                          */
+/* Table: AREA                                                  */
 /*==============================================================*/
 CREATE TABLE AREA (
    AREA_ID               SERIAL NOT NULL UNIQUE,

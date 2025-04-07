@@ -2,19 +2,17 @@ const express = require("express");
 const router = express.Router();
 const categoriasController = require("../controllers/categoriasController");
 
-// GET todas as categorias
+// GET
 router.get("/", categoriasController.getAllCategorias);
-
-// GET categoria por ID
 router.get("/:id", categoriasController.getCategoriaById);
 
-// POST nova categoria
+// POST
 router.post("/", categoriasController.createCategoria);
 
-// PUT atualizar categoria
+// PUT
 router.put("/:id", categoriasController.updateCategoria);
 
-// DELETE apagar categoria
+// DELETE
 router.delete("/:id", categoriasController.deleteCategoria);
 
 module.exports = router;
