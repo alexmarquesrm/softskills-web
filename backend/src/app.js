@@ -7,6 +7,7 @@ const formadoresRoutes = require("./routes/formadoresRoutes");
 const categoriasRoutes = require("./routes/categoriasRoutes");
 const areasRoutes = require("./routes/areasRoutes");
 const topicosRoutes = require("./routes/topicosRoutes");
+const forumRoutes = require("./routes/forumRoutes");
 
 app.use(bodyParser.json());
 app.use("/colaboradores", colaboradorRoutes);
@@ -15,6 +16,7 @@ app.use("/formadores", formadoresRoutes);
 app.use("/categorias", categoriasRoutes);
 app.use("/areas", areasRoutes);
 app.use("/topicos", topicosRoutes);
+app.use("/forum", forumRoutes);
 
 app.listen(3000, () => {
   console.log("Servidor na porta 3000");
