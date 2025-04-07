@@ -13,5 +13,6 @@ router.post("/", colaboradorController.createColaborador);
 router.put("/:id", colaboradorController.updateColaborador);
 
 // DEL
+router.delete("/:id", colaboradorController.deleteColaborador);
 
 module.exports = router;

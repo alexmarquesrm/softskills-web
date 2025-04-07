@@ -61,5 +61,21 @@ const controladorUtilizadores = {
       res.status(500).json({ message: "Erro ao atualizar colaborador" });
     }
   },
+
+  deleteColaborador: async (req, res) => {
+    const id = req.params.id;
+    try {
+      const deleted = await models.colaborador.destroy({
+        where: { colaborador_id: id },
+      });
+      if (deleted) {
+        return res.json({ message: "Colaborador removido com sucesso" });
+      }
+      res.status(404).json({ message: "Colaborador não encontrado" });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Erro ao remover colaborador" });
+    }
+  },
 };
 module.exports = controladorUtilizadores;
