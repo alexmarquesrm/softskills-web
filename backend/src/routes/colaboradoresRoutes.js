@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const colaboradorController = require("../controllers/usersController");
+const colaboradorController = require("../controllers/colaboradoresController");
 
 // GET
 router.get("/", colaboradorController.getAllColaboradores);
