@@ -29,19 +29,52 @@ const controladorUtilizadores = {
 
   createColaborador: async (req, res) => {
     try {
-      const { nome, email, idade, cargo, departamento, telefone } = req.body;
-      const colaborador = await models.colaborador.create({
+      const {
         nome,
         email,
         idade,
         cargo,
         departamento,
         telefone,
+        score,
+        login,
+        password
+      } = req.body;
+  
+      const sql = `
+        SELECT criar_colaborador_default_formando(
+          :nome,
+          :email,
+          :idade,
+          :cargo,
+          :departamento,
+          :telefone,
+          :score,
+          :login,
+          :password
+        )
+      `;
+  
+      await sequelizeConn.query(sql, {
+        replacements: {
+          nome,
+          email,
+          idade,
+          cargo,
+          departamento,
+          telefone,
+          score,
+          login,
+          password
+        },
+        type: sequelizeConn.QueryTypes.SELECT
       });
-      res.status(201).json({ message: "Utilizador adicionado com sucesso" });
+  
+      res.status(201).json({ message: "Colaborador, credenciais e formando criados com sucesso." });
+  
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: "Erro ao criar colaborador" });
+      res.status(500).json({ message: "Erro ao criar colaborador." });
     }
   },
 

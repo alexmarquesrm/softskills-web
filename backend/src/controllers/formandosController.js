@@ -94,30 +94,39 @@ const controladorFormandos = {
   },
 
   createFormando: async (req, res) => {
-    const { colaborador_id, login, password } = req.body;
-
+    const { colaborador_id } = req.body;
+  
     try {
-      const newCredenciais = await models.credenciais.create({
-        colaborador_id,  
-        login,            
-        password,        
+      // Verificar se o colaborador existe
+      const colaborador = await models.colaborador.findByPk(colaborador_id);
+      if (!colaborador) {
+        return res.status(404).json({ message: "Colaborador não encontrado" });
+      }
+  
+      // Obter credenciais do colaborador
+      const credenciais = await models.credenciais.findOne({
+        where: { colaborador_id }
       });
-      
+  
+      if (!credenciais) {
+        return res.status(404).json({ message: "Credenciais não encontradas para o colaborador" });
+      }
+  
+      // Criar formando usando o ID da credencial
       const newFormando = await models.formando.create({
-        formando_id: newCredenciais.credencial_id,
+        formando_id: credenciais.credencial_id
       });
   
       res.status(201).json({
-        formando_id: newFormando.formando_id,
-        credencial_id: newCredenciais.credencial_id,
-        login: newCredenciais.login,
-        password: newCredenciais.password,
+        message: "Formando criado com sucesso",
+        formando_id: newFormando.formando_id
       });
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: "Erro ao criar o formando e credenciais" });
+      res.status(500).json({ message: "Erro ao criar o formando" });
     }
   },
+  
 
   updateFormando: async (req, res) => {
     const { id } = req.params;
