@@ -90,8 +90,8 @@ function initModels(sequelize) {
   trabalho.belongsToMany(formando, { as: 'formando_id_formando_trabalhos_formandos', through: trabalhos_formando, foreignKey: "trabalho_id", otherKey: "formando_id" });
   anexo.belongsTo(album, { as: "album", foreignKey: "album_id"});
   album.hasMany(anexo, { as: "anexos", foreignKey: "album_id"});
-  topico.belongsTo(area, { as: "area", foreignKey: "area_id"});
-  area.hasMany(topico, { as: "topicos", foreignKey: "area_id"});
+  topico.belongsTo(area, { as: "topico_area", foreignKey: "area_id"});
+  area.hasMany(topico, { as: "area_topicos", foreignKey: "area_id"});
   presenca_form_sinc.belongsTo(aula, { as: "aula", foreignKey: "aula_id"});
   aula.hasMany(presenca_form_sinc, { as: "presenca_form_sincs", foreignKey: "aula_id"});
   area.belongsTo(categoria, { as: "area_categoria", foreignKey: "categoria_id"});

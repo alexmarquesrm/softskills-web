@@ -16,10 +16,23 @@ const controladorCategorias = {
     }
   },
 
-  // Obter todas as categorias
+  // Obter todas as categorias com áreas e tópicos
   getAllCategorias: async (req, res) => {
     try {
-      const categorias = await models.categoria.findAll();
+      const categorias = await models.categoria.findAll({
+        include: [
+          {
+            model: models.area,
+            as: "categoria_area",
+            include: [
+              {
+                model: models.topico,
+                as: "area_topicos",
+              },
+            ],
+          },
+        ],
+      });
       res.json(categorias);
     } catch (error) {
       console.error(error);
@@ -27,12 +40,25 @@ const controladorCategorias = {
     }
   },
 
-  // Obter uma categoria por ID
+  // Obter uma categoria por ID com áreas e tópicos
   getCategoriaById: async (req, res) => {
     const { id } = req.params;
 
     try {
-      const categoria = await models.categoria.findByPk(id);
+      const categoria = await models.categoria.findByPk(id, {
+        include: [
+          {
+            model: models.area,
+            as: "categoria_area",
+            include: [
+              {
+                model: models.topico,
+                as: "area_topicos",
+              },
+            ],
+          },
+        ],
+      });
       if (!categoria) {
         return res.status(404).json({ message: "Categoria não encontrada" });
       }
