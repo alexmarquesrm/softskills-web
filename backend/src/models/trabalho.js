@@ -7,20 +7,12 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: false,
       primaryKey: true
     },
-    formador_id: {
+    sincrono_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'formador',
-        key: 'formador_id'
-      }
-    },
-    inscricao_id: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: 'inscricao',
-        key: 'inscricao_id'
+        model: 'sincrono',
+        key: 'curso_id'
       }
     },
     descricao: {
