@@ -7,7 +7,7 @@ const controladorAreas = {
   getAllAreas: async (req, res) => {
     try {
       const areas = await models.area.findAll({
-        include: [{ model: models.categoria, as: "area_categoria" }]
+        include: [{ model: models.topico, as: "area_topicos" }]
       });
       res.json(areas);
     } catch (error) {
@@ -20,7 +20,7 @@ const controladorAreas = {
   getAreaById: async (req, res) => {
     try {
       const area = await models.area.findByPk(req.params.id, {
-        include: [{ model: models.categoria, as: "area_categoria" }]
+        include: [{ model: models.topico, as: "area_topicos" }]
       });
       if (!area) {
         return res.status(404).json({ message: "Área não encontrada" });
