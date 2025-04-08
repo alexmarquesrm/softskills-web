@@ -1,5 +1,5 @@
 import React from "react";
-import axios from 'axios';
+//import axios from 'axios';
 import { Card, Button, Container, Row, Col } from "react-bootstrap";
 import { Clock, Users } from "react-feather";
 import ReactGif from "./../../images/react.gif";
