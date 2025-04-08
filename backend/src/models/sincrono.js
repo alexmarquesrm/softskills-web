@@ -4,7 +4,11 @@ module.exports = function(sequelize, DataTypes) {
     curso_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      primaryKey: true
+      primaryKey: true,
+      references: {
+        model: 'curso',
+        key: 'curso_id'
+      }
     },
     formador_id: {
       type: DataTypes.INTEGER,
