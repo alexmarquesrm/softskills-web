@@ -149,7 +149,7 @@ const controladorThreads = {
           include: [
             [
               Sequelize.fn('COUNT', Sequelize.col('threads_avaliacaos.thread_id')),
-              'voto_count',  // Nome da coluna contagem de votos
+              'voto_count',
             ],
           ],
         },

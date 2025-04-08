@@ -1,15 +1,20 @@
 import "./App.css";
 import React from "react";
-import NavbarButton from "./components/buttons/navbarButton"; // Caminho correto
+import CustomNavbar from "./components/navbar/customNavbar";
+import FeaturedCourses from "./components/courses/FeaturedCourses";
+import PromoSection from "./components/promo/PromoSection";
+import StatsSection from "./components/stats/StatsSection";
+import Footer from "./components/footer/Footer";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <h1>Welcome to the App</h1>
-        <NavbarButton text="Sign In" />
-        <NavbarButton />
-      </header>
+    <div>
+      <CustomNavbar />
+      <FeaturedCourses />
+      <PromoSection />
+      <StatsSection />
+      <Footer />
     </div>
   );
 }
