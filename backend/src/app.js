@@ -13,8 +13,8 @@ const threadsRoutes = require("./routes/threadsRoutes");
 const threadsAvaRoutes = require("./routes/threadsAvaRoutes");
 
 // Use CORS middleware
-app.use(cors());
-app.options('*', cors());
+//app.use(cors());
+//app.options('*', cors());
 
 //Use bodyParser middleware
 app.use(bodyParser.json({ limit: '50mb' }));
