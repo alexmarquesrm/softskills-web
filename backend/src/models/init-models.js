@@ -148,8 +148,8 @@ function initModels(sequelize) {
   formando.hasMany(presenca_form_sinc, { as: "presenca_form_sincs", foreignKey: "formando_id"});
   respostas_quizz.belongsTo(formando, { as: "formando", foreignKey: "formando_id"});
   formando.hasMany(respostas_quizz, { as: "respostas_quizzs", foreignKey: "formando_id"});
-  threads_avaliacao.belongsTo(formando, { as: "formando", foreignKey: "formando_id"});
-  formando.hasMany(threads_avaliacao, { as: "threads_avaliacaos", foreignKey: "formando_id"});
+  threads_avaliacao.belongsTo(formando, { as: "threads_avaliacao_formando", foreignKey: "formando_id"});
+  formando.hasMany(threads_avaliacao, { as: "formando_threads_avaliacaos", foreignKey: "formando_id"});
   trabalhos_formando.belongsTo(formando, { as: "formando", foreignKey: "formando_id"});
   formando.hasMany(trabalhos_formando, { as: "trabalhos_formandos", foreignKey: "formando_id"});
   threads.belongsTo(forum, { as: "threads_forum", foreignKey: "forum_id"});

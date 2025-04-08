@@ -1,3 +1,4 @@
+const Sequelize = require("sequelize");
 const initModels = require("../models/init-models");
 const sequelizeConn = require("../bdConexao");
 const models = initModels(sequelizeConn);
@@ -16,7 +17,6 @@ const controladorThreads = {
     }
   },
 
-  // Obter todas as threads
   getAllThreads: async (req, res) => {
     try {
       const threads = await models.threads.findAll({
@@ -36,11 +36,30 @@ const controladorThreads = {
               },
             ],
           },
+          {
+            model: models.threads_avaliacao,
+            as: 'threads_avaliacaos',
+            attributes: [],
+          },
+        ],
+        attributes: {
+          include: [
+            [
+              Sequelize.fn('COUNT', Sequelize.col('threads_avaliacaos.thread_id')),
+              'voto_count',  // Nome da coluna contagem de votos
+            ],
+          ],
+        },
+        group: [
+          'threads.thread_id',
+          'threads_forum.forum_id',
+          'user.credencial_id',
+          'user.credenciais_colaborador.colaborador_id'
         ],
       });
   
       if (!threads || threads.length === 0) {
-        return res.status(404).json({ message: "Threads não encontradas" });
+        return res.status(404).json({ message: 'Threads não encontradas' });
       }
   
       // Manipula o retorno para incluir 'user_id' e mover 'credenciais_colaborador' para a estrutura correta
@@ -55,6 +74,9 @@ const controladorThreads = {
           ...threadJSON.user_id,
           credenciais_colaborador: threadJSON.user.credenciais_colaborador,
         };
+  
+        // Adiciona o count de votos
+        threadJSON.voto_count = threadJSON.voto_count || 0;  // Se não houver votos, define como 0
   
         // Remove os campos desnecessários
         delete threadJSON.user.credencial_id;
@@ -73,9 +95,10 @@ const controladorThreads = {
       res.json(result);
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: "Erro ao procurar threads" });
+      res.status(500).json({ message: 'Erro ao procurar threads' });
     }
   },
+  
 
   // Obter uma thread por ID
   getThreadById: async (req, res) => {
@@ -116,6 +139,28 @@ const controladorThreads = {
                 }
             ],
           },
+          {
+            model: models.threads_avaliacao,
+            as: 'threads_avaliacaos',
+            attributes: [],
+          },
+        ],
+        attributes: {
+          include: [
+            [
+              Sequelize.fn('COUNT', Sequelize.col('threads_avaliacaos.thread_id')),
+              'voto_count',  // Nome da coluna contagem de votos
+            ],
+          ],
+        },
+        group: [
+          'threads.thread_id',
+          'threads_forum.forum_id',
+          'user.credencial_id',
+          'user.credenciais_colaborador.colaborador_id',
+          'threads_forum.forum_topico.topico_id',
+          'threads_forum.forum_topico.topico_area.area_id',
+          'threads_forum.forum_topico.topico_area.area_categoria.categoria_id'
         ],
       });
 

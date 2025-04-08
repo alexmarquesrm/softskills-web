@@ -9,6 +9,7 @@ const areasRoutes = require("./routes/areasRoutes");
 const topicosRoutes = require("./routes/topicosRoutes");
 const forumRoutes = require("./routes/forumRoutes");
 const threadsRoutes = require("./routes/threadsRoutes");
+const threadsAvaRoutes = require("./routes/threadsAvaRoutes");
 
 app.use(bodyParser.json());
 app.use("/colaborador", colaboradorRoutes);
@@ -19,6 +20,7 @@ app.use("/area", areasRoutes);
 app.use("/topico", topicosRoutes);
 app.use("/forum", forumRoutes);
 app.use("/thread", threadsRoutes);
+app.use("/threadsAva", threadsAvaRoutes);
 
 app.listen(3000, () => {
   console.log("Servidor na porta 3000");

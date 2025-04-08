@@ -12,11 +12,9 @@
     "sequelize": "^6.37.7",
     "sequelize-auto": "^0.8.8"
   },
-  "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon src/app.js"
-    
   },
   "author": "",
   "license": "ISC",
