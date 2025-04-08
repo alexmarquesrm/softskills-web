@@ -4,7 +4,6 @@ import { Card, Button, Container, Row, Col } from "react-bootstrap";
 import { Clock, Users } from "react-feather";
 import ReactGif from "./../../images/react.gif";
 
-
 const courses = [
   {
     title: "Finanças E Contabilidade",
@@ -27,7 +26,6 @@ const courses = [
     slots: "35 Vagas",
     startDate: "10/02/2026",
   },
-  
 ];
 
 function FeaturedCourses() {

@@ -110,8 +110,8 @@ function initModels(sequelize) {
   credenciais.hasOne(formador, { as: "credenciais_formador", foreignKey: "formador_id"});
   formando.belongsTo(credenciais, { as: "formando_credenciais", foreignKey: "formando_id"});
   credenciais.hasOne(formando, { as: "formando", foreignKey: "formando_id"});
-  gestor.belongsTo(credenciais, { as: "gestor", foreignKey: "gestor_id"});
-  credenciais.hasOne(gestor, { as: "gestor", foreignKey: "gestor_id"});
+  gestor.belongsTo(credenciais, { as: "gestor_credenciais", foreignKey: "gestor_id"});
+  credenciais.hasOne(gestor, { as: "credenciais_gestor", foreignKey: "gestor_id"});
   threads.belongsTo(credenciais, { as: "user", foreignKey: "user_id"});
   credenciais.hasMany(threads, { as: "threads", foreignKey: "user_id"});
   assincrono.belongsTo(curso, { as: "curso", foreignKey: "curso_id"});
@@ -134,6 +134,8 @@ function initModels(sequelize) {
   formador.hasMany(pedido_curso, { as: "pedido_cursos", foreignKey: "formador_id"});
   sincrono.belongsTo(formador, { as: "formador", foreignKey: "formador_id"});
   formador.hasMany(sincrono, { as: "sincronos", foreignKey: "formador_id"});
+  sincrono.belongsTo(curso, { as: "sincrono_curso", foreignKey: "curso_id"});
+  curso.hasOne(sincrono, { as: "sincrono_curso", foreignKey: "curso_id"});
   avaliacao_quizz.belongsTo(formando, { as: "formando", foreignKey: "formando_id"});
   formando.hasMany(avaliacao_quizz, { as: "avaliacao_quizzs", foreignKey: "formando_id"});
   denuncias.belongsTo(formando, { as: "formando", foreignKey: "formando_id"});
