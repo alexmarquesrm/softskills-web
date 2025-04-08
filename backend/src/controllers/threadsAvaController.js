@@ -47,7 +47,6 @@ const controladorThreadsAva = {
       const jsonParsed = await Promise.all(
         avaliacoes.map(async (avaliacao) => {
           const colaborador = await models.colaborador.findByPk(avaliacao.threads_avaliacao_formando.formando_credenciais.colaborador_id);
-          console.log(colaborador);
 
           return {
             id: avaliacao.thread_id,

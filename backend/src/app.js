@@ -11,6 +11,7 @@ const topicosRoutes = require("./routes/topicosRoutes");
 const forumRoutes = require("./routes/forumRoutes");
 const threadsRoutes = require("./routes/threadsRoutes");
 const threadsAvaRoutes = require("./routes/threadsAvaRoutes");
+const threadsDenRoutes = require("./routes/threadsDenRoutes");
 
 // Use CORS middleware
 //app.use(cors());
@@ -28,6 +29,7 @@ app.use("/topico", topicosRoutes);
 app.use("/forum", forumRoutes);
 app.use("/thread", threadsRoutes);
 app.use("/threadsAva", threadsAvaRoutes);
+app.use("/denuncia", threadsDenRoutes);
 
 app.listen(8000, () => {
   console.log("Servidor na porta 8000");
