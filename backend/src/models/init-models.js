@@ -110,8 +110,8 @@ function initModels(sequelize) {
   credenciais.hasOne(formador, { as: "credenciais_formador", foreignKey: "formador_id"});
   formando.belongsTo(credenciais, { as: "formando_credenciais", foreignKey: "formando_id"});
   credenciais.hasOne(formando, { as: "formando", foreignKey: "formando_id"});
-  gestor.belongsTo(credenciais, { as: "gestor", foreignKey: "gestor_id"});
-  credenciais.hasOne(gestor, { as: "gestor", foreignKey: "gestor_id"});
+  gestor.belongsTo(credenciais, { as: "gestor_credenciais", foreignKey: "gestor_id"});
+  credenciais.hasOne(gestor, { as: "credenciais_gestor", foreignKey: "gestor_id"});
   threads.belongsTo(credenciais, { as: "user", foreignKey: "user_id"});
   credenciais.hasMany(threads, { as: "threads", foreignKey: "user_id"});
   assincrono.belongsTo(curso, { as: "curso", foreignKey: "curso_id"});
