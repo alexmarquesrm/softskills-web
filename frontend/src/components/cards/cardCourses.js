@@ -1,7 +1,8 @@
 import React from "react";
+import axios from 'axios';
 import { Card, Button, Container, Row, Col } from "react-bootstrap";
 import { Clock, Users } from "react-feather";
-import ReactGif from "./../../images/react.gif"; // Importando o gif do React
+import ReactGif from "./../../images/react.gif";
 
 
 const courses = [
@@ -52,7 +53,7 @@ function FeaturedCourses() {
                 <img src={ReactGif} alt="Ícone" style={{ width: "150px", opacity: 0.8 }} />
               </div>
 
-              {/* Conteúdo do Card */}
+              {/* Conteúdo Card */}
               <Card.Body>
                 <Card.Subtitle className="text-muted">Professor: {course.professor}</Card.Subtitle>
                 <Card.Title className="text-primary fw-bold mt-2">{course.title}</Card.Title>

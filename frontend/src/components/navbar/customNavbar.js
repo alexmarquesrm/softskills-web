@@ -14,7 +14,7 @@ function CustomNavbar() {
             <Nav.Link href="#">Ajuda</Nav.Link>
           </Nav>
         </Navbar.Collapse>
-        <NavbarButton />
+        <NavbarButton text="Login" onClick={()=> {alert("OLA")}} />
       </Container>
     </Navbar>
   );
