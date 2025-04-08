@@ -6,9 +6,6 @@ import Botao from "../buttons/botao";
 import { FaPencilAlt } from "react-icons/fa";
 import { IoMdAddCircleOutline } from "react-icons/io";
 
-
-
-
 function UsersTable() {
   const [users] = useState([
     { name: "Tiago Carvalho", permissions: "Formador" },
