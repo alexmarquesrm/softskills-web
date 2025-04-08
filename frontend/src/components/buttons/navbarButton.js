@@ -3,7 +3,7 @@ import Button from "react-bootstrap/Button";
 import { FaUser } from "react-icons/fa";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-function LoginButton() {
+function navbarButton() {
   return (
     <div className="d-flex justify-content-center mt-5">
       <Button
@@ -19,4 +19,4 @@ function LoginButton() {
   );
 }
 
-export default LoginButton;
+export default navbarButton;
