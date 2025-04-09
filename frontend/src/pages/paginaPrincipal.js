@@ -1,16 +1,15 @@
-import axios from "axios";
 import React, { useEffect, useState } from "react";
+import axios from "../config/configAxios";
 import FeaturedCourses from "../components/cards/cardCourses";
 import PromoSection from "../components/promo/PromoSection";
 import StatsSection from "../components/stats/StatsSection";
-import "bootstrap/dist/css/bootstrap.min.css";
 
 function AppContent() {
   const [cursos, setCursos] = useState([]);
 
   const fetchData = async () => {
     try {
-      const response = await axios.get("http://localhost:8000/sincrono");
+      const response = await axios.get("/sincrono");
       setCursos(response.data);
       console.log(response.data);
     } catch (error) {
