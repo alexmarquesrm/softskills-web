@@ -7,12 +7,12 @@ router.get("/", cursosController.getAllCursos);
 router.get("/:id", cursosController.getCursoById);
 
 // POST
-router.post("/add", cursosController.createCurso);
+router.post("/criar", cursosController.createCurso);
 
 // PUT
-router.put("/update/:id", cursosController.updateCurso);
+router.put("/atualizar/:id", cursosController.updateCurso);
 
 // DELETE
-router.delete("/delete/:id", cursosController.deleteCurso);
+router.delete("/apagar/:id", cursosController.deleteCurso);
 
 module.exports = router;

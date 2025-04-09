@@ -7,12 +7,12 @@ router.get("/", colaboradorController.getAllColaboradores);
 router.get("/:id", colaboradorController.getColaboradorById);
 
 // POST
-router.post("/", colaboradorController.createColaborador);
+router.post("/criar", colaboradorController.createColaborador);
 
 // PUT
-router.put("/:id", colaboradorController.updateColaborador);
+router.put("/atualizar/:id", colaboradorController.updateColaborador);
 
 // DEL
-router.delete("/:id", colaboradorController.deleteColaborador);
+router.delete("/apagar/:id", colaboradorController.deleteColaborador);
 
 module.exports = router;

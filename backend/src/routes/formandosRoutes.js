@@ -7,12 +7,12 @@ router.get("/", formandoController.getAllFormandos);
 router.get("/:id", formandoController.getFormandoById);
 
 // POST
-router.post("/", formandoController.createFormando);
+router.post("/criar", formandoController.createFormando);
 
 // PUT
-router.put("/:id", formandoController.updateFormando);
+router.put("/atualizar/:id", formandoController.updateFormando);
 
 // DEL
-router.delete("/:id", formandoController.deleteFormando);
+router.delete("/apagar/:id", formandoController.deleteFormando);
 
 module.exports = router;

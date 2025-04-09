@@ -8,12 +8,12 @@ router.get("/", formadoresController.getAllFormadores);
 router.get("/:id", formadoresController.getFormadorById);
 
 // POST
-router.post("/", formadoresController.createFormador);
+router.post("/criar", formadoresController.createFormador);
 
 // PUT
-router.put("/:id", formadoresController.updateFormador);
+router.put("/atualizar/:id", formadoresController.updateFormador);
 
 // DEL
-router.delete("/:id", formadoresController.deleteFormador);
+router.delete("/apagar/:id", formadoresController.deleteFormador);
 
 module.exports = router;

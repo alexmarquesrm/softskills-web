@@ -16,8 +16,11 @@ const cursosRoutes = require("./routes/cursosRoutes");
 const sincronosRoutes = require("./routes/sincronosRoutes");
 
 // Use CORS middleware
-//app.use(cors());
-//app.options('*', cors());
+app.use(cors({
+  origin: '*',  // ou substitua por um domínio específico como 'http://localhost:3000'
+  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Define os métodos permitidos
+  allowedHeaders: ['Content-Type', 'Authorization'], // Permite esses cabeçalhos
+}));
 
 //Use bodyParser middleware
 app.use(bodyParser.json({ limit: '50mb' }));

@@ -7,12 +7,12 @@ router.get("/", sincronosController.getAllSincronos);
 router.get("/:id", sincronosController.getSincronoById);
 
 // POST
-router.post("/add", sincronosController.createSincrono);
+router.post("/criar", sincronosController.createSincrono);
 
 // PUT
-router.put("/:id", sincronosController.updateSincrono);
+router.put("/atualizar/:id", sincronosController.updateSincrono);
 
 // DELETE
-router.delete("/:id", sincronosController.deleteSincrono);
+router.delete("/apagar/:id", sincronosController.deleteSincrono);
 
 module.exports = router;
