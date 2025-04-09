@@ -2,9 +2,9 @@ import "./App.css";
 import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
-import ListaUtilizadores from "./pages/listaUtilizadores";
-import PerfilUtilizador from "./pages/perfilUtilizador"
-import LandingPage from "./pages/paginaPrincipal";
+import ListaUtilizadores from "./pages/userList";
+import PerfilUtilizador from "./pages/userProfile"
+import LandingPage from "./pages/landingPage";
 import CustomNavbar from "./components/navbar/customNavbar";
 import Footer from "./components/footer/footer";
 

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Form, Container, Row, Col, InputGroup } from 'react-bootstrap';
 import profilePic from '../logo.svg'; 
-import Guardar from '../components/buttons/guardarbutton';
+import Guardar from '../components/buttons/saveButton';
 
 import { FaRegSave } from "react-icons/fa";
 import { MdEmail } from "react-icons/md"; // Ícone de e-mail
@@ -22,7 +22,7 @@ const PerfilUtilizador = () => {
     notificacoesForum: false
   });
 
-  const [showPassword, setShowPassword] = useState(false); // Estado para mostrar/ocultar a senha
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
