@@ -33,7 +33,7 @@ const Sidebar = ({ isOpen, onClose }) => {
 
       <div className="sidebar-footer mt-auto">
         <Nav className="flex-column">
-          <Nav.Link href="/perfil" className="sidebar-item perfil">
+          <Nav.Link href="/utilizadores/perfil" className="sidebar-item perfil">
             <PersonCircle className="me-2" /> Perfil
           </Nav.Link>
           <Nav.Link href="/logout" className="sidebar-item logout">
