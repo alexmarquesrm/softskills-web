@@ -1,17 +1,23 @@
 import React from "react";
 import Button from "react-bootstrap/Button";
 
-function EditButton({ onClick, Icon }) {
-  return (
+function EditButton({ text, onClick, Icon, inline = false }) {
+  const button = (
     <Button
-      variant="primary"
-      size="sm"
-      className="text-white d-flex align-items-center justify-content-center"
-      style={{ minWidth: '36px', height: '36px' }}
+      variant="primary" 
+      size="md"
+      className="text-white d-flex justify-content-between align-items-center"
       onClick={onClick}
     >
-      {Icon && <Icon />}
+      {text} 
+      {Icon && <Icon className="ms-2 me-2" />}
     </Button>
+  );
+
+  return inline ? button : (
+    <div className="d-flex justify-content-center">
+      {button}
+    </div>
   );
 }
 

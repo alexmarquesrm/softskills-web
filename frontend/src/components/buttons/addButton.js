@@ -1,7 +1,7 @@
 import React from "react";
 import Button from "react-bootstrap/Button";
 
-function addBotao({ text, onClick, Icon, inline = false }) {
+function addButton({ text, onClick, Icon, inline = false }) {
   const button = (
     <Button
       variant="primary" 
@@ -21,5 +21,5 @@ function addBotao({ text, onClick, Icon, inline = false }) {
   );
 }
 
-export default addBotao;
+export default addButton;
 
