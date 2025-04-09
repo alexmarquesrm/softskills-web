@@ -1,7 +1,6 @@
 import "./App.css";
 import React from "react";
 import { BrowserRouter as Router, Route, Routes, useLocation } from "react-router-dom";
-
 import "bootstrap/dist/css/bootstrap.min.css";
 import ListaUtilizadores from "./pages/listaUtilizadores";
 import LandingPage from "./pages/paginaPrincipal";
