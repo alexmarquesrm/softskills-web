@@ -7,7 +7,7 @@ export default function UsersTable() {
   const [error, setError] = useState(null);
 
   const tableColumns = [
-    { field: 'id', headerName: 'ID', width: 100, headerAlign: 'left', disableColumnMenu: true },
+    { field: 'id', headerName: 'Nº Colaborador', flex: 0.7, headerAlign: 'left', disableColumnMenu: true },
     { field: 'nome', headerName: 'Nome', flex: 1, headerAlign: 'left', disableColumnMenu: true },
     { field: 'email', headerName: 'Email', flex: 1, headerAlign: 'left', disableColumnMenu: true },
     { field: 'telefone', headerName: 'Telefone', flex: 0.7, headerAlign: 'left', disableColumnMenu: true },
