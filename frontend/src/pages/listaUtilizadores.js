@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "../config/configAxios";
 import DataTable from '../components/tables/dataTable';
-import Botao from "../components/buttons/button";
+import EditButton from "../components/buttons/editButton";
 import { FaPencilAlt } from "react-icons/fa";
 
 export default function UsersTable() {
@@ -15,13 +15,18 @@ export default function UsersTable() {
     { field: 'telefone', headerName: 'Telefone', flex: 0.5, headerAlign: 'left', disableColumnMenu: true },
     { field: 'departamento', headerName: 'Departamento', flex: 0.5, headerAlign: 'left', disableColumnMenu: true },
     { field: 'funcao', headerName: 'Função', flex: 0.5, headerAlign: 'left', disableColumnMenu: true },
-    { field: 'status', headerName: ' ', flex: 0.5, headerAlign: 'left', sortable: false, renderCell: (row) => ( <Botao  onClick={() => alert("Botão clicado")} Icon={FaPencilAlt} />), disableColumnMenu: true },
+    { field: 'status', headerName: ' ', flex: 0.5, headerAlign: 'left', sortable: false, renderCell: (params) => ( <div style={{
+      display: 'flex',
+      alignItems: 'center',
+      height: '100%',
+      width: '100%',
+    }}> <EditButton onClick={() => alert(`Editar ${params.row.nome}`)} Icon={FaPencilAlt} /> </div> ), disableColumnMenu: true },
   ];
 
   const fetchData = async () => {
     try {
       const response = await axios.get(`/colaborador`);
-      const utilizadores = response.data;
+      const utilizadores = response.data; 
       const sortedUtilizadores = utilizadores.sort((a, b) => a.colaborador_id - b.colaborador_id);
 
       setTableRows(

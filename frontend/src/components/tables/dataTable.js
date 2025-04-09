@@ -3,7 +3,7 @@ import { DataGrid } from '@mui/x-data-grid';
 import {InputGroup, FormControl, Button } from 'react-bootstrap';
 import { IoMdAddCircleOutline } from "react-icons/io";
 import { FaSearch } from 'react-icons/fa';
-import Botao from '../buttons/button';
+import AddButton from '../buttons/addButton';
 
 export default function DataTable({ columns, rows }) {
     const [searchTerm, setSearchTerm] = useState("");
@@ -25,7 +25,7 @@ export default function DataTable({ columns, rows }) {
         </div>
 
         <div className="d-flex justify-content-between mb-3">
-            <Botao text={'Adicionar Utilizador'} onClick={() => alert("Botão clicado")} Icon={IoMdAddCircleOutline} />
+            <AddButton text={'Adicionar Utilizador'} onClick={() => alert("Botão clicado")} Icon={IoMdAddCircleOutline} />
             <div className="ms-2" style={{ flex: 1 }}>
                 <InputGroup className="w-100">
                     <FormControl
