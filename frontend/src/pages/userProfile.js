@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
-import { Container, Row, Col, Form } from 'react-bootstrap';
-import profilePic from '../logo.svg'; 
+import React, { useState } from "react";
+import { Container, Row, Col, Form } from "react-bootstrap";
+import profilePic from "../logo.svg";
 
-import Guardar from '../components/buttons/saveButton';
-import InputField from '../components/textFields/basic'; 
+import Guardar from "../components/buttons/saveButton";
+import InputField from "../components/textFields/basic";
 
 import { FaRegSave } from "react-icons/fa";
-import { MdEmail } from "react-icons/md"; 
-import { FaMobileAlt } from "react-icons/fa"; 
+import { MdEmail } from "react-icons/md";
+import { FaMobileAlt } from "react-icons/fa";
 import { FaUser } from "react-icons/fa";
 import { FaLock } from "react-icons/fa";
 import { IoCalendarNumberSharp } from "react-icons/io5";
@@ -33,43 +33,67 @@ const PerfilUtilizador = () => {
     const { name, value, type, checked } = e.target;
     setFormData({
       ...formData,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === "checkbox" ? checked : value,
     });
   };
 
   return (
     <Container className="mt-5">
       <Row className="justify-content-start">
-        <Col md={12} className="mb-4">
+        <Col md={10} className="mb-4">
           <h2 className="form-title">Perfil Utilizador</h2>
         </Col>
       </Row>
 
       <Row className="justify-content-start mb-4">
         <Col md={12}>
-          <div className="border p-4 shadow-sm rounded"> 
-            <Row className="mb-3">
-              <Col md={3} className="text-start"> 
-                <div className="perfil-container d-flex flex-column align-items-start">
+          <div className="border p-4 shadow-sm rounded">
+            <Row
+              className="mb-3"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "flex-start",
+              }}
+            >
+              <Col
+                xs={4}
+                sm={3}
+                md={2}
+                className="text-start"
+                style={{
+                  paddingRight: "1em",
+                  display: "flex",
+                  justifyContent: "center",
+                }}
+              >
+                <div className="perfil-container d-flex flex-column align-items-center">
                   <img
                     src={profilePic}
                     alt="Foto de Perfil"
                     className="rounded-circle perfil-img shadow-lg"
-                    width="150"
-                    height="150"
+                    width="120"
+                    height="120"
+                    style={{ objectFit: "cover" }}
                   />
                 </div>
               </Col>
-              <Col md={9} className="text-start">
-                <h5 className="mt-3 perfil-nome">Joana Marques</h5> 
-                <p>{cargo}</p> 
+
+            
+              <Col
+                xs={8}
+                sm={9}
+                md={10}
+                className="text-start d-flex flex-column justify-content-center"
+                style={{ paddingLeft: "1em" }}
+              >
+                <h5 className="mt-3 perfil-nome">Joana Marques</h5>
+                <p>{cargo}</p>
               </Col>
             </Row>
 
-          
-            <hr /> 
+            <hr />
 
-           
             <Row className="justify-content-start">
               <Col md={12}>
                 <div className="w-100">
@@ -81,7 +105,7 @@ const PerfilUtilizador = () => {
                       name="primeiroNome"
                       value={formData.primeiroNome}
                       onChange={handleChange}
-                      colSize={6} 
+                      colSize={6}
                     />
                     <InputField
                       label="Último Nome"
@@ -90,7 +114,7 @@ const PerfilUtilizador = () => {
                       name="ultimoNome"
                       value={formData.ultimoNome}
                       onChange={handleChange}
-                      colSize={6} 
+                      colSize={6}
                     />
                   </Row>
 
@@ -103,7 +127,7 @@ const PerfilUtilizador = () => {
                       value={formData.nomeUtilizador}
                       onChange={handleChange}
                       icon={<FaUser />}
-                      colSize={6} 
+                      colSize={6}
                     />
                     <InputField
                       label="Data Nascimento"
@@ -113,7 +137,7 @@ const PerfilUtilizador = () => {
                       value={formData.dataNasc}
                       onChange={handleChange}
                       icon={<IoCalendarNumberSharp />}
-                      colSize={6} 
+                      colSize={6}
                       readOnly
                     />
                   </Row>
@@ -127,7 +151,7 @@ const PerfilUtilizador = () => {
                       value={formData.email}
                       onChange={handleChange}
                       icon={<MdEmail />}
-                      colSize={6} 
+                      colSize={6}
                     />
                     <InputField
                       label="Número Telemóvel"
@@ -137,7 +161,7 @@ const PerfilUtilizador = () => {
                       value={formData.numeroTelemovel}
                       onChange={handleChange}
                       icon={<FaMobileAlt />}
-                      colSize={6} 
+                      colSize={6}
                     />
                   </Row>
 
@@ -150,7 +174,7 @@ const PerfilUtilizador = () => {
                       value={formData.departamento}
                       onChange={handleChange}
                       icon={<FaBuilding />}
-                      colSize={6} 
+                      colSize={6}
                     />
                     <InputField
                       label="Cargo"
@@ -159,7 +183,7 @@ const PerfilUtilizador = () => {
                       name="cargo"
                       value={formData.cargo}
                       onChange={handleChange}
-                      colSize={6} 
+                      colSize={6}
                     />
                   </Row>
 
@@ -171,9 +195,9 @@ const PerfilUtilizador = () => {
                       name="sobreMim"
                       value={formData.sobreMim}
                       onChange={handleChange}
-                      colSize={12} 
+                      colSize={12}
                       rows={5}
-                      style={{ resize: 'none' }}
+                      style={{ resize: "none" }}
                     />
                   </Row>
 
@@ -186,7 +210,7 @@ const PerfilUtilizador = () => {
                       value={formData.novaPassword}
                       onChange={handleChange}
                       icon={<FaLock />}
-                      colSize={6} 
+                      colSize={6}
                     />
                     <InputField
                       label="Confirmar Password"
@@ -200,11 +224,10 @@ const PerfilUtilizador = () => {
                     />
                   </Row>
 
-                  {/* Notificações Section */}
                   <Row className="mb-3">
                     <Col md={12}>
                       <Form.Group>
-                        <strong>Notificações</strong> {/* Texto em negrito acima */}
+                        <strong>Notificações</strong>
                         <Form.Check
                           type="switch"
                           id="receberEmails"
@@ -233,7 +256,11 @@ const PerfilUtilizador = () => {
                   </Row>
 
                   <div className="text-center mt-4">
-                    <Guardar text={'Guardar'} onClick={() => alert("Botão clicado")} Icon={FaRegSave} />
+                    <Guardar
+                      text={"Guardar"}
+                      onClick={() => alert("Botão clicado")}
+                      Icon={FaRegSave}
+                    />
                   </div>
                 </div>
               </Col>
