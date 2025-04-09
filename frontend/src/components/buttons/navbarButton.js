@@ -3,19 +3,20 @@ import Button from "react-bootstrap/Button";
 import { FaUser } from "react-icons/fa";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-function NavbarButton({text, onClick}) {
+function NavbarButton({ text, onClick }) {
   return (
-    <div className="d-flex justify-content-center mt-5">
+    <div className="d-flex justify-content-center ">
       <Button
         variant="light"
         size="md"
         className="text-dark d-flex justify-content-between align-items-center"
-        onClick={onClick}>
+        onClick={onClick}
+      >
         {text}
         <FaUser className="ms-2" />
-        </Button>
-      </div>
-    );
-  }
+      </Button>
+    </div>
+  );
+}
 
-  export default NavbarButton;
+export default NavbarButton;

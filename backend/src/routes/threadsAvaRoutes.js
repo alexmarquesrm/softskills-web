@@ -8,12 +8,12 @@ router.get("/:thread_id", threadsAvaController.getThreadAvaliacaoById);
 router.get("/:thread_id/:formando_id", threadsAvaController.getThreadAvaliacaoFormandoById);
 
 // POST
-router.post("/", threadsAvaController.createThreadAvaliacao);
+router.post("/criar", threadsAvaController.createThreadAvaliacao);
 
 // PUT
-router.put("/:thread_id/:formando_id", threadsAvaController.updateThreadAvaliacao);
+router.put("/atualizar/:thread_id/:formando_id", threadsAvaController.updateThreadAvaliacao);
 
 // DEL
-router.delete("/:thread_id/:formando_id", threadsAvaController.deleteThreadAvaliacao);
+router.delete("/apagar/:thread_id/:formando_id", threadsAvaController.deleteThreadAvaliacao);
 
 module.exports = router;

@@ -7,12 +7,12 @@ router.get("/", areaController.getAllAreas);
 router.get("/:id", areaController.getAreaById);
 
 // POST
-router.post("/", areaController.createArea);
+router.post("/criar", areaController.createArea);
 
 // PUT
-router.put("/:id", areaController.updateArea);
+router.put("/atualizar/:id", areaController.updateArea);
 
 // DELETE
-router.delete("/:id", areaController.deleteArea);
+router.delete("/apagar/:id", areaController.deleteArea);
 
 module.exports = router;

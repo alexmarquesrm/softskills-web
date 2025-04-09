@@ -12,12 +12,16 @@ const forumRoutes = require("./routes/forumRoutes");
 const threadsRoutes = require("./routes/threadsRoutes");
 const threadsAvaRoutes = require("./routes/threadsAvaRoutes");
 const threadsDenRoutes = require("./routes/threadsDenRoutes");
+const cursosRoutes = require("./routes/cursosRoutes");
+const sincronosRoutes = require("./routes/sincronosRoutes");
 
 // Use CORS middleware
-//app.use(cors());
-//app.options('*', cors());
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
 
-//Use bodyParser middleware
 app.use(bodyParser.json({ limit: '50mb' }));
 
 app.use("/colaborador", colaboradorRoutes);
@@ -30,6 +34,8 @@ app.use("/forum", forumRoutes);
 app.use("/thread", threadsRoutes);
 app.use("/threadsAva", threadsAvaRoutes);
 app.use("/denuncia", threadsDenRoutes);
+app.use("/curso", cursosRoutes);
+app.use("/sincrono", sincronosRoutes);
 
 app.listen(8000, () => {
   console.log("Servidor na porta 8000");

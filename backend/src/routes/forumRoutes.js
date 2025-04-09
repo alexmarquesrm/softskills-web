@@ -7,12 +7,12 @@ router.get("/", forumController.getAllForums);
 router.get("/:id", forumController.getForumById);
 
 // POST
-router.post("/", forumController.createForum);
+router.post("/criar", forumController.createForum);
 
 // PUT
-router.put("/:id", forumController.updateForum);
+router.put("/update/:id", forumController.updateForum);
 
 // DELETE
-router.delete("/:id", forumController.deleteForum);
+router.delete("/apagar/:id", forumController.deleteForum);
 
 module.exports = router;

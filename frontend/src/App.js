@@ -1,22 +1,35 @@
 import "./App.css";
 import React from "react";
-import CustomNavbar from "./components/navbar/customNavbar";
-import FeaturedCourses from "./components/cards/cardCourses";
-import PromoSection from "./components/promo/PromoSection";
-import StatsSection from "./components/stats/StatsSection";
-import Footer from "./components/footer/Footer";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
+import ListaUtilizadores from "./pages/listaUtilizadores";
+import LandingPage from "./pages/paginaPrincipal";
+import CustomNavbar from "./components/navbar/customNavbar";
+import Footer from "./components/footer/footer";
+
+function AppContent() {
+    return (
+        <div className="app-container">
+            <div>
+                <CustomNavbar />
+            </div>
+            <Routes>
+                <Route path="/" element={<LandingPage />} />
+                <Route path="/utilizadores/lista" element={<ListaUtilizadores />} />
+            </Routes>
+            <div>
+                <Footer />
+            </div>
+        </div>
+    );
+}
 
 function App() {
-  return (
-    <div>
-      <CustomNavbar />
-      <FeaturedCourses />
-      <PromoSection />
-      <StatsSection />
-      <Footer />
-    </div>
-  );
+    return (
+        <Router>
+            <AppContent />
+        </Router>
+    );
 }
 
 export default App;

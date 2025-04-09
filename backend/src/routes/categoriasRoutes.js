@@ -7,12 +7,12 @@ router.get("/", categoriasController.getAllCategorias);
 router.get("/:id", categoriasController.getCategoriaById);
 
 // POST
-router.post("/", categoriasController.createCategoria);
+router.post("/criar", categoriasController.createCategoria);
 
 // PUT
-router.put("/:id", categoriasController.updateCategoria);
+router.put("/atualizar/:id", categoriasController.updateCategoria);
 
 // DELETE
-router.delete("/:id", categoriasController.deleteCategoria);
+router.delete("/apagar/:id", categoriasController.deleteCategoria);
 
 module.exports = router;

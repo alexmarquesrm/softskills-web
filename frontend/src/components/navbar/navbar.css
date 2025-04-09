@@ -1,0 +1,7 @@
+.menu-icon {
+    transition: color 0.3s;
+  }
+  .menu-icon:hover {
+    color: #ddd;
+    cursor: pointer;
+  }

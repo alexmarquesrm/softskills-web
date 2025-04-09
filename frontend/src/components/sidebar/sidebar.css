@@ -1,0 +1,72 @@
+  .sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.3);
+    z-index: 1049;
+  }
+  
+  .custom-sidebar {
+    position: fixed;
+    top: 0;
+    left: -260px;
+    width: 250px;
+    height: 100%;
+    background: #fff;
+    border-right: 1px solid #dee2e6;
+    padding: 20px;
+    transition: left 0.3s ease-in-out;
+    z-index: 1050;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .custom-sidebar.open {
+    left: 0;
+  }
+  
+  .sidebar-header {
+    padding-bottom: 10px;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .sidebar-footer {
+    margin-top: auto;
+    padding-top: 10px;
+    border-top: 1px solid #ccc;
+  }
+  
+  .sidebar-item {
+    font-weight: 500;
+    padding: 10px 15px;
+    border-radius: 8px;
+    transition: background 0.2s ease;
+  }
+  
+  .sidebar-item.inicio { color: #000000; }
+  .sidebar-item.categorias { color: #000000; }
+  .sidebar-item.percurso { color: #000000; }
+  .sidebar-item.forum { color: #000000; }
+  .sidebar-item.perfil { color: #000000; }
+  .sidebar-item.logout { color: #000000; }
+  
+  .sidebar-item:hover {
+    background-color: #f1f1f1;
+  }
+  
+  .close-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+  }
+  
+  .close-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+  }
+  

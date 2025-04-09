@@ -7,12 +7,12 @@ router.get("/", threadsController.getAllThreads);
 router.get("/:id", threadsController.getThreadById);
 
 // POST
-router.post("/", threadsController.createThread);
+router.post("/criar", threadsController.createThread);
 
 // PUT
-router.put("/:id", threadsController.updateThread);
+router.put("/atualizar/:id", threadsController.updateThread);
 
 // DELETE
-router.delete("/:id", threadsController.deleteThread);
+router.delete("/apagar/:id", threadsController.deleteThread);
 
 module.exports = router;
