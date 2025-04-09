@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import CustomNavbar from "../components/navbar/customNavbar";
-import Footer from "../components/footer/Footer";
 import DataTable from '../components/tables/dataTable';
 
 export default function UsersTable() {
@@ -20,22 +18,20 @@ export default function UsersTable() {
   const fetchData = async () => {
     try {
       const response = await axios.get(`http://localhost:8000/colaborador`);
-      console.log(response.data);
       const utilizadores = response.data;
-
       const sortedUtilizadores = utilizadores.sort((a, b) => a.colaborador_id - b.colaborador_id);
 
-            setTableRows(
-                sortedUtilizadores.map((colaborador) => ({
-                    key: colaborador.colaborador_id,
-                    id: colaborador.colaborador_id,
-                    nome: colaborador.nome,
-                    departamento: colaborador.departamento,
-                    funcao: colaborador.cargo,
-                    email: colaborador.email,
-                    telefone: colaborador.telefone,
-                }))
-            );
+      setTableRows(
+        sortedUtilizadores.map((colaborador) => ({
+          key: colaborador.colaborador_id,
+          id: colaborador.colaborador_id,
+          nome: colaborador.nome,
+          departamento: colaborador.departamento,
+          funcao: colaborador.cargo,
+          email: colaborador.email,
+          telefone: colaborador.telefone,
+        }))
+      );
 
     } catch (error) {
       setError(error);
@@ -52,14 +48,12 @@ export default function UsersTable() {
 
   return (
     <div className="page-container">
-      <CustomNavbar />
       <div className="data-container">
-        <div style={{ marginBottom: '20px', paddingTop: '20px' }}/>
+        <div style={{ marginBottom: '20px', paddingTop: '20px' }} />
         <div style={{ height: '65vh', width: '99%', overflowY: 'auto', paddingBottom: '40px', border: 'none', boxShadow: 'none' }}>
           <DataTable rows={tableRows || []} columns={tableColumns} />
         </div>
       </div>
-      <Footer />
     </div>
   );
 }

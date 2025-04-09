@@ -1,36 +1,35 @@
 import "./App.css";
 import React from "react";
-import { BrowserRouter as Router, Route, Routes, useLocation } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import ListaUtilizadores from "./pages/listaUtilizadores";
 import LandingPage from "./pages/paginaPrincipal";
+import CustomNavbar from "./components/navbar/customNavbar";
+import Footer from "./components/footer/footer";
 
 function AppContent() {
-  const location = useLocation();
-  const showSidebar = location.pathname !== "/" && location.pathname !== "/about-us";
-
-  return (
-      <div className="app-container">
-          {showSidebar && (
-              <div className="sidebar-container">
-              
-              </div>
-          )}
-              <Routes>
-                  <Route path="/" element={<LandingPage />} />
-                  <Route path="/utilizadores/lista" element={<ListaUtilizadores/>} />
-              </Routes>
-          </div>
-     
-  );
+    return (
+        <div className="app-container">
+            <div>
+                <CustomNavbar />
+            </div>
+            <Routes>
+                <Route path="/" element={<LandingPage />} />
+                <Route path="/utilizadores/lista" element={<ListaUtilizadores />} />
+            </Routes>
+            <div>
+                <Footer />
+            </div>
+        </div>
+    );
 }
 
 function App() {
-  return (
-      <Router>
-          <AppContent />
-      </Router>
-  );
+    return (
+        <Router>
+            <AppContent />
+        </Router>
+    );
 }
 
 export default App;

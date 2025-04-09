@@ -3,7 +3,7 @@ import { Table, Pagination, InputGroup, FormControl, Button } from 'react-bootst
 import { IoMdAddCircleOutline } from "react-icons/io";
 import { FaPencilAlt } from "react-icons/fa";
 import { FaSearch } from 'react-icons/fa';
-import Botao from '../buttons/botao';
+import Botao from '../buttons/button';
 
 export default function DataTable({ columns, rows }) {
     const [currentPage, setCurrentPage] = useState(1);

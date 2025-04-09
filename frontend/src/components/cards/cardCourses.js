@@ -4,39 +4,19 @@ import { Card, Button, Container, Row, Col } from "react-bootstrap";
 import { Clock, Users } from "react-feather";
 import ReactGif from "./../../images/react.gif";
 
-const courses = [
-  {
-    title: "Finanças E Contabilidade",
-    professor: "Martins Costa",
-    duration: "93 Horas",
-    slots: "50 Vagas",
-    startDate: "31/12/2025",
-  },
-  {
-    title: "Desenvolvimento",
-    professor: "João Pereira",
-    duration: "75 Horas",
-    slots: "40 Vagas",
-    startDate: "15/01/2026",
-  },
-  {
-    title: "Redes de Suporte",
-    professor: "Ana Carvalho",
-    duration: "60 Horas",
-    slots: "35 Vagas",
-    startDate: "10/02/2026",
-  },
-];
+function cardCourses({ cursos = [] }) {
+  const formatDate = (date) => {
+    const data = new Date(date);
+    return data.toISOString().split('T')[0];
+  };
 
-function FeaturedCourses() {
   return (
     <Container className="mt-5">
       <h2 className="text-white mb-4">Cursos Em Destaque</h2>
       <Row>
-        {courses.map((course, index) => (
+        {cursos.map((curso, index) => (
           <Col key={index} md={4}>
             <Card className="mb-4 shadow-lg border-0" style={{ borderRadius: "10px" }}>
-              {/* Parte Superior com Gradiente */}
               <div
                 style={{
                   height: "150px",
@@ -51,23 +31,22 @@ function FeaturedCourses() {
                 <img src={ReactGif} alt="Ícone" style={{ width: "150px", opacity: 0.8 }} />
               </div>
 
-              {/* Conteúdo Card */}
               <Card.Body>
-                <Card.Subtitle className="text-muted">Professor: {course.professor}</Card.Subtitle>
-                <Card.Title className="text-primary fw-bold mt-2">{course.title}</Card.Title>
+                <Card.Subtitle className="text-muted">Professor: {curso.formador.formador_credenciais.credenciais_colaborador.nome}</Card.Subtitle>
+                <Card.Title className="text-primary fw-bold mt-2">{curso.sincrono_curso.descricao}</Card.Title>
 
                 <div className="d-flex align-items-center mt-2">
                   <Clock size={16} className="me-2 text-secondary" />
-                  <span>{course.duration}</span>
-                </div>
+                  <span>{curso.limite_vagas} Horas</span>
+                </div>  
                 <div className="d-flex align-items-center mt-1">
                   <Users size={16} className="me-2 text-secondary" />
-                  <span>{course.slots}</span>
+                  <span>{curso.sincrono_curso.total_horas} Vagas</span>
                 </div>
 
-                <div className="mt-3 text-muted">Início: {course.startDate}</div>
+                <div className="mt-3 text-muted">Início: {formatDate(curso.data_inicio)}</div>
                 <Button variant="link" className="p-0 mt-2 text-dark fw-bold">
-                  View More
+                  Ver Mais
                 </Button>
               </Card.Body>
             </Card>
@@ -78,4 +57,4 @@ function FeaturedCourses() {
   );
 }
 
-export default FeaturedCourses;
+export default cardCourses;

@@ -1,31 +1,38 @@
-import "../App.css";
-import React from "react";
-import CustomNavbar from "../components/navbar/customNavbar";
+import axios from "axios";
+import React, { useEffect, useState } from "react";
 import FeaturedCourses from "../components/cards/cardCourses";
 import PromoSection from "../components/promo/PromoSection";
 import StatsSection from "../components/stats/StatsSection";
-import Footer from "../components/footer/Footer";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 function AppContent() {
- 
+  const [cursos, setCursos] = useState([]);
+
+  const fetchData = async () => {
+    try {
+      const response = await axios.get("http://localhost:8000/sincrono");
+      setCursos(response.data);
+      console.log(response.data);
+    } catch (error) {
+      console.error("Erro ao buscar cursos:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
   return (
     <div>
-      <CustomNavbar />
-      <FeaturedCourses />
+      <FeaturedCourses cursos={cursos} />
       <PromoSection />
       <StatsSection />
-      <Footer />
     </div>
   );
 }
 
 function App() {
-  return (
-    
-      <AppContent />
-   
-  );
+  return <AppContent />;
 }
 
 export default App;

@@ -11,7 +11,7 @@ const controladorSincronos = {
           {
             model: models.curso,
             as: "sincrono_curso",
-            attributes: ["curso_id", "tipo", "topico_id"],
+            attributes: ["curso_id", "tipo", "topico_id", "descricao", "total_horas", "pendente"],
             include: [
               {
                 model: models.topico,
