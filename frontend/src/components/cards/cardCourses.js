@@ -11,7 +11,7 @@ function cardCourses({ cursos = [] }) {
 
   return (
     <Container className="mt-5">
-      <h2 className="text-white mb-4">Cursos Em Destaque</h2>
+      <h2>Cursos Em Destaque</h2>
       <Row>
         {cursos.map((curso, index) => (
           <Col key={index} md={4}>
