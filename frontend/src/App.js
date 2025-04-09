@@ -11,18 +11,15 @@ import Footer from "./components/footer/footer";
 function AppContent() {
     return (
         <div className="app-container">
-            <div>
-                <CustomNavbar />
+            <CustomNavbar />
+            <div className="content">
+                <Routes>
+                    <Route path="/" element={<LandingPage />} />
+                    <Route path="/utilizadores/lista" element={<ListaUtilizadores />} />
+                    <Route path="/utilizadores/perfil" element={<PerfilUtilizador />} />
+                </Routes>
             </div>
-            <Routes>
-                <Route path="/" element={<LandingPage />} />
-                <Route path="/utilizadores/lista" element={<ListaUtilizadores />} />
-                <Route path="/utilizadores/perfil" element={<PerfilUtilizador />} />
-
-            </Routes>
-            <div>
-                <Footer />
-            </div>
+            <Footer />
         </div>
     );
 }
