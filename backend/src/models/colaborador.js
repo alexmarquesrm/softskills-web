@@ -16,8 +16,17 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: false,
       unique: "colaborador_email_key"
     },
-    idade: {
-      type: DataTypes.INTEGER,
+    username: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+      unique: "colaborador_username_key"
+    },
+    pssword: {
+      type: DataTypes.TEXT,
+      allowNull: false
+    },
+    data_nasc: {
+      type: DataTypes.DATEONLY,
       allowNull: false
     },
     cargo: {
@@ -56,6 +65,13 @@ module.exports = function(sequelize, DataTypes) {
         unique: true,
         fields: [
           { name: "telefone" },
+        ]
+      },
+      {
+        name: "colaborador_username_key",
+        unique: true,
+        fields: [
+          { name: "username" },
         ]
       },
       {

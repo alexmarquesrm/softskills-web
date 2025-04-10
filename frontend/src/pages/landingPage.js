@@ -9,7 +9,14 @@ function AppContent() {
 
   const fetchData = async () => {
     try {
-      const response = await axios.get("/curso");
+      // const token = sessionStorage.getItem('token');
+      const token = "tokenFixo";
+      
+      const response = await axios.get("/curso", {
+        headers: { 
+          Authorization: `${token}` 
+        },
+      });
       setCursos(response.data);
       console.log(response.data);
     } catch (error) {

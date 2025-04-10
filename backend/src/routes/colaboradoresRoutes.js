@@ -1,18 +1,20 @@
 const express = require("express");
 const router = express.Router();
+const { authenticate } = require("../tokenUtils");
 const colaboradorController = require("../controllers/colaboradoresController");
 
 // GET
-router.get("/", colaboradorController.getAllColaboradores);
-router.get("/:id", colaboradorController.getColaboradorById);
+router.get("/", authenticate, colaboradorController.getAllColaboradores);
+router.get("/:id", authenticate, colaboradorController.getColaboradorById);
+router.get("/:login", colaboradorController.getUserByLogin);
 
 // POST
-router.post("/criar", colaboradorController.createColaborador);
+router.post("/criar", authenticate, colaboradorController.createColaborador);
 
 // PUT
-router.put("/atualizar/:id", colaboradorController.updateColaborador);
+router.put("/atualizar/:id", authenticate, colaboradorController.updateColaborador);
 
 // DEL
-router.delete("/apagar/:id", colaboradorController.deleteColaborador);
+router.delete("/apagar/:id", authenticate, colaboradorController.deleteColaborador);
 
 module.exports = router;

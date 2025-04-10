@@ -1,6 +1,7 @@
 const initModels = require("../models/init-models");
 const sequelizeConn = require("../bdConexao");
 const models = initModels(sequelizeConn);
+const bcrypt = require('bcrypt');
 
 const controladorUtilizadores = {
   getAllColaboradores: async (req, res) => {
@@ -27,31 +28,60 @@ const controladorUtilizadores = {
     }
   },
 
+  getUserByLogin: async (req, res) => {
+    const login = req.params.login;
+    console.log("ID do utilizador:", login);
+    try {
+      const user = await models.credenciais.findOne({
+        where: { login },
+        include: [
+          {
+            model: models.colaborador,
+            as: "credenciais_colaborador",
+            attributes: ["colaborador_id", "nome", "email"],
+          },
+        ],
+      });
+
+      if (!user) {
+        return res.status(404).json({ message: "Utilizador não encontrado" });
+      }
+      res.json(user);
+
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Erro ao obter utilizador" });
+    }
+  },
+  
   createColaborador: async (req, res) => {
+    console.log("Dados recebidos:", req.body);
     try {
       const {
         nome,
         email,
-        idade,
+        data_nasc,
         cargo,
         departamento,
         telefone,
         score,
-        login,
+        username,
         password
       } = req.body;
-  
+      
+      const hashedPassword = await bcrypt.hash(password, 10);
+
       const sql = `
         SELECT criar_colaborador_default_formando(
           :nome,
           :email,
-          :idade,
+          :data_nasc,
           :cargo,
           :departamento,
           :telefone,
           :score,
-          :login,
-          :password
+          :username,
+          :hashedPassword
         )
       `;
   
@@ -59,18 +89,18 @@ const controladorUtilizadores = {
         replacements: {
           nome,
           email,
-          idade,
+          data_nasc,
           cargo,
           departamento,
           telefone,
           score,
-          login,
-          password
+          username,
+          hashedPassword
         },
         type: sequelizeConn.QueryTypes.SELECT
       });
-  
-      res.status(201).json({ message: "Colaborador, credenciais e formando criados com sucesso." });
+      
+      res.status(201).json({ message: "Colaborador e formando default criados com sucesso." });
   
     } catch (error) {
       console.error(error);

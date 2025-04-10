@@ -15,13 +15,9 @@ module.exports = function(sequelize, DataTypes) {
         key: 'formando_id'
       }
     },
-    categoria_id: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: 'categoria',
-        key: 'categoria_id'
-      }
+    designacao: {
+      type: DataTypes.TEXT,
+      allowNull: false
     }
   }, {
     sequelize,
