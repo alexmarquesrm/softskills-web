@@ -7,6 +7,7 @@ const models = initModels(sequelizeConn);
 const controladorCursos = {
   // Criar um novo curso
   createCurso: async (req, res) => {
+    const t = await sequelizeConn.transaction();
     try {
       const {
         gestor_id,
@@ -16,8 +17,10 @@ const controladorCursos = {
         descricao,
         pendente,
         nivel,
+        sincrono
       } = req.body;
 
+      // Criar o curso
       const novoCurso = await models.curso.create({
         gestor_id,
         topico_id,
@@ -26,10 +29,22 @@ const controladorCursos = {
         descricao,
         pendente,
         nivel,
-      });
+      }, { transaction: t });
 
-      res.status(201).json(novoCurso);
+      // Se for do tipo S (Sincrono), criar entrada na tabela sincrono
+      if (tipo === "S" && sincrono) {
+        await models.sincrono.create({
+          ...sincrono,
+          curso_id: novoCurso.curso_id
+        }, { transaction: t });
+      }
+
+      await t.commit();
+
+      res.status(201).json({ message: "Curso criado com sucesso", curso: novoCurso });
+
     } catch (error) {
+      await t.rollback();
       console.error("Erro ao criar curso:", error);
       res.status(500).json({ message: "Erro interno ao criar curso" });
     }
@@ -41,7 +56,7 @@ const controladorCursos = {
         include: [
           {
             model: models.sincrono,
-            as: "sincrono_curso",
+            as: "curso_sincrono",
             attributes: ["curso_id", "formador_id", "limite_vagas", "data_inicio", "data_fim", "estado"],
             include: [
               {
@@ -72,7 +87,7 @@ const controladorCursos = {
           },
           {
             model: models.topico,
-            as: "topico",
+            as: "curso_topico",
             attributes: ["descricao"],
           },
         ],

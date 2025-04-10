@@ -55,7 +55,6 @@ const controladorUtilizadores = {
   },
   
   createColaborador: async (req, res) => {
-    console.log("Dados recebidos:", req.body);
     try {
       const {
         nome,

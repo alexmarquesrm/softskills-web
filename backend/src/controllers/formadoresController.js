@@ -99,26 +99,14 @@ const controladorFormadores = {
         const { colaborador_id, especialidade } = req.body;
 
         try {
-          // Verificar se o colaborador existe
           const colaborador = await models.colaborador.findByPk(colaborador_id);
           console.log("Colaborador", colaborador);
           if (!colaborador) {
             return res.status(404).json({ message: "Colaborador não encontrado" });
           }
       
-          // Obter as credenciais associadas ao colaborador
-          const credenciais = await models.credenciais.findOne({
-            where: { colaborador_id },
-          });
-          console.log("Credenciais", credenciais);
-      
-          if (!credenciais) {
-            return res.status(404).json({ message: "Credenciais não encontradas para o colaborador" });
-          }
-      
-          // Criar o formador com o mesmo ID das credenciais
           const novoFormador = await models.formador.create({
-            formador_id: credenciais.credencial_id,
+            formador_id: colaborador.colaborador_id,
             especialidade,
           });
       

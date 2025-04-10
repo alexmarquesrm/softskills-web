@@ -23,7 +23,7 @@ const controladorCategorias = {
         include: [
           {
             model: models.area,
-            as: "categoria_area",
+            as: "categoria_areas",
             include: [
               {
                 model: models.topico,
@@ -34,9 +34,10 @@ const controladorCategorias = {
         ],
       });
       res.json(categorias);
+      
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: "Erro ao buscar categorias" });
+      res.status(500).json({ message: "Erro ao procurar categorias" });
     }
   },
 
@@ -81,7 +82,7 @@ const controladorCategorias = {
       }
 
       await categoria.update({ descricao });
-      res.json({ message: "Categoria atualizada com sucesso", categoria });
+      res.json({ categoria });
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: "Erro ao atualizar categoria" });

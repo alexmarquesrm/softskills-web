@@ -9,14 +9,6 @@ module.exports = function(sequelize, DataTypes) {
         model: 'curso',
         key: 'curso_id'
       }
-    },
-    gestor_id: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: 'gestor',
-        key: 'gestor_id'
-      }
     }
   }, {
     sequelize,
