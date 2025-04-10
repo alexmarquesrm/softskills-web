@@ -5,6 +5,7 @@ import profilePic from "../logo.svg";
 import Guardar from "../components/buttons/saveButton";
 import InputField from "../components/textFields/basic";
 import Cancelar from "../components/buttons/cancelButton";
+import DropdownCheckbox from "../components/dropdown/dropdown";
 
 import { FaRegSave } from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
@@ -26,7 +27,12 @@ const EditarPerfilUtilizador_Gestor = () => {
   const [departamento, setDepartamento] = useState("");
   const [cargo, setCargo] = useState("Designer");
   const [ativo, setAtivo] = useState(true);
-  const [tipoUtilizador, setTipoUtilizador] = useState("Formando"); 
+  const [tipoUtilizador, setTipoUtilizador] = useState([]);
+
+  const handleCheckboxChange = (newSelectedOptions) => {
+    setTipoUtilizador(newSelectedOptions);
+  };
+
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -87,14 +93,7 @@ const EditarPerfilUtilizador_Gestor = () => {
               >
                 <h5 className="mt-3 perfil-nome">Joana Marques</h5>
                 <p>{cargo}</p>
-                <Form.Check
-                  type="switch"
-                  id="ativoSwitch"
-                  label={ativo ? "Conta Ativa" : "Conta Inativa"}
-                  checked={ativo}
-                  onChange={() => setAtivo(!ativo)}
-                  className="mt-1"
-                />
+                
               </Col>
             </Row>
 
@@ -144,7 +143,7 @@ const EditarPerfilUtilizador_Gestor = () => {
                       onChange={handleChange}
                       icon={<IoCalendarNumberSharp />}
                       colSize={6}
-                      //readOnly
+                    //readOnly
                     />
                   </Row>
 
@@ -172,42 +171,28 @@ const EditarPerfilUtilizador_Gestor = () => {
                   </Row>
 
                   <Row className="mb-3">
-                    <InputField
-                      label="Departamento"
-                      type="text"
-                      placeholder="Departamento"
-                      name="departamento"
-                      value={formData.departamento}
-                      onChange={handleChange}
-                      icon={<FaBuilding />}
-                      colSize={6}
-                    />
-                    <InputField
-                      label="Cargo"
-                      type="text"
-                      placeholder="cargo"
-                      name="cargo"
-                      value={formData.cargo}
-                      onChange={handleChange}
-                      colSize={6}
-                    />
-                  </Row>
+                    <Col md={3}>
+                      <Form.Label>Tipo de Utilizador:</Form.Label>
+                      <DropdownCheckbox
+                        label="Selecionar"
+                        options={["Formando", "Formador"]}
+                        selectedOptions={tipoUtilizador}
+                        onChange={(selected) => setTipoUtilizador(selected)}
+                      />
+                    </Col>
 
-                  <Row className="mb-3">
-                  <InputField
-                    label="Tipo de Utilizador"
-                    type="select"
-                    name="tipoUtilizador"
-                    value={tipoUtilizador}
-                    onChange={(e) => setTipoUtilizador(e.target.value)}
-                    options={[
-                      { value: "Formando", label: "Formando" },
-                      { value: "Formador", label: "Formador" },
-                      { value: "Gestor", label: "Gestor" }
-                    ]}
-                    colSize={12} 
-                  />
-                </Row>
+                  </Row>
+                  <Col md={6}>
+                    <Form.Check
+                      type="switch"
+                      id="ativoSwitch"
+                      label={ativo ? "Conta Ativa" : "Conta Inativa"}
+                      checked={ativo}
+                      onChange={() => setAtivo(!ativo)}
+                      className="mt-1"
+                    />
+                  </Col>
+
 
 
                   <div className="d-flex justify-content-center mt-4">

@@ -5,6 +5,7 @@ import profilePic from "../logo.svg";
 import Guardar from "../components/buttons/saveButton";
 import InputField from "../components/textFields/basic";
 import Cancelar from "../components/buttons/cancelButton";
+import DropdownCheckbox from "../components/dropdown/dropdown";
 
 import { FaRegSave } from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
@@ -26,8 +27,17 @@ const EditarPerfilUtilizador_Gestor = () => {
   const [departamento, setDepartamento] = useState("");
   const [cargo, setCargo] = useState("cargo Utilizador");
   const [ativo, setAtivo] = useState(true);
-  const [tipoUtilizador, setTipoUtilizador] = useState(""); 
-
+  const [tipoUtilizador, setTipoUtilizador] = useState([]);
+  
+  
+  const handleCheckboxChange = (value) => {
+    setTipoUtilizador((prev) =>
+      prev.includes(value) 
+        ? prev.filter((tipo) => tipo !== value) // Remove se já estiver selecionado
+        : [...prev, value] // Adiciona se não estiver
+    );
+  };
+  
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData({
@@ -87,14 +97,7 @@ const EditarPerfilUtilizador_Gestor = () => {
               >
                 <h5 className="mt-3 perfil-nome">Nome do utilizador</h5>
                 <p>{cargo}</p>
-                <Form.Check
-                  type="switch"
-                  id="ativoSwitch"
-                  label={ativo ? "Conta Ativa" : "Conta Inativa"}
-                  checked={ativo}
-                  onChange={() => setAtivo(!ativo)}
-                  className="mt-1"
-                />
+               
               </Col>
             </Row>
 
@@ -193,23 +196,28 @@ const EditarPerfilUtilizador_Gestor = () => {
                       colSize={6}
                     />
                   </Row>
-
                   <Row className="mb-3">
-                  <InputField
-                    label="Tipo de Utilizador"
-                    type="select"
-                    name="tipoUtilizador"
-                    value={tipoUtilizador}
-                    onChange={(e) => setTipoUtilizador(e.target.value)}
-                    options={[
-                      { value: "Formando", label: "Formando" },
-                      { value: "Formador", label: "Formador" },
-                      { value: "Gestor", label: "Gestor" }
-                    ]}
-                    colSize={12} 
-                  />
-                </Row>
+                    <Col md={3}>
+                      <Form.Label>Tipo de Utilizador:</Form.Label>
+                      <DropdownCheckbox
+                        label="Selecionar"
+                        options={["Formando", "Formador"]}
+                        selectedOptions={tipoUtilizador}
+                        onChange={(selected) => setTipoUtilizador(selected)}
+                      />
+                    </Col>
 
+                  </Row>
+                  <Col md={6}>
+                    <Form.Check
+                      type="switch"
+                      id="ativoSwitch"
+                      label={ativo ? "Conta Ativa" : "Conta Inativa"}
+                      checked={ativo}
+                      onChange={() => setAtivo(!ativo)}
+                      className="mt-1"
+                    />
+                  </Col>
 
                   <div className="d-flex justify-content-center mt-4">
                     <Cancelar
