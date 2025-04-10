@@ -4,6 +4,7 @@ import profilePic from "../logo.svg";
 
 import Guardar from "../components/buttons/saveButton";
 import InputField from "../components/textFields/basic";
+import Cancelar from "../components/buttons/cancelButton";
 
 import { FaRegSave } from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
@@ -12,6 +13,7 @@ import { FaUser } from "react-icons/fa";
 import { FaLock } from "react-icons/fa";
 import { IoCalendarNumberSharp } from "react-icons/io5";
 import { FaBuilding } from "react-icons/fa";
+import { BsArrowReturnLeft } from "react-icons/bs";
 
 const PerfilUtilizador = () => {
   const [formData, setFormData] = useState("");
@@ -79,7 +81,13 @@ const PerfilUtilizador = () => {
                 </div>
               </Col>
 
-              <Col xs={8} sm={9} md={10} className="text-start d-flex flex-column justify-content-center" style={{ paddingLeft: "1em" }} >
+              <Col
+                xs={8}
+                sm={9}
+                md={10}
+                className="text-start d-flex flex-column justify-content-center"
+                style={{ paddingLeft: "1em" }}
+              >
                 <h5 className="mt-3 perfil-nome">Joana Marques</h5>
                 <p>{cargo}</p>
               </Col>
@@ -211,10 +219,16 @@ const PerfilUtilizador = () => {
                     </Col>
                   </Row>
 
-                  <div className="text-center mt-4">
+                  <div className="d-flex justify-content-center mt-4">
+                    <Cancelar
+                      text={"Cancelar"}
+                      onClick={() => alert("Botão Cancelar clicado")}
+                      Icon={BsArrowReturnLeft}
+                      inline={true}
+                    />
                     <Guardar
                       text={"Guardar"}
-                      onClick={() => alert("Botão clicado")}
+                      onClick={() => alert("Botão Guardar clicado")}
                       Icon={FaRegSave}
                     />
                   </div>

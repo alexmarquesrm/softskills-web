@@ -1,7 +1,34 @@
 .menu-icon {
-    transition: color 0.3s;
+  transition: color 0.3s;
+}
+
+.menu-icon:hover {
+  color: #ddd;
+  cursor: pointer;
+}
+
+
+@media (max-width: 992px) {
+  .navbar-nav {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
   }
-  .menu-icon:hover {
-    color: #ddd;
-    cursor: pointer;
+
+  .navbar-nav .nav-link {
+    margin-left: 10px;
   }
+
+  .navbar-collapse {
+    display: flex !important;
+    justify-content: space-evenly;
+  }
+}
+
+
+@media (max-width: 700px) {
+  .navbar-nav .nav-link {
+    display: none; 
+  }
+}
