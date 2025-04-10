@@ -8,6 +8,7 @@ import EditarUtilizadorGestor from "./pages/editarUtilizador_Gestor";
 import AdicionarUtilizadorGestor from "./pages/adicionarUtilizador_Gestor";
 
 import LandingPage from "./pages/landingPage";
+//import PagGestor from "./pages/pageGestor";
 import CustomNavbar from "./components/navbar/customNavbar";
 import Footer from "./components/footer/footer";
 
@@ -23,6 +24,7 @@ function AppContent() {
                     <Route path="/gestor/editarPerfil" element={<EditarUtilizadorGestor />} />
                     <Route path="/gestor/adicionarPerfil" element={<AdicionarUtilizadorGestor />} />
 
+                    {/* <Route path="/landing/gestor" element={<PagGestor />} /> */}
                 </Routes>
             </div>
             <Footer />
