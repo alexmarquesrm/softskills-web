@@ -206,6 +206,7 @@ CREATE TABLE CURSO (
    TOPICO_ID            INTEGER NOT NULL,
    TIPO                 TEXT NOT NULL CHECK (TIPO IN ('S', 'A')),
    TOTAL_HORAS          INTEGER NOT NULL,
+   TITULO               TEXT NOT NULL,
    DESCRICAO            TEXT NOT NULL,
    PENDENTE             BOOLEAN NOT NULL,
    NIVEL                INTEGER NOT NULL CHECK (NIVEL IN (1, 2, 3, 4)),
