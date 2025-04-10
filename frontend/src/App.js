@@ -5,7 +5,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import ListaUtilizadores from "./pages/userList";
 import PerfilUtilizador from "./pages/userProfile"
 import LandingPage from "./pages/landingPage";
-import PagGestor from "./pages/pageGestor";
+//import PagGestor from "./pages/pageGestor";
 import CustomNavbar from "./components/navbar/customNavbar";
 import Footer from "./components/footer/footer";
 
@@ -18,7 +18,7 @@ function AppContent() {
                     <Route path="/" element={<LandingPage />} />
                     <Route path="/utilizadores/lista" element={<ListaUtilizadores />} />
                     <Route path="/utilizadores/perfil" element={<PerfilUtilizador />} />
-                    <Route path="/landing/gestor" element={<PagGestor />} />
+                    {/* <Route path="/landing/gestor" element={<PagGestor />} /> */}
                 </Routes>
             </div>
             <Footer />

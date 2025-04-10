@@ -103,7 +103,7 @@ const PerfilUtilizador = () => {
 
                   <Row className="mb-3">
                     <InputField label="Nome Utilizador" type="text" placeholder="Joana Marques" name="nomeUtilizador" value={formData.nomeUtilizador} onChange={handleChange} icon={<FaUser />} colSize={6} />
-                    <InputField label="Data Nascimento" type="date" placeholder="--/--/----" name="dataNasc" value={formData.dataNasc} onChange={handleChange} icon={<IoCalendarNumberSharp />} colSize={6} readOnly />
+                    <InputField label="Data Nascimento" type="date" placeholder="--/--/----" name="dataNasc" value={formData.dataNasc} onChange={handleChange} icon={<IoCalendarNumberSharp />} colSize={6} disable readOnly />
                   </Row>
 
                   <Row className="mb-3">

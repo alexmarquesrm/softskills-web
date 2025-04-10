@@ -1,7 +1,7 @@
 import React from 'react';
 import { Form, Col, InputGroup } from 'react-bootstrap';
 
-const InputField = ({ label, type, placeholder, name, value, onChange, icon, colSize, rows, style,  readOnly }) => {
+const InputField = ({ label, type, placeholder, name, value, onChange, icon, colSize, rows, style, disable, readOnly }) => {
   return (
     <Col md={colSize}>
       <Form.Group controlId={`form${name}`}>
@@ -18,6 +18,7 @@ const InputField = ({ label, type, placeholder, name, value, onChange, icon, col
             className="form-input"
             style={{ ...style}} 
             readOnly={readOnly}
+            disabled={disable}
           />
         </InputGroup>
       </Form.Group>
