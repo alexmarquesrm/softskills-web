@@ -15,12 +15,12 @@ module.exports = function(sequelize, DataTypes) {
         key: 'thread_id'
       }
     },
-    user_id: {
+    colaborador_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'credenciais',
-        key: 'credencial_id'
+        model: 'colaborador',
+        key: 'colaborador_id'
       }
     },
     descricao: {

@@ -2,7 +2,6 @@ const Sequelize = require("sequelize");
 const initModels = require("../models/init-models");
 const sequelizeConn = require("../bdConexao");
 const colaborador = require("../models/colaborador");
-const credenciais = require("../models/credenciais");
 const models = initModels(sequelizeConn);
 
 const controladorCursos = {
@@ -51,16 +50,9 @@ const controladorCursos = {
                 attributes: ["formador_id", "especialidade"],
                 include: [
                   {
-                    model: models.credenciais,
-                    as: "formador_credenciais",
-                    attributes: ["login"],
-                    include: [
-                      {
-                        model: models.colaborador,
-                        as: "credenciais_colaborador",
-                        attributes: ["nome", "email", "telefone"],
-                      },
-                    ],
+                    model: models.colaborador,
+                    as: "formador_colab",
+                    attributes: ["nome", "email", "telefone"],
                   },
                 ],
               },
@@ -72,16 +64,9 @@ const controladorCursos = {
             attributes: ["gestor_id"],
             include: [
               {
-                model: models.credenciais,
-                as: "gestor_credenciais",
-                attributes: ["login"],
-                include: [
-                  {
-                    model: models.colaborador,
-                    as: "credenciais_colaborador",
-                    attributes: ["nome", "email"],
-                  },
-                ],
+                model: models.colaborador,
+                as: "gestor_colab",
+                attributes: ["nome", "email"],
               },
             ],
           },
@@ -93,7 +78,7 @@ const controladorCursos = {
         ],
         attributes: ["curso_id", "descricao", "tipo", "total_horas", "pendente"],
       });
-  
+
       const cursosResumidos = await Promise.all(cursos.map(async (curso) => {
         let formadorDetalhes = null;
         if (curso.sincrono_curso?.sincrono_formador?.formador_id) {
@@ -113,7 +98,7 @@ const controladorCursos = {
                 },
               ],
             });
-  
+
             if (formador) {
               formadorDetalhes = formador;
             }
@@ -121,7 +106,7 @@ const controladorCursos = {
             console.error("Erro ao obter dados do formador:", error);
           }
         }
-  
+
         return {
           id: curso.curso_id,
           descricao: curso.descricao,
@@ -153,14 +138,14 @@ const controladorCursos = {
           } : null,
         };
       }));
-  
+
       res.json(cursosResumidos);
     } catch (error) {
       console.error("Erro ao obter cursos:", error);
       res.status(500).json({ message: "Erro interno ao obter cursos" });
     }
   },
-  
+
 
   // Obter um curso pelo ID
   getCursoById: async (req, res) => {
