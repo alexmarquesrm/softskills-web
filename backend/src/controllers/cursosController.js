@@ -7,6 +7,7 @@ const models = initModels(sequelizeConn);
 const controladorCursos = {
   // Criar um novo curso
   createCurso: async (req, res) => {
+    const t = await sequelizeConn.transaction();
     try {
       const {
         gestor_id,
@@ -16,8 +17,10 @@ const controladorCursos = {
         descricao,
         pendente,
         nivel,
+        sincrono
       } = req.body;
 
+      // Criar o curso
       const novoCurso = await models.curso.create({
         gestor_id,
         topico_id,
@@ -26,10 +29,22 @@ const controladorCursos = {
         descricao,
         pendente,
         nivel,
-      });
+      }, { transaction: t });
 
-      res.status(201).json(novoCurso);
+      // Se for do tipo S (Sincrono), criar entrada na tabela sincrono
+      if (tipo === "S" && sincrono) {
+        await models.sincrono.create({
+          ...sincrono,
+          curso_id: novoCurso.curso_id
+        }, { transaction: t });
+      }
+
+      await t.commit();
+
+      res.status(201).json({ message: "Curso criado com sucesso", curso: novoCurso });
+
     } catch (error) {
+      await t.rollback();
       console.error("Erro ao criar curso:", error);
       res.status(500).json({ message: "Erro interno ao criar curso" });
     }
@@ -41,7 +56,7 @@ const controladorCursos = {
         include: [
           {
             model: models.sincrono,
-            as: "sincrono_curso",
+            as: "curso_sincrono",
             attributes: ["curso_id", "formador_id", "limite_vagas", "data_inicio", "data_fim", "estado"],
             include: [
               {
@@ -72,72 +87,43 @@ const controladorCursos = {
           },
           {
             model: models.topico,
-            as: "topico",
+            as: "curso_topico",
             attributes: ["descricao"],
           },
         ],
-        attributes: ["curso_id", "descricao", "tipo", "total_horas", "pendente"],
+        attributes: ["curso_id", "titulo", "descricao", "tipo", "total_horas", "pendente"],
       });
 
-      const cursosResumidos = await Promise.all(cursos.map(async (curso) => {
-        let formadorDetalhes = null;
-        if (curso.sincrono_curso?.sincrono_formador?.formador_id) {
-          try {
-            const formador = await models.formador.findByPk(curso.sincrono_curso.sincrono_formador.formador_id, {
-              include: [
-                {
-                  model: models.credenciais,
-                  as: "formador_credenciais",
-                  include: [
-                    {
-                      model: models.colaborador,
-                      as: "credenciais_colaborador",
-                      attributes: ["nome", "email", "telefone"],
-                    },
-                  ],
-                },
-              ],
-            });
-
-            if (formador) {
-              formadorDetalhes = formador;
-            }
-          } catch (error) {
-            console.error("Erro ao obter dados do formador:", error);
-          }
-        }
-
+      const cursosResumidos = cursos.map((curso) => {
         return {
           id: curso.curso_id,
+          titulo: curso.titulo,
           descricao: curso.descricao,
           tipo: curso.tipo,
           total_horas: curso.total_horas,
           pendente: curso.pendente,
-          topico: curso.topico?.descricao || null,
+          topico: curso.curso_topico?.descricao || null,
           gestor: {
-            nome: curso.gestor?.gestor_credenciais?.credenciais_colaborador?.nome || null,
-            email: curso.gestor?.gestor_credenciais?.credenciais_colaborador?.email || null,
+            nome: curso.gestor?.gestor_colab?.nome || null,
+            email: curso.gestor?.gestor_colab?.email || null,
           },
-          sincrono: curso.sincrono_curso ? {
-            inicio: curso.sincrono_curso.data_inicio,
-            fim: curso.sincrono_curso.data_fim,
-            vagas: curso.sincrono_curso.limite_vagas,
-            estado: curso.sincrono_curso.estado,
-            formador: formadorDetalhes ? {
-              formador_id: formadorDetalhes.id,
-              especialidade: formadorDetalhes?.especialidade || null,
+          sincrono: curso.curso_sincrono ? {
+            inicio: curso.curso_sincrono.data_inicio,
+            fim: curso.curso_sincrono.data_fim,
+            vagas: curso.curso_sincrono.limite_vagas,
+            estado: curso.curso_sincrono.estado,
+            formador: curso.curso_sincrono.sincrono_formador ? {
+              formador_id: curso.curso_sincrono.sincrono_formador.formador_id,
+              especialidade: curso.curso_sincrono.sincrono_formador.especialidade,
               colaborador: {
-                nome: formadorDetalhes?.formador_credenciais?.credenciais_colaborador?.nome || null,
-                email: formadorDetalhes?.formador_credenciais?.credenciais_colaborador?.email || null,
-                telefone: formadorDetalhes?.formador_credenciais?.credenciais_colaborador?.telefone || null,
-              },
-              credenciais: {
-                login: formadorDetalhes?.formador_credenciais?.login || null,
+                nome: curso.curso_sincrono.sincrono_formador.formador_colab?.nome || null,
+                email: curso.curso_sincrono.sincrono_formador.formador_colab?.email || null,
+                telefone: curso.curso_sincrono.sincrono_formador.formador_colab?.telefone || null,
               }
-            } : null,
+            } : null
           } : null,
         };
-      }));
+      });
 
       res.json(cursosResumidos);
     } catch (error) {
@@ -145,7 +131,6 @@ const controladorCursos = {
       res.status(500).json({ message: "Erro interno ao obter cursos" });
     }
   },
-
 
   // Obter um curso pelo ID
   getCursoById: async (req, res) => {

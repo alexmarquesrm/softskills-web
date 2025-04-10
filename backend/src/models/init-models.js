@@ -150,8 +150,6 @@ function initModels(sequelize) {
   formando.hasMany(trabalhos_formando, { as: "trabalhos_formandos", foreignKey: "formando_id"});
   threads.belongsTo(forum, { as: "threads_forum", foreignKey: "forum_id"});
   forum.hasMany(threads, { as: "forum_threads", foreignKey: "forum_id"});
-  assincrono.belongsTo(gestor, { as: "assincrono_gestor", foreignKey: "gestor_id"});
-  gestor.hasMany(assincrono, { as: "gestor_assincronos", foreignKey: "gestor_id"});
   curso.belongsTo(gestor, { as: "gestor", foreignKey: "gestor_id"});
   gestor.hasMany(curso, { as: "cursos", foreignKey: "gestor_id"});
   quizz.belongsTo(gestor, { as: "gestor", foreignKey: "gestor_id"});

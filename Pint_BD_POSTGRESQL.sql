@@ -206,6 +206,7 @@ CREATE TABLE CURSO (
    TOPICO_ID            INTEGER NOT NULL,
    TIPO                 TEXT NOT NULL CHECK (TIPO IN ('S', 'A')),
    TOTAL_HORAS          INTEGER NOT NULL,
+   TITULO               TEXT NOT NULL,
    DESCRICAO            TEXT NOT NULL,
    PENDENTE             BOOLEAN NOT NULL,
    NIVEL                INTEGER NOT NULL CHECK (NIVEL IN (1, 2, 3, 4)),
@@ -220,12 +221,9 @@ CREATE TABLE CURSO (
 /*==============================================================*/
 CREATE TABLE ASSINCRONO (
    CURSO_ID             INTEGER NOT NULL UNIQUE,
-   GESTOR_ID            INTEGER NOT NULL,
    CONSTRAINT PK_ASSINCRONO PRIMARY KEY (CURSO_ID),
    CONSTRAINT FK_ASSINCRONO_CURSO FOREIGN KEY (CURSO_ID)
-      REFERENCES CURSO (CURSO_ID),
-   CONSTRAINT FK_ASSINCRONO_GESTOR FOREIGN KEY (GESTOR_ID)
-      REFERENCES GESTOR (GESTOR_ID)
+      REFERENCES CURSO (CURSO_ID)
 );
 
 /*==============================================================*/

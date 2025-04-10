@@ -47,7 +47,7 @@ const controladorTopicos = {
   updateTopico: async (req, res) => {
     const { id } = req.params;
     const { area_id, descricao } = req.body;
-
+    console.log("Dados recebidos para atualização:", req.body);
     try {
       const topico = await models.topico.findByPk(id);
       if (!topico) {
