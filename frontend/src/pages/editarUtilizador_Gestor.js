@@ -171,13 +171,15 @@ const EditarPerfilUtilizador_Gestor = () => {
                   </Row>
 
                   <Row className="mb-3">
-                    <Col md={3}>
+                    <Col md={4}>
                       <Form.Label>Tipo de Utilizador:</Form.Label>
                       <DropdownCheckbox
                         label="Selecionar"
                         options={["Formando", "Formador"]}
                         selectedOptions={tipoUtilizador}
                         onChange={(selected) => setTipoUtilizador(selected)}
+                        isMulti={true}
+                        useCheckboxUI={true}
                       />
                     </Col>
 

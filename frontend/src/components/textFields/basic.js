@@ -1,7 +1,7 @@
 import React from 'react';
 import { Form, Col, InputGroup } from 'react-bootstrap';
 
-const InputField = ({ label, type, placeholder, name, value, onChange, icon, colSize, rows, style, disable, readOnly }) => {
+const InputField = ({  label,  type,  placeholder,  name,  value,  onChange,  icon,  endIcon,   onEndIconClick,   colSize,  rows,  style,  disable,  readOnly}) => {
   return (
     <Col md={colSize}>
       <Form.Group controlId={`form${name}`}>
@@ -9,17 +9,26 @@ const InputField = ({ label, type, placeholder, name, value, onChange, icon, col
         <InputGroup>
           {icon && <InputGroup.Text>{icon}</InputGroup.Text>}
           <Form.Control
-            as={type === 'textarea' ? 'textarea' : 'input'} 
+            as={type === 'textarea' ? 'textarea' : 'input'}
+            type={type}
             rows={type === 'textarea' && rows ? rows : undefined}
             placeholder={placeholder}
             name={name}
             value={value}
             onChange={onChange}
             className="form-input"
-            style={{ ...style}} 
+            style={{ ...style }}
             readOnly={readOnly}
             disabled={disable}
           />
+          {endIcon && (
+            <InputGroup.Text
+              style={{ cursor: 'pointer' }}
+              onClick={onEndIconClick}
+            >
+              {endIcon}
+            </InputGroup.Text>
+          )}
         </InputGroup>
       </Form.Group>
     </Col>
