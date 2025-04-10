@@ -27,6 +27,9 @@ export default function UsersTable() {
     try {
       const response = await axios.get(`/colaborador`);
       const utilizadores = response.data; 
+      console.log(utilizadores);
+
+
       const sortedUtilizadores = utilizadores.sort((a, b) => a.colaborador_id - b.colaborador_id);
 
       setTableRows(

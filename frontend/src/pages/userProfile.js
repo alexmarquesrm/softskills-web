@@ -79,67 +79,23 @@ const PerfilUtilizador = () => {
                 </div>
               </Col>
 
-            
-              <Col
-                xs={8}
-                sm={9}
-                md={10}
-                className="text-start d-flex flex-column justify-content-center"
-                style={{ paddingLeft: "1em" }}
-              >
+              <Col xs={8} sm={9} md={10} className="text-start d-flex flex-column justify-content-center" style={{ paddingLeft: "1em" }} >
                 <h5 className="mt-3 perfil-nome">Joana Marques</h5>
                 <p>{cargo}</p>
               </Col>
             </Row>
-
             <hr />
-
             <Row className="justify-content-start">
               <Col md={12}>
                 <div className="w-100">
                   <Row className="mb-3">
-                    <InputField
-                      label="Primeiro Nome"
-                      type="text"
-                      placeholder="Joana"
-                      name="primeiroNome"
-                      value={formData.primeiroNome}
-                      onChange={handleChange}
-                      colSize={6}
-                    />
-                    <InputField
-                      label="Último Nome"
-                      type="text"
-                      placeholder="Marques"
-                      name="ultimoNome"
-                      value={formData.ultimoNome}
-                      onChange={handleChange}
-                      colSize={6}
-                    />
+                    <InputField label="Primeiro Nome" type="text" placeholder="Joana" name="primeiroNome" value={formData.primeiroNome} onChange={handleChange} colSize={6}/>
+                    <InputField label="Último Nome" type="text" placeholder="Marques" name="ultimoNome" value={formData.ultimoNome} onChange={handleChange} colSize={6}/>
                   </Row>
 
                   <Row className="mb-3">
-                    <InputField
-                      label="Nome Utilizador"
-                      type="text"
-                      placeholder="Joana Marques"
-                      name="nomeUtilizador"
-                      value={formData.nomeUtilizador}
-                      onChange={handleChange}
-                      icon={<FaUser />}
-                      colSize={6}
-                    />
-                    <InputField
-                      label="Data Nascimento"
-                      type="date"
-                      placeholder="--/--/----"
-                      name="dataNasc"
-                      value={formData.dataNasc}
-                      onChange={handleChange}
-                      icon={<IoCalendarNumberSharp />}
-                      colSize={6}
-                      readOnly
-                    />
+                    <InputField label="Nome Utilizador" type="text" placeholder="Joana Marques" name="nomeUtilizador" value={formData.nomeUtilizador} onChange={handleChange} icon={<FaUser />} colSize={6} />
+                    <InputField label="Data Nascimento" type="date" placeholder="--/--/----" name="dataNasc" value={formData.dataNasc} onChange={handleChange} icon={<IoCalendarNumberSharp />} colSize={6} readOnly />
                   </Row>
 
                   <Row className="mb-3">

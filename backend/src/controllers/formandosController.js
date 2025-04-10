@@ -33,8 +33,7 @@ const controladorFormandos = {
           colaborador: {
             nome: formando.formando_credenciais.credenciais_colaborador.nome,
             email: formando.formando_credenciais.credenciais_colaborador.email,
-            telefone:
-              formando.formando_credenciais.credenciais_colaborador.telefone,
+            telefone: formando.formando_credenciais.credenciais_colaborador.telefone,
           },
         };
     });
