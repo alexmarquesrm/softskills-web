@@ -3,8 +3,9 @@ import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import ListaUtilizadores from "./pages/userList";
-import PerfilUtilizador from "./pages/userProfile"
-import EditarUtilizador from "./pages/editarUtilizador_Gestor"
+import PerfilUtilizador from "./pages/userProfile";
+import EditarUtilizadorGestor from "./pages/editarUtilizador_Gestor";
+import AdicionarUtilizadorGestor from "./pages/adicionarUtilizador_Gestor";
 
 import LandingPage from "./pages/landingPage";
 import CustomNavbar from "./components/navbar/customNavbar";
@@ -19,7 +20,8 @@ function AppContent() {
                     <Route path="/" element={<LandingPage />} />
                     <Route path="/utilizadores/lista" element={<ListaUtilizadores />} />
                     <Route path="/utilizadores/perfil" element={<PerfilUtilizador />} />
-                    <Route path="/gestor/editarPerfil" element={<EditarUtilizador />} />
+                    <Route path="/gestor/editarPerfil" element={<EditarUtilizadorGestor />} />
+                    <Route path="/gestor/adicionarPerfil" element={<AdicionarUtilizadorGestor />} />
 
                 </Routes>
             </div>
