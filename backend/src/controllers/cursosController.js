@@ -133,6 +133,89 @@ const controladorCursos = {
     }
   },
 
+  getAllLading: async (req, res) => {
+    try {
+      const cursos = await models.curso.findAll({
+        include: [
+          {
+            model: models.sincrono,
+            as: "curso_sincrono",
+            attributes: ["curso_id", "formador_id", "limite_vagas", "data_inicio", "data_fim", "estado"],
+            include: [
+              {
+                model: models.formador,
+                as: "sincrono_formador",
+                attributes: ["formador_id", "especialidade"],
+                include: [
+                  {
+                    model: models.colaborador,
+                    as: "formador_colab",
+                    attributes: ["nome", "email", "telefone"],
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            model: models.gestor,
+            as: "gestor",
+            attributes: ["gestor_id"],
+            include: [
+              {
+                model: models.colaborador,
+                as: "gestor_colab",
+                attributes: ["nome", "email"],
+              },
+            ],
+          },
+          {
+            model: models.topico,
+            as: "curso_topico",
+            attributes: ["descricao"],
+          },
+        ],
+        attributes: ["curso_id", "titulo", "descricao", "tipo", "total_horas", "pendente", "nivel"],
+      });
+
+      const cursosResumidos = cursos.map((curso) => {
+        return {
+          id: curso.curso_id,
+          titulo: curso.titulo,
+          descricao: curso.descricao,
+          tipo: curso.tipo,
+          total_horas: curso.total_horas,
+          pendente: curso.pendente,
+          nivel: curso.nivel,
+          topico: curso.curso_topico?.descricao || null,
+          gestor: {
+            nome: curso.gestor?.gestor_colab?.nome || null,
+            email: curso.gestor?.gestor_colab?.email || null,
+          },
+          sincrono: curso.curso_sincrono ? {
+            inicio: curso.curso_sincrono.data_inicio,
+            fim: curso.curso_sincrono.data_fim,
+            vagas: curso.curso_sincrono.limite_vagas,
+            estado: curso.curso_sincrono.estado,
+            formador: curso.curso_sincrono.sincrono_formador ? {
+              formador_id: curso.curso_sincrono.sincrono_formador.formador_id,
+              especialidade: curso.curso_sincrono.sincrono_formador.especialidade,
+              colaborador: {
+                nome: curso.curso_sincrono.sincrono_formador.formador_colab?.nome || null,
+                email: curso.curso_sincrono.sincrono_formador.formador_colab?.email || null,
+                telefone: curso.curso_sincrono.sincrono_formador.formador_colab?.telefone || null,
+              }
+            } : null
+          } : null,
+        };
+      });
+
+      res.json(cursosResumidos);
+    } catch (error) {
+      console.error("Erro ao obter cursos:", error);
+      res.status(500).json({ message: "Erro interno ao obter cursos" });
+    }
+  },
+
   // Obter um curso pelo ID
   getCursoById: async (req, res) => {
     try {

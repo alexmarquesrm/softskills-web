@@ -6,10 +6,10 @@ const models = initModels(sequelizeConn);
 const controladorThreads = {
   // Criar uma nova thread
   createThread: async (req, res) => {
-    const { forum_id, user_id, titulo, descricao } = req.body;
+    const { forum_id, colaborador_id, titulo, descricao } = req.body;
     
     try {
-      const novaThread = await models.threads.create({ forum_id, user_id, titulo, descricao });
+      const novaThread = await models.threads.create({ forum_id, colaborador_id, titulo, descricao });
       res.status(201).json(novaThread);
     } catch (error) {
       console.error(error);
@@ -46,7 +46,7 @@ const controladorThreads = {
           include: [
             [
               Sequelize.fn('COUNT', Sequelize.col('threads_avaliacaos.thread_id')),
-              'voto_count',  // Nome da coluna contagem de votos
+              'voto_count',
             ],
           ],
         },

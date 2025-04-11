@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import LoginModal from '../../modals/loginModal';
 import { Navbar, Nav, Container } from "react-bootstrap";
 import { LuMenu } from "react-icons/lu";
@@ -9,13 +9,42 @@ import "../navbar/navbar.css";
 function CustomNavbar() {
   const [showSidebar, setShowSidebar] = useState(false);
   const [open, setOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
+  // Check login status on component mount and when sessionStorage changes
+  useEffect(() => {
+    const checkLoginStatus = () => {
+      // Check if user is logged in by checking for token in sessionStorage
+      const token = sessionStorage.getItem('token');
+      setIsLoggedIn(!!token); // Convert to boolean: true if token exists, false otherwise
+    };
+
+    // Initial check
+    checkLoginStatus();
+
+    // Add event listener for storage changes
+    window.addEventListener('storage', checkLoginStatus);
+
+    return () => {
+      // Cleanup the event listener when component unmounts
+      window.removeEventListener('storage', checkLoginStatus);
+    };
+  }, []);
+  
   const handleOpen = () => {
     setOpen(true);
   };
 
   const handleClose = () => {
     setOpen(false);
+  };
+
+  // Handle successful login
+  const handleLoginSuccess = () => {
+    // Close the modal
+    setOpen(false);
+    // Update login status
+    setIsLoggedIn(true);
   };
 
   return (
@@ -32,8 +61,17 @@ function CustomNavbar() {
           </Nav>
 
           <div className="d-flex align-items-center">
-            <NavbarButton text="Login" onClick={handleOpen} />
-            <LoginModal open={open} handleClose={handleClose} />
+            {/* Only show login button if user is not logged in */}
+            {!isLoggedIn && (
+              <>
+                <NavbarButton text="Login" onClick={handleOpen} />
+                <LoginModal 
+                  open={open} 
+                  handleClose={handleClose} 
+                  onLoginSuccess={handleLoginSuccess}
+                />
+              </>
+            )}
           </div>
         </Container>
       </Navbar>
