@@ -25,6 +25,10 @@ END;
 $$ LANGUAGE plpgsql;
 
 
+-------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
+
+
 -- Função que será chamada pela trigger
 CREATE OR REPLACE FUNCTION criar_assincrono_automaticamente()
 RETURNS TRIGGER AS $$
@@ -43,3 +47,4 @@ CREATE TRIGGER trigger_criar_assincrono
 AFTER INSERT ON curso
 FOR EACH ROW
 EXECUTE FUNCTION criar_assincrono_automaticamente();
+
