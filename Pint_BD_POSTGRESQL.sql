@@ -156,13 +156,15 @@ CREATE TABLE THREADS_AVALIACAO (
 );
 
 /*==============================================================*/
-/* Table: THREADS_DENUNCIAS                                     */
+/* Table: THREADS_DENUNCIAS (CHECK S - SPAWM, I - INAPROPRIADO, O - OUTRO */
 /*==============================================================*/
 CREATE TABLE DENUNCIAS (
    DENUNCIA_ID          SERIAL NOT NULL UNIQUE,
    THREAD_ID            INTEGER NOT NULL,
    FORMANDO_ID          INTEGER NOT NULL,
+   MOTIVO				   TEXT NOT NULL CHECK (MOTIVO IN ('S', 'I', 'O')),
    DESCRICAO            TEXT NOT NULL,
+   DATA                 TIMESTAMPTZ NOT NULL,
    CONSTRAINT PK_THREAD_DENUNCIAS PRIMARY KEY (DENUNCIA_ID),
    CONSTRAINT FK_THREAD_DENUNCIAS FOREIGN KEY (THREAD_ID)
       REFERENCES THREADS (THREAD_ID),
