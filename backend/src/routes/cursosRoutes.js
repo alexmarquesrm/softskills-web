@@ -5,7 +5,7 @@ const cursosController = require("../controllers/cursosController");
 
 // GET
 router.get("/", authenticate, cursosController.getAllCursos);
-router.get("/landing", cursosController.getAllCursos);
+router.get("/landing", cursosController.getAllLanding);
 router.get("/:id", authenticate, cursosController.getCursoById);
 
 // POST

@@ -135,7 +135,7 @@ const controladorCursos = {
     }
   },
 
-  getAllLading: async (req, res) => {
+  getAllLanding: async (req, res) => {
     try {
       const cursos = await models.curso.findAll({
         include: [
