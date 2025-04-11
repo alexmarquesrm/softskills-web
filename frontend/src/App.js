@@ -3,17 +3,21 @@ import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-d
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
 
-// Pages & Components
+// Pages
 import LandingPage from "./pages/landingPage";
+import PagGestor from "./pages/pageGestor";
 import ListaUtilizadores from "./pages/userList";
 import PerfilUtilizador from "./pages/userProfile";
 import EditarUtilizadorGestor from "./pages/editarUtilizador_Gestor";
 import AdicionarUtilizadorGestor from "./pages/adicionarUtilizador_Gestor";
+// Modals
 import AdicionarFicheiroAssincronoFormador from "./modals/adicionarFicheiroAssincrono_Formador";
- import PagGestor from "./pages/pageGestor";
+
+// Components
 import CustomNavbar from "./components/navbar/customNavbar";
 import Footer from "./components/footer/footer";
 import ProtectedRoute from "./components/ProtectedRoute";
+
 function AppContent() {
     return (
         <div className="app-container">
