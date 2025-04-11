@@ -6,6 +6,7 @@ import Guardar from "../components/buttons/saveButton";
 import InputField from "../components/textFields/basic";
 import Cancelar from "../components/buttons/cancelButton";
 
+
 import { FaRegSave } from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
 import { FaMobileAlt } from "react-icons/fa";
@@ -14,6 +15,11 @@ import { FaLock } from "react-icons/fa";
 import { IoCalendarNumberSharp } from "react-icons/io5";
 import { FaBuilding } from "react-icons/fa";
 import { BsArrowReturnLeft } from "react-icons/bs";
+import { FaEye } from "react-icons/fa6";
+import { FaEyeSlash } from "react-icons/fa6";
+
+//import ModalEditarPerfil from "../modals/pedirCurso";
+//import ModalAdicionarFicheiro from "../modals/adicionarFicheiroAssincrono_Formador";
 
 const PerfilUtilizador = () => {
   const [formData, setFormData] = useState("");
@@ -30,7 +36,19 @@ const PerfilUtilizador = () => {
   const [notifForum, setNotifForum] = useState("");
   const [departamento, setDepartamento] = useState("");
   const [cargo, setCargo] = useState("Designer");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+
+
+
+  //const [showModalEditar, setShowModalEditar] = useState(false);
+  //const [showModalAdicionarFicheiro, setModalAdicionarFicheiro] = useState(false);
+
+  
+
+
+  
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData({
@@ -166,27 +184,31 @@ const PerfilUtilizador = () => {
                   </Row>
 
                   <Row className="mb-3">
-                    <InputField
-                      label="Nova Password"
-                      type="password"
-                      placeholder="Digite a nova senha"
-                      name="novaPassword"
-                      value={formData.novaPassword}
-                      onChange={handleChange}
-                      icon={<FaLock />}
-                      colSize={6}
-                    />
-                    <InputField
-                      label="Confirmar Password"
-                      type="password"
-                      placeholder="Confirme a nova senha"
-                      name="confirmarPassword"
-                      value={formData.confirmarPassword}
-                      onChange={handleChange}
-                      icon={<FaLock />}
-                      colSize={6}
-                    />
-                  </Row>
+                <InputField
+                  label="Nova Password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Digite a nova senha"
+                  name="novaPassword"
+                  value={formData.novaPassword}
+                  onChange={handleChange}
+                  icon={<FaLock />}
+                  colSize={6}
+                  endIcon={showPassword ? <FaEyeSlash /> : <FaEye />}
+                  onEndIconClick={() => setShowPassword(!showPassword)}
+                />
+                <InputField
+                  label="Confirmar Password"
+                  type={showConfirmPassword ? "text" : "password"}
+                  placeholder="Confirme a nova senha"
+                  name="confirmarPassword"
+                  value={formData.confirmarPassword}
+                  onChange={handleChange}
+                  icon={<FaLock />}
+                  colSize={6}
+                  endIcon={showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+                  onEndIconClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                />
+              </Row>
 
                   <Row className="mb-3">
                     <Col md={12}>
@@ -231,6 +253,8 @@ const PerfilUtilizador = () => {
                       onClick={() => alert("Botão Guardar clicado")}
                       Icon={FaRegSave}
                     />
+
+
                   </div>
                 </div>
               </Col>
@@ -243,3 +267,18 @@ const PerfilUtilizador = () => {
 };
 
 export default PerfilUtilizador;
+
+///<Guardar
+//text={"Guardar"}
+//onClick={() => setShowModalEditar(true)}
+//Icon={FaRegSave}
+///>
+//<ModalEditarPerfil show={showModalEditar} handleClose={() => setShowModalEditar(false)} />
+
+
+//<Guardar
+//text={"Assincrono"}
+//onClick={() => setModalAdicionarFicheiro(true)}
+//Icon={FaRegSave}
+///>
+//<ModalAdicionarFicheiro show={showModalAdicionarFicheiro} handleClose={() => setModalAdicionarFicheiro(false)} />

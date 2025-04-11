@@ -4,13 +4,13 @@ import Button from "react-bootstrap/Button";
 function guardar({ text, onClick, Icon, inline = false }) {
   const button = (
     <Button
-      variant="primary" 
+      variant="primary"
       size="md"
-      className="text-white d-flex justify-content-between align-items-center"
+      className="text-white d-flex align-items-center"
       onClick={onClick}
     >
-      {text} 
-      {Icon && <Icon className="ms-2" />}
+      {Icon && <Icon className="me-2" />} 
+      {text}
     </Button>
   );
 
@@ -23,3 +23,7 @@ function guardar({ text, onClick, Icon, inline = false }) {
 
 export default guardar;
 
+
+ 
+
+     
