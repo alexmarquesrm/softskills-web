@@ -16,7 +16,7 @@ function cardCourses({ cursos = [] }) {
       <Row>
         {cursos.map((curso, index) => (
           <Col key={index} md={3} className="d-flex">
-            <Card className="mb-3 shadow-lg border-0 d-flex flex-column w-100 h-100" style={{ borderRadius: "10px" }}>
+            <Card className="mt-2 mb-3 shadow-lg border-0 d-flex flex-column w-100 h-100" style={{ borderRadius: "10px" }}>
               <div
                 style={{
                   height: "150px",
