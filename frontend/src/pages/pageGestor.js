@@ -22,20 +22,19 @@ export default function PaginaGestor() {
 
   const fetchDataDenun = async () => {
     try {
-      //const token = sessionStorage.getItem('token');
-      const token = "tokenFixo";
+      const token = sessionStorage.getItem('token');
       const response = await axios.get(`/denuncia`, {
         headers: { Authorization: `${token}` }
       });
       const denuncia = response.data;
-      //console.log(denuncia);
       const sortedDenuncia = denuncia.sort((a, b) => a.denuncia_id - b.denuncia_id);
 
       setTableRows(
         sortedDenuncia.map((denuncia) => ({
           id: denuncia.denuncia_id,
+          motivo: denuncia.motivo,
           descricao: denuncia.descricao,
-          //data: denuncia.data,
+          data: denuncia.data,
         }))
       );
 
@@ -46,13 +45,11 @@ export default function PaginaGestor() {
 
   const fetchDataPedidos = async () => {
     try {
-      //const token = sessionStorage.getItem('token');
-      const token = "tokenFixo";
+      const token = sessionStorage.getItem('token');
       const response = await axios.get(`/pedido`, {
         headers: { Authorization: `${token}` }
       });
       setPedidos(response.data);
-      console.log(response.data);
     } catch (error) {
       setError(error);
     }

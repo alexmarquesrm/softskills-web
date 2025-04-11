@@ -14,7 +14,6 @@ function AppContent() {
       const response = await axios.get("/curso/landing", {
       });
       setCursos(response.data);
-      console.log(response.data);
     } catch (error) {
       console.error("Erro ao buscar cursos:", error);
     }

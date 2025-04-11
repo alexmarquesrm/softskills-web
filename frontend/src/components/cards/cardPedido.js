@@ -36,7 +36,7 @@ function CardPedido({ pedido, index }) {
           </div>
         </Card.Text>
         <Card.Text>
-          Dia do Pedido: {formatDate(pedido?.data ?? 'Indefenido')}
+          Data do Pedido: {formatDate(pedido?.data ?? 'Indefenido')}
         </Card.Text>
       </Card.Body>
     </Card>

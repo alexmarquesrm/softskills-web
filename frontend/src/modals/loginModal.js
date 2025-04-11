@@ -69,7 +69,6 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
                 password: password
             });
             const utilizador = response.data.user;
-            console.log("Utilizador:", utilizador);
 
             sessionStorage.setItem('colaboradorid', utilizador.colaboradorid);
             sessionStorage.setItem('nome', utilizador.nome);
@@ -80,7 +79,6 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
                 sessionStorage.setItem('primeirologin', "false");
             }
             
-            console.log("Estou aqui");
             const tokenResponse = await axios.get(`/colaborador/token/${utilizador.colaboradorid}`);
 
             sessionStorage.setItem('token', tokenResponse.data.token);
