@@ -15,6 +15,7 @@ const threadsAvaRoutes = require("./routes/threadsAvaRoutes");
 const threadsDenRoutes = require("./routes/threadsDenRoutes");
 const cursosRoutes = require("./routes/cursosRoutes");
 const sincronosRoutes = require("./routes/sincronosRoutes");
+const pedidosRoutes = require("./routes/pedidosRoutes");
 
 // Use CORS middleware
 app.use(cors({
@@ -37,6 +38,7 @@ app.use("/threadsAva", authenticate, threadsAvaRoutes);
 app.use("/denuncia", authenticate, threadsDenRoutes);
 app.use("/curso", authenticate, cursosRoutes);
 app.use("/sincrono", authenticate, sincronosRoutes);
+app.use("/pedido", authenticate, pedidosRoutes);
 
 app.listen(8000, () => {
   console.log("Servidor na porta 8000");

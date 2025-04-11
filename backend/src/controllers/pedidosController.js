@@ -1,6 +1,7 @@
 const Sequelize = require("sequelize");
 const initModels = require("../models/init-models");
 const sequelizeConn = require("../bdConexao");
+const pedido_curso = require("../models/pedido_curso");
 const models = initModels(sequelizeConn);
 
 const controladorPedidos = {
@@ -20,11 +21,30 @@ const controladorPedidos = {
   // Obter todos os pedidos_curso
   getAllPedidosCurso: async (req, res) => {
     try {
-      const pedidos = await models.pedido_curso.findAll();
+      const pedidos = await models.pedido_curso.findAll({
+        include: [
+          {
+            model: models.curso,
+            as: "ped_curso"
+          },
+          {
+            model: models.formador,
+            as: "ped_formador",
+            include: [
+              {
+                model: models.colaborador,
+                as: "formador_colab",
+                attributes: ["nome"],
+              }
+            ]
+          }
+
+        ]
+      });
       res.status(200).json(pedidos);
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: "Erro ao buscar pedidos_curso" });
+      res.status(500).json({ message: "Erro ao procurar pedidos de curso" });
     }
   },
 
