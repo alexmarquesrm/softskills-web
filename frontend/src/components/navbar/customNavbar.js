@@ -1,14 +1,30 @@
-import React, { useState } from "react";
-import LoginModal from '../../modals/loginModal';
+import React, { useState, useEffect } from "react";
 import { Navbar, Nav, Container } from "react-bootstrap";
-import { LuMenu } from "react-icons/lu";
+import "../navbar/navbar.css";
+import ProfileDropdown from "../profileDropdown";
+import LoginModal from '../../modals/loginModal';
 import NavbarButton from "../buttons/navbarButton";
 import Sidebar from "../sidebar/sidebar";
-import "../navbar/navbar.css";
+import { LuMenu } from "react-icons/lu";
 
 function CustomNavbar() {
   const [showSidebar, setShowSidebar] = useState(false);
   const [open, setOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const checkLoginStatus = () => {
+      const token = sessionStorage.getItem('token');
+      setIsLoggedIn(!!token);
+    };
+
+    checkLoginStatus();
+    window.addEventListener('storage', checkLoginStatus);
+
+    return () => {
+      window.removeEventListener('storage', checkLoginStatus);
+    };
+  }, []);
 
   const handleOpen = () => {
     setOpen(true);
@@ -16,6 +32,11 @@ function CustomNavbar() {
 
   const handleClose = () => {
     setOpen(false);
+  };
+
+  const handleLoginSuccess = () => {
+    setOpen(false);
+    setIsLoggedIn(true);
   };
 
   return (
@@ -32,8 +53,24 @@ function CustomNavbar() {
           </Nav>
 
           <div className="d-flex align-items-center">
-            <NavbarButton text="Login" onClick={handleOpen} />
-            <LoginModal open={open} handleClose={handleClose} />
+            {!isLoggedIn ? (
+              <>
+                <NavbarButton text="Login" onClick={handleOpen} />
+                <LoginModal
+                  open={open}
+                  handleClose={handleClose}
+                  onLoginSuccess={handleLoginSuccess}
+                />
+              </>
+            ) : (
+              <ProfileDropdown
+                imageUrl="https://via.placeholder.com/40"
+                onLogout={() => {
+                  sessionStorage.clear();
+                  setIsLoggedIn(false);
+                }}
+              />
+            )}
           </div>
         </Container>
       </Navbar>

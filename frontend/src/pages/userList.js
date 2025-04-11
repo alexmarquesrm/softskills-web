@@ -15,20 +15,27 @@ export default function UsersTable() {
     { field: 'telefone', headerName: 'Telefone', flex: 0.5, headerAlign: 'left', disableColumnMenu: true },
     { field: 'departamento', headerName: 'Departamento', flex: 0.5, headerAlign: 'left', disableColumnMenu: true },
     { field: 'funcao', headerName: 'Função', flex: 0.5, headerAlign: 'left', disableColumnMenu: true },
-    { field: 'status', headerName: ' ', flex: 0.5, headerAlign: 'left', sortable: false, renderCell: (params) => ( <div style={{
-      display: 'flex',
-      alignItems: 'center',
-      height: '100%',
-      width: '100%',
-    }}> <EditButton onClick={() => alert(`Editar ${params.row.nome}`)} Icon={FaPencilAlt} /> </div> ), disableColumnMenu: true },
+    {
+      field: 'status', headerName: ' ', flex: 0.5, headerAlign: 'left', sortable: false, renderCell: (params) => (<div style={{
+        display: 'flex',
+        alignItems: 'center',
+        height: '100%',
+        width: '100%',
+      }}> <EditButton onClick={() => alert(`Editar ${params.row.nome}`)} Icon={FaPencilAlt} /> </div>), disableColumnMenu: true
+    },
   ];
 
   const fetchData = async () => {
     try {
-      const response = await axios.get(`/colaborador`);
-      const utilizadores = response.data; 
-      console.log(utilizadores);
+      //const token = sessionStorage.getItem('token');
+      const token = "tokenFixo";
+      console.log(token);
+      const response = await axios.get(`/colaborador`, {
+        headers: { Authorization: `${token}` }
+      });
 
+      const utilizadores = response.data;
+      console.log(utilizadores);
 
       const sortedUtilizadores = utilizadores.sort((a, b) => a.colaborador_id - b.colaborador_id);
 
@@ -58,10 +65,10 @@ export default function UsersTable() {
   }
 
   return (
-      <div className="data-container">
-        <div style={{width: '99%', overflowY: 'auto', paddingBottom: '40px', border: 'none', boxShadow: 'none' }}>
-          <DataTable rows={tableRows || []} columns={tableColumns} />
-        </div>
+    <div className="data-container">
+      <div style={{ width: '99%', overflowY: 'auto', paddingBottom: '40px', border: 'none', boxShadow: 'none' }}>
+        <DataTable rows={tableRows || []} columns={tableColumns} />
       </div>
+    </div>
   );
 }

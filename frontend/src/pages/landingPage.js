@@ -11,13 +11,7 @@ function AppContent() {
 
   const fetchData = async () => {
     try {
-      // const token = sessionStorage.getItem('token');
-      const token = "tokenFixo";
-      
-      const response = await axios.get("/curso", {
-        headers: { 
-          Authorization: `${token}` 
-        },
+      const response = await axios.get("/curso/landing", {
       });
       setCursos(response.data);
       console.log(response.data);

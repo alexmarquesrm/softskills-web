@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import axios from '../config/configAxios';
 import { Modal, Button, Form, InputGroup } from 'react-bootstrap';
 import { EyeFill, EyeSlashFill } from 'react-bootstrap-icons';
 import { useNavigate } from 'react-router-dom';
 
-const LoginModal = ({ open, handleClose }) => {
+const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
     const [login, setLogin] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
@@ -18,7 +18,7 @@ const LoginModal = ({ open, handleClose }) => {
     const verificarLogin = async (login) => {
         try {
             const token = sessionStorage.getItem('token');
-            const response = await axios.get(`/credenciais/login/${login}`, {
+            const response = await axios.get(`/colaborador/username/${login}`, {
                 headers: { Authorization: `${token}` }
             });
             return response.status === 200;
@@ -26,7 +26,7 @@ const LoginModal = ({ open, handleClose }) => {
             if (error.response && error.response.status === 404) {
                 return false;
             }
-            console.error('Erro ao verificar e-mail:', error);
+            console.error('Erro ao verificar utilizador:', error);
             return true;
         }
     };
@@ -46,25 +46,11 @@ const LoginModal = ({ open, handleClose }) => {
         }
       
         return errors;
-      };
+    };
 
     const handleClickShowPassword = () => {
         setShowPassword(!showPassword);
     };
-
-    //   const getBase64FromUrl = async (url) => {
-    //     const response = await fetch(url);
-    //     const blob = await response.blob();
-
-    //     return new Promise((resolve, reject) => {
-    //       const reader = new FileReader();
-    //       reader.onloadend = () => {
-    //         resolve(reader.result);
-    //       };
-    //       reader.onerror = reject;
-    //       reader.readAsDataURL(blob);
-    //     });
-    //   };
 
     const handleLogin = async () => {
         const errors = await validateForm();
@@ -72,57 +58,54 @@ const LoginModal = ({ open, handleClose }) => {
         setLoginErrorMessage(errors.loginMessage || "");
         setPassError(errors.passError || false);
         setPassErrorMessage(errors.passMessage || "");
-
+    
         if (Object.keys(errors).length > 0) {
             return;
         }
-
+    
         try {
-            const response = await axios.get(`/credenciais/login/${login}`);
-            const utilizador = response.data.data;
-            console.log("teste", utilizador);
-
-            if (password !== utilizador.passwd) {
-                setPassError(true);
-                setPassErrorMessage("Combinação de email e password incorreta");
-                return;
-            }
-
-            if (utilizador.perfil.descricao === 'User') {
-                alert('Sem acesso a backoffice!');
-                return;
-            }
+            const response = await axios.post('/colaborador/login', {
+                username: login,
+                password: password
+            });
+            const utilizador = response.data.user;
+            console.log("Utilizador:", utilizador);
 
             sessionStorage.setItem('colaboradorid', utilizador.colaboradorid);
             sessionStorage.setItem('nome', utilizador.nome);
-            sessionStorage.setItem('perfil', utilizador.perfil.descricao);
 
             if (utilizador.ultimologin === null) {
                 sessionStorage.setItem('primeirologin', "true");
             } else {
                 sessionStorage.setItem('primeirologin', "false");
             }
+            
+            console.log("Estou aqui");
+            const tokenResponse = await axios.get(`/colaborador/token/${utilizador.colaboradorid}`);
 
-            // if (!utilizador.imagem || !utilizador.imagem.url) {
-            //     sessionStorage.setItem('image', '');
-            // } else {
-            //     const base64String = await getBase64FromUrl(utilizador.imagem.url);
-            //     sessionStorage.setItem('image', base64String);
-            // }
-
-            const tokenResponse = await axios.get(`/credenciais/token/${login}`);
             sessionStorage.setItem('token', tokenResponse.data.token);
             sessionStorage.setItem('saudacao', tokenResponse.data.saudacao);
-            navigate('/dashboard');
+    
+            // Fechar o modal quando o login for bem-sucedido, antes de navegar
+            handleClose();
+            
+            // Notify parent component of successful login
+            if (onLoginSuccess) {
+                onLoginSuccess();
+            }
+            
+            // Após fechar o modal, navegar para a página inicial
+            navigate('/');
         } catch (error) {
-            if (error.response && error.response.status === 404) {
-                alert('Utilizador não encontrado');
+            if (error.response?.status === 404 || error.response?.status === 401) {
+                setPassError(true);
+                setPassErrorMessage("Credenciais inválidas.");
             } else {
                 console.error('Erro ao fazer login:', error);
             }
         }
     };
-
+    
     const resetForm = () => {
         setLogin('');
         setLoginErrorMessage('');

@@ -38,7 +38,6 @@ const controladorPedidos = {
               }
             ]
           }
-
         ]
       });
       res.status(200).json(pedidos);

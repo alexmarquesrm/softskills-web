@@ -1,4 +1,5 @@
 const initModels = require("../models/init-models");
+const { generateToken } = require("../tokenUtils");
 const sequelizeConn = require("../bdConexao");
 const models = initModels(sequelizeConn);
 const bcrypt = require('bcrypt');
@@ -29,18 +30,10 @@ const controladorUtilizadores = {
   },
 
   getUserByLogin: async (req, res) => {
-    const login = req.params.login;
-    console.log("ID do utilizador:", login);
+    const username = req.params.username;
     try {
-      const user = await models.credenciais.findOne({
-        where: { login },
-        include: [
-          {
-            model: models.colaborador,
-            as: "credenciais_colaborador",
-            attributes: ["colaborador_id", "nome", "email"],
-          },
-        ],
+      const user = await models.colaborador.findOne({
+        where: { username: username },
       });
 
       if (!user) {
@@ -50,10 +43,68 @@ const controladorUtilizadores = {
 
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: "Erro ao obter utilizador" });
+      res.status(500).json({ message: "Erro ao encontrar utilizador" });
     }
   },
-  
+
+  login: async (req, res) => {
+    const { username, password } = req.body;
+    
+    try {
+      const user = await models.colaborador.findOne({
+        where: { username }
+      });
+
+      if (!user) {
+        return res.status(404).json({ message: "Utilizador não encontrado" });
+      }
+
+      const passwordMatch = await bcrypt.compare(password, user.pssword);
+      if (!passwordMatch) {
+        return res.status(401).json({ message: "Password incorreta" });
+      }
+
+      const userData = {
+        colaboradorid: user.colaborador_id,
+        nome: user.nome,
+        username: user.username,
+        ultimologin: user.ultimologin,
+      };
+
+      res.status(200).json({ user: userData });
+
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Erro no login" });
+    }
+  },
+
+  novoToken: async (req, res) => {
+    const { id } = req.params;
+    try {
+      const colaborador = await models.colaborador.findByPk(id);
+      
+      const token = generateToken(colaborador);
+
+      // await models.colaborador.update(
+      //   {
+      //     ultimologin: Sequelize.literal("CURRENT_TIMESTAMP"),
+      //   },
+      //   {
+      //     where: {
+      //       utilizadorid: id,
+      //     },
+      //   }
+      // );
+
+      // const saudacao = await sequelizeConn.query(`SELECT ObterSaudacao(${id})`);
+
+      res.status(200).json({ token: token});
+    } catch (error) {
+      res.status(500).json({ error: "Erro ao consultar utilizadores", details: error.message, });
+    }
+  },
+
   createColaborador: async (req, res) => {
     try {
       const {
@@ -67,7 +118,7 @@ const controladorUtilizadores = {
         username,
         password
       } = req.body;
-      
+
       const hashedPassword = await bcrypt.hash(password, 10);
 
       const sql = `
@@ -83,7 +134,7 @@ const controladorUtilizadores = {
           :hashedPassword
         )
       `;
-  
+
       await sequelizeConn.query(sql, {
         replacements: {
           nome,
@@ -98,9 +149,9 @@ const controladorUtilizadores = {
         },
         type: sequelizeConn.QueryTypes.SELECT
       });
-      
+
       res.status(201).json({ message: "Colaborador e formando default criados com sucesso." });
-  
+
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: "Erro ao criar colaborador." });

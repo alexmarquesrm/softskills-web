@@ -36,7 +36,7 @@ app.use("/forum", authenticate, forumRoutes);
 app.use("/thread", authenticate, threadsRoutes);
 app.use("/threadsAva", authenticate, threadsAvaRoutes);
 app.use("/denuncia", authenticate, threadsDenRoutes);
-app.use("/curso", authenticate, cursosRoutes);
+app.use("/curso", cursosRoutes);
 app.use("/sincrono", authenticate, sincronosRoutes);
 app.use("/pedido", authenticate, pedidosRoutes);
 
