@@ -10,7 +10,7 @@ import PerfilUtilizador from "./pages/userProfile";
 import EditarUtilizadorGestor from "./pages/editarUtilizador_Gestor";
 import AdicionarUtilizadorGestor from "./pages/adicionarUtilizador_Gestor";
 import AdicionarFicheiroAssincronoFormador from "./modals/adicionarFicheiroAssincrono_Formador";
-// import PagGestor from "./pages/pageGestor";
+ import PagGestor from "./pages/pageGestor";
 import CustomNavbar from "./components/navbar/customNavbar";
 import Footer from "./components/footer/footer";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -30,7 +30,7 @@ function AppContent() {
                         <Route path="/gestor/editarPerfil" element={<EditarUtilizadorGestor />} />
                         <Route path="/gestor/adicionarPerfil" element={<AdicionarUtilizadorGestor />} />
                         <Route path="/formador/adicionarAssincrono" element={<AdicionarFicheiroAssincronoFormador />} />
-                        {/* <Route path="/landing/gestor" element={<PagGestor />} /> */}
+                        <Route path="/landing/gestor" element={<PagGestor />} />
                     </Route>
 
                     {/* You can also add a catch-all route for 404 pages */}
