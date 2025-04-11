@@ -18,6 +18,8 @@ import { BsArrowReturnLeft } from "react-icons/bs";
 import { FaEye } from "react-icons/fa6";
 import { FaEyeSlash } from "react-icons/fa6";
 
+//import ModalEditarPerfil from "../modals/pedirCurso";
+//import ModalAdicionarFicheiro from "../modals/adicionarFicheiroAssincrono_Formador";
 
 const PerfilUtilizador = () => {
   const [formData, setFormData] = useState("");
@@ -40,7 +42,12 @@ const PerfilUtilizador = () => {
 
 
 
+  //const [showModalEditar, setShowModalEditar] = useState(false);
+  //const [showModalAdicionarFicheiro, setModalAdicionarFicheiro] = useState(false);
+
   
+
+
   
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -260,3 +267,18 @@ const PerfilUtilizador = () => {
 };
 
 export default PerfilUtilizador;
+
+///<Guardar
+//text={"Guardar"}
+//onClick={() => setShowModalEditar(true)}
+//Icon={FaRegSave}
+///>
+//<ModalEditarPerfil show={showModalEditar} handleClose={() => setShowModalEditar(false)} />
+
+
+//<Guardar
+//text={"Assincrono"}
+//onClick={() => setModalAdicionarFicheiro(true)}
+//Icon={FaRegSave}
+///>
+//<ModalAdicionarFicheiro show={showModalAdicionarFicheiro} handleClose={() => setModalAdicionarFicheiro(false)} />

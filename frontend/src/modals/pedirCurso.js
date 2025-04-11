@@ -1,196 +1,158 @@
-import React, { useState } from "react";
-import { Modal, Button, Container, Row, Col, Form } from "react-bootstrap";
-import profilePic from "../logo.svg";
 
-import Guardar from "../components/buttons/saveButton";
-import InputField from "../components/textFields/basic";
-import Cancelar from "../components/buttons/cancelButton";
-import DropdownCheckbox from "../components/dropdown/dropdown";
-
-
-import { BsArrowReturnLeft } from "react-icons/bs";
-import { LuSend } from "react-icons/lu";
-import { IoMdTime } from "react-icons/io";
+import React, { useState } from 'react';
+import { Row, Col, Form } from 'react-bootstrap';
+import InputField from '../components/textFields/basic';
+import DropdownCheckbox from '../components/dropdown/dropdown';
+import { FaBook, FaClock } from 'react-icons/fa';
+import ModalCustom from './ModalCustom'; 
+import Cancelar from '../components/buttons/cancelButton'; 
+import Guardar from '../components/buttons/saveButton'; 
+import { BsArrowReturnLeft } from 'react-icons/bs';
+import { LuSend } from 'react-icons/lu';
 
 const ModalEditarPerfil = ({ show, handleClose }) => {
-    const [formData, setFormData] = useState({});
-    const [nomecurso, setnomecurso] = useState({});
-    const [horas, sethoras] = useState({});
-    const [categoria, setcategoria] = useState([]);
-    const [area, setarea] = useState([]);
-    const [topico, settopico] = useState([]);
-    const [dificuldade, setdificuldade] = useState([]);
-    const [certificado, setcertificado] = useState([]);
+  const [formData, setFormData] = useState({});
+  const [categoria, setCategoria] = useState([]);
+  const [area, setArea] = useState([]);
+  const [topico, setTopico] = useState([]);
+  const [dificuldade, setDificuldade] = useState([]);
+  const [certificado, setCertificado] = useState([]);
 
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData({
+      ...formData,
+      [name]: type === 'checkbox' ? checked : value,
+    });
+  };
 
-    const handleChange = (e) => {
-        const { name, value, type, checked } = e.target;
-        setFormData({
-            ...formData,
-            [name]: type === "checkbox" ? checked : value,
-        });
-    };
-   
-
-    return (
-        <Modal show={show} onHide={handleClose} size="lg" centered>
-            <Modal.Header closeButton>
-                <Modal.Title>Pedir Curso</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-                <Container>
-                    <Row className="mb-4">
-                        <Col md={12}>
-                            <div className="border p-4 shadow-sm rounded">
-                               
-
-                                
-
-                                <Row className="mb-3">
-                                    <InputField
-                                        label="Nome do Curso"
-                                        type="text"
-                                        placeholder="Nome"
-                                        name="nomecurso"
-                                        value={formData.nomecurso}
-                                        onChange={handleChange}
-                                        colSize={6}
-                                    />
-                                    <InputField
-                                        label="Número de Horas"
-                                        type="number"
-                                        placeholder="Horas"
-                                        name="horas"
-                                        value={formData.horas}
-                                        onChange={handleChange}
-                                        icon={<IoMdTime />}
-                                        colSize={6}
-                                    />
-                                </Row>
-
-                                <Row className="mb-3">
-                                <Col md={6}>
-                                <Form.Label>Categoria:</Form.Label>
-                                <DropdownCheckbox
-                                    label="Selecionar"
-                                    options={["Desenvolvimento", "Marketing","Design"]}
-                                    selectedOptions={categoria}
-                                    onChange={(selected) => setcategoria(selected)}
-                                    isMulti={false}
-                                    useCheckboxUI={false}
-                                />
-                                
-                                </Col>
-                               
-                              
-                                <Col md={6}>
-                                <Form.Label>Área:</Form.Label>
-                                <DropdownCheckbox
-                                    label="Selecionar"
-                                    options={["Desenvolvimento Movel", "Desenvolvimento Web","Desenvolvimento de Jogos"]}
-                                    selectedOptions={area}
-                                    onChange={(selected) => setarea(selected)}
-                                    isMulti={false}
-                                    useCheckboxUI={false}
-                                />
-                                
-                                </Col>
-                                
-                               
-                                </Row>
-
-                                <Row className="mb-3">
+  const handleSubmit = () => {
     
-                                <Col md={6}>
-                                <Form.Label>Tópico:</Form.Label>
-                                <DropdownCheckbox
-                                    label="Selecionar"
-                                    options={["Topico 1", "Topico 2","Topico 3"]}
-                                    selectedOptions={topico}
-                                    onChange={(selected) => settopico(selected)}
-                                    isMulti={false}
-                                    useCheckboxUI={false}
-                                />
-                                 </Col>
+    alert('Dados enviados');
+    handleClose();
+  };
 
+  return (
+    <ModalCustom show={show} handleClose={handleClose} title="Pedir Curso" onSubmit={handleSubmit}>
+      <Row className="mb-3">
+        <InputField
+          label="Nome do Curso"
+          type="text"
+          placeholder="Nome"
+          name="nomecurso"
+          value={formData.nomecurso}
+          onChange={handleChange}
+          icon={<FaBook />}
+          colSize={6}
+        />
+        <InputField
+          label="Número de Horas"
+          type="number"
+          placeholder="Horas"
+          name="horas"
+          value={formData.horas}
+          onChange={handleChange}
+          icon={<FaClock />}
+          colSize={6}
+        />
+      </Row>
 
-                                 <Col md={6}>
-                                <Form.Label>Grau de Dificuldade:</Form.Label>
-                                <DropdownCheckbox
-                                    label="Selecionar"
-                                    options={["Dificuldade 1", "Dificuldade 2","Dificuldade 3","Dificuldade 4"]}
-                                    selectedOptions={dificuldade}
-                                    onChange={(selected) => setdificuldade(selected)}
-                                    isMulti={false}
-                                    useCheckboxUI={false}
-                                />
-                                 </Col>
-                                </Row>
-                                <Row className="mb-3">
-    
-                                <Col md={6}>
-                                <Form.Label>Certificado:</Form.Label>
-                                <DropdownCheckbox
-                                    label="Selecionar"
-                                    options={["Sim", "Não"]}
-                                    selectedOptions={certificado}
-                                    onChange={(selected) => setcertificado(selected)}
-                                    isMulti={false}
-                                    useCheckboxUI={false}
-                                />
-                                 </Col>
-                                 </Row>
-                               
+      <Row className="mb-3">
+        <Col md={6}>
+          <Form.Label>Categoria:</Form.Label>
+          <DropdownCheckbox
+            label="Selecionar"
+            options={['Desenvolvimento', 'Marketing', 'Design']}
+            selectedOptions={categoria}
+            onChange={(selected) => setCategoria(selected)}
+            isMulti={false}
+            useCheckboxUI={false}
+          />
+        </Col>
 
-                                
-                                <Row className="mb-3">
-                    <InputField
-                      label="Descrição"
-                      type="textarea"
-                      placeholder="Tudo sobre o curso"
-                      name="sobreMim"
-                      value={formData.sobreMim}
-                      onChange={handleChange}
-                      colSize={12}
-                      rows={5}
-                      style={{ resize: "none" }}
-                    />
-                  </Row>
+        <Col md={6}>
+          <Form.Label>Área:</Form.Label>
+          <DropdownCheckbox
+            label="Selecionar"
+            options={['Desenvolvimento Movel', 'Desenvolvimento Web', 'Desenvolvimento de Jogos']}
+            selectedOptions={area}
+            onChange={(selected) => setArea(selected)}
+            isMulti={false}
+            useCheckboxUI={false}
+          />
+        </Col>
+      </Row>
 
-                                <div className="d-flex justify-content-center mt-4">
-                                    <Cancelar
-                                        text={"Cancelar"}
-                                        onClick={handleClose}
-                                        Icon={BsArrowReturnLeft}
-                                        inline={true}
-                                    />
-                                    <Guardar
-                                        text={"Enviar"}
-                                        onClick={() => alert("Botão Enviar clicado")}
-                                        Icon={LuSend}
-                                    />
-                                </div>
-                            </div>
-                        </Col>
-                    </Row>
-                </Container>
-            </Modal.Body>
-        </Modal>
-    );
+      <Row className="mb-3">
+        <Col md={6}>
+          <Form.Label>Tópico:</Form.Label>
+          <DropdownCheckbox
+            label="Selecionar"
+            options={['Tópico 1', 'Tópico 2', 'Tópico 3']}
+            selectedOptions={topico}
+            onChange={(selected) => setTopico(selected)}
+            isMulti={false}
+            useCheckboxUI={false}
+          />
+        </Col>
+
+        <Col md={6}>
+          <Form.Label>Grau de Dificuldade:</Form.Label>
+          <DropdownCheckbox
+            label="Selecionar"
+            options={['Dificuldade 1', 'Dificuldade 2', 'Dificuldade 3', 'Dificuldade 4']}
+            selectedOptions={dificuldade}
+            onChange={(selected) => setDificuldade(selected)}
+            isMulti={false}
+            useCheckboxUI={false}
+          />
+        </Col>
+      </Row>
+
+      <Row className="mb-3">
+        <Col md={6}>
+          <Form.Label>Certificado:</Form.Label>
+          <DropdownCheckbox
+            label="Selecionar"
+            options={['Sim', 'Não']}
+            selectedOptions={certificado}
+            onChange={(selected) => setCertificado(selected)}
+            isMulti={false}
+            useCheckboxUI={false}
+          />
+        </Col>
+      </Row>
+
+      <Row className="mb-3">
+        <InputField
+          label="Descrição"
+          type="textarea"
+          placeholder="Tudo sobre o curso"
+          name="sobreMim"
+          value={formData.sobreMim}
+          onChange={handleChange}
+          colSize={12}
+          rows={5}
+          style={{ resize: 'none' }}
+        />
+      </Row>
+
+      
+      <div className="d-flex justify-content-center mt-4">
+        <Cancelar
+          text="Cancelar"
+          onClick={handleClose}
+          Icon={BsArrowReturnLeft}
+          inline={true}
+        />
+        <Guardar
+          text="Enviar"
+          onClick={handleSubmit} 
+          Icon={LuSend}
+        />
+      </div>
+    </ModalCustom>
+  );
 };
 
 export default ModalEditarPerfil;
-
-
-//Exemplo para depois puxar a modal
-// const [showModalEditar, setShowModalEditar] = useState(false);
-  
-
-                        {/* Modal teste para pedir curso */}
-                        //<Guardar
-                          //text={"Guardar"}
-                          //onClick={() => setShowModalEditar(true)}
-                          //Icon={FaRegSave}
-                        ///>
-                        //<ModalEditarPerfil show={showModalEditar} handleClose={() => setShowModalEditar(false)} />
-                  {/* --------------------------------------------------- */}
