@@ -91,7 +91,7 @@ const controladorCursos = {
             attributes: ["descricao"],
           },
         ],
-        attributes: ["curso_id", "titulo", "descricao", "tipo", "total_horas", "pendente"],
+        attributes: ["curso_id", "titulo", "descricao", "tipo", "total_horas", "pendente", "nivel"],
       });
 
       const cursosResumidos = cursos.map((curso) => {
