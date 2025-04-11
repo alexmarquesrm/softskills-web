@@ -1,4 +1,4 @@
-const Sequelize = require("sequelize");
+const { Sequelize, QueryTypes, json, where, or } = require('sequelize');
 const initModels = require("../models/init-models");
 const sequelizeConn = require("../bdConexao");
 const colaborador = require("../models/colaborador");
@@ -137,48 +137,66 @@ const controladorCursos = {
 
   getAllLanding: async (req, res) => {
     try {
-      const cursos = await models.curso.findAll({
-        include: [
-          {
-            model: models.sincrono,
-            as: "curso_sincrono",
-            attributes: ["curso_id", "formador_id", "limite_vagas", "data_inicio", "data_fim", "estado"],
-            include: [
-              {
-                model: models.formador,
-                as: "sincrono_formador",
-                attributes: ["formador_id", "especialidade"],
-                include: [
-                  {
-                    model: models.colaborador,
-                    as: "formador_colab",
-                    attributes: ["nome", "email", "telefone"],
-                  },
-                ],
-              },
-            ],
-          },
-          {
-            model: models.gestor,
-            as: "gestor",
-            attributes: ["gestor_id"],
-            include: [
-              {
-                model: models.colaborador,
-                as: "gestor_colab",
-                attributes: ["nome", "email"],
-              },
-            ],
-          },
-          {
-            model: models.topico,
-            as: "curso_topico",
-            attributes: ["descricao"],
-          },
-        ],
-        attributes: ["curso_id", "titulo", "descricao", "tipo", "total_horas", "pendente", "nivel"],
-      });
-
+      const cursos = await sequelizeConn.query( `
+        SELECT 
+          curso.curso_id, 
+          curso.titulo, 
+          curso.descricao, 
+          curso.tipo, 
+          curso.total_horas, 
+          curso.pendente, 
+          curso.nivel, 
+          COUNT(inscricao.curso_id) AS numero_inscricoes,
+          topico.descricao AS topico_descricao,
+          gestor_colab.nome AS gestor_nome,
+          gestor_colab.email AS gestor_email,
+          sincrono.data_inicio,
+          sincrono.data_fim,
+          sincrono.limite_vagas,
+          sincrono.estado,
+          formador_colab.nome AS formador_nome,
+          formador_colab.email AS formador_email,
+          formador_colab.telefone AS formador_telefone
+        FROM 
+          curso
+        LEFT JOIN 
+          inscricao ON curso.curso_id = inscricao.curso_id
+        LEFT JOIN 
+          sincrono ON curso.curso_id = sincrono.curso_id
+        LEFT JOIN 
+          formador AS sincrono_formador ON sincrono.formador_id = sincrono_formador.formador_id
+        LEFT JOIN 
+          colaborador AS formador_colab ON sincrono_formador.formador_id = formador_colab.colaborador_id
+        LEFT JOIN 
+          gestor ON curso.gestor_id = gestor.gestor_id
+        LEFT JOIN 
+          colaborador AS gestor_colab ON gestor.gestor_id = gestor_colab.colaborador_id 
+        LEFT JOIN 
+          topico ON curso.topico_id = topico.topico_id
+        GROUP BY 
+          curso.curso_id, curso.titulo, 
+          curso.descricao, 
+          curso.tipo, 
+          curso.total_horas, 
+          curso.pendente, 
+          curso.nivel, 
+          topico.descricao,
+          gestor_colab.nome,
+          gestor_colab.email,
+          sincrono.data_inicio,
+          sincrono.data_fim,
+          sincrono.limite_vagas,
+          sincrono.estado,
+          formador_colab.nome,
+          formador_colab.email,
+          formador_colab.telefone
+        ORDER BY 
+          numero_inscricoes DESC
+        LIMIT 6;
+      `,{ type: QueryTypes.SELECT }
+      );
+      
+      // Processando os resultados
       const cursosResumidos = cursos.map((curso) => {
         return {
           id: curso.curso_id,
@@ -188,35 +206,36 @@ const controladorCursos = {
           total_horas: curso.total_horas,
           pendente: curso.pendente,
           nivel: curso.nivel,
-          topico: curso.curso_topico?.descricao || null,
+          topico: curso.topico_descricao || null,
           gestor: {
-            nome: curso.gestor?.gestor_colab?.nome || null,
-            email: curso.gestor?.gestor_colab?.email || null,
+            nome: curso.gestor_nome || null,
+            email: curso.gestor_email || null,
           },
-          sincrono: curso.curso_sincrono ? {
-            inicio: curso.curso_sincrono.data_inicio,
-            fim: curso.curso_sincrono.data_fim,
-            vagas: curso.curso_sincrono.limite_vagas,
-            estado: curso.curso_sincrono.estado,
-            formador: curso.curso_sincrono.sincrono_formador ? {
-              formador_id: curso.curso_sincrono.sincrono_formador.formador_id,
-              especialidade: curso.curso_sincrono.sincrono_formador.especialidade,
-              colaborador: {
-                nome: curso.curso_sincrono.sincrono_formador.formador_colab?.nome || null,
-                email: curso.curso_sincrono.sincrono_formador.formador_colab?.email || null,
-                telefone: curso.curso_sincrono.sincrono_formador.formador_colab?.telefone || null,
+          sincrono: curso.data_inicio
+            ? {
+                inicio: curso.data_inicio,
+                fim: curso.data_fim,
+                vagas: curso.limite_vagas,
+                estado: curso.estado,
+                formador: curso.formador_nome
+                  ? {
+                      nome: curso.formador_nome || null,
+                      email: curso.formador_email || null,
+                      telefone: curso.formador_telefone || null,
+                    }
+                  : null,
               }
-            } : null
-          } : null,
+            : null,
+          numero_inscricoes: curso.numero_inscricoes,
         };
       });
-
+  
       res.json(cursosResumidos);
     } catch (error) {
-      console.error("Erro ao obter cursos:", error);
-      res.status(500).json({ message: "Erro interno ao obter cursos" });
+      console.error('Erro ao obter cursos:', error);
+      res.status(500).json({ message: 'Erro interno ao obter cursos' });
     }
-  },
+  },  
 
   // Obter um curso pelo ID
   getCursoById: async (req, res) => {

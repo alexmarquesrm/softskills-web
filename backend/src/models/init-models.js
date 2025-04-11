@@ -114,8 +114,8 @@ function initModels(sequelize) {
   curso.hasMany(curso_copia, { as: "curso_copia", foreignKey: "curso_copia_id"});
   curso_copia.belongsTo(curso, { as: "parent_curso", foreignKey: "parent_curso_id"});
   curso.hasMany(curso_copia, { as: "parent_curso_curso_copia", foreignKey: "parent_curso_id"});
-  inscricao.belongsTo(curso, { as: "curso", foreignKey: "curso_id"});
-  curso.hasMany(inscricao, { as: "inscricaos", foreignKey: "curso_id"});
+  inscricao.belongsTo(curso, { as: "inscricao_curso", foreignKey: "curso_id"});
+  curso.hasMany(inscricao, { as: "curso_inscricaos", foreignKey: "curso_id"});
   notificacao.belongsTo(curso, { as: "curso", foreignKey: "curso_id"});
   curso.hasMany(notificacao, { as: "notificacaos", foreignKey: "curso_id"});
   pedido_curso.belongsTo(curso, { as: "ped_curso", foreignKey: "curso_id"});
@@ -134,8 +134,8 @@ function initModels(sequelize) {
   formando.hasMany(avaliacao_quizz, { as: "avaliacao_quizzs", foreignKey: "formando_id"});
   denuncias.belongsTo(formando, { as: "formando", foreignKey: "formando_id"});
   formando.hasMany(denuncias, { as: "denuncia", foreignKey: "formando_id"});
-  inscricao.belongsTo(formando, { as: "formando", foreignKey: "formando_id"});
-  formando.hasMany(inscricao, { as: "inscricaos", foreignKey: "formando_id"});
+  inscricao.belongsTo(formando, { as: "inscricao_formando", foreignKey: "formando_id"});
+  formando.hasMany(inscricao, { as: "formando_inscricaos", foreignKey: "formando_id"});
   notificacoes_formando.belongsTo(formando, { as: "formando", foreignKey: "formando_id"});
   formando.hasMany(notificacoes_formando, { as: "notificacoes_formandos", foreignKey: "formando_id"});
   preferencias_categoria.belongsTo(formando, { as: "prefcat_formando", foreignKey: "formando_id"});
