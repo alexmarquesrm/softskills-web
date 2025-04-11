@@ -120,15 +120,15 @@ INSERT INTO FORMADOR (FORMADOR_ID, ESPECIALIDADE) VALUES
 -- Inserção na Tabela CURSO - Corrigido com PENDENTE TRUE indicando pedidos de curso
 INSERT INTO CURSO (GESTOR_ID, TOPICO_ID, TIPO, TOTAL_HORAS, TITULO, DESCRICAO, PENDENTE, CERTIFICADO, NIVEL) VALUES
 (1, 1, 'S', 40, 'Introdução ao JavaScript', 'Curso básico de JavaScript, para iniciantes.', FALSE, TRUE,  1),
-(1, 2, 'A', 50, 'Fundamentos de Python', 'Curso para iniciantes em Python, abordando conceitos básicos.', FALSE, 1),
-(1, 3, 'S', 60, 'Desenvolvimento com React', 'Curso avançado de React para criar aplicações dinâmicas.', FALSE, TRUE 3),
-(1, 4, 'A', 45, 'Introdução ao Node.js', 'Curso básico sobre Node.js e como utilizá-lo no desenvolvimento web.', TRUE, FALSE 1),
-(1, 5, 'S', 70, 'Design Gráfico com Illustrator', 'Curso avançado de design gráfico usando o Illustrator.', FALSE, FALSE 3),
-(1, 6, 'A', 55, 'Introdução ao C#', 'Curso para iniciantes em C#, abordando sintaxe básica e estrutura de dados.', TRUE, TRUE 1),
-(1, 7, 'A', 65, 'Desenvolvimento de Jogos com Unity', 'Curso avançado de Unity para criação de jogos.', TRUE, FALSE 3),
-(1, 8, 'A', 80, 'Desenvolvimento de Jogos com Unreal Engine', 'Curso sobre o desenvolvimento de jogos usando Unreal Engine.', TRUE, TRUE 2),
-(1, 9, 'A', 90, 'Fotografia Digital Avançada', 'Curso avançado de técnicas de fotografia digital e edição de imagens.', TRUE, FALSE 4),
-(1, 10, 'S', 40, 'Gestão de Projetos com Scrum', 'Curso sobre gestão de projetos ágeis utilizando Scrum.', FALSE, TRUE 2);
+(1, 2, 'A', 50, 'Fundamentos de Python', 'Curso para iniciantes em Python, abordando conceitos básicos.', FALSE, TRUE, 1),
+(1, 3, 'S', 60, 'Desenvolvimento com React', 'Curso avançado de React para criar aplicações dinâmicas.', FALSE, TRUE, 3),
+(1, 4, 'A', 45, 'Introdução ao Node.js', 'Curso básico sobre Node.js e como utilizá-lo no desenvolvimento web.', TRUE, FALSE, 1),
+(1, 5, 'S', 70, 'Design Gráfico com Illustrator', 'Curso avançado de design gráfico usando o Illustrator.', FALSE, FALSE, 3),
+(1, 6, 'A', 55, 'Introdução ao C#', 'Curso para iniciantes em C#, abordando sintaxe básica e estrutura de dados.', TRUE, TRUE, 1),
+(1, 7, 'A', 65, 'Desenvolvimento de Jogos com Unity', 'Curso avançado de Unity para criação de jogos.', TRUE, FALSE, 3),
+(1, 8, 'A', 80, 'Desenvolvimento de Jogos com Unreal Engine', 'Curso sobre o desenvolvimento de jogos usando Unreal Engine.', TRUE, TRUE, 2),
+(1, 9, 'A', 90, 'Fotografia Digital Avançada', 'Curso avançado de técnicas de fotografia digital e edição de imagens.', TRUE, FALSE, 4),
+(1, 10, 'S', 40, 'Gestão de Projetos com Scrum', 'Curso sobre gestão de projetos ágeis utilizando Scrum.', FALSE, TRUE, 2);
 
 -- Inserção na Tabela ASSINCRONO
 INSERT INTO ASSINCRONO (CURSO_ID) VALUES
@@ -219,10 +219,10 @@ INSERT INTO THREADS_AVALIACAO (THREAD_ID, FORMANDO_ID, VOTE) VALUES
 (3, 3, 1);  -- Formando 3 votou positivamente na thread 3
 
 -- Inserção na Tabela DENUNCIAS
-INSERT INTO DENUNCIAS (THREAD_ID, FORMANDO_ID, DESCRICAO) VALUES
-(1, 1, 'Postagem com conteúdo irrelevante para o tópico.'),
-(2, 2, 'Spam na descrição do tópico, irrelevante para SEO.'),
-(3, 3, 'Conteúdo de baixa qualidade na descrição do tópico.');
+INSERT INTO DENUNCIAS (THREAD_ID, FORMANDO_ID, MOTIVO, DESCRICAO, DATA) VALUES
+(1, 1, 'I' ,'Post com conteúdo irrelevante para o tópico.', CURRENT_TIMESTAMP),
+(2, 2, 'S', 'Spam na descrição do tópico, irrelevante para SEO.', CURRENT_TIMESTAMP),
+(3, 3, 'O', 'Conteúdo de baixa qualidade na descrição do tópico.', CURRENT_TIMESTAMP);
 
 -- Inserção na Tabela COMENTARIOS
 INSERT INTO COMENTARIOS (THREAD_ID, COLABORADOR_ID, DESCRICAO) VALUES

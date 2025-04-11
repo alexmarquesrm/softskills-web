@@ -23,10 +23,18 @@ module.exports = function(sequelize, DataTypes) {
         key: 'formando_id'
       }
     },
+    motivo: {
+      type: DataTypes.TEXT,
+      allowNull: false
+    },
     descricao: {
       type: DataTypes.TEXT,
       allowNull: false
-    }
+    },
+    data: {
+      type: DataTypes.DATE,
+      allowNull: false
+    },
   }, {
     sequelize,
     tableName: 'denuncias',
