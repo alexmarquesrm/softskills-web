@@ -92,7 +92,6 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
                 onLoginSuccess();
             }
             
-            // Após fechar o modal, navegar para a página inicial
             navigate('/');
         } catch (error) {
             if (error.response?.status === 404 || error.response?.status === 401) {

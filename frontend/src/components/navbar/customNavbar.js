@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, navigate } from "react";
 import { Navbar, Nav, Container } from "react-bootstrap";
+import { useNavigate } from 'react-router-dom';
 import "../navbar/navbar.css";
 import ProfileDropdown from "../profileDropdown";
 import LoginModal from '../../modals/loginModal';
@@ -11,6 +12,7 @@ function CustomNavbar() {
   const [showSidebar, setShowSidebar] = useState(false);
   const [open, setOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const checkLoginStatus = () => {
@@ -68,6 +70,7 @@ function CustomNavbar() {
                 onLogout={() => {
                   sessionStorage.clear();
                   setIsLoggedIn(false);
+                  navigate('/');
                 }}
               />
             )}
