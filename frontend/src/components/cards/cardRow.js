@@ -18,9 +18,9 @@ function CardRow({ dados = [], renderCard, colSize = 3, scrollable = false }) {
 
     // Caso contrário, grid com colunas
     return (
-        <Row className="g-3">
+        <Row className="g-3 justify-content-center">
             {dados.map((item, index) => (
-                <Col key={index} md={colSize} className="d-flex">
+                <Col key={index} md={colSize} className="d-flex" style={{ maxWidth: '450px' }}>
                     <div className="w-100">
                         {renderCard(item, index)}
                     </div>

@@ -3,6 +3,11 @@ import Card from 'react-bootstrap/Card';
 import "./cardPedido.css";
 
 function CardPedido({ pedido, index }) {
+  const formatDate = (date) => {
+    const data = new Date(date);
+    return data.toISOString().split('T')[0];
+  };
+  
   const variants = [
     '#E1D2FF',  // Lavanda pastel
     '#FDE1AC',  // Amarelo pastel
@@ -11,9 +16,7 @@ function CardPedido({ pedido, index }) {
   ];
 
   // Usar o índice para selecionar a cor
-  const currentVariant = variants[index % variants.length];  // Garantir que o índice não ultrapasse o tamanho do array
-
-  console.log(index);  // Deve agora mostrar o valor do index corretamente
+  const currentVariant = variants[index % variants.length];
 
   return (
     <Card
@@ -33,7 +36,7 @@ function CardPedido({ pedido, index }) {
           </div>
         </Card.Text>
         <Card.Text>
-          Dia do Pedido: {pedido?.data_pedido ?? 'Indefinido'}
+          Data do Pedido: {formatDate(pedido?.data ?? 'Indefenido')}
         </Card.Text>
       </Card.Body>
     </Card>

@@ -27,15 +27,13 @@ export default function UsersTable() {
 
   const fetchData = async () => {
     try {
-      //const token = sessionStorage.getItem('token');
-      const token = "tokenFixo";
-      console.log(token);
+      const token = sessionStorage.getItem('token');
+
       const response = await axios.get(`/colaborador`, {
         headers: { Authorization: `${token}` }
       });
 
       const utilizadores = response.data;
-      console.log(utilizadores);
 
       const sortedUtilizadores = utilizadores.sort((a, b) => a.colaborador_id - b.colaborador_id);
 
