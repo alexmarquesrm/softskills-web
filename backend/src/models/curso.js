@@ -43,6 +43,10 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.BOOLEAN,
       allowNull: false
     },
+    certificado: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false
+    },
     nivel: {
       type: DataTypes.INTEGER,
       allowNull: false
