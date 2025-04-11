@@ -46,6 +46,13 @@ const controladorThreadsDen = {
           {
             model: models.formando,
             as: "formando",
+            include: [
+              {
+                model: models.colaborador,
+                as: "formando_colab",
+                attributes: ["nome"],
+              },
+            ],
           },
         ],
       });
