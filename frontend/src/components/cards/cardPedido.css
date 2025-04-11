@@ -1,0 +1,7 @@
+.descricao-limitada {
+    display: inline-block;
+    max-width: 222px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
