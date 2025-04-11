@@ -42,6 +42,10 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: false,
       unique: "colaborador_telefone_key"
     },
+    sobre_mim: {
+      type: DataTypes.TEXT,
+      allowNull: true
+    },
     score: {
       type: DataTypes.INTEGER,
       allowNull: true,

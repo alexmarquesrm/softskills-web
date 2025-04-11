@@ -80,7 +80,6 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
                 sessionStorage.setItem('primeirologin', "false");
             }
             
-            console.log("Estou aqui");
             const tokenResponse = await axios.get(`/colaborador/token/${utilizador.colaboradorid}`);
 
             sessionStorage.setItem('token', tokenResponse.data.token);
@@ -94,7 +93,6 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
                 onLoginSuccess();
             }
             
-            // Após fechar o modal, navegar para a página inicial
             navigate('/');
         } catch (error) {
             if (error.response?.status === 404 || error.response?.status === 401) {

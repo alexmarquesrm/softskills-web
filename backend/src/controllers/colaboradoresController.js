@@ -7,7 +7,11 @@ const bcrypt = require('bcrypt');
 const controladorUtilizadores = {
   getAllColaboradores: async (req, res) => {
     try {
-      const colaboradores = await models.colaborador.findAll();
+      const colaboradores = await models.colaborador.findAll({
+        attributes: {
+          exclude: ['pssword']
+        }
+      });
       res.json(colaboradores);
     } catch (error) {
       console.error(error);
@@ -18,7 +22,11 @@ const controladorUtilizadores = {
   getColaboradorById: async (req, res) => {
     const id = req.params.id;
     try {
-      const colaborador = await models.colaborador.findByPk(id);
+      const colaborador = await models.colaborador.findByPk(id, {
+        attributes: {
+          exclude: ['pssword']
+        }
+      });
       if (!colaborador) {
         return res.status(404).json({ message: "Colaborador não encontrado" });
       }
@@ -49,7 +57,7 @@ const controladorUtilizadores = {
 
   login: async (req, res) => {
     const { username, password } = req.body;
-    
+
     try {
       const user = await models.colaborador.findOne({
         where: { username }
@@ -83,7 +91,7 @@ const controladorUtilizadores = {
     const { id } = req.params;
     try {
       const colaborador = await models.colaborador.findByPk(id);
-      
+
       const token = generateToken(colaborador);
 
       // await models.colaborador.update(
@@ -99,7 +107,7 @@ const controladorUtilizadores = {
 
       // const saudacao = await sequelizeConn.query(`SELECT ObterSaudacao(${id})`);
 
-      res.status(200).json({ token: token});
+      res.status(200).json({ token: token });
     } catch (error) {
       res.status(500).json({ error: "Erro ao consultar utilizadores", details: error.message, });
     }
@@ -115,6 +123,7 @@ const controladorUtilizadores = {
         departamento,
         telefone,
         score,
+        sobre_mim,
         username,
         password
       } = req.body;
@@ -130,6 +139,7 @@ const controladorUtilizadores = {
           :departamento,
           :telefone,
           :score,
+          :sobre_mim,
           :username,
           :hashedPassword
         )
@@ -144,6 +154,7 @@ const controladorUtilizadores = {
           departamento,
           telefone,
           score,
+          sobre_mim,
           username,
           hashedPassword
         },
@@ -161,13 +172,27 @@ const controladorUtilizadores = {
   updateColaborador: async (req, res) => {
     const id = req.params.id;
     try {
-      const updated = await models.colaborador.update(req.body, {
+      const dadosAtualizados = { ...req.body };
+
+      // Se vier uma nova password, fazer o hash
+      if (dadosAtualizados.novaPassword) {
+        const hashedPassword = await bcrypt.hash(dadosAtualizados.novaPassword, 10);
+        dadosAtualizados.pssword = hashedPassword;
+      }
+
+      // Remover campos auxiliares que não existem na tabela
+      delete dadosAtualizados.novaPassword;
+      delete dadosAtualizados.confirmarPassword;
+
+      const updated = await models.colaborador.update(dadosAtualizados, {
         where: { colaborador_id: id },
       });
-      if (updated) {
+
+      if (updated[0]) {
         const updatedColaborador = await models.colaborador.findByPk(id);
         return res.json(updatedColaborador);
       }
+
       res.status(404).json({ message: "Colaborador não encontrado" });
     } catch (error) {
       console.error(error);
