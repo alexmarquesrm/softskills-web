@@ -41,7 +41,7 @@ const controladorThreadsDen = {
         include: [
           {
             model: models.threads,
-            as: "thread",
+            as: "den_thread",
           },
           {
             model: models.formando,
