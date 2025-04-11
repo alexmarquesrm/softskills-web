@@ -102,7 +102,7 @@ const controladorCursos = {
           tipo: curso.tipo,
           total_horas: curso.total_horas,
           pendente: curso.pendente,
-          tipo: curso.tipo,
+          nivel: curso.nivel,
           topico: curso.curso_topico?.descricao || null,
           gestor: {
             nome: curso.gestor?.gestor_colab?.nome || null,
