@@ -31,11 +31,19 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.INTEGER,
       allowNull: false
     },
+    titulo: {
+      type: DataTypes.TEXT,
+      allowNull: false
+    },
     descricao: {
       type: DataTypes.TEXT,
       allowNull: false
     },
     pendente: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false
+    },
+    certificado: {
       type: DataTypes.BOOLEAN,
       allowNull: false
     },

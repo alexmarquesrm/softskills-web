@@ -38,3 +38,28 @@
   }
 }
 
+html, body, #root {
+  height: 100%;
+  margin: 0;
+}
+
+.app-container {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-container > .content {
+  flex: 1;
+}
+
+.modal-header .btn-close {
+  background-color: transparent; 
+  border: none; 
+  filter: invert(1); 
+}
+
+.modal-header .btn-close span {
+  filter: invert(1); 
+}
+

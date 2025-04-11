@@ -1,0 +1,14 @@
+.card-row-container {
+    display: flex;
+    overflow-x: auto;
+    gap: 1rem;
+    padding: 1rem 0;
+    scrollbar-width: thin;
+    scroll-snap-type: x mandatory; /* Optional: scroll por card */
+  }
+  
+  .card-row-item {
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+  }
+  
