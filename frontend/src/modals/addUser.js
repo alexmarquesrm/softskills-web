@@ -16,9 +16,18 @@ import { BsArrowReturnLeft } from "react-icons/bs";
 
 const ModalAddUser = ({ show, onClose }) => {
   const [formData, setFormData] = useState({});
-  const [cargo, setCargo] = useState("cargo Utilizador");
+  const [pNome, setPNome] = useState([]);
+  const [UNome, setUNome] = useState([]);
+  const [nomeUtilizador, setnomeUtilizador] = useState([]);
+  const [data, setdata] = useState([]);
+  const [email, setemail] = useState([]);
+  const [numeroTelemovel, setnumeroTelemovel] = useState([]);
+  const [departamento, setdepartamento] = useState([]);
+  const [cargo, setCargo] = useState();
   const [ativo, setAtivo] = useState(true);
   const [tipoUtilizador, setTipoUtilizador] = useState([]);
+
+  console.log(cargo);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -72,7 +81,7 @@ const ModalAddUser = ({ show, onClose }) => {
                   label="Primeiro Nome"
                   type="text"
                   name="primeiroNome"
-                  value={formData.primeiroNome || ""}
+                  value={formData.pNome || ""}
                   onChange={handleChange}
                   colSize={6}
                 />
@@ -80,7 +89,7 @@ const ModalAddUser = ({ show, onClose }) => {
                   label="Último Nome"
                   type="text"
                   name="ultimoNome"
-                  value={formData.ultimoNome || ""}
+                  value={formData.UNome || ""}
                   onChange={handleChange}
                   colSize={6}
                 />
