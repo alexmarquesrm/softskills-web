@@ -18,7 +18,7 @@ const ModalAddUser = ({ show, onClose }) => {
   const [formData, setFormData] = useState({});
   const [pNome, setPNome] = useState([]);
   const [UNome, setUNome] = useState([]);
-  const [nomeUtilizador, setnomeUtilizador] = useState([]);
+  const [username, setusername] = useState([]);
   const [data, setdata] = useState([]);
   const [email, setemail] = useState([]);
   const [numeroTelemovel, setnumeroTelemovel] = useState([]);
@@ -77,123 +77,39 @@ const ModalAddUser = ({ show, onClose }) => {
               <hr />
 
               <Row className="mb-3">
-                <InputField
-                  label="Primeiro Nome"
-                  type="text"
-                  name="primeiroNome"
-                  value={formData.pNome || ""}
-                  onChange={handleChange}
-                  colSize={6}
-                />
-                <InputField
-                  label="Último Nome"
-                  type="text"
-                  name="ultimoNome"
-                  value={formData.UNome || ""}
-                  onChange={handleChange}
-                  colSize={6}
-                />
+                <InputField label="Primeiro Nome" type="text" name="primeiroNome" value={formData.pNome || ""} onChange={handleChange} colSize={6} />
+                <InputField label="Último Nome" type="text" name="ultimoNome"  value={formData.UNome || ""}  onChange={handleChange} colSize={6} />
               </Row>
 
               <Row className="mb-3">
-                <InputField
-                  label="Nome Utilizador"
-                  type="text"
-                  name="nomeUtilizador"
-                  value={formData.nomeUtilizador || ""}
-                  onChange={handleChange}
-                  icon={<FaUser />}
-                  colSize={6}
-                />
-                <InputField
-                  label="Data Nascimento"
-                  type="date"
-                  name="dataNasc"
-                  value={formData.dataNasc || ""}
-                  onChange={handleChange}
-                  icon={<IoCalendarNumberSharp />}
-                  colSize={6}
-                />
+                <InputField label="Nome Utilizador" type="text" name="nomeUtilizador" value={formData.username || ""} onChange={handleChange} icon={<FaUser />} colSize={6}/>
+                <InputField label="Data Nascimento" type="date" name="dataNasc" value={formData.dataNasc || ""} onChange={handleChange} icon={<IoCalendarNumberSharp />} colSize={6} />
               </Row>
 
               <Row className="mb-3">
-                <InputField
-                  label="Email"
-                  type="email"
-                  name="email"
-                  value={formData.email || ""}
-                  onChange={handleChange}
-                  icon={<MdEmail />}
-                  colSize={6}
-                />
-                <InputField
-                  label="Número Telemóvel"
-                  type="tel"
-                  name="numeroTelemovel"
-                  value={formData.numeroTelemovel || ""}
-                  onChange={handleChange}
-                  icon={<FaMobileAlt />}
-                  colSize={6}
-                />
+                <InputField label="Email" type="email" name="email" value={formData.email || ""} onChange={handleChange} icon={<MdEmail />} colSize={6}/>
+                <InputField label="Número Telemóvel" type="tel" name="numeroTelemovel" value={formData.numeroTelemovel || ""} onChange={handleChange} icon={<FaMobileAlt />} colSize={6}/>
               </Row>
 
               <Row className="mb-3">
-                <InputField
-                  label="Departamento"
-                  type="text"
-                  name="departamento"
-                  value={formData.departamento || ""}
-                  onChange={handleChange}
-                  icon={<FaBuilding />}
-                  colSize={6}
-                />
-                <InputField
-                  label="Cargo"
-                  type="text"
-                  name="cargo"
-                  value={formData.cargo || ""}
-                  onChange={handleChange}
-                  colSize={6}
-                />
+                <InputField label="Departamento" type="text" name="departamento" value={formData.departamento || ""} onChange={handleChange} icon={<FaBuilding />} colSize={6}/>
+                <InputField label="Cargo" type="text" name="cargo" value={formData.cargo || ""} onChange={handleChange} colSize={6}/>
               </Row>
 
               <Row className="mb-3">
                 <Col md={4}>
                   <Form.Label>Tipo de Utilizador:</Form.Label>
-                  <DropdownCheckbox
-                    label="Selecionar"
-                    options={["Formando", "Formador"]}
-                    selectedOptions={tipoUtilizador}
-                    onChange={(selected) => setTipoUtilizador(selected)}
-                    isMulti={true}
-                    useCheckboxUI={false}
-                  />
+                  <DropdownCheckbox label="Selecionar" options={["Formando", "Formador"]} selectedOptions={tipoUtilizador} onChange={(selected) => setTipoUtilizador(selected)} isMulti={true} useCheckboxUI={false}/>
                 </Col>
               </Row>
 
               <Col md={6}>
-                <Form.Check
-                  type="switch"
-                  id="ativoSwitch"
-                  label={ativo ? "Conta Ativa" : "Conta Inativa"}
-                  checked={ativo}
-                  onChange={() => setAtivo(!ativo)}
-                  className="mt-1"
-                />
+                <Form.Check type="switch" id="ativoSwitch" label={ativo ? "Conta Ativa" : "Conta Inativa"} checked={ativo} onChange={() => setAtivo(!ativo)} className="mt-1"/>
               </Col>
 
               <div className="d-flex justify-content-center mt-4">
-                <Cancelar
-                  text={"Cancelar"}
-                  onClick={onClose}
-                  Icon={BsArrowReturnLeft}
-                  inline={true}
-                />
-                <Guardar
-                  text={"Criar Utilizador"}
-                  onClick={handleSave}
-                  Icon={FaRegSave}
-                />
+                <Cancelar text={"Cancelar"} onClick={onClose} Icon={BsArrowReturnLeft} inline={true}/>
+                <Guardar text={"Criar Utilizador"} onClick={handleSave} Icon={FaRegSave}/>
               </div>
             </div>
           </Col>
