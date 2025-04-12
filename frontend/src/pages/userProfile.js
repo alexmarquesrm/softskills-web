@@ -7,6 +7,7 @@ import profilePic from "../logo.svg";
 import Guardar from "../components/buttons/saveButton";
 import InputField from "../components/textFields/basic";
 import Cancelar from "../components/buttons/cancelButton";
+import  "../modals/ModalCustom";
 
 // ICONS
 import { FaRegSave } from "react-icons/fa";
@@ -19,6 +20,7 @@ import { FaEye, FaEyeSlash } from "react-icons/fa6";
 
 import ModalEditarPerfil from "../modals/pedirCurso";
 import ModalAdicionarFicheiro from "../modals/addFile";
+import ModalAddUser from "../modals/addUser";
 
 
 
@@ -128,6 +130,7 @@ const PerfilUtilizador = () => {
 
   //const [showModalEditar, setShowModalEditar] = useState(false);
   //const [showModalAdicionarFicheiro, setModalAdicionarFicheiro] = useState(false);
+  //const [showModalAddUser, setModalAddUser] = useState(false);
 
 
 
@@ -217,7 +220,8 @@ const PerfilUtilizador = () => {
 
 
 
-              
+        
+           
             </div>
 
                         
@@ -245,6 +249,8 @@ export default PerfilUtilizador;
             //Icon={FaRegSave}
            // />
            // <ModalAdicionarFicheiro show={showModalAdicionarFicheiro} handleClose={() => setModalAdicionarFicheiro(false)} />
+           
+           //<ModalAddUser show={showModalAddUser} handleClose={() => setModalAddUser(false)} />
 
                    
                    
