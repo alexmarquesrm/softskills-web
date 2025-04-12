@@ -113,20 +113,9 @@ const controladorUtilizadores = {
     }
   },
 
-  createColaborador: async (req, res) => {
+  registarNovoColaborador: async (req, res) => {
     try {
-      const {
-        nome,
-        email,
-        data_nasc,
-        cargo,
-        departamento,
-        telefone,
-        score,
-        sobre_mim,
-        username,
-        password
-      } = req.body;
+      const { nome, email, data_nasc, cargo, departamento, telefone, score, sobre_mim, username, password } = req.body;
 
       const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -166,6 +155,71 @@ const controladorUtilizadores = {
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: "Erro ao criar colaborador." });
+    }
+  },
+
+  criarColaborador: async (req, res) => {
+    try {
+      const { nome, email, data_nasc, cargo, departamento, telefone, sobre_mim, username, tipo, especialidade } = req.body;
+
+      const hashedPassword = await bcrypt.hash("123", 10);
+
+      if (tipo === "formando") {
+        const sql = `
+          SELECT criar_colaborador_default_formando( 
+            :nome,
+            :email,
+            :data_nasc,
+            :cargo,
+            :departamento,
+            :telefone,
+            0,
+            :sobre_mim,
+            :username,
+            :hashedPassword
+          )`;
+
+        await sequelizeConn.query(sql, {
+          replacements: { nome, email, data_nasc, cargo, departamento, telefone, sobre_mim, username, hashedPassword },
+          type: sequelizeConn.QueryTypes.SELECT,
+        });
+
+        return res.status(201).json({ message: "Colaborador formando criado com sucesso." });
+
+      } else if (tipo === "formador") {
+        const novoColaborador = await models.colaborador.create({
+          nome,
+          email,
+          username,
+          pssword: hashedPassword,
+          data_nasc,
+          cargo,
+          departamento,
+          telefone,
+          sobre_mim,
+          score: 0
+        });
+
+        // Depois cria o formador com o ID do colaborador criado
+        const novoFormador = await models.formador.create({
+          formador_id: novoColaborador.colaborador_id,
+          especialidade,
+        });
+
+        return res.status(201).json({
+          message: "Formador criado com sucesso",
+          formador: {
+            id: novoFormador.formador_id,
+            especialidade: novoFormador.especialidade,
+          },
+        });
+      }
+
+      return res.status(400).json({ message: "Tipo de colaborador inválido" });
+
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: "Erro ao criar colaborador" });
     }
   },
 
