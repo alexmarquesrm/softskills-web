@@ -110,9 +110,9 @@ export default function EditProfile ({ show, onClose, onSave, initialData = {} }
               </Col>
               <Col xs={8} sm={9} md={10}>
                 <h5 className="mt-3 perfil-nome">
-                  {formData.primeiroNome || "Joana"} {formData.ultimoNome || "Marques"}
+                  {initialData.nome || "Sem nome para mostrar"}
                 </h5>
-                <p>{formData.cargo || "Designer"}</p>
+                <p>{initialData.funcao || "Sem dados"}</p>
               </Col>
             </Row>
 
