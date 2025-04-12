@@ -161,10 +161,10 @@ const controladorUtilizadores = {
   criarColaborador: async (req, res) => {
     try {
       const { nome, email, data_nasc, cargo, departamento, telefone, sobre_mim, username, tipo, especialidade } = req.body;
-
+      console.log(req.body);
       const hashedPassword = await bcrypt.hash("123", 10);
 
-      if (tipo === "formando") {
+      if (tipo === "Formando") {
         const sql = `
           SELECT criar_colaborador_default_formando( 
             :nome,
@@ -173,7 +173,6 @@ const controladorUtilizadores = {
             :cargo,
             :departamento,
             :telefone,
-            0,
             :sobre_mim,
             :username,
             :hashedPassword
@@ -186,7 +185,7 @@ const controladorUtilizadores = {
 
         return res.status(201).json({ message: "Colaborador formando criado com sucesso." });
 
-      } else if (tipo === "formador") {
+      } else if (tipo === "Formador") {
         const novoColaborador = await models.colaborador.create({
           nome,
           email,
@@ -197,7 +196,8 @@ const controladorUtilizadores = {
           departamento,
           telefone,
           sobre_mim,
-          score: 0
+          score: 0,
+          ativo,
         });
 
         // Depois cria o formador com o ID do colaborador criado
