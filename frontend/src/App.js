@@ -8,7 +8,7 @@ import LandingPage from "./pages/landingPage";
 import PagGestor from "./pages/pageGestor";
 import ListaUtilizadores from "./pages/userList";
 import PerfilUtilizador from "./pages/userProfile";
-import EditarUtilizadorGestor from "./pages/gestor/EditUser";
+import EditarUtilizadorGestor from "./modals/EditUser";
 // Modals
 import AdicionarFicheiroAssincronoFormador from "./modals/addFile";
 
@@ -23,10 +23,10 @@ function AppContent() {
             <CustomNavbar />
             <div className="content">
                 <Routes>
-                    {/* Public routes */}
+                  
                     <Route path="/" element={<LandingPage />} />
 
-                    {/* Protected routes - Only accessible when logged in */}
+                  
                     <Route element={<ProtectedRoute />}>
                         <Route path="/utilizadores/lista" element={<ListaUtilizadores />} />
                         <Route path="/utilizadores/perfil" element={<PerfilUtilizador />} />
@@ -35,7 +35,7 @@ function AppContent() {
                         <Route path="/landing/gestor" element={<PagGestor />} />
                     </Route>
 
-                    {/* You can also add a catch-all route for 404 pages */}
+                  
                     <Route path="*" element={<Navigate to="/" />} />
                 </Routes>
             </div>

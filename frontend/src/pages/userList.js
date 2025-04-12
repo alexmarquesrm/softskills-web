@@ -3,10 +3,12 @@ import axios from "../config/configAxios";
 import DataTable from '../components/tables/dataTable';
 import EditButton from "../components/buttons/editButton";
 import { FaPencilAlt } from "react-icons/fa";
-
+import ModalEditarUtilizador from '../modals/EditUser'; 
 export default function UsersTable() {
   const [tableRows, setTableRows] = useState([]);
   const [error, setError] = useState(null);
+  const [showModal, setShowModal] = useState(false); 
+  const [selectedUser, setSelectedUser] = useState(null); 
 
   const tableColumns = [
     { field: 'id', headerName: 'Nº Colaborador', flex: 0.5, headerAlign: 'left', disableColumnMenu: true },
@@ -21,9 +23,18 @@ export default function UsersTable() {
         alignItems: 'center',
         height: '100%',
         width: '100%',
-      }}> <EditButton onClick={() => alert(`Editar ${params.row.nome}`)} Icon={FaPencilAlt} /> </div>), disableColumnMenu: true
+      }}> <EditButton  onClick={() => handleEditClick(params.row)} Icon={FaPencilAlt} /> </div>), disableColumnMenu: true
     },
-  ];
+  ]; const handleEditClick = (userData) => {
+    setSelectedUser(userData); 
+    setShowModal(true);
+  };
+
+  const handleSave = (userData) => {
+   
+    console.log("Salvando usuário:", userData);
+    setShowModal(false); 
+  };
 
   const fetchData = async () => {
     try {
@@ -67,6 +78,14 @@ export default function UsersTable() {
       <div style={{ width: '99%', overflowY: 'auto', paddingBottom: '40px', border: 'none', boxShadow: 'none' }}>
         <DataTable rows={tableRows || []} columns={tableColumns} />
       </div>
+
+    
+      <ModalEditarUtilizador
+        show={showModal}
+        onClose={() => setShowModal(false)} 
+        onSave={handleSave} 
+        initialData={selectedUser || {}} 
+      />
     </div>
   );
 }
