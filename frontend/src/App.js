@@ -8,10 +8,10 @@ import LandingPage from "./pages/landingPage";
 import PagGestor from "./pages/pageGestor";
 import ListaUtilizadores from "./pages/userList";
 import PerfilUtilizador from "./pages/userProfile";
-import EditarUtilizadorGestor from "./pages/editarUtilizador_Gestor";
-import AdicionarUtilizadorGestor from "./pages/adicionarUtilizador_Gestor";
+import EditarUtilizadorGestor from "./pages/gestor/EditUser";
+import AdicionarUtilizadorGestor from "./pages/gestor/addUser";
 // Modals
-import AdicionarFicheiroAssincronoFormador from "./modals/adicionarFicheiroAssincrono_Formador";
+import AdicionarFicheiroAssincronoFormador from "./modals/addFile";
 
 // Components
 import CustomNavbar from "./components/navbar/customNavbar";

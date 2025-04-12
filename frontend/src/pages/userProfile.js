@@ -17,11 +17,10 @@ import { FaBuilding } from "react-icons/fa";
 import { BsArrowReturnLeft } from "react-icons/bs";
 import { FaEye, FaEyeSlash } from "react-icons/fa6";
 
-//import ModalEditarPerfil from "../modals/pedirCurso";
-//import ModalAdicionarFicheiro from "../modals/adicionarFicheiroAssincrono_Formador";
+import ModalEditarPerfil from "../modals/pedirCurso";
+import ModalAdicionarFicheiro from "../modals/addFile";
 
-//const [showModalEditar, setShowModalEditar] = useState(false);
-//const [showModalAdicionarFicheiro, setModalAdicionarFicheiro] = useState(false);
+
 
 const PerfilUtilizador = () => {
   const [formData, setFormData] = useState({
@@ -125,6 +124,13 @@ const PerfilUtilizador = () => {
     });
   };
 
+
+
+  //const [showModalEditar, setShowModalEditar] = useState(false);
+  //const [showModalAdicionarFicheiro, setModalAdicionarFicheiro] = useState(false);
+
+
+
   return (
     <Container className="mt-5">
       <Row className="justify-content-start">
@@ -208,7 +214,14 @@ const PerfilUtilizador = () => {
             <div className="d-flex justify-content-center mt-4">
               <Cancelar text={"Cancelar"} onClick={() => alert("Botão Cancelar clicado")} Icon={BsArrowReturnLeft} inline={true} />
               <Guardar text={"Guardar"} onClick={handleGuardar} Icon={FaRegSave} />
+
+
+
+              
             </div>
+
+                        
+
           </div>
         </Col>
       </Row>
@@ -217,3 +230,22 @@ const PerfilUtilizador = () => {
 };
 
 export default PerfilUtilizador;
+
+            //<Guardar
+           // text={"Guardar"}
+           // onClick={() => setShowModalEditar(true)}
+            //Icon={FaRegSave}
+            ///>
+            //<ModalEditarPerfil show={showModalEditar} handleClose={() => setShowModalEditar(false)} />
+
+
+           // <Guardar
+           // text={"Assincrono"}
+           // onClick={() => setModalAdicionarFicheiro(true)}
+            //Icon={FaRegSave}
+           // />
+           // <ModalAdicionarFicheiro show={showModalAdicionarFicheiro} handleClose={() => setModalAdicionarFicheiro(false)} />
+
+                   
+                   
+                  

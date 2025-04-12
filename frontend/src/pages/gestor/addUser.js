@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { Container, Row, Col, Form } from "react-bootstrap";
-import profilePic from "../logo.svg";
+import profilePic from "../../logo.svg";
 
-import Guardar from "../components/buttons/saveButton";
-import InputField from "../components/textFields/basic";
-import Cancelar from "../components/buttons/cancelButton";
-import DropdownCheckbox from "../components/dropdown/dropdown";
+import Guardar from "../../components/buttons/saveButton";
+import InputField from "../../components/textFields/basic";
+import Cancelar from "../../components/buttons/cancelButton";
+import DropdownCheckbox from "../../components/dropdown/dropdown";
 
 import { FaRegSave } from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
@@ -25,15 +25,19 @@ const EditarPerfilUtilizador_Gestor = () => {
   const [email, setEmail] = useState("");
   const [numeroTelemovel, setNumeroTelemovel] = useState("");
   const [departamento, setDepartamento] = useState("");
-  const [cargo, setCargo] = useState("Designer");
+  const [cargo, setCargo] = useState("cargo Utilizador");
   const [ativo, setAtivo] = useState(true);
   const [tipoUtilizador, setTipoUtilizador] = useState([]);
-
-  const handleCheckboxChange = (newSelectedOptions) => {
-    setTipoUtilizador(newSelectedOptions);
+  
+  
+  const handleCheckboxChange = (value) => {
+    setTipoUtilizador((prev) =>
+      prev.includes(value) 
+        ? prev.filter((tipo) => tipo !== value) 
+        : [...prev, value] 
+    );
   };
-
-
+  
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData({
@@ -46,7 +50,7 @@ const EditarPerfilUtilizador_Gestor = () => {
     <Container className="mt-5">
       <Row className="justify-content-start">
         <Col md={10} className="mb-4">
-          <h2 className="form-title">Editar Utilizador</h2>
+          <h2 className="form-title">Adicionar Utilizador</h2>
         </Col>
       </Row>
 
@@ -91,9 +95,9 @@ const EditarPerfilUtilizador_Gestor = () => {
                 className="text-start d-flex flex-column justify-content-center"
                 style={{ paddingLeft: "1em" }}
               >
-                <h5 className="mt-3 perfil-nome">Joana Marques</h5>
+                <h5 className="mt-3 perfil-nome">Nome do utilizador</h5>
                 <p>{cargo}</p>
-                
+               
               </Col>
             </Row>
 
@@ -106,7 +110,7 @@ const EditarPerfilUtilizador_Gestor = () => {
                     <InputField
                       label="Primeiro Nome"
                       type="text"
-                      placeholder="Joana"
+                      placeholder=""
                       name="primeiroNome"
                       value={formData.primeiroNome}
                       onChange={handleChange}
@@ -115,7 +119,7 @@ const EditarPerfilUtilizador_Gestor = () => {
                     <InputField
                       label="Último Nome"
                       type="text"
-                      placeholder="Marques"
+                      placeholder=""
                       name="ultimoNome"
                       value={formData.ultimoNome}
                       onChange={handleChange}
@@ -127,7 +131,7 @@ const EditarPerfilUtilizador_Gestor = () => {
                     <InputField
                       label="Nome Utilizador"
                       type="text"
-                      placeholder="Joana Marques"
+                      placeholder=""
                       name="nomeUtilizador"
                       value={formData.nomeUtilizador}
                       onChange={handleChange}
@@ -143,7 +147,8 @@ const EditarPerfilUtilizador_Gestor = () => {
                       onChange={handleChange}
                       icon={<IoCalendarNumberSharp />}
                       colSize={6}
-                    //readOnly
+                      //readOnly
+                      
                     />
                   </Row>
 
@@ -151,7 +156,7 @@ const EditarPerfilUtilizador_Gestor = () => {
                     <InputField
                       label="Email"
                       type="email"
-                      placeholder="email@example.com"
+                      placeholder=""
                       name="email"
                       value={formData.email}
                       onChange={handleChange}
@@ -161,7 +166,7 @@ const EditarPerfilUtilizador_Gestor = () => {
                     <InputField
                       label="Número Telemóvel"
                       type="tel"
-                      placeholder="123456789"
+                      placeholder=""
                       name="numeroTelemovel"
                       value={formData.numeroTelemovel}
                       onChange={handleChange}
@@ -170,6 +175,27 @@ const EditarPerfilUtilizador_Gestor = () => {
                     />
                   </Row>
 
+                  <Row className="mb-3">
+                    <InputField
+                      label="Departamento"
+                      type="text"
+                      placeholder=""
+                      name="departamento"
+                      value={formData.departamento}
+                      onChange={handleChange}
+                      icon={<FaBuilding />}
+                      colSize={6}
+                    />
+                    <InputField
+                      label="Cargo"
+                      type="text"
+                      placeholder=""
+                      name="cargo"
+                      value={formData.cargo}
+                      onChange={handleChange}
+                      colSize={6}
+                    />
+                  </Row>
                   <Row className="mb-3">
                     <Col md={4}>
                       <Form.Label>Tipo de Utilizador:</Form.Label>
@@ -195,8 +221,6 @@ const EditarPerfilUtilizador_Gestor = () => {
                     />
                   </Col>
 
-
-
                   <div className="d-flex justify-content-center mt-4">
                     <Cancelar
                       text={"Cancelar"}
@@ -205,8 +229,8 @@ const EditarPerfilUtilizador_Gestor = () => {
                       inline={true}
                     />
                     <Guardar
-                      text={"Guardar"}
-                      onClick={() => alert("Botão Guardar clicado")}
+                      text={"Criar Utilizador"}
+                      onClick={() => alert("Botão Criar clicado")}
                       Icon={FaRegSave}
                     />
                   </div>
