@@ -22,4 +22,3 @@ function addButton({ text, onClick, Icon, inline = false }) {
 }
 
 export default addButton;
-

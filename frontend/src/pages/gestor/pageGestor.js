@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import axios from "../config/configAxios";
-import Card from "../components/cards/cardDestaque"
-import DataTable from '../components/tables/dataTable';
-import CardPedido from '../components/cards/cardPedido';
-import CardRow from '../components/cards/cardRow';
+import axios from "../../config/configAxios";
+import Card from "../../components/cards/cardDestaque"
+import DataTable from '../../components/tables/dataTable';
+import CardPedido from '../../components/cards/cardPedido';
+import CardRow from '../../components/cards/cardRow';
 import { Container } from "react-bootstrap";
 
 export default function PaginaGestor() {

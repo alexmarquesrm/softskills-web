@@ -1,14 +1,27 @@
 import React, { useState, useEffect } from "react";
-import axios from "../config/configAxios";
-import DataTable from '../components/tables/dataTable';
-import EditButton from "../components/buttons/editButton";
+import axios from "../../config/configAxios";
+/* COMPONENTES */
+import Alert from '../components/alerts/alert';
+import DataTable from '../../components/tables/dataTable';
+import EditButton from "../../components/buttons/editButton";
+import AddButton from '../../components/buttons/addButton';
+import SearchBar from '../../components/searchBar/searchBar';
+/* MODALS */
+import ModalEditarUtilizador from '../modals/EditUser';
+import NovoUser from '../../modals/gestor/addUser';
+import EditUser from '../../modals/gestor/editUser';
+/* ICONS */
 import { FaPencilAlt } from "react-icons/fa";
-import ModalEditarUtilizador from '../modals/EditUser'; 
+
 export default function UsersTable() {
+  const [isNewModalOpen, setNewModalOpen] = useState(false);
+  const [isEditModalOpen, setEditModalOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filtroText, setFiltroText] = useState('');
   const [tableRows, setTableRows] = useState([]);
   const [error, setError] = useState(null);
-  const [showModal, setShowModal] = useState(false); 
-  const [selectedUser, setSelectedUser] = useState(null); 
+  const [showModal, setShowModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
 
   const tableColumns = [
     { field: 'id', headerName: 'Nº Colaborador', flex: 0.5, headerAlign: 'left', disableColumnMenu: true },
@@ -23,17 +36,17 @@ export default function UsersTable() {
         alignItems: 'center',
         height: '100%',
         width: '100%',
-      }}> <EditButton  onClick={() => handleEditClick(params.row)} Icon={FaPencilAlt} /> </div>), disableColumnMenu: true
+      }}> <EditButton onClick={() => handleEditClick(params.row)} Icon={FaPencilAlt} /> </div>), disableColumnMenu: true
     },
   ]; const handleEditClick = (userData) => {
-    setSelectedUser(userData); 
+    setSelectedUser(userData);
     setShowModal(true);
   };
 
   const handleSave = (userData) => {
-   
+
     console.log("Salvando usuário:", userData);
-    setShowModal(false); 
+    setShowModal(false);
   };
 
   const fetchData = async () => {
@@ -69,23 +82,33 @@ export default function UsersTable() {
     fetchData();
   }, []);
 
-  if (error) {
-    return <div>Error: {error.message}</div>;
-  }
+  useEffect(() => {
+    if (!isNewModalOpen) {
+      fetchData();
+    }
+  }, [isNewModalOpen]);
+
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value);
+  };
+
+  const handleSearchClick = () => {
+    console.log('Termo de pesquisa:', searchTerm);
+  };
 
   return (
     <div className="data-container">
+      <div style={{ marginBottom: '20px', paddingTop: '20px' }}>
+        <AddButton text='Adicionar' onClick={() => setNewModalOpen(true)} />
+        <SearchBar searchTerm={searchTerm} handleSearchChange={handleSearchChange} handleSearchClick={handleSearchClick} />
+        {/* <ComboFilter options={opcoesFiltro} value={filtroCombo} handleChange={(e) => setFiltroCombo(e.target.value)} /> */}
+      </div>
       <div style={{ width: '99%', overflowY: 'auto', paddingBottom: '40px', border: 'none', boxShadow: 'none' }}>
         <DataTable rows={tableRows || []} columns={tableColumns} />
       </div>
 
-    
-      <ModalEditarUtilizador
-        show={showModal}
-        onClose={() => setShowModal(false)} 
-        onSave={handleSave} 
-        initialData={selectedUser || {}} 
-      />
+      <NovoUser open={isNewModalOpen} onClose={() => setNewModalOpen(false)} />
+      <ModalEditarUtilizador show={showModal} onClose={() => setShowModal(false)} onSave={handleSave} initialData={selectedUser || {}} />
     </div>
   );
 }

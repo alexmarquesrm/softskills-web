@@ -5,10 +5,10 @@ import "./App.css";
 
 // Pages
 import LandingPage from "./pages/landingPage";
-import PagGestor from "./pages/pageGestor";
-import ListaUtilizadores from "./pages/userList";
-import PerfilUtilizador from "./pages/userProfile";
-import EditarUtilizadorGestor from "./modals/EditUser";
+import PagGestor from "./pages/gestor/pageGestor";
+import ListaUtilizadores from "./pages/gestor/userList";
+import PerfilUtilizador from "./pages/formandos/userProfile";
+import EditarUtilizadorGestor from "./modals/gestor/editUser";
 // Modals
 import AdicionarFicheiroAssincronoFormador from "./modals/addFile";
 
@@ -23,10 +23,7 @@ function AppContent() {
             <CustomNavbar />
             <div className="content">
                 <Routes>
-                  
                     <Route path="/" element={<LandingPage />} />
-
-                  
                     <Route element={<ProtectedRoute />}>
                         <Route path="/utilizadores/lista" element={<ListaUtilizadores />} />
                         <Route path="/utilizadores/perfil" element={<PerfilUtilizador />} />
@@ -34,8 +31,6 @@ function AppContent() {
                         <Route path="/formador/adicionarAssincrono" element={<AdicionarFicheiroAssincronoFormador />} />
                         <Route path="/landing/gestor" element={<PagGestor />} />
                     </Route>
-
-                  
                     <Route path="*" element={<Navigate to="/" />} />
                 </Routes>
             </div>

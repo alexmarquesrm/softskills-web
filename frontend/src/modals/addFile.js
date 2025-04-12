@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Row, Col, Form } from 'react-bootstrap';
 import InputField from '../components/textFields/basic';
 import DropdownCheckbox from '../components/dropdown/dropdown';
-import ModalCustom from './ModalCustom';
+import ModalCustom from './modalCustom';
 import Cancelar from '../components/buttons/cancelButton'; 
 import Guardar from '../components/buttons/saveButton'; 
 import { BsArrowReturnLeft } from 'react-icons/bs';

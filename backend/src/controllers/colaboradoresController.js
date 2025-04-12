@@ -160,9 +160,11 @@ const controladorUtilizadores = {
 
   criarColaborador: async (req, res) => {
     try {
-      const { nome, email, data_nasc, cargo, departamento, telefone, sobre_mim, username, tipo, especialidade } = req.body;
+      const { nome, email, data_nasc, cargo, departamento, telefone, sobre_mim=null, score=0, username, tipo, especialidade, inativo } = req.body;
       console.log(req.body);
       const hashedPassword = await bcrypt.hash("123", 10);
+      
+      console.log("Tipo de colaborador:", tipo === "Formador" ? "Formador" : "Formando");
 
       if (tipo === "Formando") {
         const sql = `
@@ -174,12 +176,13 @@ const controladorUtilizadores = {
             :departamento,
             :telefone,
             :sobre_mim,
+            :score,
             :username,
             :hashedPassword
           )`;
 
         await sequelizeConn.query(sql, {
-          replacements: { nome, email, data_nasc, cargo, departamento, telefone, sobre_mim, username, hashedPassword },
+          replacements: { nome, email, data_nasc, cargo, departamento, telefone, sobre_mim, score, username, hashedPassword },
           type: sequelizeConn.QueryTypes.SELECT,
         });
 
@@ -197,9 +200,10 @@ const controladorUtilizadores = {
           telefone,
           sobre_mim,
           score: 0,
-          ativo,
+          inativo,
         });
 
+        console.log("Novo colaborador:", novoColaborador);
         // Depois cria o formador com o ID do colaborador criado
         const novoFormador = await models.formador.create({
           formador_id: novoColaborador.colaborador_id,
