@@ -11,7 +11,7 @@ router.get('/token/:id', colaboradorController.novoToken);
 
 // POST
 router.post("/registo", colaboradorController.registarNovoColaborador);
-router.post("adicionar", authenticate, colaboradorController.criarColaborador);
+router.post("/adicionar", authenticate, colaboradorController.criarColaborador);
 router.post('/login', colaboradorController.login);
 
 // PUT
