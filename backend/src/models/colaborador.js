@@ -31,11 +31,11 @@ module.exports = function(sequelize, DataTypes) {
     },
     cargo: {
       type: DataTypes.TEXT,
-      allowNull: false
+      allowNull: true
     },
     departamento: {
       type: DataTypes.TEXT,
-      allowNull: false
+      allowNull: true
     },
     telefone: {
       type: DataTypes.DECIMAL,
