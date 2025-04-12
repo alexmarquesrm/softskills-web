@@ -77,12 +77,12 @@ const ModalAddUser = ({ show, onClose }) => {
               <hr />
 
               <Row className="mb-3">
-                <InputField label="Primeiro Nome" type="text" name="primeiroNome" value={formData.pNome || ""} onChange={handleChange} colSize={6} />
-                <InputField label="Último Nome" type="text" name="ultimoNome"  value={formData.UNome || ""}  onChange={handleChange} colSize={6} />
+                <InputField label="Primeiro Nome" type="text" name="pNome" value={formData.pNome || ""} onChange={handleChange} colSize={6} />
+                <InputField label="Último Nome" type="text" name="UNome"  value={formData.UNome || ""}  onChange={handleChange} colSize={6} />
               </Row>
 
               <Row className="mb-3">
-                <InputField label="Nome Utilizador" type="text" name="nomeUtilizador" value={formData.username || ""} onChange={handleChange} icon={<FaUser />} colSize={6}/>
+                <InputField label="Nome Utilizador" type="text" name="username" value={formData.username || ""} onChange={handleChange} icon={<FaUser />} colSize={6}/>
                 <InputField label="Data Nascimento" type="date" name="dataNasc" value={formData.dataNasc || ""} onChange={handleChange} icon={<IoCalendarNumberSharp />} colSize={6} />
               </Row>
 
