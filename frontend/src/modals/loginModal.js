@@ -21,6 +21,7 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
             const response = await axios.get(`/colaborador/username/${login}`, {
                 headers: { Authorization: `${token}` }
             });
+            console.log('Resposta do servidor:', response.data);
             return response.status === 200;
         } catch (error) {
             if (error.response && error.response.status === 404) {
@@ -69,7 +70,7 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
                 password: password
             });
             const utilizador = response.data.user;
-
+            console.log('Utilizador:', utilizador);
             sessionStorage.setItem('colaboradorid', utilizador.colaboradorid);
             sessionStorage.setItem('nome', utilizador.nome);
 
