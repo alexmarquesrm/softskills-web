@@ -18,7 +18,7 @@ import { BsArrowReturnLeft } from "react-icons/bs";
 const ModalAddUser = ({ show, onClose }) => {
   const [Pnome, setPnome] = useState('');
   const [Unome, setUnome] = useState('');
-  const [nomeCompleto, setNomeCompleto] = useState('');
+  const [nomeCompleto, setNomeCompleto] = useState(''); 
   const [username, setUsername] = useState('');
   const [data, setData] = useState('');
   const [email, setEmail] = useState('');

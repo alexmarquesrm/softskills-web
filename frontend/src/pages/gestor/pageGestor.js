@@ -115,8 +115,9 @@ export default function PaginaGestor() {
         <CardRow dados={pedidos} renderCard={renderPedidoCard} scrollable={true} /*colSize={4}*/ />
       </Container>
 
-      <br></br>
-      <h3>Denúncias</h3>
+      <div className="mb-3">
+        <h3>Denúncias</h3>
+      </div>
       <DataTable rows={tableRows || []} columns={tableColumns} />
     </Container>
   );

@@ -1,21 +1,21 @@
 import React, { useState, useEffect } from "react";
 import axios from "../../config/configAxios";
 import { Row, Col, Form } from "react-bootstrap";
-import profilePic from "../logo.svg";
+import profilePic from "../../logo.svg";
 /* COMPONENTES */
-import Guardar from "../components/buttons/saveButton";
-import InputField from "../components/textFields/basic";
-import Cancelar from "../components/buttons/cancelButton";
-import DropdownCheckbox from "../components/dropdown/dropdown";
+import Guardar from "../../components/buttons/saveButton";
+import InputField from "../../components/textFields/basic";
+import Cancelar from "../../components/buttons/cancelButton";
+import DropdownCheckbox from "../../components/dropdown/dropdown";
 /* MODALS */
-import ModalCustom from "./ModalCustom";
+import ModalCustom from "../modalCustom";
 /* ICONS */
 import { FaRegSave, FaMobileAlt, FaUser, FaBuilding } from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
 import { IoCalendarNumberSharp } from "react-icons/io5";
 import { BsArrowReturnLeft } from "react-icons/bs";
 
-export default function EditProfile (){
+export default function EditProfile ({ show, onClose, onSave, initialData = {} }){
   const [formData, setFormData] = useState({
     primeiroNome: "",
     ultimoNome: "",
@@ -25,20 +25,12 @@ export default function EditProfile (){
     telefone: "",
     departamento: "",
     cargo: "",
-    sobre_mim: "",
-    novaPassword: "",
-    confirmarPassword: "",
-    receberEmails: false,
-    notificacoesForum: false,
   });
-
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const fetchData = async () => {
     try {
       const token = sessionStorage.getItem("token");
-      const id = sessionStorage.getItem("colaboradorid");
+      const id = initialData.id;
 
       const response = await axios.get(`/colaborador/${id}`, {
         headers: { Authorization: `${token}` },
@@ -58,9 +50,6 @@ export default function EditProfile (){
         telefone: utilizador.telefone || "",
         departamento: utilizador.departamento || "",
         cargo: utilizador.cargo || "",
-        sobre_mim: utilizador.sobre_mim || "",
-        novaPassword: "",
-        confirmarPassword: "",
         //receberEmails: utilizador.receber_emails || false,
         //notificacoesForum: utilizador.notificacoes_forum || false,
       });
@@ -74,23 +63,11 @@ export default function EditProfile (){
       const token = sessionStorage.getItem("token");
       const id = sessionStorage.getItem("colaboradorid");
 
-      if (formData.novaPassword || formData.confirmarPassword) {
-        if (formData.novaPassword !== formData.confirmarPassword) {
-          alert("As palavras-passe não coincidem.");
-          return;
-        }
-      }
-
       const payload = {
         ...formData,
         nome: `${formData.primeiroNome} ${formData.ultimoNome}`.trim(),
       };
 
-      if (formData.novaPassword) {
-        payload.pssword = formData.novaPassword;
-      }
-
-      delete payload.confirmarPassword;
       delete payload.primeiroNome;
       delete payload.ultimoNome;
 
@@ -99,6 +76,8 @@ export default function EditProfile (){
       });
 
       alert("Perfil atualizado com sucesso!");
+      if (onSave) onSave(payload);
+      onClose();
     } catch (error) {
       console.error("Erro ao atualizar perfil", error);
       alert("Erro ao atualizar perfil.");
@@ -106,8 +85,10 @@ export default function EditProfile (){
   };
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (show && initialData?.id) {
+      fetchData();
+    }
+  }, [show, initialData]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -159,23 +140,6 @@ export default function EditProfile (){
 
             <Row className="mb-3">
               <InputField label="Sobre Mim" name="sobre_mim" value={formData.sobre_mim} onChange={handleChange} type="textarea" rows={5} style={{ resize: "none" }} colSize={12} />
-            </Row>
-
-            <Row className="mb-3">
-              <Col md={12}>
-                <Form.Group>
-                  <strong>Notificações</strong>
-                  <Form.Check type="switch" id="receberEmails" label="Receber e-mails promocionais"
-                    name="receberEmails" checked={formData.receberEmails} onChange={handleChange} className="form-switch" />
-                </Form.Group>
-              </Col>
-
-              <Col md={12}>
-                <Form.Group>
-                  <Form.Check type="switch" id="notificacoesForum" label="Notificações do Fórum"
-                    name="notificacoesForum" checked={formData.notificacoesForum} onChange={handleChange} className="form-switch" />
-                </Form.Group>
-              </Col>
             </Row>
 
             <Row className="mb-3">

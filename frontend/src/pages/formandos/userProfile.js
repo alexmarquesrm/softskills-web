@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "../../config/configAxios";
 import { Container, Row, Col, Form } from "react-bootstrap";
-import profilePic from "../logo.svg";
+import profilePic from "../../logo.svg";
 
 // COMPONENTES
 import Guardar from "../../components/buttons/saveButton";
@@ -18,11 +19,8 @@ import { FaBuilding } from "react-icons/fa";
 import { BsArrowReturnLeft } from "react-icons/bs";
 import { FaEye, FaEyeSlash } from "react-icons/fa6";
 
-import ModalEditarPerfil from "../modals/pedirCurso";
-import ModalAdicionarFicheiro from "../../modals/addFile";
-import ModalAddUser from "../../modals/gestor/addUser";
-
 export default function EditColab (){
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     primeiroNome: "",
     ultimoNome: "",
@@ -124,10 +122,6 @@ export default function EditColab (){
     });
   };
 
-  //const [showModalEditar, setShowModalEditar] = useState(false);
-  //const [showModalAdicionarFicheiro, setModalAdicionarFicheiro] = useState(false);
-  //const [showModalAddUser, setModalAddUser] = useState(false);
-
   return (
     <Container className="mt-5">
       <Row className="justify-content-start">
@@ -207,9 +201,8 @@ export default function EditColab (){
                 </Form.Group>
               </Col>
             </Row>
-
             <div className="d-flex justify-content-center mt-4">
-              <Cancelar text={"Cancelar"} onClick={() => alert("Botão Cancelar clicado")} Icon={BsArrowReturnLeft} inline={true} />
+              <Cancelar text={"Cancelar"} onClick={() => navigate("/")} Icon={BsArrowReturnLeft} inline={true} />
               <Guardar text={"Guardar"} onClick={handleGuardar} Icon={FaRegSave} />
             </div>
           </div>
