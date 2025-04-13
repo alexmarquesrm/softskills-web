@@ -58,16 +58,10 @@ function CustomNavbar() {
             {!isLoggedIn ? (
               <>
                 <NavbarButton text="Login" onClick={handleOpen} />
-                <LoginModal
-                  open={open}
-                  handleClose={handleClose}
-                  onLoginSuccess={handleLoginSuccess}
-                />
+                <LoginModal open={open} handleClose={handleClose} onLoginSuccess={handleLoginSuccess} />
               </>
             ) : (
-              <ProfileDropdown
-                imageUrl="https://via.placeholder.com/40"
-                onLogout={() => {
+              <ProfileDropdown imageUrl="https://via.placeholder.com/40" onLogout={() => {
                   sessionStorage.clear();
                   setIsLoggedIn(false);
                   navigate('/');

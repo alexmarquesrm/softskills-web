@@ -1,72 +1,178 @@
-  .sidebar-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: rgba(0, 0, 0, 0.3);
-    z-index: 1049;
-  }
-  
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.4);
+  z-index: 1049;
+  backdrop-filter: blur(2px);
+}
+
+.custom-sidebar {
+  position: fixed;
+  top: 0;
+  left: -300px;
+  width: 300px;
+  height: 100%;
+  background: linear-gradient(to bottom, #ffffff, #f8f9fa);
+  transition: all 0.3s ease-in-out;
+  z-index: 1050;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 3px 0 15px rgba(0, 0, 0, 0.1);
+  border-right: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.custom-sidebar.open {
+  left: 0;
+}
+
+/* Brand section */
+.sidebar-brand {
+  padding: 1.8rem 2rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.sidebar-brand h3 {
+  margin: 0;
+  font-weight: 700;
+  font-size: 1.6rem;
+  letter-spacing: -0.5px;
+}
+
+.brand-text-dark {
+  color: #323232;
+}
+
+.brand-text-accent {
+  color: #00bfff;
+}
+
+/* Menu sections */
+.sidebar-menu {
+  flex: 1;
+  padding-top: 1.5rem;
+  overflow-y: auto;
+}
+
+.menu-section {
+  margin-bottom: 2rem;
+  padding: 0 1.5rem;
+}
+
+.menu-heading {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #909090;
+  margin-bottom: 0.75rem;
+  padding-left: 0.5rem;
+  letter-spacing: 0.7px;
+}
+
+/* Menu items */
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 0.5rem;
+  margin-bottom: 0.25rem;
+  color: #505050;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.sidebar-item:hover {
+  background-color: rgba(0, 191, 255, 0.08);
+  color: #00bfff;
+}
+
+.sidebar-item.active {
+  background-color: rgba(0, 191, 255, 0.12);
+  color: #00bfff;
+  font-weight: 600;
+}
+
+.sidebar-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  margin-right: 12px;
+  color: inherit;
+}
+
+.sidebar-label {
+  font-size: 0.95rem;
+}
+
+/* Accordion styling */
+.sidebar-accordion {
+  margin-bottom: 0.5rem;
+}
+
+.accordion-item {
+  background: transparent;
+  border: none !important;
+}
+
+.sidebar-accordion-header button {
+  display: flex;
+  align-items: center;
+  background: transparent !important;
+  padding: 0.75rem 0.5rem !important;
+  margin-bottom: 0.25rem;
+  border: none !important;
+  border-radius: 8px !important;
+  color: #505050 !important;
+  box-shadow: none !important;
+  font-weight: 500;
+}
+
+.sidebar-accordion-header button:hover {
+  background-color: rgba(0, 191, 255, 0.08) !important;
+  color: #00bfff !important;
+}
+
+.sidebar-accordion-header button:focus {
+  box-shadow: none !important;
+}
+
+.sidebar-accordion-header button::after {
+  margin-left: auto;
+  width: 1rem;
+  height: 1rem;
+  background-size: 0.8rem;
+}
+
+.accordion-body {
+  padding: 0.25rem 0 0.25rem 2.5rem !important;
+}
+
+.accordion-body .sidebar-item {
+  padding: 0.6rem 0.5rem;
+}
+
+/* Footer section */
+.sidebar-footer {
+  margin-top: auto;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  padding-top: 1.5rem;
+}
+
+@media (max-width: 768px) {
   .custom-sidebar {
-    position: fixed;
-    top: 0;
-    left: -260px;
-    width: 250px;
-    height: 100%;
-    background: #fff;
-    border-right: 1px solid #dee2e6;
-    padding: 20px;
-    transition: left 0.3s ease-in-out;
-    z-index: 1050;
-    display: flex;
-    flex-direction: column;
+    width: 260px;
   }
   
-  .custom-sidebar.open {
-    left: 0;
+  .sidebar-brand {
+    padding: 1.5rem;
   }
   
-  .sidebar-header {
-    padding-bottom: 10px;
-    border-bottom: 1px solid #ddd;
+  .menu-section {
+    padding: 0 1rem;
   }
-  
-  .sidebar-footer {
-    margin-top: auto;
-    padding-top: 10px;
-    border-top: 1px solid #ccc;
-  }
-  
-  .sidebar-item {
-    font-weight: 500;
-    padding: 10px 15px;
-    border-radius: 8px;
-    transition: background 0.2s ease;
-  }
-  
-  .sidebar-item.inicio { color: #000000; }
-  .sidebar-item.categorias { color: #000000; }
-  .sidebar-item.percurso { color: #000000; }
-  .sidebar-item.forum { color: #000000; }
-  .sidebar-item.perfil { color: #000000; }
-  .sidebar-item.logout { color: #000000; }
-  
-  .sidebar-item:hover {
-    background-color: #f1f1f1;
-  }
-  
-  .close-btn {
-    background: none;
-    border: none;
-    font-size: 24px;
-    cursor: pointer;
-  }
-  
-  .close-btn {
-    background: none;
-    border: none;
-    font-size: 24px;
-    cursor: pointer;
-  }
-  
+}

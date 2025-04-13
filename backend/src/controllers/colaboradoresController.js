@@ -72,11 +72,24 @@ const controladorUtilizadores = {
         return res.status(401).json({ message: "Password incorreta" });
       }
 
+      let tipo = "Desconhecido";
+
+      const [formando, formador, gestor] = await Promise.all([
+        models.formando.findOne({ where: { formando_id: user.colaborador_id } }),
+        models.formador.findOne({ where: { formador_id: user.colaborador_id } }),
+        models.gestor.findOne({ where: { gestor_id: user.colaborador_id } })
+      ]);
+
+      if (formando) tipo = "Formando";
+      else if (formador) tipo = "Formador";
+      else if (gestor) tipo = "Gestor";
+
       const userData = {
         colaboradorid: user.colaborador_id,
         nome: user.nome,
         username: user.username,
         ultimologin: user.ultimologin,
+        tipo
       };
 
       res.status(200).json({ user: userData });
@@ -160,10 +173,10 @@ const controladorUtilizadores = {
 
   criarColaborador: async (req, res) => {
     try {
-      const { nome, email, data_nasc, cargo, departamento, telefone, sobre_mim=null, score=0, username, tipo, especialidade, inativo } = req.body;
+      const { nome, email, data_nasc, cargo, departamento, telefone, sobre_mim = null, score = 0, username, tipo, especialidade, inativo } = req.body;
       console.log(req.body);
       const hashedPassword = await bcrypt.hash("123", 10);
-      
+
       console.log("Tipo de colaborador:", tipo === "Formador" ? "Formador" : "Formando");
 
       if (tipo === "Formando") {

@@ -1,47 +1,121 @@
-// src/components/sidebar/sidebar.js
-import React from "react";
-import { Nav } from "react-bootstrap";
-import { House, Grid, Book, ChatDots, PersonCircle, BoxArrowRight} from "react-bootstrap-icons";
+import React, { useState } from "react";
+import { Accordion} from "react-bootstrap";
+import { Gear, Flag, EnvelopeOpen, PersonCircle, BoxArrowRight, Book, PeopleFill, Building, Grid } from "react-bootstrap-icons";
 import "./sidebar.css";
 
 const Sidebar = ({ isOpen, onClose }) => {
+  const tipoUtilizador = sessionStorage.getItem("tipo");
+  const [activeItem, setActiveItem] = useState("");
+
+  const handleItemClick = (itemName) => {
+    setActiveItem(itemName);
+  };
+
+  const NavItem = ({ href, icon, label, itemName }) => (
+    <a 
+      href={href} 
+      className={`sidebar-item ${activeItem === itemName ? 'active' : ''}`}
+      onClick={() => handleItemClick(itemName)}
+    >
+      <div className="sidebar-icon">{icon}</div>
+      <span className="sidebar-label">{label}</span>
+    </a>
+  );
+
   return (
     <>
       {isOpen && <div className="sidebar-overlay" onClick={onClose} />}
 
-    <div className={`custom-sidebar ${isOpen ? "open" : ""}`}>
-      <div className="sidebar-header d-flex justify-content-between align-items-center">
-        <h4>
-          <span style={{ color: "#4a4a4a" }}>Soft</span>
-          <span style={{ color: "#00bfff" }}>Skills</span>
-        </h4>
-      </div>
-      <Nav className="flex-column mt-4 flex-grow-1">
-        <Nav.Link href="/" className="sidebar-item inicio">
-          <House className="me-2" /> Início 
-        </Nav.Link>
-        <Nav.Link href="/categorias" className="sidebar-item categorias">
-          <Grid className="me-2" /> Categorias
-        </Nav.Link>
-        <Nav.Link href="/formativo" className="sidebar-item percurso">
-          <Book className="me-2" /> Percurso Formativo
-        </Nav.Link>
-        <Nav.Link href="/forum" className="sidebar-item forum">
-          <ChatDots className="me-2" /> Fórum
-        </Nav.Link>
-      </Nav>
+      <div className={`custom-sidebar ${isOpen ? "open" : ""}`}>
+        <div className="sidebar-brand">
+          <h3>
+            <span className="brand-text-dark">Soft</span>
+            <span className="brand-text-accent">Skills</span>
+          </h3>
+        </div>
 
-      <div className="sidebar-footer mt-auto">
-        <Nav className="flex-column">
-          <Nav.Link href="/utilizadores/perfil" className="sidebar-item perfil">
-            <PersonCircle className="me-2" /> Perfil
-          </Nav.Link>
-          <Nav.Link href="/logout" className="sidebar-item logout">
-            <BoxArrowRight className="me-2" /> Logout
-          </Nav.Link>
-        </Nav>
+        <div className="sidebar-menu">
+          {tipoUtilizador === "Gestor" && (
+            <>
+              <div className="menu-section">
+                <span className="menu-heading">PRINCIPAIS</span>
+                <Accordion className="sidebar-accordion">
+                  <Accordion.Item eventKey="0">
+                    <Accordion.Header className="sidebar-accordion-header">
+                      <div className="sidebar-icon">
+                        <Gear size={18} />
+                      </div>
+                      <span>Gestão</span>
+                    </Accordion.Header>
+                    <Accordion.Body>
+                      <NavItem href="/gestor/lista/cursos" icon={<Book size={16} />} label="Gerir Cursos" itemName="cursos" />
+                      <NavItem href="/gestor/lista/colaboradores" icon={<PeopleFill size={16} />} label="Gerir Colaboradores" itemName="colaboradores" />
+                      <NavItem href="/gestor/lista/departamentos" icon={<Building size={16} />} label="Gerir Departamentos" itemName="departamentos" />
+                      <NavItem href="/gestor/lista/funcoes" icon={<Gear size={16} />} label="Gerir Funções" itemName="funcoes" />
+                    </Accordion.Body>
+                  </Accordion.Item>
+                </Accordion>
+
+                <NavItem href="/gestor/lista/denuncias" icon={<Flag size={18} />} label="Ver Denúncias" itemName="denuncias" />
+                <NavItem href="/gestor/lista/pedidos" icon={<EnvelopeOpen size={18} />} label="Ver Pedidos" itemName="pedidos" />
+              </div>
+            </>
+          )}
+
+          {tipoUtilizador === "Formando" && (
+            <>
+            <div className="menu-section">
+              <span className="menu-heading">PRINCIPAIS</span>
+              <Accordion className="sidebar-accordion">
+                <Accordion.Item eventKey="0">
+                  <Accordion.Header className="sidebar-accordion-header">
+                    <div className="sidebar-icon">
+                      <Gear size={18} />
+                    </div>
+                    <span>Categorias</span>
+                  </Accordion.Header>
+                  <Accordion.Body>
+                    <NavItem href="/" icon={<Book size={16} />} label="diversas categorias" itemName="cursos" />
+                  </Accordion.Body>
+                </Accordion.Item>
+              </Accordion>
+
+              <NavItem href="/" icon={<Flag size={18} />} label="Percurso Formativo" itemName="denuncias" />
+              <NavItem href="/" icon={<EnvelopeOpen size={18} />} label="Fórum" itemName="pedidos" />
+            </div>
+          </>
+          )}
+
+        {!tipoUtilizador && (
+            <>
+              <div className="menu-section">
+                <span className="menu-heading">EXPLORAR</span>
+                <Accordion className="sidebar-accordion">
+                  <Accordion.Item eventKey="0">
+                    <Accordion.Header className="sidebar-accordion-header">
+                      <div className="sidebar-icon">
+                        <Grid size={18} />
+                      </div>
+                      <span>Categorias</span>
+                    </Accordion.Header>
+                    <Accordion.Body>
+                      <NavItem href="/categorias" icon={<Book size={16} />} label="Ver todas" itemName="todas-categorias" />
+                    </Accordion.Body>
+                  </Accordion.Item>
+                </Accordion>
+              </div>
+            </>
+          )}
+        </div>
+
+        <div className="sidebar-footer">
+          <div className="menu-section">
+            <span className="menu-heading">CONTA</span>
+            <NavItem href="/utilizadores/perfil" icon={<PersonCircle size={18} />} label="Perfil" itemName="perfil" />
+            <NavItem href="/logout" icon={<BoxArrowRight size={18} />} label="Logout" itemName="logout" />
+          </div>
+        </div>
       </div>
-    </div>
     </>
   );
 };

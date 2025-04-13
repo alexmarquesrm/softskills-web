@@ -25,7 +25,7 @@ function AppContent() {
                 <Routes>
                     <Route path="/" element={<LandingPage />} />
                     <Route element={<ProtectedRoute />}>
-                        <Route path="/utilizadores/lista" element={<ListaUtilizadores />} />
+                        <Route path="/gestor/lista/colaboradores" element={<ListaUtilizadores />} />
                         <Route path="/utilizadores/perfil" element={<PerfilUtilizador />} />
                         <Route path="/gestor/editarPerfil" element={<EditarUtilizadorGestor />} />
                         <Route path="/formador/adicionarAssincrono" element={<AdicionarFicheiroAssincronoFormador />} />
