@@ -10,7 +10,6 @@ function CardCourses({ curso }) {
     return data.toISOString().split('T')[0];
   };
 
-  // Determine badge color based on course type
   const getBadgeVariant = (tipo) => {
     switch(tipo) {
       case "S": return "primary";
@@ -19,7 +18,6 @@ function CardCourses({ curso }) {
     }
   };
 
-  // Get readable type name
   const getTipoLabel = (tipo) => {
     switch(tipo) {
       case "S": return "Síncrono";

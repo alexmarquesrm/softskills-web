@@ -137,7 +137,8 @@ const controladorCursos = {
 
   getAllLanding: async (req, res) => {
     try {
-      const cursos = await sequelizeConn.query( `
+      // Query for top 3 synchronous courses
+      const cursosSincronos = await sequelizeConn.query(`
         SELECT 
           curso.curso_id, 
           curso.titulo, 
@@ -173,6 +174,8 @@ const controladorCursos = {
           colaborador AS gestor_colab ON gestor.gestor_id = gestor_colab.colaborador_id 
         LEFT JOIN 
           topico ON curso.topico_id = topico.topico_id
+        WHERE
+          curso.tipo = 'S'  
         GROUP BY 
           curso.curso_id, curso.titulo, 
           curso.descricao, 
@@ -192,45 +195,141 @@ const controladorCursos = {
           formador_colab.telefone
         ORDER BY 
           numero_inscricoes DESC
-        LIMIT 6;
-      `,{ type: QueryTypes.SELECT }
-      );
-      
-      // Processando os resultados
-      const cursosResumidos = cursos.map((curso) => {
-        return {
-          id: curso.curso_id,
-          titulo: curso.titulo,
-          descricao: curso.descricao,
-          tipo: curso.tipo,
-          total_horas: curso.total_horas,
-          pendente: curso.pendente,
-          nivel: curso.nivel,
-          topico: curso.topico_descricao || null,
-          gestor: {
-            nome: curso.gestor_nome || null,
-            email: curso.gestor_email || null,
-          },
-          sincrono: curso.data_inicio
-            ? {
-                inicio: curso.data_inicio,
-                fim: curso.data_fim,
-                vagas: curso.limite_vagas,
-                estado: curso.estado,
-                formador: curso.formador_nome
-                  ? {
-                      nome: curso.formador_nome || null,
-                      email: curso.formador_email || null,
-                      telefone: curso.formador_telefone || null,
-                    }
-                  : null,
-              }
-            : null,
-          numero_inscricoes: curso.numero_inscricoes,
-        };
-      });
+        LIMIT 3;
+      `, { type: QueryTypes.SELECT });
   
-      res.json(cursosResumidos);
+      // Query for top 3 asynchronous courses
+      const cursosAssincronos = await sequelizeConn.query(`
+        SELECT 
+          curso.curso_id, 
+          curso.titulo, 
+          curso.descricao, 
+          curso.tipo, 
+          curso.total_horas, 
+          curso.pendente, 
+          curso.nivel, 
+          COUNT(inscricao.curso_id) AS numero_inscricoes,
+          topico.descricao AS topico_descricao,
+          gestor_colab.nome AS gestor_nome,
+          gestor_colab.email AS gestor_email,
+          sincrono.data_inicio,
+          sincrono.data_fim,
+          sincrono.limite_vagas,
+          sincrono.estado,
+          formador_colab.nome AS formador_nome,
+          formador_colab.email AS formador_email,
+          formador_colab.telefone AS formador_telefone
+        FROM 
+          curso
+        LEFT JOIN 
+          inscricao ON curso.curso_id = inscricao.curso_id
+        LEFT JOIN 
+          sincrono ON curso.curso_id = sincrono.curso_id
+        LEFT JOIN 
+          formador AS sincrono_formador ON sincrono.formador_id = sincrono_formador.formador_id
+        LEFT JOIN 
+          colaborador AS formador_colab ON sincrono_formador.formador_id = formador_colab.colaborador_id
+        LEFT JOIN 
+          gestor ON curso.gestor_id = gestor.gestor_id
+        LEFT JOIN 
+          colaborador AS gestor_colab ON gestor.gestor_id = gestor_colab.colaborador_id 
+        LEFT JOIN 
+          topico ON curso.topico_id = topico.topico_id
+        WHERE
+          curso.tipo = 'A'  
+        GROUP BY 
+          curso.curso_id, curso.titulo, 
+          curso.descricao, 
+          curso.tipo, 
+          curso.total_horas, 
+          curso.pendente, 
+          curso.nivel, 
+          topico.descricao,
+          gestor_colab.nome,
+          gestor_colab.email,
+          sincrono.data_inicio,
+          sincrono.data_fim,
+          sincrono.limite_vagas,
+          sincrono.estado,
+          formador_colab.nome,
+          formador_colab.email,
+          formador_colab.telefone
+        ORDER BY 
+          numero_inscricoes DESC
+        LIMIT 3;
+      `, { type: QueryTypes.SELECT });
+  
+      // Process synchronous courses
+      const sincronosResumidos = cursosSincronos.map((curso) => ({
+        id: curso.curso_id,
+        titulo: curso.titulo,
+        descricao: curso.descricao,
+        tipo: curso.tipo,
+        total_horas: curso.total_horas,
+        pendente: curso.pendente,
+        nivel: curso.nivel,
+        topico: curso.topico_descricao || null,
+        gestor: {
+          nome: curso.gestor_nome || null,
+          email: curso.gestor_email || null,
+        },
+        sincrono: curso.data_inicio
+          ? {
+              inicio: curso.data_inicio,
+              fim: curso.data_fim,
+              vagas: curso.limite_vagas,
+              estado: curso.estado,
+              formador: curso.formador_nome
+                ? {
+                    nome: curso.formador_nome || null,
+                    email: curso.formador_email || null,
+                    telefone: curso.formador_telefone || null,
+                  }
+                : null,
+            }
+          : null,
+        numero_inscricoes: curso.numero_inscricoes,
+      }));
+  
+      // Process asynchronous courses
+      const assincronosResumidos = cursosAssincronos.map((curso) => ({
+        id: curso.curso_id,
+        titulo: curso.titulo,
+        descricao: curso.descricao,
+        tipo: curso.tipo,
+        total_horas: curso.total_horas,
+        pendente: curso.pendente,
+        nivel: curso.nivel,
+        topico: curso.topico_descricao || null,
+        gestor: {
+          nome: curso.gestor_nome || null,
+          email: curso.gestor_email || null,
+        },
+        sincrono: curso.data_inicio
+          ? {
+              inicio: curso.data_inicio,
+              fim: curso.data_fim,
+              vagas: curso.limite_vagas,
+              estado: curso.estado,
+              formador: curso.formador_nome
+                ? {
+                    nome: curso.formador_nome || null,
+                    email: curso.formador_email || null,
+                    telefone: curso.formador_telefone || null,
+                  }
+                : null,
+            }
+          : null,
+        numero_inscricoes: curso.numero_inscricoes,
+      }));
+  
+      // Combine both types and categorize them
+      const result = {
+        sincronos: sincronosResumidos,
+        assincronos: assincronosResumidos
+      };
+  
+      res.json(result);
     } catch (error) {
       console.error('Erro ao obter cursos:', error);
       res.status(500).json({ message: 'Erro interno ao obter cursos' });
