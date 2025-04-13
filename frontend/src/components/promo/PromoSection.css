@@ -1,5 +1,133 @@
-.promo-section {
-    background: linear-gradient(to right, #ff9a9e, #fad0c4);
-    color: black;
+.promo-section-container {
+  max-width: 1270px;
+}
+
+.promo-card {
+  border: none;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+  background: #ffffff;
+}
+
+.promo-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.promo-title {
+  color: #333;
+  font-weight: 700;
+  font-size: 2rem;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.promo-subtitle {
+  color: #666;
+  font-size: 1.1rem;
+  line-height: 1.5;
+}
+
+.organization-options {
+  padding: 1rem 0;
+}
+
+.organization-item {
+  transition: all 0.3s ease;
+  padding: 1rem;
+  cursor: pointer;
+}
+
+.organization-item:hover {
+  transform: translateY(-5px);
+}
+
+.icon-container {
+  background-color: rgba(97, 87, 255, 0.1);
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+  transition: all 0.3s ease;
+}
+
+.organization-item:hover .icon-container {
+  background-color: rgba(97, 87, 255, 0.2);
+}
+
+.organization-icon {
+  font-size: 2rem;
+  color: #6157ff;
+}
+
+.organization-name {
+  font-size: 1.25rem;
+  color: #333;
+  font-weight: 600;
+  margin-bottom: 0;
+}
+
+.explore-btn {
+  background: linear-gradient(135deg, #6157ff, #5651e5);
+  border: none;
+  border-radius: 6px;
+  padding: 0.6rem 2rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(97, 87, 255, 0.2);
+  color: white;
+  font-size: 1rem;
+  letter-spacing: 0.5px;
+}
+
+.explore-btn:hover {
+  background: linear-gradient(135deg, #5651e5, #4a45d1);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(97, 87, 255, 0.3);
+  color: white;
+}
+
+.explore-btn:active {
+  transform: translateY(0);
+}
+
+/* Adicionar um toque de gradiente na parte superior para combinar com o card de cursos */
+.promo-card::before {
+  content: "";
+  height: 8px;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: linear-gradient(135deg, #6157ff, #74febd);
+}
+
+/* Para responsividade em dispositivos móveis */
+@media (max-width: 767px) {
+  .promo-title {
+    font-size: 1.75rem;
   }
   
+  .organization-name {
+    font-size: 1.1rem;
+  }
+  
+  .icon-container {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .organization-icon {
+    font-size: 1.75rem;
+  }
+  
+  .promo-subtitle {
+    font-size: 1rem;
+  }
+}
