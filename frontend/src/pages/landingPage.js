@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import axios from "../config/configAxios"; 
 import FeaturedCourses from "../components/cards/cardCourses"; 
 import CardRow from '../components/cards/cardRow'; 
-import PromoSection from "../components/promo/PromoSection"; 
-import StatsSection from "../components/stats/StatsSection"; 
+import PromoSection from "../components/promo/promoSection"; 
+import StatsSection from "../components/stats/statsSection"; 
 import { Container } from "react-bootstrap";
 import "./landingPage.css";
  
