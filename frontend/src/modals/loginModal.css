@@ -1,0 +1,173 @@
+/* LoginModal.css */
+.login-modal .modal-content {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.logo-container {
+    text-align: center;
+    padding: 1.5rem 0 0.5rem;
+}
+
+.app-logo {
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+
+.logo-first {
+    color: #4a4a4a;
+}
+
+.logo-second {
+    color: #00bfff;
+    background: linear-gradient(135deg, #00bfff, #0077ff);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.welcome-title {
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 0.5rem;
+}
+
+.welcome-subtitle {
+    color: #718096;
+    font-size: 0.95rem;
+}
+
+.input-group-custom {
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.input-group-custom:focus-within {
+    box-shadow: 0 3px 12px rgba(0, 191, 255, 0.15);
+}
+
+.input-group-custom .form-control {
+    border: 1px solid #e2e8f0;
+    padding: 0.7rem 1rem;
+    font-size: 0.95rem;
+}
+
+.input-group-custom .form-control:focus {
+    box-shadow: none;
+    border-color: #00bfff;
+}
+
+.input-group-custom .input-group-text {
+    background-color: #f8f9fa;
+    border: 1px solid #e2e8f0;
+    color: #718096;
+}
+
+.password-toggle {
+    cursor: pointer;
+}
+
+.password-toggle:hover {
+    color: #00bfff;
+}
+
+.error-message {
+    color: #e53e3e;
+    margin-top: 0.5rem;
+    padding-left: 0.5rem;
+}
+
+.forgot-password {
+    color: #718096;
+    font-size: 0.85rem;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.forgot-password:hover {
+    color: #00bfff;
+}
+
+.login-button {
+    background: linear-gradient(135deg, #00bfff, #0077ff);
+    border: none;
+    padding: 0.7rem;
+    font-weight: 500;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 191, 255, 0.3);
+}
+
+.login-button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 191, 255, 0.4);
+}
+
+.login-button:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.login-button:disabled {
+    background: linear-gradient(135deg, #83d9ff, #6eb9ff);
+    cursor: not-allowed;
+}
+
+.register-prompt {
+    color: #718096;
+    font-size: 0.9rem;
+}
+
+.register-link {
+    color: #00bfff;
+    font-weight: 500;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.register-link:hover {
+    color: #0077ff;
+    text-decoration: none;
+}
+
+/* Modal close button styling */
+.login-modal .modal-header .close {
+    font-size: 1.5rem;
+    padding: 1rem;
+    margin: -1rem;
+}
+
+/* Animation effects */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.login-modal .modal-content {
+    animation: fadeIn 0.3s ease-out;
+}
+
+.login-modal .modal-header {
+    display: block;
+    padding-top: 2rem;
+}
+
+.login-modal .modal-header .btn-close {
+    position: absolute;
+    right: 1rem;
+    top: 1rem;
+    z-index: 10;
+}
+
+.logo-container {
+    text-align: center;
+}
