@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { Container } from "react-bootstrap";
+import { useLocation } from 'react-router-dom';
 import axios from "../../config/configAxios";
 /* COMPONENTES */
 import FeaturedCourses from "../../components/cards/cardCourses";
 import SearchBar from '../../components/textFields/search';
 import CardRow from '../../components/cards/cardRow';
 
-export default function PercursoFormativo({ initialData = {} }) {
+export default function PercursoFormativo() {
+    const location = useLocation();
+    const id = location.state?.id;
     const [nome, setNome] = useState('');
     const [inscricao, setInscricao] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
@@ -16,8 +19,6 @@ export default function PercursoFormativo({ initialData = {} }) {
     const fetchDataColab = async () => {
         try {
             const token = sessionStorage.getItem("token");
-            /* const id = initialData.id; */
-            const id = 3;
 
             const response = await axios.get(`/colaborador/${id}`, {
                 headers: { Authorization: `${token}` },
@@ -37,7 +38,7 @@ export default function PercursoFormativo({ initialData = {} }) {
                 headers: { Authorization: `${token}` }
             });
 
-            const inscricoesFiltradas = response.data.filter(item => item.formando_id === 3);
+            const inscricoesFiltradas = response.data.filter(item => item.formando_id === parseInt(id));
             setInscricao(inscricoesFiltradas);
         } catch (error) {
             setError(error);
@@ -46,11 +47,10 @@ export default function PercursoFormativo({ initialData = {} }) {
         }
     };
 
-
     useEffect(() => {
         fetchDataColab();
         fetchDataInscricao();
-    }, [/* initialData */]);
+    }, [id]);
 
     const renderCourseCard = (inscricao, index) => (
         <FeaturedCourses key={inscricao.inscricao_id || index} curso={inscricao.inscricao_curso} inscricao={inscricao} />

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from 'react-router-dom';
 import axios from "../../config/configAxios";
 /* COMPONENTES */
 import DataTable from '../../components/tables/dataTable';
@@ -20,10 +21,14 @@ export default function UsersTable() {
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
+  
+  const navigate = useNavigate();
 
   const tableColumns = [
     { field: 'id', headerName: 'Nº Colaborador', flex: 0.5, headerAlign: 'left', disableColumnMenu: true },
-    { field: 'nome', headerName: 'Nome', flex: 0.7, headerAlign: 'left', disableColumnMenu: false },
+    { field: 'nome', headerName: 'Nome', flex: 0.7, headerAlign: 'left', disableColumnMenu: false, renderCell: (params) => ( 
+      <span onClick={() => navigate('/gestor/colaborador/percursoFormativo', { state: { id: params.row.id } })}
+      style={{ color: '#007bff', textDecoration: 'underline', cursor: 'pointer' }} > {params.row.nome} </span> ),},
     { field: 'email', headerName: 'Email', flex: 1, headerAlign: 'left', disableColumnMenu: true },
     { field: 'telefone', headerName: 'Telefone', flex: 0.5, headerAlign: 'left', disableColumnMenu: true },
     { field: 'departamento', headerName: 'Departamento', flex: 0.5, headerAlign: 'left', disableColumnMenu: true },
@@ -36,14 +41,14 @@ export default function UsersTable() {
         width: '100%',
       }}> <EditButton onClick={() => handleEditClick(params.row)} Icon={FaPencilAlt} /> </div>), disableColumnMenu: true
     },
-  ]; const handleEditClick = (userData) => {
+  ];
+  
+  const handleEditClick = (userData) => {
     setSelectedUser(userData);
     setShowModal(true);
   };
 
   const handleSave = (userData) => {
-
-    console.log("Salvando usuário:", userData);
     setShowModal(false);
   };
 
@@ -54,9 +59,7 @@ export default function UsersTable() {
       const response = await axios.get(`/colaborador`, {
         headers: { Authorization: `${token}` }
       });
-
       const utilizadores = response.data;
-
       const sortedUtilizadores = utilizadores.sort((a, b) => a.colaborador_id - b.colaborador_id);
 
       setTableRows(
