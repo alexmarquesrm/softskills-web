@@ -66,6 +66,7 @@
 
 .course-description {
   margin-bottom: 1.25rem;
+  height: 42px; /* Fixed height for 2 lines (adjust if needed) */
 }
 
 .course-description p {
@@ -73,7 +74,7 @@
   font-size: 0.9rem;
   line-height: 1.5;
   display: -webkit-box;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 2; /* Changed from 3 to 2 lines */
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -112,6 +113,7 @@
   font-weight: 500;
   transition: all 0.3s ease;
   box-shadow: 0 4px 10px rgba(97, 87, 255, 0.2);
+  width: 100%; /* Make button full width */
 }
 
 .course-button:hover {

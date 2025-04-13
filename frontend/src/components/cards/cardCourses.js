@@ -27,9 +27,9 @@ function CardCourses({ curso }) {
   };
 
   return (
-    <Card className="course-card h-100">
+    <Card className="course-card">
       <div className="course-header">
-        <img src={ReactGif} alt="Curso" className="course-image" />
+        <img src={ReactGif} alt="React" className="course-image" />
         <Badge 
           className="course-type-badge" 
           bg={getBadgeVariant(curso.tipo)}
@@ -38,44 +38,44 @@ function CardCourses({ curso }) {
         </Badge>
       </div>
 
-      <Card.Body className="d-flex flex-column">
-        <Card.Title className="course-title">{curso.titulo}</Card.Title>
+      <Card.Body>
+        <h3 className="course-title">{curso.titulo}</h3>
 
         {curso.sincrono?.formador?.colaborador?.nome && (
           <div className="course-instructor">
             <Award size={16} className="icon" />
-            <span>{curso.sincrono.formador.colaborador.nome}</span>
+            {curso.sincrono.formador.colaborador.nome}
           </div>
         )}
 
         <div className="course-description">
           <p>{curso.descricao}</p>
         </div>
-        
+
         <div className="course-meta">
           {curso.total_horas && (
             <div className="meta-item">
               <Clock size={16} className="icon" />
-              <span>{curso.total_horas} horas</span>
+              {curso.total_horas} horas
             </div>
           )}
 
           {curso.sincrono?.vagas && (
             <div className="meta-item">
               <Users size={16} className="icon" />
-              <span>{curso.sincrono.vagas} vagas</span>
+              {curso.sincrono.vagas} vagas
             </div>
           )}
 
           {curso.sincrono?.inicio && (
             <div className="meta-item">
               <Calendar size={16} className="icon" />
-              <span>{formatDate(curso.sincrono.inicio)}</span>
+              {formatDate(curso.sincrono.inicio)}
             </div>
           )}
         </div>
 
-        <Button variant="primary" className="course-button mt-auto">
+        <Button className="course-button" variant="primary" block>
           Ver Detalhes
         </Button>
       </Card.Body>
