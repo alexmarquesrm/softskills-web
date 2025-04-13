@@ -70,6 +70,24 @@
   margin-bottom: 5px;
 }
 
+.profile-roles-container {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.roles-title {
+  font-size: 0.8rem;
+  color: #6c757d;
+  margin-bottom: 8px;
+}
+
+.roles-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
 .profile-role {
   display: inline-block;
   background-color: #e9ecef;
@@ -78,8 +96,17 @@
   font-size: 0.75rem;
   color: #495057;
   font-weight: 500;
-  margin-top: 5px;
-  align-self: flex-start;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.profile-role:hover {
+  background-color: #dee2e6;
+}
+
+.active-role {
+  background-color: #6157ff;
+  color: white;
 }
 
 .profile-menu-item {

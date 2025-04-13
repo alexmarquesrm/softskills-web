@@ -26,11 +26,14 @@ function AppContent() {
                 <Routes>
                     <Route path="/" element={<LandingPage />} />
                     <Route element={<ProtectedRoute />}>
-                        <Route path="/gestor/lista/colaboradores" element={<ListaUtilizadores />} />
+                        {/* Formandos Routes */}
                         <Route path="/utilizadores/perfil" element={<PerfilUtilizador />} />
-                        <Route path="/gestor/editarPerfil" element={<EditarUtilizadorGestor />} />
+                        {/* Formador Routes */}
                         <Route path="/formador/adicionarAssincrono" element={<AdicionarFicheiroAssincronoFormador />} />
-                        <Route path="/landing/gestor" element={<PagGestor />} />
+                        {/* Gestor Routes */}
+                        <Route path="/gestor/dashboard" element={<PagGestor />} />
+                        <Route path="/gestor/editarPerfil" element={<EditarUtilizadorGestor />} />
+                        <Route path="/gestor/lista/colaboradores" element={<ListaUtilizadores />} />
                         <Route path="/gestor/colaborador/percursoFormativo" element={<PercursoFormativoGestor />} />
                     </Route>
                     <Route path="*" element={<Navigate to="/" />} />

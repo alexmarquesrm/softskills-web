@@ -80,11 +80,22 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
 
             const utilizador = response.data.user;
 
+            // Store basic user information
             sessionStorage.setItem('colaboradorid', utilizador.colaboradorid);
             sessionStorage.setItem('nome', utilizador.nome);
-            sessionStorage.setItem('tipo', utilizador.tipo);
             sessionStorage.setItem('email', utilizador.email);
             sessionStorage.setItem('primeirologin', utilizador.ultimologin === null ? "true" : "false");
+            
+            // Store the default active type
+            sessionStorage.setItem('tipo', utilizador.tipo);
+            
+            // Store all user types if available
+            if (utilizador.allUserTypes && utilizador.allUserTypes.length > 0) {
+                sessionStorage.setItem('allUserTypes', utilizador.allUserTypes.join(','));
+            } else {
+                // Fallback to single type if allUserTypes is not available
+                sessionStorage.setItem('allUserTypes', utilizador.tipo);
+            }
 
             const tokenResponse = await axios.get(`/colaborador/token/${utilizador.colaboradorid}`);
 

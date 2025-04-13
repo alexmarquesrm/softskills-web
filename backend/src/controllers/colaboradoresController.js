@@ -57,44 +57,54 @@ const controladorUtilizadores = {
 
   login: async (req, res) => {
     const { username, password } = req.body;
-
+  
     try {
       const user = await models.colaborador.findOne({
         where: { username }
       });
-
+  
       if (!user) {
         return res.status(404).json({ message: "Utilizador não encontrado" });
       }
-
+  
       const passwordMatch = await bcrypt.compare(password, user.pssword);
       if (!passwordMatch) {
         return res.status(401).json({ message: "Password incorreta" });
       }
-
-      let tipo = "Desconhecido";
-
+  
+      // Check all possible roles
       const [formando, formador, gestor] = await Promise.all([
         models.formando.findOne({ where: { formando_id: user.colaborador_id } }),
         models.formador.findOne({ where: { formador_id: user.colaborador_id } }),
         models.gestor.findOne({ where: { gestor_id: user.colaborador_id } })
       ]);
-
-      if (formando) tipo = "Formando";
-      else if (formador) tipo = "Formador";
-      else if (gestor) tipo = "Gestor";
-
+  
+      // Collect all user types in an array
+      const userTypes = [];
+      if (formando) userTypes.push("Formando");
+      if (formador) userTypes.push("Formador");
+      if (gestor) userTypes.push("Gestor");
+      
+      // If no roles found, use "Desconhecido"
+      if (userTypes.length === 0) {
+        userTypes.push("Desconhecido");
+      }
+  
+      // Set default active type (first available role)
+      const activeType = userTypes[0];
+  
       const userData = {
         colaboradorid: user.colaborador_id,
         nome: user.nome,
         username: user.username,
         email: user.email,
         ultimologin: user.ultimologin,
-        tipo
+        tipo: activeType,           // For backward compatibility
+        allUserTypes: userTypes     // All available user types
       };
-
+  
       res.status(200).json({ user: userData });
-
+  
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: "Erro no login" });
