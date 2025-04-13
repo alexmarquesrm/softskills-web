@@ -8,12 +8,12 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
     const [login, setLogin] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
-    const navigate = useNavigate();
-
     const [loginError, setLoginError] = useState(false);
     const [loginErrorMessage, setLoginErrorMessage] = useState('');
     const [passError, setPassError] = useState(false);
     const [passErrorMessage, setPassErrorMessage] = useState('');
+
+    const navigate = useNavigate();
 
     const verificarLogin = async (login) => {
         try {
@@ -23,7 +23,7 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
             });
             return response.status === 200;
         } catch (error) {
-            if (error.response && error.response.status === 404) {
+            if (error.response?.status === 404) {
                 return false;
             }
             console.error('Erro ao verificar utilizador:', error);
@@ -33,18 +33,18 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
 
     const validateForm = async () => {
         let errors = {};
-      
         const loginExists = await verificarLogin(login);
+
         if (!loginExists) {
-          errors.loginError = true;
-          errors.loginMessage = "O utilizador que introduziu não se encontra registado.";
+            errors.loginError = true;
+            errors.loginMessage = "O utilizador que introduziu não se encontra registado.";
         }
-      
+
         if (!password) {
-          errors.passError = true;
-          errors.passMessage = "Introduza a sua password";
+            errors.passError = true;
+            errors.passMessage = "Introduza a sua password";
         }
-      
+
         return errors;
     };
 
@@ -58,42 +58,30 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
         setLoginErrorMessage(errors.loginMessage || "");
         setPassError(errors.passError || false);
         setPassErrorMessage(errors.passMessage || "");
-    
-        if (Object.keys(errors).length > 0) {
-            return;
-        }
-    
+
+        if (Object.keys(errors).length > 0) return;
+
         try {
             const response = await axios.post('/colaborador/login', {
                 username: login,
                 password: password
             });
+
             const utilizador = response.data.user;
 
             sessionStorage.setItem('colaboradorid', utilizador.colaboradorid);
             sessionStorage.setItem('nome', utilizador.nome);
             sessionStorage.setItem('tipo', utilizador.tipo);
             sessionStorage.setItem('email', utilizador.email);
+            sessionStorage.setItem('primeirologin', utilizador.ultimologin === null ? "true" : "false");
 
-            if (utilizador.ultimologin === null) {
-                sessionStorage.setItem('primeirologin', "true");
-            } else {
-                sessionStorage.setItem('primeirologin', "false");
-            }
-            
             const tokenResponse = await axios.get(`/colaborador/token/${utilizador.colaboradorid}`);
 
             sessionStorage.setItem('token', tokenResponse.data.token);
             sessionStorage.setItem('saudacao', tokenResponse.data.saudacao);
-    
-            // Fechar o modal quando o login for bem-sucedido, antes de navegar
+
             handleClose();
-            
-            // Notify parent component of successful login
-            if (onLoginSuccess) {
-                onLoginSuccess();
-            }
-            
+            if (onLoginSuccess) onLoginSuccess();
             navigate('/');
         } catch (error) {
             if (error.response?.status === 404 || error.response?.status === 401) {
@@ -104,11 +92,11 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
             }
         }
     };
-    
+
     const resetForm = () => {
         setLogin('');
-        setLoginErrorMessage('');
         setPassword('');
+        setLoginErrorMessage('');
         setPassErrorMessage('');
     };
 
@@ -119,27 +107,26 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
         handleClose();
     };
 
+    const handleRegister = () => {
+        handleClose();
+        navigate('/register');
+    };
+
     return (
         <Modal show={open} onHide={handleCancel} centered>
-            <Modal.Header closeButton >
+            <Modal.Header closeButton>
                 <h4>
                     <span style={{ color: "#4a4a4a" }}>Soft</span>
                     <span style={{ color: "#00bfff" }}>Skills</span>
                 </h4>
             </Modal.Header>
             <Modal.Body>
-                <h5 className="text-center">Entrar na tua conta</h5>
-                <p className="text-center text-muted">Bem vindo de volta, introduz os teus dados!</p>
+                <h5 className="text-center mb-3">Entrar na tua conta</h5>
+                <p className="text-center text-muted mb-4">Bem-vindo de volta, introduz os teus dados!</p>
                 <Form>
                     <Form.Group className="mb-3">
                         <Form.Label>Utilizador</Form.Label>
-                        <Form.Control
-                            type="text"
-                            placeholder="Introduz o teu utilizador"
-                            value={login}
-                            onChange={(e) => setLogin(e.target.value)}
-                            isInvalid={loginError}
-                        />
+                        <Form.Control type="text" placeholder="Introduz o teu utilizador" value={login} onChange={(e) => setLogin(e.target.value)} isInvalid={loginError} />
                         <Form.Control.Feedback type="invalid">
                             {loginErrorMessage}
                         </Form.Control.Feedback>
@@ -148,13 +135,7 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
                     <Form.Group className="mb-3">
                         <Form.Label>Password</Form.Label>
                         <InputGroup>
-                            <Form.Control
-                                type={showPassword ? "text" : "password"}
-                                placeholder="Introduz a tua password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                isInvalid={passError}
-                            />
+                            <Form.Control type={showPassword ? "text" : "password"} placeholder="Introduz a tua password" value={password} onChange={(e) => setPassword(e.target.value)} isInvalid={passError} />
                             <InputGroup.Text onClick={handleClickShowPassword} style={{ cursor: "pointer" }}>
                                 {showPassword ? <EyeSlashFill /> : <EyeFill />}
                             </InputGroup.Text>
@@ -167,10 +148,17 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
                     <Button variant="primary" className="w-100 mt-3" onClick={handleLogin}>
                         Entrar
                     </Button>
+
+                    <div className="text-center mt-3">
+                        <span className="text-muted">Não tens conta?</span>
+                        <Button variant="link" className="p-0 ms-2" onClick={handleRegister} style={{ textDecoration: "none", color: "#00bfff", fontWeight: "500" }}>
+                            Registar
+                        </Button>
+                    </div>
                 </Form>
             </Modal.Body>
         </Modal>
     );
-}
+};
 
 export default LoginModal;
