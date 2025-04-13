@@ -1,6 +1,6 @@
 // cardDestaque.js
 import React from 'react';
-import { Card, Row, Col } from 'react-bootstrap'; // removido Container
+import { Card, Row, Col } from 'react-bootstrap';
 import Image from 'react-bootstrap/Image';
 import 'bootstrap/dist/css/bootstrap.min.css';
 

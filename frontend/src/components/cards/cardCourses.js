@@ -1,74 +1,88 @@
 import React from "react";
-import { Card, Button} from "react-bootstrap";
-import { Clock, Users } from "react-feather";
+import { Card, Badge, Button } from "react-bootstrap";
+import { Clock, Users, Calendar, Award } from "react-feather";
 import ReactGif from "./../../images/react.gif";
 import "./cardCourses.css";
 
-function cardCourses({ curso }) {
+function CardCourses({ curso }) {
   const formatDate = (date) => {
     const data = new Date(date);
     return data.toISOString().split('T')[0];
   };
 
+  // Determine badge color based on course type
+  const getBadgeVariant = (tipo) => {
+    switch(tipo) {
+      case "S": return "primary";
+      case "A": return "success";
+      default: return "secondary";
+    }
+  };
+
+  // Get readable type name
+  const getTipoLabel = (tipo) => {
+    switch(tipo) {
+      case "S": return "Síncrono";
+      case "A": return "Assíncrono";
+      default: return "Desconhecido";
+    }
+  };
+
   return (
-      <Card className="mt-2 mb-3 shadow-lg border-0 d-flex flex-column w-100 h-100" style={{ borderRadius: "10px", maxWidth: "450px" }}>
-        <div
-          style={{
-            height: "200px",
-            background: "linear-gradient(to bottom, #9E7FCE, #5A4EAE)",
-            borderTopLeftRadius: "10px",
-            borderTopRightRadius: "10px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
+    <Card className="course-card h-100">
+      <div className="course-header">
+        <img src={ReactGif} alt="Curso" className="course-image" />
+        <Badge 
+          className="course-type-badge" 
+          bg={getBadgeVariant(curso.tipo)}
         >
-          <img src={ReactGif} alt="Ícone" style={{ width: "150px", opacity: 0.8 }} />
-        </div>
+          {getTipoLabel(curso.tipo)}
+        </Badge>
+      </div>
 
-        <Card.Body className="d-flex flex-column">
-          <Card.Title className="text-primary fw-bold border-bottom pb-2">{curso.titulo}</Card.Title>
+      <Card.Body className="d-flex flex-column">
+        <Card.Title className="course-title">{curso.titulo}</Card.Title>
 
-          {curso.sincrono?.formador?.colaborador?.nome && (
-            <Card.Subtitle className="text-muted mt-1 mb-2">Professor: {curso.sincrono.formador.colaborador.nome}</Card.Subtitle>
-          )}
-
-          <div className="mt-1">
-            <strong>Descrição:</strong>
-            <p className="text-muted mt-1 descricao-limitada">{curso.descricao}</p>
+        {curso.sincrono?.formador?.colaborador?.nome && (
+          <div className="course-instructor">
+            <Award size={16} className="icon" />
+            <span>{curso.sincrono.formador.colaborador.nome}</span>
           </div>
-          
+        )}
+
+        <div className="course-description">
+          <p>{curso.descricao}</p>
+        </div>
+        
+        <div className="course-meta">
           {curso.total_horas && (
-            <div className="d-flex align-items-center mb-1">
-              <Clock size={16} className="me-2 text-secondary" />
-              <span>{curso.total_horas} Horas</span>
+            <div className="meta-item">
+              <Clock size={16} className="icon" />
+              <span>{curso.total_horas} horas</span>
             </div>
           )}
 
           {curso.sincrono?.vagas && (
-            <div className="d-flex align-items-center mb-2">
-              <Users size={16} className="me-2 text-secondary" />
-              <span>{curso.sincrono.vagas} Vagas</span>
+            <div className="meta-item">
+              <Users size={16} className="icon" />
+              <span>{curso.sincrono.vagas} vagas</span>
             </div>
           )}
-
-          <div className="text-muted">
-            Tipo: {curso.tipo === "S" ? "Sincrono" : curso.tipo === "A" ? "Assincrono" : "Desconhecido"}
-          </div>
 
           {curso.sincrono?.inicio && (
-            <div className="text-muted">
-              Início: {formatDate(curso.sincrono.inicio)}
+            <div className="meta-item">
+              <Calendar size={16} className="icon" />
+              <span>{formatDate(curso.sincrono.inicio)}</span>
             </div>
           )}
+        </div>
 
-          <Button variant="link" className="p-0 mt-auto text-dark fw-bold align-self-start">
-            Ver Mais
-          </Button>
-        </Card.Body>
-
-      </Card>
+        <Button variant="primary" className="course-button mt-auto">
+          Ver Detalhes
+        </Button>
+      </Card.Body>
+    </Card>
   );
 }
 
-export default cardCourses;
+export default CardCourses;
