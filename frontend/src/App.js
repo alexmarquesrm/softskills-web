@@ -9,6 +9,7 @@ import PagGestor from "./pages/gestor/pageGestor";
 import ListaUtilizadores from "./pages/gestor/userList";
 import PerfilUtilizador from "./pages/formandos/userProfile";
 import EditarUtilizadorGestor from "./modals/gestor/editUser";
+import PercursoFormativoGestor from "./pages/gestor/percursoFormativo";
 // Modals
 import AdicionarFicheiroAssincronoFormador from "./modals/addFile";
 
@@ -30,6 +31,7 @@ function AppContent() {
                         <Route path="/gestor/editarPerfil" element={<EditarUtilizadorGestor />} />
                         <Route path="/formador/adicionarAssincrono" element={<AdicionarFicheiroAssincronoFormador />} />
                         <Route path="/landing/gestor" element={<PagGestor />} />
+                        <Route path="/gestor/colaborador/percursoFormativo" element={<PercursoFormativoGestor />} />
                     </Route>
                     <Route path="*" element={<Navigate to="/" />} />
                 </Routes>
