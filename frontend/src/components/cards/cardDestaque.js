@@ -1,29 +1,27 @@
-// cardDestaque.js
 import React from 'react';
 import { Card, Row, Col } from 'react-bootstrap';
 import Image from 'react-bootstrap/Image';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import './cardDestaque.css';
 
 const EscolaOnlineCard = () => {
   return (
-    <Card className="p-4 my-3" style={{ backgroundColor: '#f4f6f8', borderRadius: '0px' }}>
+    <Card className="destaque-card my-5">
       <Row className="align-items-center">
         <Col md={8}>
           <Card.Body>
-            <Card.Title style={{ fontSize: '1.5rem' }}>
-              Agora a nossa escola também está online!
-            </Card.Title>
-            <Card.Text style={{ color: '#555' }}>
+            <h2>A nossa escola agora também é online!</h2>
+            <Card.Text className="destaque-text">
               Nada melhor do que preparar todos os pedidos no conforto da tua casa,
-              de fácil acesso no teu computador ou telemóvel
+              com acesso fácil pelo computador ou telemóvel. Mais flexibilidade, mais conveniência.
             </Card.Text>
           </Card.Body>
         </Col>
         <Col md={4}>
           <Image
-            src=""
+            src="https://via.placeholder.com/300x200?text=Online+Learning" // exemplo de imagem
             alt="Ilustração online"
             fluid
+            className="destaque-img"
           />
         </Col>
       </Row>

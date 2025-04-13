@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import axios from "../../config/configAxios";
-import Card from "../../components/cards/cardDestaque"
+import Card from "../../components/cards/cardDestaque";
 import DataTable from '../../components/tables/dataTable';
 import CardPedido from '../../components/cards/cardPedido';
 import CardRow from '../../components/cards/cardRow';
 import { Container } from "react-bootstrap";
+import "./pageGestor.css";
 
 export default function PaginaGestor() {
   const formatDate = (date) => {
@@ -14,7 +15,7 @@ export default function PaginaGestor() {
     const diffHoras = diffMs / (1000 * 60 * 60);
     const diffDias = Math.floor(diffHoras / 24);
     const diffMeses = Math.floor(diffDias / 30);
-  
+
     if (diffHoras < 24) {
       const horas = Math.floor(diffHoras);
       return `${horas} hora${horas !== 1 ? 's' : ''} atrás`;
@@ -72,7 +73,6 @@ export default function PaginaGestor() {
           };
         })
       );
-
     } catch (error) {
       setError(error);
     }
@@ -104,22 +104,22 @@ export default function PaginaGestor() {
   }
 
   return (
-    <Container className="my-4" style={{ maxWidth: '1720px' }}>
-      <h3>Visao geral</h3>
-      <h6>Bem-vindo, {nome}</h6>
-      <Card />
-      <br></br>
-      <h3>Pedidos</h3>
-
-      <Container className="my-4" style={{ maxWidth: '1720px' }}>
-        <CardRow dados={pedidos} renderCard={renderPedidoCard} scrollable={true} /*colSize={4}*/ />
+    <div className="app-content">
+      <Container className="my-5">
+        <h2 className="section-title">Visão Geral</h2>
+        <h6>Bem-vindo, {nome}</h6>
+        <Card />
       </Container>
 
-      <div className="mb-3">
-        <h3>Denúncias</h3>
-      </div>
-      <DataTable rows={tableRows || []} columns={tableColumns} />
-    </Container>
+      <Container className="my-5">
+        <h2 className="section-title">Pedidos</h2>
+        <CardRow dados={pedidos} renderCard={renderPedidoCard} scrollable={true} />
+      </Container>
+
+      <Container className="my-5">
+        <h2 className="section-title">Denúncias</h2>
+        <DataTable rows={tableRows || []} columns={tableColumns} />
+      </Container>
+    </div>
   );
 }
-

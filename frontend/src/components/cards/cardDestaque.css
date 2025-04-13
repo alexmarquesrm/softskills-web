@@ -1,0 +1,19 @@
+.destaque-card {
+    background: linear-gradient(135deg, #eef2ff, #f9f9f9);
+    border-radius: 20px;
+    border: none;
+    padding: 40px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+  
+  .destaque-text {
+    font-size: 1.1rem;
+    color: #555;
+    line-height: 1.6;
+  }
+  
+  .destaque-img {
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+  
