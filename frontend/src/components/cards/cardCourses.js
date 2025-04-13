@@ -4,14 +4,15 @@ import { Clock, Users, Calendar, Award } from "react-feather";
 import ReactGif from "./../../images/react.gif";
 import "./cardCourses.css";
 
-function CardCourses({ curso }) {
+function CardCourses({ curso, inscricao }) {
+  console.log(curso);
   const formatDate = (date) => {
     const data = new Date(date);
     return data.toISOString().split('T')[0];
   };
 
   const getBadgeVariant = (tipo) => {
-    switch(tipo) {
+    switch (tipo) {
       case "S": return "primary";
       case "A": return "success";
       default: return "secondary";
@@ -19,7 +20,7 @@ function CardCourses({ curso }) {
   };
 
   const getTipoLabel = (tipo) => {
-    switch(tipo) {
+    switch (tipo) {
       case "S": return "Síncrono";
       case "A": return "Assíncrono";
       default: return "Desconhecido";
@@ -30,8 +31,8 @@ function CardCourses({ curso }) {
     <Card className="course-card h-100">
       <div className="course-header">
         <img src={ReactGif} alt="Curso" className="course-image" />
-        <Badge 
-          className="course-type-badge" 
+        <Badge
+          className="course-type-badge"
           bg={getBadgeVariant(curso.tipo)}
         >
           {getTipoLabel(curso.tipo)}
@@ -51,7 +52,7 @@ function CardCourses({ curso }) {
         <div className="course-description">
           <p>{curso.descricao}</p>
         </div>
-        
+
         <div className="course-meta">
           {curso.total_horas && (
             <div className="meta-item">
@@ -71,6 +72,18 @@ function CardCourses({ curso }) {
             <div className="meta-item">
               <Calendar size={16} className="icon" />
               <span>{formatDate(curso.sincrono.inicio)}</span>
+            </div>
+          )}
+
+          {inscricao?.estado !== undefined && (
+            <div className="meta-item">
+              <span>Estado: {inscricao.estado ? 'Concluído' : 'Em curso'}</span>
+            </div>
+          )}
+
+          {inscricao?.data_certificado && (
+            <div className="meta-item">
+              <span>Certificado: {formatDate(inscricao.data_certificado)}</span>
             </div>
           )}
         </div>
