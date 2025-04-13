@@ -17,10 +17,10 @@ function Footer() {
               A nossa missão é criar valor e excelência através da tecnologia.
             </p>
             <div className="social-icons mt-3">
-              <a href="#" className="social-icon me-3"><FaFacebook /></a>
-              <a href="#" className="social-icon me-3"><FaTwitter /></a>
-              <a href="#" className="social-icon me-3"><FaInstagram /></a>
-              <a href="#" className="social-icon"><FaLinkedin /></a>
+              <a href="/" className="social-icon me-3"><FaFacebook /></a>
+              <a href="/" className="social-icon me-3"><FaTwitter /></a>
+              <a href="/" className="social-icon me-3"><FaInstagram /></a>
+              <a href="/" className="social-icon"><FaLinkedin /></a>
             </div>
           </Col>
           

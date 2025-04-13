@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Navbar, Nav, Container } from "react-bootstrap";
 import { useNavigate } from 'react-router-dom';
 import "../navbar/navbar.css";
-import ProfileDropdown from "../profileDropdown";
+import ProfileDropdown from "../dropdown/profileDropdown";
 import LoginModal from '../../modals/loginModal';
 import NavbarButton from "../buttons/navbarButton";
 import Sidebar from "../sidebar/sidebar";
