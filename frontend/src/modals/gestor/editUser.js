@@ -102,7 +102,7 @@ export default function EditProfile ({ show, onClose, onSave, initialData = {} }
     <ModalCustom show={show} handleClose={onClose} title="Editar Utilizador" size="xl">
       <Row className="justify-content-start mb-4">
         <Col md={12}>
-          <div className="border p-4 shadow-sm rounded">
+          <div className="border p-4 shadow-sm rounded" style={{ backgroundColor: "#fff" }}>
             <Row className="mb-3 align-items-center">
               <Col xs={4} sm={3} md={2} className="d-flex justify-content-center">
                 <img src={profilePic} alt="Foto de Perfil" className="rounded-circle shadow-lg"
@@ -139,7 +139,7 @@ export default function EditProfile ({ show, onClose, onSave, initialData = {} }
             </Row>
 
             <Row className="mb-3">
-              <InputField label="Sobre Mim" name="sobre_mim" value={formData.sobre_mim} onChange={handleChange} type="textarea" rows={5} style={{ resize: "none" }} colSize={12} />
+              <InputField label="Sobre Mim" name="sobre_mim" value={formData.sobre_mim} onChange={handleChange} type="textarea" rows={3} style={{ resize: "none" }} colSize={12} />
             </Row>
 
             <Row className="mb-3">

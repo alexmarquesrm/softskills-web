@@ -95,7 +95,7 @@ const ModalAddUser = ({ show, onClose }) => {
       <Container className="mt-3">
         <Row className="justify-content-start mb-4">
           <Col md={12}>
-            <div className="border p-4 shadow-sm rounded">
+            <div className="border p-4 shadow-sm rounded"  style={{ backgroundColor: "#fff" }}>
 
               <Row className="mb-3">
                 <InputField label="Primeiro Nome" type="text" name="Pnome" value={Pnome} onChange={(e) => setPnome(e.target.value)} colSize={6} />

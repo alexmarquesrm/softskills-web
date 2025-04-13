@@ -12,6 +12,7 @@ import EditUser from '../../modals/gestor/editUser';
 /* ICONS */
 import { FaPencilAlt } from "react-icons/fa";
 import { IoMdAddCircleOutline } from "react-icons/io";
+import { PiStudentBold } from "react-icons/pi";
 
 export default function UsersTable() {
   const [isNewModalOpen, setNewModalOpen] = useState(false);
@@ -28,17 +29,17 @@ export default function UsersTable() {
     { field: 'id', headerName: 'Nº Colaborador', flex: 0.5, headerAlign: 'left', disableColumnMenu: true },
     { field: 'nome', headerName: 'Nome', flex: 0.7, headerAlign: 'left', disableColumnMenu: false, renderCell: (params) => ( 
       <span onClick={() => navigate('/gestor/colaborador/percursoFormativo', { state: { id: params.row.id } })}
-      style={{ color: '#007bff', textDecoration: 'underline', cursor: 'pointer' }} > {params.row.nome} </span> ),},
+      style={{ color: '#007bff', textDecoration: 'underline', cursor: 'pointer' }} > {params.row.nome}  </span> ),},
     { field: 'email', headerName: 'Email', flex: 1, headerAlign: 'left', disableColumnMenu: true },
     { field: 'telefone', headerName: 'Telefone', flex: 0.5, headerAlign: 'left', disableColumnMenu: true },
     { field: 'departamento', headerName: 'Departamento', flex: 0.5, headerAlign: 'left', disableColumnMenu: true },
     { field: 'funcao', headerName: 'Função', flex: 0.5, headerAlign: 'left', disableColumnMenu: true },
-    {
-      field: 'status', headerName: ' ', flex: 0.5, headerAlign: 'left', sortable: false, renderCell: (params) => (<div style={{
-        display: 'flex',
-        alignItems: 'center',
-        height: '100%',
-        width: '100%',
+    {field: 'percurso', headerName: '', flex: 0.3, headerAlign: 'left', sortable: false, renderCell: (params) => (<div style={{
+      display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', width: '100%',
+    }}> <EditButton onClick={() => handleEditClick(params.row)} Icon={PiStudentBold} /> </div>), disableColumnMenu: true
+  },
+    {field: 'status', headerName: ' ', flex: 0.3, headerAlign: 'left', sortable: false, renderCell: (params) => (<div style={{
+        display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', width: '100%',
       }}> <EditButton onClick={() => handleEditClick(params.row)} Icon={FaPencilAlt} /> </div>), disableColumnMenu: true
     },
   ];
