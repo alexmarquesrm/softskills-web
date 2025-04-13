@@ -5,7 +5,6 @@ import ReactGif from "./../../images/react.gif";
 import "./cardCourses.css";
 
 function CardCourses({ curso, inscricao }) {
-  console.log(curso);
   const formatDate = (date) => {
     const data = new Date(date);
     return data.toISOString().split('T')[0];

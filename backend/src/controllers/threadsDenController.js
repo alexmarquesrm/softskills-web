@@ -7,7 +7,6 @@ const models = initModels(sequelizeConn);
 const controladorThreadsDen = {
   // Criar uma nova denúncia
   createDenuncia: async (req, res) => {
-    console.log(req.body);
     try {
       const { thread_id, formando_id, descricao } = req.body;
 

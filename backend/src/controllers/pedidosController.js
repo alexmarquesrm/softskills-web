@@ -8,7 +8,6 @@ const controladorPedidos = {
   // Criar novo pedido_curso
   createPedidoCurso: async (req, res) => {
     const { formador_id, curso_id } = req.body;
-    console.log("Dados recebidos:", req.body);
     try {
       const novoPedido = await models.pedido_curso.create({ formador_id, curso_id });
       res.status(201).json(novoPedido);

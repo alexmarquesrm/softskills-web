@@ -49,7 +49,6 @@ const ModalAddUser = ({ show, onClose }) => {
         inativo: !ativo,
         tipo: tipoUtilizador[0], 
       };
-      console.log(novoColaborador);
 
       await axios.post(`/colaborador/adicionar`, novoColaborador, {
         headers: { Authorization: `${token}` },

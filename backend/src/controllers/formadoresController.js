@@ -81,7 +81,6 @@ const controladorFormadores = {
 
     try {
       const colaborador = await models.colaborador.findByPk(colaborador_id);
-      console.log("Colaborador", colaborador);
       if (!colaborador) {
         return res.status(404).json({ message: "Colaborador não encontrado" });
       }
