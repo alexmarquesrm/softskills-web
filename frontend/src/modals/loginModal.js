@@ -73,6 +73,7 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
             sessionStorage.setItem('colaboradorid', utilizador.colaboradorid);
             sessionStorage.setItem('nome', utilizador.nome);
             sessionStorage.setItem('tipo', utilizador.tipo);
+            sessionStorage.setItem('email', utilizador.email);
 
             if (utilizador.ultimologin === null) {
                 sessionStorage.setItem('primeirologin', "true");

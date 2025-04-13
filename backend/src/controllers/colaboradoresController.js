@@ -88,6 +88,7 @@ const controladorUtilizadores = {
         colaboradorid: user.colaborador_id,
         nome: user.nome,
         username: user.username,
+        email: user.email,
         ultimologin: user.ultimologin,
         tipo
       };
