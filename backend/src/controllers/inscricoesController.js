@@ -35,16 +35,44 @@ const controladorInscricoes = {
     }
   },
 
-  async getById(req, res) {
+  async getByFormandoId(req, res) {
     try {
-      const id = req.params.id;
-      const inscricao = await models.inscricao.findByPk(id);
-      if (!inscricao) {
-        return res.status(404).json({ erro: "Inscrição não encontrada" });
+      const formandoId = req.params.id;
+  
+      const inscricoes = await models.inscricao.findAll({
+        where: { formando_id: formandoId },
+        include: [
+          {
+            model: models.curso,
+            as: "inscricao_curso",
+            include: [
+              {
+                model: models.topico,
+                as: "curso_topico"
+              }
+            ]
+          },
+          {
+            model: models.formando,
+            as: "inscricao_formando",
+            include: [
+              {
+                model: models.colaborador,
+                as: "formando_colab",
+                attributes: ["nome", "email"]
+              }
+            ]
+          }
+        ]
+      });
+  
+      if (inscricoes.length === 0) {
+        return res.status(404).json({ erro: "Nenhuma inscrição encontrada para este formando" });
       }
-      res.json(inscricao);
+  
+      res.json(inscricoes);
     } catch (error) {
-      res.status(500).json({ erro: "Erro ao buscar inscrição", detalhes: error.message });
+      res.status(500).json({ erro: "Erro ao buscar inscrições", detalhes: error.message });
     }
   },
 
