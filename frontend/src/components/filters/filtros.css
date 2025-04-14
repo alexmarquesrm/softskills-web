@@ -69,25 +69,25 @@
   }
 }
 
-.descricao-limitada {
+.titulo-limitado {
   display: inline-block;
-  max-width: 80px; /* Ajuste conforme necessário */
+  max-width: 80px; 
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  margin-left: 4px; /* Espaçamento entre o checkbox e a label */
+  margin-left: 4px;
 }
 
 /* Opcional: Responsividade */
 @media (max-width: 1024px) {
-  .descricao-limitada {
-    max-width: 60px; /* Ajusta o tamanho máximo em telas menores */
+  .titulo-limitado {
+    max-width: 60px; 
   }
 }
 
 @media (max-width: 680px) {
-  .descricao-limitada {
-    max-width: 50px; /* Ajusta ainda mais em telas muito pequenas */
+  .titulo-limitado {
+    max-width: 50px; 
   }
 }
 

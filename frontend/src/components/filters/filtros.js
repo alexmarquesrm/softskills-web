@@ -38,7 +38,7 @@ function FiltrosCursos({
                                 checked={tipoSelecionado.S}
                                 onChange={() => toggleTipo("S")}
                             />
-                            <label htmlFor="tipo-sincrono" className="descricao-limitada">Síncrono</label>
+                            <label htmlFor="tipo-sincrono" className="titulo-limitado">Síncrono</label>
                         </div>
                         <div className="checkbox-wrapper-13">
                             <input
@@ -47,7 +47,7 @@ function FiltrosCursos({
                                 checked={tipoSelecionado.A}
                                 onChange={() => toggleTipo("A")}
                             />
-                            <label htmlFor="tipo-assincrono" className="descricao-limitada">Assíncrono</label>
+                            <label htmlFor="tipo-assincrono" className="titulo-limitado">Assíncrono</label>
                         </div>
                     </div>
                 )}
@@ -68,7 +68,7 @@ function FiltrosCursos({
                                 checked={estadoSelecionado.emCurso}
                                 onChange={() => toggleEstado("emCurso")}
                             />
-                            <label htmlFor="estado-em-curso" className="descricao-limitada">Em Curso</label>
+                            <label htmlFor="estado-em-curso" className="titulo-limitado">Em Curso</label>
                         </div>
                         <div className="checkbox-wrapper-13 ">
                             <input
@@ -77,7 +77,7 @@ function FiltrosCursos({
                                 checked={estadoSelecionado.terminado}
                                 onChange={() => toggleEstado("terminado")}
                             />
-                            <label htmlFor="estado-terminado" className="descricao-limitada">Terminado</label>
+                            <label htmlFor="estado-terminado" className="titulo-limitado">Terminado</label>
                         </div>
                     </div>
                 )}
