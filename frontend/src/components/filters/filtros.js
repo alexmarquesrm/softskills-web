@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { ChevronDown, ChevronUp } from "react-bootstrap-icons";
 import "./filtros.css";
 
-export default function FiltrosCursos({
+function FiltrosCursos({
     tipoSelecionado,
     setTipoSelecionado,
     estadoSelecionado,
@@ -31,24 +31,24 @@ export default function FiltrosCursos({
                 </div>
                 {tipoAberto && (
                     <div className="filtro-opcoes">
-                        <label>
+                        <div className="checkbox-wrapper-13">
                             <input
+                                id="tipo-sincrono"
                                 type="checkbox"
                                 checked={tipoSelecionado.S}
                                 onChange={() => toggleTipo("S")}
                             />
-                            <span className="checkbox-custom"></span>
-                            Síncrono
-                        </label>
-                        <label>
+                            <label htmlFor="tipo-sincrono" className="descricao-limitada">Síncrono</label>
+                        </div>
+                        <div className="checkbox-wrapper-13">
                             <input
+                                id="tipo-assincrono"
                                 type="checkbox"
                                 checked={tipoSelecionado.A}
                                 onChange={() => toggleTipo("A")}
                             />
-                            <span className="checkbox-custom"></span>
-                            Assíncrono
-                        </label>
+                            <label htmlFor="tipo-assincrono" className="descricao-limitada">Assíncrono</label>
+                        </div>
                     </div>
                 )}
             </div>
@@ -61,27 +61,29 @@ export default function FiltrosCursos({
                 </div>
                 {estadoAberto && (
                     <div className="filtro-opcoes">
-                        <label>
+                        <div className="checkbox-wrapper-13">
                             <input
+                                id="estado-em-curso"
                                 type="checkbox"
                                 checked={estadoSelecionado.emCurso}
                                 onChange={() => toggleEstado("emCurso")}
                             />
-                            <span className="checkbox-custom"></span>
-                            Em Curso
-                        </label>
-                        <label>
+                            <label htmlFor="estado-em-curso" className="descricao-limitada">Em Curso</label>
+                        </div>
+                        <div className="checkbox-wrapper-13 ">
                             <input
+                                id="estado-terminado"
                                 type="checkbox"
                                 checked={estadoSelecionado.terminado}
                                 onChange={() => toggleEstado("terminado")}
                             />
-                            <span className="checkbox-custom"></span>
-                            Terminado
-                        </label>
+                            <label htmlFor="estado-terminado" className="descricao-limitada">Terminado</label>
+                        </div>
                     </div>
                 )}
             </div>
         </div>
     );
 }
+
+export default FiltrosCursos;
