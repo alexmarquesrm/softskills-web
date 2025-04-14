@@ -1,0 +1,22 @@
+.wrapper-com-filtros {
+    display: flex;
+    align-items: flex-start;
+    gap: 2rem; /* Espaço entre filtros e os cards */
+    margin-left: 2rem;
+    margin-right: 2rem;
+  }
+  
+  .filtros-coluna {
+    flex-shrink: 0;
+    width: 220px; /* Ou ajuste conforme o design */
+  }
+  
+  .conteudo-superior {
+    margin: 2rem; /* Alinha com .wrapper-com-filtros */
+  }
+  
+  .sem-padding-horizontal {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+  

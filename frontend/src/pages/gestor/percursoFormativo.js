@@ -6,6 +6,8 @@ import axios from "../../config/configAxios";
 import FeaturedCourses from "../../components/cards/cardCourses";
 import SearchBar from '../../components/textFields/search';
 import CardRow from '../../components/cards/cardRow';
+import Filters from '../../components/filters/filtros';
+import './percursoFormativo.css';
 
 export default function PercursoFormativo() {
     const location = useLocation();
@@ -13,6 +15,8 @@ export default function PercursoFormativo() {
     const [nome, setNome] = useState('');
     const [inscricao, setInscricao] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
+    const [tipoSelecionado, setTipoSelecionado] = useState({ S: true, A: true });
+    const [estadoSelecionado, setEstadoSelecionado] = useState({ emCurso: true, terminado: true });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
@@ -65,27 +69,44 @@ export default function PercursoFormativo() {
     };
 
     return (
-        <div className="app-content">
-            <Container className="my-5">
-                <h2 className="section-title">Percurso Formativo de {nome}</h2>
-            </Container>
-
-            <div className="flex-grow-1">
-                <SearchBar searchTerm={searchTerm} handleSearchChange={handleSearchChange} handleSearchClick={handleSearchClick} />
-            </div>
-
-            <Container className="my-5">
-                {inscricao.length > 0 ? (
-                    <CardRow
-                        dados={inscricao}
-                        renderCard={renderCourseCard}
-                        scrollable={false}
-                        colSize={4}
+        <div >
+            <Container style={{marginTop: '48px'}}>
+                <h2 className="section-title mb-4">Percurso Formativo de {nome}</h2>
+                <div className="flex-grow-1">
+                    <SearchBar
+                        searchTerm={searchTerm}
+                        handleSearchChange={handleSearchChange}
+                        handleSearchClick={handleSearchClick}
                     />
-                ) : (
-                    <p>Não existem cursos.</p>
-                )}
+                </div>
             </Container>
+
+            <div className="wrapper-com-filtros">
+                <div className="filtros-coluna">
+                    <Filters
+                        tipoSelecionado={tipoSelecionado}
+                        setTipoSelecionado={setTipoSelecionado}
+                        estadoSelecionado={estadoSelecionado}
+                        setEstadoSelecionado={setEstadoSelecionado}
+                    />
+                </div>
+
+                <div className="conteudo-cardrow">
+                    <Container className="my-5">
+                        {inscricao.length > 0 ? (
+                            <CardRow
+                                dados={inscricao}
+                                renderCard={renderCourseCard}
+                                scrollable={false}
+                                colSize={4}
+                                align="start"
+                            />
+                        ) : (
+                            <p>Não existem cursos.</p>
+                        )}
+                    </Container>
+                </div>
+            </div>
 
         </div>
     );
