@@ -3,7 +3,7 @@ import { Row, Col, Button } from "react-bootstrap";
 import { ChevronLeft, ChevronRight } from "react-bootstrap-icons";
 import "./cardRow.css";
 
-function CardRow({ dados = [], renderCard, colSize = 3, scrollable = false }) {
+function CardRow({ dados = [], renderCard, colSize = 3, scrollable = false, align = "center" }) {
     const scrollContainerRef = useRef(null);
     const [showLeftButton, setShowLeftButton] = useState(false);
     const [showRightButton, setShowRightButton] = useState(false);
@@ -82,9 +82,14 @@ function CardRow({ dados = [], renderCard, colSize = 3, scrollable = false }) {
         );
     }
 
-    // Caso contrário, grid com colunas
+    const alignmentClass = {
+        start: "justify-content-start",
+        center: "justify-content-center",
+        end: "justify-content-end"
+    }[align] || "justify-content-center";
+    
     return (
-        <Row className="g-3 justify-content-center card-row-grid">
+        <Row className={`g-3 ${alignmentClass} card-row-grid`}>
             {dados.map((item, index) => (
                 <Col key={index} md={colSize} className="d-flex card-col" style={{ maxWidth: '450px' }}>
                     <div className="w-100">
