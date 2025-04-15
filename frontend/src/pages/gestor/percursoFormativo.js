@@ -7,6 +7,7 @@ import FeaturedCourses from "../../components/cards/cardCourses";
 import SearchBar from '../../components/textFields/search';
 import CardRow from '../../components/cards/cardRow';
 import Filters from '../../components/filters/filtros';
+/* CSS */
 import './percursoFormativo.css';
 
 export default function PercursoFormativo() {
@@ -70,7 +71,17 @@ export default function PercursoFormativo() {
 
     return (
         <div >
-            <Container style={{marginTop: '48px'}}>
+            <div className="wrapper-com-filtros">
+                <div style={{marginTop: '175px'}}>
+                    <Filters
+                        tipoSelecionado={tipoSelecionado}
+                        setTipoSelecionado={setTipoSelecionado}
+                        estadoSelecionado={estadoSelecionado}
+                        setEstadoSelecionado={setEstadoSelecionado}
+                    />
+                </div>
+                <div className="conteudo-cardrow">
+                <Container style={{marginTop: '48px'}}>
                 <h2 className="section-title mb-4">Percurso Formativo de {nome}</h2>
                 <div className="flex-grow-1">
                     <SearchBar
@@ -80,18 +91,6 @@ export default function PercursoFormativo() {
                     />
                 </div>
             </Container>
-
-            <div className="wrapper-com-filtros">
-                <div className="filtros-coluna">
-                    <Filters
-                        tipoSelecionado={tipoSelecionado}
-                        setTipoSelecionado={setTipoSelecionado}
-                        estadoSelecionado={estadoSelecionado}
-                        setEstadoSelecionado={setEstadoSelecionado}
-                    />
-                </div>
-
-                <div className="conteudo-cardrow">
                     <Container className="my-5">
                         {inscricao.length > 0 ? (
                             <CardRow
