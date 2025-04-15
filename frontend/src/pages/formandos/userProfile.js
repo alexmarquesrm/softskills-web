@@ -220,15 +220,6 @@ export default function EditColab (){
             //<ModalEditarPerfil show={showModalEditar} handleClose={() => setShowModalEditar(false)} />
 
 
-           // <Guardar
-           // text={"Assincrono"}
-           // onClick={() => setModalAdicionarFicheiro(true)}
-            //Icon={FaRegSave}
-           // />
-           // <ModalAdicionarFicheiro show={showModalAdicionarFicheiro} handleClose={() => setModalAdicionarFicheiro(false)} />
-           
-           //<ModalAddUser show={showModalAddUser} handleClose={() => setModalAddUser(false)} />
-
                    
                    
                   

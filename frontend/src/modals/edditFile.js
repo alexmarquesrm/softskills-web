@@ -11,7 +11,7 @@ import { IoCalendarNumberSharp } from "react-icons/io5";
 import { useDropzone } from 'react-dropzone';
 import { FaRegSave } from "react-icons/fa";
 
-const ModalAdicionarFicheiro = ({ show, handleClose }) => {
+const ModalEditarFicheiro = ({ show, handleClose }) => {
   const [formData, setFormData] = useState({});
   const [titulo, settitulo] = useState([]);
   const [dataentrega, setdataentrega] = useState([]);
@@ -43,19 +43,24 @@ const ModalAdicionarFicheiro = ({ show, handleClose }) => {
   };
 
   return (
-    <ModalCustom show={show} handleClose={handleClose} title="Adicionar Ficheiro" onSubmit={handleSubmit}>
+    <ModalCustom show={show} handleClose={handleClose} title="Editar Ficheiro" onSubmit={handleSubmit}>
       <Row className="justify-content-start mb-4">
         <Col md={12}>
           <div className="border p-4 shadow-sm rounded" style={{ backgroundColor: "#fff" }}>
 
             <Row className="mb-3">
-            <InputField label="Título" type="text" placeholder="Nome" name="titulo" value={formData.titulo} onChange={handleChange} colSize={6}/>
+            <InputField label="Título" type="text" placeholder="video1" name="titulo" value={formData.titulo} onChange={handleChange} colSize={6}/>
             <InputField label="Data Entrega" type="date" placeholder="" name="dataNasc" value={formData.dataentrega} onChange={handleChange} icon={<IoCalendarNumberSharp />} colSize={6} />
             </Row>
           
 
+
+
           <Row className="mb-3">
-            <InputField label="Descrição" type="textarea" placeholder="Descrição do Ficheiro" name="sobreMim" value={formData.sobreficheiro} onChange={handleChange} colSize={12} rows={5} style={{ resize: 'none' }} />
+            <InputField label="Descrição"
+              type="textarea"
+              placeholder="Aula teorica falada um pouco de como se faz e nao faz nada, é sempre importnate realizar o estudo desta componente" 
+              name="descricao" value={formData.sobreficheiro} onChange={handleChange} colSize={12} rows={5} style={{ resize: 'none' }} />
           </Row>
 
 
@@ -72,8 +77,8 @@ const ModalAdicionarFicheiro = ({ show, handleClose }) => {
           </Row>
 
           <div className="d-flex justify-content-center mt-4">
-            <Cancelar text="Cancelar" onClick={handleClose} Icon={BsArrowReturnLeft} inline={true} />
-            <Guardar text={"Adicionar"} onClick={handleSubmit} Icon={FaRegSave} />
+            <Cancelar text="Cancelar" onClick={handleClose} Icon={BsArrowReturnLeft} inline={true}/>
+            <Guardar text={"Guardar"} onClick={handleSubmit} Icon={FaRegSave} />
 
           </div>
         </div>
@@ -83,4 +88,4 @@ const ModalAdicionarFicheiro = ({ show, handleClose }) => {
   );
 };
 
-export default ModalAdicionarFicheiro;
+export default ModalEditarFicheiro;
