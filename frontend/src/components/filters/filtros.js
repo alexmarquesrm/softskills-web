@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { ChevronDown, ChevronUp } from "react-bootstrap-icons";
+import React, { useState, useEffect } from "react";
+import { ChevronDown, ChevronUp, Filter, X } from "react-bootstrap-icons";
 import "./filtros.css";
 
 function FiltrosCursos({
@@ -8,9 +8,11 @@ function FiltrosCursos({
     estadoSelecionado,
     setEstadoSelecionado,
 }) {
-    const [tipoAberto, setTipoAberto] = useState(false);
-    const [estadoAberto, setEstadoAberto] = useState(false);
-
+    const [tipoAberto, setTipoAberto] = useState(true);
+    const [estadoAberto, setEstadoAberto] = useState(true);
+    const [filtersExpanded, setFiltersExpanded] = useState(true);
+    
+    // Toggle individual filter value
     const toggleTipo = (tipo) => {
         setTipoSelecionado((prev) => ({ ...prev, [tipo]: !prev[tipo] }));
     };
@@ -19,68 +21,119 @@ function FiltrosCursos({
         setEstadoSelecionado((prev) => ({ ...prev, [estado]: !prev[estado] }));
     };
 
-    return (
-        <div className="filtros-container">
-            <strong>Filtros:</strong>
+    // Reset all filters
+    const resetFilters = () => {
+        setTipoSelecionado({ S: false, A: false });
+        setEstadoSelecionado({ emCurso: false, terminado: false });
+    };
 
-            {/* Tipo Curso */}
-            <div className="filtro-box">
-                <div className="filtro-header" onClick={() => setTipoAberto(!tipoAberto)}>
-                    Tipo Curso
-                    {tipoAberto ? <ChevronUp /> : <ChevronDown />}
+    // Count active filters
+    const getActiveFiltersCount = () => {
+        // Contamos apenas os filtros que estão selecionados (true)
+        const selectedTipos = Object.values(tipoSelecionado).filter(value => value).length;
+        const selectedEstados = Object.values(estadoSelecionado).filter(value => value).length;
+        
+        return selectedTipos + selectedEstados;
+    };
+
+    const activeCount = getActiveFiltersCount();
+
+    return (
+        <div className="filtros-container-wrapper">
+            {/* Visible on mobile */}
+            <div 
+                className="filtros-mobile-toggle"
+                onClick={() => setFiltersExpanded(!filtersExpanded)}
+            >
+                <div className="filtros-title">
+                    <Filter size={18} />
+                    <h3>Filtros</h3>
+                    {activeCount > 0 && (
+                        <span className="active-filters-badge">{activeCount}</span>
+                    )}
                 </div>
-                {tipoAberto && (
-                    <div className="filtro-opcoes">
-                        <div className="checkbox-wrapper-13">
-                            <input
-                                id="tipo-sincrono"
-                                type="checkbox"
-                                checked={tipoSelecionado.S}
-                                onChange={() => toggleTipo("S")}
-                            />
-                            <label htmlFor="tipo-sincrono" className="titulo-limitado">Síncrono</label>
-                        </div>
-                        <div className="checkbox-wrapper-13">
-                            <input
-                                id="tipo-assincrono"
-                                type="checkbox"
-                                checked={tipoSelecionado.A}
-                                onChange={() => toggleTipo("A")}
-                            />
-                            <label htmlFor="tipo-assincrono" className="titulo-limitado">Assíncrono</label>
-                        </div>
-                    </div>
-                )}
+                {filtersExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
             </div>
 
-            {/* Estado Curso */}
-            <div className="filtro-box">
-                <div className="filtro-header" onClick={() => setEstadoAberto(!estadoAberto)}>
-                    Estado Curso
-                    {estadoAberto ? <ChevronUp /> : <ChevronDown />}
-                </div>
-                {estadoAberto && (
-                    <div className="filtro-opcoes">
-                        <div className="checkbox-wrapper-13">
-                            <input
-                                id="estado-em-curso"
-                                type="checkbox"
-                                checked={estadoSelecionado.emCurso}
-                                onChange={() => toggleEstado("emCurso")}
-                            />
-                            <label htmlFor="estado-em-curso" className="titulo-limitado">Em Curso</label>
+            <div className={`filtros-content ${filtersExpanded ? 'expanded' : ''}`}>
+                {/* Botão agora sempre presente, mas com classe visible controlando a visibilidade */}
+                <button 
+                    className={`reset-filters-btn ${activeCount > 0 ? 'visible' : ''}`} 
+                    onClick={resetFilters}
+                >
+                    <X size={14} />
+                    <span>Limpar filtros</span>
+                </button>
+
+                {/* Tipo Curso */}
+                <div className="filtro-box">
+                    <div
+                        className={`filtro-header ${tipoAberto ? 'active' : ''}`}
+                        onClick={() => setTipoAberto(!tipoAberto)}
+                    >
+                        <span className="filtro-title">Tipo de Curso</span>
+                        {tipoAberto ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                    </div>
+                    <div className={`filtro-opcoes ${tipoAberto ? 'visible' : ''}`}>
+                        <div className="checkbox-option">
+                            <div className="checkbox-wrapper-13">
+                                <input
+                                    id="tipo-sincrono"
+                                    type="checkbox"
+                                    checked={tipoSelecionado.S}
+                                    onChange={() => toggleTipo("S")}
+                                />
+                                <label htmlFor="tipo-sincrono">Síncrono</label>
+                            </div>
                         </div>
-                        <div className="checkbox-wrapper-13 ">
-                            <input
-                                id="estado-terminado"
-                                type="checkbox"
-                                checked={estadoSelecionado.terminado}
-                                onChange={() => toggleEstado("terminado")}
-                            />
-                            <label htmlFor="estado-terminado" className="titulo-limitado">Terminado</label>
+                        <div className="checkbox-option">
+                            <div className="checkbox-wrapper-13">
+                                <input
+                                    id="tipo-assincrono"
+                                    type="checkbox"
+                                    checked={tipoSelecionado.A}
+                                    onChange={() => toggleTipo("A")}
+                                />
+                                <label htmlFor="tipo-assincrono">Assíncrono</label>
+                            </div>
                         </div>
                     </div>
-                )}
+                </div>
+
+                {/* Estado Curso */}
+                <div className="filtro-box">
+                    <div
+                        className={`filtro-header ${estadoAberto ? 'active' : ''}`}
+                        onClick={() => setEstadoAberto(!estadoAberto)}
+                    >
+                        <span className="filtro-title">Estado do Curso</span>
+                        {estadoAberto ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                    </div>
+                    <div className={`filtro-opcoes ${estadoAberto ? 'visible' : ''}`}>
+                        <div className="checkbox-option">
+                            <div className="checkbox-wrapper-13">
+                                <input
+                                    id="estado-em-curso"
+                                    type="checkbox"
+                                    checked={estadoSelecionado.emCurso}
+                                    onChange={() => toggleEstado("emCurso")}
+                                />
+                                <label htmlFor="estado-em-curso">Em Curso</label>
+                            </div>
+                        </div>
+                        <div className="checkbox-option">
+                            <div className="checkbox-wrapper-13">
+                                <input
+                                    id="estado-terminado"
+                                    type="checkbox"
+                                    checked={estadoSelecionado.terminado}
+                                    onChange={() => toggleEstado("terminado")}
+                                />
+                                <label htmlFor="estado-terminado">Terminado</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     );
