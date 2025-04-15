@@ -11,6 +11,7 @@ import PerfilUtilizador from "./pages/formandos/userProfile";
 import EditarUtilizadorGestor from "./modals/gestor/editUser";
 import PercursoFormativoGestor from "./pages/gestor/percursoFormativo";
 import FormadorCurso from "./pages/formador/pageCourseFormador";
+import AvaliarFormando from "./pages/formador/evaluateFormando";
 
 // Modals
 import AdicionarFicheiroAssincronoFormador from "./modals/addFile";
@@ -33,6 +34,8 @@ function AppContent() {
                         {/* Formador Routes */}
                         <Route path="/formador/adicionarAssincrono" element={<AdicionarFicheiroAssincronoFormador />} />
                         <Route path="/formador/curso" element={<FormadorCurso />} />
+                        <Route path="/formador/avaliar" element={<AvaliarFormando />} />
+
                         {/* Gestor Routes */}
                         <Route path="/gestor/dashboard" element={<PagGestor />} />
                         <Route path="/gestor/editarPerfil" element={<EditarUtilizadorGestor />} />
