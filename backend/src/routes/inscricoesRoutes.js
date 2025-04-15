@@ -4,7 +4,7 @@ const inscricoesController = require("../controllers/inscricoesController");
 
 // GET
 router.get("/listar", inscricoesController.getAll);
-router.get("/listar/:id", inscricoesController.getById);
+router.get("/formando/:id", inscricoesController.getByFormandoId);
 
 // POST
 router.post("/criar", inscricoesController.create);
