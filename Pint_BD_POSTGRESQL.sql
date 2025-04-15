@@ -275,26 +275,15 @@ CREATE TABLE OBJETO (
 );
 
 /*==============================================================*/
-/* Table: ALBUM                                                 */
-/*==============================================================*/
-CREATE TABLE ALBUM (
-   ALBUM_ID             SERIAL NOT NULL UNIQUE,
-   OBJETO_ID            INTEGER NOT NULL,
-   CONSTRAINT PK_ALBUM PRIMARY KEY (ALBUM_ID),
-   CONSTRAINT FK_ALBUM_OBJETO FOREIGN KEY (OBJETO_ID)
-      REFERENCES OBJETO (OBJETO_ID)
-);
-
-/*==============================================================*/
 /* Table: ANEXO                                                 */
 /*==============================================================*/
 CREATE TABLE ANEXO (
    ANEXO_ID             SERIAL NOT NULL UNIQUE,
-   ALBUM_ID             INTEGER NOT NULL,
-   DESCRICAO            TEXT NULL,
+   OBJETO_ID            INTEGER NOT NULL,
+   NOME                 TEXT NOT NULL,
    CONSTRAINT PK_ANEXO PRIMARY KEY (ANEXO_ID),
-   CONSTRAINT FK_ANEXO_ALBUM FOREIGN KEY (ALBUM_ID)
-      REFERENCES ALBUM (ALBUM_ID)
+   CONSTRAINT FK_ANEXO_OBJETO FOREIGN KEY (OBJETO_ID)
+      REFERENCES OBJETO (OBJETO_ID)
 );
 
 /*==============================================================*/
@@ -335,8 +324,9 @@ CREATE TABLE INSCRICAO (
    FORMANDO_ID          INTEGER NOT NULL,
    CURSO_ID             INTEGER NOT NULL,
    TIPO_AVALIACAO       TEXT NULL,
-   NOTA                 FLOAT NOT NULL,
+   NOTA                 FLOAT NULL DEFAULT 0,
    DATA_CERTIFICADO     TIMESTAMPTZ NULL,
+   DATA_INSCRICAO       TIMESTAMPTZ NOT NULL,
    ESTADO               BOOLEAN NOT NULL,
    CONSTRAINT PK_INSCRICAO PRIMARY KEY (INSCRICAO_ID),
    CONSTRAINT FK_INSCRICA_FORMANDO FOREIGN KEY (FORMANDO_ID)
