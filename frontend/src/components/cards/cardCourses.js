@@ -1,10 +1,10 @@
 import React from "react";
 import { Card, Badge, Button } from "react-bootstrap";
-import { Clock, Users, Calendar, Award } from "react-feather";
+import { Clock, Users, Calendar, Award , CheckCircle, RefreshCcw} from "react-feather";
 import ReactGif from "./../../images/react.gif";
 import "./cardCourses.css";
 
-function CardCourses({ curso, inscricao }) {
+function CardCourses({ curso, inscricao, mostrarBotao = true }) {
   const formatDate = (date) => {
     const data = new Date(date);
     return data.toISOString().split('T')[0];
@@ -76,20 +76,32 @@ function CardCourses({ curso, inscricao }) {
 
           {inscricao?.estado !== undefined && (
             <div className="meta-item">
+              <RefreshCcw size={16} className="icon" />
               <span>Estado: {inscricao.estado ? 'Concluído' : 'Em curso'}</span>
+            </div>
+          )}
+
+          {inscricao && inscricao.nota !== 0 && (
+            <div className="meta-item">
+              <CheckCircle size={16} className="icon" />
+              <span>Nota: {inscricao.nota}</span>
             </div>
           )}
 
           {inscricao?.data_certificado && (
             <div className="meta-item">
+              <Award size={16} className="icon" />
               <span>Certificado: {formatDate(inscricao.data_certificado)}</span>
             </div>
           )}
+
         </div>
 
-        <Button variant="primary" className="course-button mt-auto">
-          Ver Detalhes
-        </Button>
+        {mostrarBotao && (
+          <Button variant="primary" className="course-button mt-auto">
+            Ver Detalhes
+          </Button>
+        )}
       </Card.Body>
     </Card>
   );

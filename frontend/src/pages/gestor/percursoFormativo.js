@@ -111,7 +111,7 @@ export default function PercursoFormativo() {
     }, [inscricao]);
 
     const renderCourseCard = (inscricao, index) => (
-        <FeaturedCourses key={inscricao.inscricao_id || index} curso={inscricao.inscricao_curso} inscricao={inscricao} />
+        <FeaturedCourses key={inscricao.inscricao_id || index} curso={inscricao.inscricao_curso} inscricao={inscricao} mostrarBotao={false}/>
     );
 
     const handleSearchChange = (event) => {
