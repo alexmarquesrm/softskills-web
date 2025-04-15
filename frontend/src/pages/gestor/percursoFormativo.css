@@ -124,6 +124,13 @@
   margin-bottom: 2rem;
 }
 
+/* Mostra os filtros no desktop */
+@media (min-width: 992px) {
+  .filtros-sidebar {
+    display: block !important;
+  }
+}
+
 .filtros-sidebar.hidden {
   display: none;
 }
@@ -169,13 +176,26 @@
 }
 
 .search-container {
-  flex: 0 0 300px;
-  max-width: 100%;
+  flex-grow: 1;
+  max-width: 500px;
+  width: 100%;
 }
 
 /* Container de cursos */
 .courses-container {
   margin-bottom: 3rem;
+}
+
+.courses-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.5rem;
+}
+
+@media (min-width: 1200px) {
+  .courses-grid {
+    grid-template-columns: repeat(4, 1fr); /* 4 cursos fixos no desktop */
+  }
 }
 
 /* Estado sem cursos */

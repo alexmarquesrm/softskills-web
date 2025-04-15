@@ -23,7 +23,7 @@ export default function PercursoFormativo() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isFiltersVisible, setIsFiltersVisible] = useState(true);
-    
+
     // Memorizar dados do colaborador
     const fetchDataColab = async () => {
         try {
@@ -67,24 +67,24 @@ export default function PercursoFormativo() {
     // Memoizar inscrições filtradas para melhorar desempenho
     const filteredInscricoes = useMemo(() => {
         if (inscricao.length === 0) return [];
-        
+
         // Verificar se algum filtro está ativo
         const anyTipoSelected = tipoSelecionado.S || tipoSelecionado.A;
         const anyEstadoSelected = estadoSelecionado.emCurso || estadoSelecionado.terminado;
-        
+
         return inscricao.filter(item => {
             // Filtrar por tipo de curso - só aplica se algum tipo estiver selecionado
             if (anyTipoSelected) {
                 if (item.inscricao_curso?.tipo === 'S' && !tipoSelecionado.S) return false;
                 if (item.inscricao_curso?.tipo === 'A' && !tipoSelecionado.A) return false;
             }
-            
+
             // Filtrar por estado - só aplica se algum estado estiver selecionado
             if (anyEstadoSelected) {
                 if (!item.estado && !estadoSelecionado.emCurso) return false;
                 if (item.estado && !estadoSelecionado.terminado) return false;
             }
-            
+
             // Filtrar por termo de pesquisa
             if (searchTerm.trim() !== '') {
                 const searchLower = searchTerm.toLowerCase();
@@ -94,7 +94,7 @@ export default function PercursoFormativo() {
                     (item.inscricao_curso?.sincrono?.formador?.colaborador?.nome?.toLowerCase().includes(searchLower))
                 );
             }
-            
+
             return true;
         });
     }, [inscricao, tipoSelecionado, estadoSelecionado, searchTerm]);
@@ -102,11 +102,11 @@ export default function PercursoFormativo() {
     // Stats
     const stats = useMemo(() => {
         if (inscricao.length === 0) return { total: 0, emCurso: 0, terminados: 0 };
-        
+
         const total = inscricao.length;
         const terminados = inscricao.filter(item => item.estado).length;
         const emCurso = total - terminados;
-        
+
         return { total, emCurso, terminados };
     }, [inscricao]);
 
@@ -189,16 +189,13 @@ export default function PercursoFormativo() {
                 <Row className="percurso-content">
                     {/* Botão para mostrar/ocultar filtros (apenas visível em mobile) */}
                     <div className="filters-toggle-wrapper d-lg-none">
-                        <button 
-                            className="filters-toggle-btn"
-                            onClick={toggleFilters}
-                        >
-                            {isFiltersVisible ? 'Ocultar Filtros' : 'Mostrar Filtros'}
+                        <button className="filters-toggle-btn" onClick={toggleFilters}>
+                            {isFiltersVisible ? "Ocultar Filtros" : "Mostrar Filtros"}
                         </button>
                     </div>
-                    
-                    {/* Sidebar com filtros - agora com classes de responsividade */}
-                    <Col lg={3} md={12} className={`filtros-sidebar ${isFiltersVisible ? 'visible' : 'hidden'}`}>
+
+                    {/* Sidebar com filtros */}
+                    <Col lg={3} md={12} className={`filtros-sidebar ${isFiltersVisible ? "visible" : "hidden"}`}>
                         <Filtros
                             tipoSelecionado={tipoSelecionado}
                             setTipoSelecionado={setTipoSelecionado}
@@ -206,7 +203,7 @@ export default function PercursoFormativo() {
                             setEstadoSelecionado={setEstadoSelecionado}
                         />
                     </Col>
-                    
+
                     {/* Conteúdo principal */}
                     <Col lg={9} md={12} className="main-content">
                         <div className="courses-header">
@@ -217,7 +214,7 @@ export default function PercursoFormativo() {
                                     <span>{filteredInscricoes.length} cursos encontrados</span>
                                 )}
                             </div>
-                            
+
                             <div className="search-container">
                                 <SearchBar
                                     searchTerm={searchTerm}
@@ -227,24 +224,19 @@ export default function PercursoFormativo() {
                                 />
                             </div>
                         </div>
-                        
+
                         <div className="courses-container">
                             {filteredInscricoes.length > 0 ? (
-                                <CardRow
-                                    dados={filteredInscricoes}
-                                    renderCard={renderCourseCard}
-                                    scrollable={false}
-                                    colSize={{ lg: 4, md: 6, sm: 12 }}
-                                    align="start"
-                                />
+                                <div className="courses-grid">
+                                    {filteredInscricoes.map((item, index) =>
+                                        renderCourseCard(item, index)
+                                    )}
+                                </div>
                             ) : (
                                 <div className="no-courses">
                                     <AlertCircle size={36} className="mb-3" />
                                     <p>Não foram encontrados cursos com os filtros selecionados.</p>
-                                    <button 
-                                        className="reset-search-btn" 
-                                        onClick={clearFilters}
-                                    >
+                                    <button className="reset-search-btn" onClick={clearFilters}>
                                         Limpar filtros
                                     </button>
                                 </div>
