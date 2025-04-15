@@ -18,7 +18,7 @@
 
 .course-header {
   height: 180px;
-  background: linear-gradient(135deg, #6157ff, #74febd);
+  background: linear-gradient(135deg, #416699, #3b96d3);
   position: relative;
   display: flex;
   align-items: center;
@@ -103,11 +103,11 @@
 
 .icon {
   margin-right: 8px;
-  color: #6157ff;
+  color: #416699;
 }
 
 .course-button {
-  background: linear-gradient(135deg, #6157ff, #5651e5);
+  background: linear-gradient(135deg, #416699, #3b96d3);
   border: none;
   border-radius: 6px;
   padding: 0.5rem 1rem;
@@ -118,7 +118,7 @@
 }
 
 .course-button:hover {
-  background: linear-gradient(135deg, #5651e5, #4a45d1);
+  background: linear-gradient(135deg, #39639C, #3478b3);
   transform: translateY(-2px);
   box-shadow: 0 6px 12px rgba(97, 87, 255, 0.3);
 }

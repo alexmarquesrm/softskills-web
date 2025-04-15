@@ -31,7 +31,7 @@
   left: 0;
   width: 100%;
   height: 5px;
-  background: linear-gradient(90deg, #6157ff, #74febd);
+  background: linear-gradient(90deg, #416699, #3b96d3);
 }
 
 .percurso-header-content {
@@ -41,7 +41,7 @@
 }
 
 .percurso-header-icon {
-  background: linear-gradient(135deg, #6157ff, #5651e5);
+  background: linear-gradient(135deg, #416699, #3b96d3);
   color: white;
   width: 70px;
   height: 70px;
@@ -67,7 +67,7 @@
 .percurso-user-name {
   font-size: 2rem;
   font-weight: 700;
-  color: #6157ff;
+  color: #416699;
   margin: 0.5rem 0 0 0;
 }
 
@@ -103,7 +103,7 @@
 .stat-value {
   font-size: 2rem;
   font-weight: 700;
-  color: #6157ff;
+  color: #416699;
 }
 
 .stat-label {
@@ -148,7 +148,7 @@
   padding: 0.6rem 1.25rem;
   border-radius: 0.5rem;
   font-weight: 500;
-  color: #5651e5;
+  color: #416699;
   cursor: pointer;
   transition: all 0.3s ease;
 }

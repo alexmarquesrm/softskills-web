@@ -1,0 +1,303 @@
+/* dataTable.css */
+.data-table-wrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    background-color: #fff;
+    border-radius: 16px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    transition: box-shadow 0.3s ease;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  
+  .data-table-wrapper:hover {
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  }
+  
+  .data-table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  
+  .data-table-title {
+    font-size: 1.25rem !important;
+    font-weight: 700 !important;
+    color: #333;
+    position: relative;
+    padding-bottom: 0.5rem;
+  }
+  
+  .data-table-title:after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 40px;
+    height: 3px;
+    background: linear-gradient(135deg, #39639C, #2c7abe);
+    border-radius: 3px;
+  }
+  
+  .data-table-actions {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  
+  .search-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  
+  .search-icon {
+    position: absolute;
+    left: 10px;
+    color: #9e9e9e;
+  }
+  
+  .search-input {
+    padding: 0.5rem 0.75rem 0.5rem 2.25rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    color: #333;
+    width: 200px;
+    transition: all 0.3s ease;
+    outline: none;
+  }
+  
+  .search-input:focus {
+    border-color: #1a4b8b;
+    box-shadow: 0 0 0 2px rgba(26, 75, 139, 0.2);
+    width: 250px;
+  }
+  
+  .search-input::placeholder {
+    color: #9e9e9e;
+  }
+  
+  .action-button {
+    border-radius: 8px !important;
+    text-transform: none !important;
+    font-weight: 500 !important;
+    font-size: 0.85rem !important;
+    padding: 0.4rem 1rem !important;
+    min-width: auto !important;
+  }
+  
+  .filter-button, .refresh-button {
+    color: #1a4b8b !important;
+    border-color: #e0e0e0 !important;
+  }
+  
+  .export-button {
+    background: linear-gradient(135deg, #39639C, #2c7abe) !important;
+    color: white !important;
+    border: none !important;
+    box-shadow: 0 4px 10px rgba(26, 75, 139, 0.2) !important;
+  }
+  
+  .export-button:hover {
+    background: linear-gradient(135deg, #39639C, #246aa6) !important;
+    box-shadow: 0 6px 12px rgba(26, 75, 139, 0.3) !important;
+  }
+  
+  .data-grid-container {
+    height: 600px;
+    width: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+  
+  .data-grid {
+    border: none !important;
+    background-color: white !important;
+  }
+  
+  .data-grid-header {
+    font-weight: 600 !important;
+    color: #333 !important;
+    letter-spacing: 0.3px;
+    font-size: 0.85rem !important;
+    padding: 0 16px !important;
+    text-transform: uppercase;
+  }
+  
+  .header-cell-content {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .header-cell-divider {
+    height: 2px;
+    width: 24px;
+    background: linear-gradient(90deg, #1a4b8b, #2c7abe);
+    margin-top: 6px;
+    border-radius: 2px;
+  }
+  
+  .data-grid-row {
+    transition: background-color 0.2s ease !important;
+    cursor: pointer;
+  }
+  
+  .data-grid-row:hover {
+    background-color: rgba(26, 75, 139, 0.05) !important;
+  }
+  
+  .odd-row {
+    background-color: #fcfcfc;
+  }
+  
+  .even-row {
+    background-color: #ffffff;
+  }
+  
+  .data-grid-cell {
+    color: #555 !important;
+    font-size: 0.9rem !important;
+    padding: 12px 16px !important;
+    border-bottom: 1px solid #f5f5f5 !important;
+  }
+  
+  /* Pagination styling */
+  .MuiDataGrid-footerContainer {
+    border-top: 1px solid #f0f0f0 !important;
+    background-color: #fafafa !important;
+    padding: 0 16px !important;
+  }
+  
+  .MuiTablePagination-root {
+    color: #555 !important;
+  }
+  
+  .MuiTablePagination-selectIcon {
+    color: #1a4b8b !important;
+  }
+  
+  .MuiPaginationItem-root {
+    border-radius: 8px !important;
+  }
+  
+  .MuiPaginationItem-root.Mui-selected {
+    background-color: rgba(26, 75, 139, 0.15) !important;
+    color: #1a4b8b !important;
+  }
+  
+  /* Column header styling */
+  .MuiDataGrid-columnHeaders {
+    background-color: #f8f9fa !important;
+    border-bottom: none !important;
+    border-top-left-radius: 12px !important;
+    border-top-right-radius: 12px !important;
+    min-height: 60px !important;
+  }
+  
+  .MuiDataGrid-columnHeaderTitle {
+    font-weight: 600 !important;
+  }
+  
+  /* Sort icon styling */
+  .MuiDataGrid-sortIcon {
+    color: #1a4b8b !important;
+    opacity: 0.8;
+  }
+  
+  /* Custom scrollbar */
+  .MuiDataGrid-virtualScroller::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  .MuiDataGrid-virtualScroller::-webkit-scrollbar-track {
+    background: #f5f5f5;
+    border-radius: 4px;
+  }
+  
+  .MuiDataGrid-virtualScroller::-webkit-scrollbar-thumb {
+    background-color: #d0d0d0;
+    border-radius: 4px;
+  }
+  
+  .MuiDataGrid-virtualScroller::-webkit-scrollbar-thumb:hover {
+    background-color: #1a4b8b;
+  }
+  
+  /* Selection checkbox styling */
+  .MuiCheckbox-root {
+    color: #c5c5c5 !important;
+  }
+  
+  .MuiCheckbox-root.Mui-checked {
+    color: #1a4b8b !important;
+  }
+  
+  /* No rows overlay */
+  .MuiDataGrid-overlay {
+    background-color: rgba(255, 255, 255, 0.8) !important;
+  }
+  
+  /* Mobile responsiveness */
+  @media (max-width: 768px) {
+    .data-table-header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    
+    .data-table-actions {
+      width: 100%;
+      justify-content: space-between;
+      margin-top: 1rem;
+    }
+    
+    .search-input {
+      width: 100%;
+      min-width: 150px;
+    }
+    
+    .data-grid-container {
+      height: 500px;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    .data-table-wrapper {
+      padding: 1rem;
+    }
+    
+    .data-table-title {
+      font-size: 1.1rem !important;
+    }
+    
+    .search-container {
+      flex: 1;
+    }
+    
+    .search-input {
+      width: 100%;
+    }
+    
+    .action-button {
+      padding: 0.3rem 0.75rem !important;
+      font-size: 0.8rem !important;
+    }
+    
+    .data-grid-header {
+      font-size: 0.75rem !important;
+    }
+    
+    .data-grid-cell {
+      font-size: 0.8rem !important;
+      padding: 8px 12px !important;
+    }
+  }

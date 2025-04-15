@@ -14,18 +14,18 @@
   align-items: center;
   margin-bottom: 1.25rem;
   font-weight: 600;
-  color: #333;
+  color: #416699;
   gap: 0.75rem;
 }
 
 .filtros-title h3 {
   font-size: 1.25rem;
   margin: 0;
-  color: #262626;
+  color: #416699;
 }
 
 .active-filters-badge {
-  background: linear-gradient(135deg, #6157ff, #5651e5);
+  background: linear-gradient(135deg, #416699, #3b96d3);
   color: white;
   font-size: 0.75rem;
   height: 1.5rem;
@@ -91,7 +91,7 @@
 
 .reset-filters-btn:hover {
   background-color: #eeeeee;
-  color: #6157ff;
+  color: #416699;
 }
 
 .filtro-box {
@@ -118,12 +118,13 @@
   font-weight: 500;
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
   transition: all 0.3s ease;
+  color: #416699;
 }
 
 .filtro-header.active {
   background: linear-gradient(135deg, #6157ff15, #74febd15);
-  color: #5651e5;
-  border-left: 3px solid #6157ff;
+  color: #416699;
+  border-left: 3px solid #416699;
 }
 
 .filtro-title {
@@ -158,11 +159,11 @@
 }
 
 .checkbox-wrapper-13 input[type=checkbox] {
-  --active: #6157ff;
+  --active: #2e7baf;
   --active-inner: #fff;
   --focus: 2px rgba(97, 87, 255, 0.3);
   --border: #BBC1E1;
-  --border-hover: #6157ff;
+  --border-hover: #416699;
   --background: #fff;
   --disabled: #F6F8FF;
   --disabled-inner: #E1E6F9;
