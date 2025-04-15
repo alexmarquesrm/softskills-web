@@ -122,7 +122,7 @@
 }
 
 .filtro-header.active {
-  background: linear-gradient(135deg, #6157ff15, #74febd15);
+  background: linear-gradient(135deg, #37568115, #41669915);
   color: #416699;
   border-left: 3px solid #416699;
 }
