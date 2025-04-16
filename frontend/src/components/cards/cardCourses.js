@@ -70,14 +70,14 @@ function CardCourses({ curso, inscricao, mostrarBotao = true }) {
           {curso.sincrono?.inicio && (
             <div className="meta-item">
               <Calendar size={16} className="icon" />
-              <span>{formatDate(curso.sincrono.inicio)}</span>
+              <span>Inicío: {formatDate(curso.sincrono.inicio)}</span>
             </div>
           )}
 
-          {inscricao?.estado !== undefined && (
+          {(inscricao?.estado !== undefined || curso?.sincrono?.estado !== undefined) && (
             <div className="meta-item">
               <RefreshCcw size={16} className="icon" />
-              <span>Estado: {inscricao.estado ? 'Concluído' : 'Em curso'}</span>
+              <span>Estado: {(inscricao?.estado ?? curso?.sincrono?.estado) ? 'Concluído' : 'Em curso'}</span>
             </div>
           )}
 
