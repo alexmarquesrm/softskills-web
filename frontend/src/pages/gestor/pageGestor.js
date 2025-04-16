@@ -194,9 +194,9 @@ export default function PaginaGestor() {
               <h3 className="metric-value">{pedidos.length}</h3>
               <p className="metric-label">Total de Pedidos</p>
               <div className="metric-progress">
-                <div className="progress-bar pedidos-bar" style={{ width: '70%' }}></div>
+                <div className="progress-bar pedidos-bar" style={{ width: '8%' }}></div>
               </div>
-              <p className="metric-detail">+70% que o mês anterior</p>
+              <p className="metric-detail">+8% que o mês anterior</p>
             </Card.Body>
           </Card>
         </Col>
@@ -211,7 +211,7 @@ export default function PaginaGestor() {
                   </div>
                 </div>
                 <div className="metric-trend trend-down">
-                  <span>-12%</span>
+                  <span>-45%</span>
                 </div>
               </div>
               <h3 className="metric-value">{tableRows.length}</h3>
