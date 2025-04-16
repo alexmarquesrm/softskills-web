@@ -197,7 +197,7 @@ const controladorCursos = {
           numero_inscricoes DESC
         LIMIT 3;
       `, { type: QueryTypes.SELECT });
-  
+
       // Query for top 3 asynchronous courses
       const cursosAssincronos = await sequelizeConn.query(`
         SELECT 
@@ -258,7 +258,7 @@ const controladorCursos = {
           numero_inscricoes DESC
         LIMIT 3;
       `, { type: QueryTypes.SELECT });
-  
+
       // Process synchronous courses
       const sincronosResumidos = cursosSincronos.map((curso) => ({
         id: curso.curso_id,
@@ -275,22 +275,22 @@ const controladorCursos = {
         },
         sincrono: curso.data_inicio
           ? {
-              inicio: curso.data_inicio,
-              fim: curso.data_fim,
-              vagas: curso.limite_vagas,
-              estado: curso.estado,
-              formador: curso.formador_nome
-                ? {
-                    nome: curso.formador_nome || null,
-                    email: curso.formador_email || null,
-                    telefone: curso.formador_telefone || null,
-                  }
-                : null,
-            }
+            inicio: curso.data_inicio,
+            fim: curso.data_fim,
+            vagas: curso.limite_vagas,
+            estado: curso.estado,
+            formador: curso.formador_nome
+              ? {
+                nome: curso.formador_nome || null,
+                email: curso.formador_email || null,
+                telefone: curso.formador_telefone || null,
+              }
+              : null,
+          }
           : null,
         numero_inscricoes: curso.numero_inscricoes,
       }));
-  
+
       // Process asynchronous courses
       const assincronosResumidos = cursosAssincronos.map((curso) => ({
         id: curso.curso_id,
@@ -307,34 +307,34 @@ const controladorCursos = {
         },
         sincrono: curso.data_inicio
           ? {
-              inicio: curso.data_inicio,
-              fim: curso.data_fim,
-              vagas: curso.limite_vagas,
-              estado: curso.estado,
-              formador: curso.formador_nome
-                ? {
-                    nome: curso.formador_nome || null,
-                    email: curso.formador_email || null,
-                    telefone: curso.formador_telefone || null,
-                  }
-                : null,
-            }
+            inicio: curso.data_inicio,
+            fim: curso.data_fim,
+            vagas: curso.limite_vagas,
+            estado: curso.estado,
+            formador: curso.formador_nome
+              ? {
+                nome: curso.formador_nome || null,
+                email: curso.formador_email || null,
+                telefone: curso.formador_telefone || null,
+              }
+              : null,
+          }
           : null,
         numero_inscricoes: curso.numero_inscricoes,
       }));
-  
+
       // Combine both types and categorize them
       const result = {
         sincronos: sincronosResumidos,
         assincronos: assincronosResumidos
       };
-  
+
       res.json(result);
     } catch (error) {
       console.error('Erro ao obter cursos:', error);
       res.status(500).json({ message: 'Erro interno ao obter cursos' });
     }
-  },  
+  },
 
   // Obter um curso pelo ID
   getCursoById: async (req, res) => {
@@ -349,31 +349,15 @@ const controladorCursos = {
             attributes: ["gestor_id"],
             include: [
               {
-                model: models.credenciais,
-                as: "gestor_credenciais",
-                attributes: ["colaborador_id"],
-                include: [
-                  {
-                    model: models.colaborador,
-                    as: "credenciais_colaborador",
-                    attributes: [
-                      "colaborador_id",
-                      "nome",
-                      "email",
-                      "idade",
-                      "cargo",
-                      "departamento",
-                      "telefone",
-                      "score",
-                    ],
-                  },
-                ],
+                model: models.colaborador,
+                as: "gestor_colab",
+                attributes: ["nome", "email"],
               },
             ],
           },
           {
             model: models.topico,
-            as: "topico",
+            as: "curso_topico",
             attributes: ["topico_id", "descricao"],
           },
         ],

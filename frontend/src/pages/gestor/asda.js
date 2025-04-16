@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "../../config/configAxios";
 import { Container, Row, Col, Card } from "react-bootstrap";
-import CardInfo from "../../components/cards/cardDestaque";
+import Card from "../../components/cards/cardDestaque";
 import DataTable from '../../components/tables/dataTable';
 import CardPedido from '../../components/cards/cardPedido';
 import CardRow from '../../components/cards/cardRow';
@@ -175,7 +175,7 @@ export default function PaginaGestor() {
         </div>
       </div>
       
-      <CardInfo />
+      <Card />
       
       <Row className="dashboard-metrics g-4">
         <Col lg={4} md={6}>
@@ -196,7 +196,7 @@ export default function PaginaGestor() {
               <div className="metric-progress">
                 <div className="progress-bar pedidos-bar" style={{ width: '70%' }}></div>
               </div>
-              <p className="metric-detail">+70% que o mês anterior</p>
+              <p className="metric-detail">70% do objetivo mensal</p>
             </Card.Body>
           </Card>
         </Col>
@@ -219,7 +219,7 @@ export default function PaginaGestor() {
               <div className="metric-progress">
                 <div className="progress-bar denuncias-bar" style={{ width: '45%' }}></div>
               </div>
-              <p className="metric-detail">-45% que o mês anterior</p>
+              <p className="metric-detail">45% do total anterior</p>
             </Card.Body>
           </Card>
         </Col>
@@ -232,6 +232,9 @@ export default function PaginaGestor() {
                   <div className="icon-bg atividade-bg">
                     <Clock />
                   </div>
+                </div>
+                <div className="metric-trend trend-neutral">
+                  <span>±0%</span>
                 </div>
               </div>
               <h3 className="metric-value">12 dias</h3>
