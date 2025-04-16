@@ -120,13 +120,15 @@ export default function UsersTable() {
       <div className="mb-4">
         <h3>Lista de Colaboradores</h3>
       </div>
-      <div className="d-flex justify-content-between align-items-center mb-3 gap-3 flex-wrap">
-        <div>
-          <AddButton text='Adicionar Colaborador' onClick={() => setNewModalOpen(true)} Icon={IoMdAddCircleOutline} inline />
-        </div>
-      </div>
       
-      <DataTable columns={tableColumns} rows={tableRows || []} title="Colaboradores" showSearch={true} pageSize={10} emptyStateMessage="Nenhum colaborador encontrado" />
+      <DataTable columns={tableColumns} rows={tableRows || []} title=" " showSearch={true} pageSize={10} emptyStateMessage="Nenhum colaborador encontrado" headerActions={
+          <AddButton 
+            text="Adicionar Colaborador" 
+            onClick={() => setNewModalOpen(true)} 
+            Icon={IoMdAddCircleOutline} 
+            inline 
+          />
+        }/>
 
       <NovoUser show={isNewModalOpen} onClose={() => setNewModalOpen(false)} />
       

@@ -1,24 +1,19 @@
 import React from "react";
 import Button from "react-bootstrap/Button";
 
-function addButton({ text, onClick, Icon, inline = false }) {
-  const button = (
-    <Button
-      variant="primary" 
-      size="md"
-      className="text-white d-flex justify-content-between align-items-center"
-      onClick={onClick}
-    >
-      {text} 
-      {Icon && <Icon className="ms-2" />}
+function AddButton({ text, onClick, Icon, inline = false, variant = "outline-primary", size = "sm", className = "" }) {
+  const buttonContent = (
+    <Button variant={variant} size={size} onClick={onClick} className={`add-button d-inline-flex align-items-center gap-1 ${className}`} >
+      {Icon && <Icon className="add-icon" />}
+      <span>{text}</span>
     </Button>
   );
-
-  return inline ? button : (
-    <div className="d-flex justify-content-center">
-      {button}
+  
+  return inline ? buttonContent : (
+    <div className="add-button-container">
+      {buttonContent}
     </div>
   );
 }
 
-export default addButton;
+export default AddButton;

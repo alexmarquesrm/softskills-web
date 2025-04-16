@@ -194,22 +194,39 @@ export default function DataTable({ columns, rows, pageSize = 10, title = "Data 
   return (
     <div className={`bootstrap-data-table-container ${theme}-theme`}>
       <div className="table-header">
-        <h5 className="table-title">{title}</h5>
-        <div className="table-actions-container d-flex align-items-center gap-3">
-        {headerActions && <div className="table-header-actions">{headerActions}</div>}  
+        <div className="d-flex align-items-center gap-3">
+          <h5 className="table-title mb-0">{title}</h5>
+          {/* Place the action button right after the title */}
+          {headerActions && (
+            <div className="header-action-button">
+              {headerActions}
+            </div>
+          )}
         </div>
+        
         {showSearch && (
-          <InputGroup className="table-search">
-            <InputGroup.Text>
-              <Search />
-            </InputGroup.Text>
-            <Form.Control placeholder="Search..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} aria-label="Search table" />
-            {searchQuery && ( 
-              <Button variant="outline-secondary" onClick={() => setSearchQuery('')} className="clear-search" >
-                ×
-              </Button>
-            )}
-          </InputGroup>
+          <div className="table-search-wrapper">
+            <InputGroup className="table-search">
+              <InputGroup.Text>
+                <Search />
+              </InputGroup.Text>
+              <Form.Control 
+                placeholder="Search..." 
+                value={searchQuery} 
+                onChange={(e) => setSearchQuery(e.target.value)} 
+                aria-label="Search table" 
+              />
+              {searchQuery && ( 
+                <Button 
+                  variant="outline-secondary" 
+                  onClick={() => setSearchQuery('')} 
+                  className="clear-search"
+                >
+                  ×
+                </Button>
+              )}
+            </InputGroup>
+          </div>
         )}
       </div>
       
