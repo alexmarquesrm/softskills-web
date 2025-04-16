@@ -86,11 +86,12 @@ const Sidebar = ({ isOpen, onClose }) => {
           </>
           )}
 
-        {!tipoUtilizador && (
+        {tipoUtilizador === "Formador" && (
             <>
               <div className="menu-section">
                 <span className="menu-heading">EXPLORAR</span>
                 <Accordion className="sidebar-accordion">
+                <NavItem href="/formador/cursos" icon={<Flag size={18} />} label="Cursos a lecionar" itemName="form_cursos" />
                   <Accordion.Item eventKey="0">
                     <Accordion.Header className="sidebar-accordion-header">
                       <div className="sidebar-icon">

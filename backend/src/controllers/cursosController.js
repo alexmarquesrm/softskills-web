@@ -374,6 +374,60 @@ const controladorCursos = {
     }
   },
 
+  getCursosFormador: async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      const cursos = await models.curso.findAll({
+        include: [
+          {
+            model: models.sincrono,
+            as: "curso_sincrono",
+            where: { formador_id: id },
+            attributes: ["curso_id", "formador_id", "limite_vagas", "data_inicio", "data_fim", "estado"],
+            include: [
+              {
+                model: models.formador,
+                as: "sincrono_formador",
+                attributes: ["formador_id", "especialidade"],
+                include: [
+                  {
+                    model: models.colaborador,
+                    as: "formador_colab",
+                    attributes: ["nome", "email", "telefone"],
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            model: models.gestor,
+            as: "gestor",
+            attributes: ["gestor_id"],
+            include: [
+              {
+                model: models.colaborador,
+                as: "gestor_colab",
+                attributes: ["nome", "email"],
+              },
+            ],
+          },
+          {
+            model: models.topico,
+            as: "curso_topico",
+            attributes: ["descricao"],
+          },
+        ],
+        attributes: ["curso_id", "titulo", "descricao", "tipo", "total_horas", "pendente", "nivel"],
+      });
+
+      res.json(cursos);
+    } catch (error) {
+      console.error("Erro ao obter cursos do formador:", error);
+      res.status(500).json({ message: "Erro interno ao obter cursos do formador" });
+    }
+  },  
+
   // Atualizar um curso pelo ID
   updateCurso: async (req, res) => {
     try {

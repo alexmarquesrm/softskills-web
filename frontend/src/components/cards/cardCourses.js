@@ -1,10 +1,19 @@
 import React from "react";
 import { Card, Badge, Button } from "react-bootstrap";
-import { Clock, Users, Calendar, Award , CheckCircle, RefreshCcw} from "react-feather";
+import { Clock, Users, Calendar, Award, CheckCircle, RefreshCcw } from "react-feather";
+import { useNavigate } from "react-router-dom";
 import ReactGif from "./../../images/react.gif";
 import "./cardCourses.css";
 
 function CardCourses({ curso, inscricao, mostrarBotao = true }) {
+  const navigate = useNavigate();
+
+  const handleViewDetails = () => {
+    navigate(`/curso/${curso.curso_id}`, { 
+      state: { id: curso.curso_id } 
+    });
+  };
+
   const formatDate = (date) => {
     const data = new Date(date);
     return data.toISOString().split('T')[0];
@@ -28,7 +37,7 @@ function CardCourses({ curso, inscricao, mostrarBotao = true }) {
 
   return (
     <Card className="course-card h-100">
-      <div className="course-header">
+      <div className="course-header" style={{ cursor: 'pointer' }} onClick={handleViewDetails}>
         <img src={ReactGif} alt="Curso" className="course-image" />
         <Badge
           className="course-type-badge"
@@ -39,7 +48,13 @@ function CardCourses({ curso, inscricao, mostrarBotao = true }) {
       </div>
 
       <Card.Body className="d-flex flex-column">
-        <Card.Title className="course-title">{curso.titulo}</Card.Title>
+        <Card.Title 
+          className="course-title" 
+          style={{ cursor: 'pointer' }}
+          onClick={handleViewDetails}
+        >
+          {curso.titulo}
+        </Card.Title>
 
         {curso.sincrono?.formador?.colaborador?.nome && (
           <div className="course-instructor">
@@ -94,11 +109,14 @@ function CardCourses({ curso, inscricao, mostrarBotao = true }) {
               <span>Certificado: {formatDate(inscricao.data_certificado)}</span>
             </div>
           )}
-
         </div>
 
         {mostrarBotao && (
-          <Button variant="primary" className="course-button mt-auto">
+          <Button 
+            variant="primary" 
+            className="course-button mt-auto"
+            onClick={handleViewDetails}
+          >
             Ver Detalhes
           </Button>
         )}
