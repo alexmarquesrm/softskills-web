@@ -1,0 +1,94 @@
+.caixa-redes {
+  background-color: #fff;
+  padding: 16px 20px;
+  border-radius: 10px;
+  border: 1px solid #e0e0e0;
+  margin-bottom: 1rem;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.caixa-redes h4 {
+  font-weight: 600;
+  margin: 0;
+  color: #333;
+}
+
+.sinc-meta {
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  color: #6c757d;
+}
+
+.sinc-meta svg {
+  color: #416699;
+}
+
+.table-responsive {
+  margin-bottom: 0;
+}
+
+.table th,
+.table td {
+  padding: 1rem;
+}
+
+.table tbody tr {
+  background-color: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+}
+
+.table tbody tr:hover {
+  background-color: rgba(65, 102, 153, 0.05);
+}
+
+.formando-row {
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.table td a {
+  color: #416699;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.table td a:hover {
+  color: #003366;
+}
+
+.divider {
+  border-bottom: 3px solid #416699;
+  width: 100px;
+  margin-bottom: 1.5rem;
+}
+
+
+.table tbody tr {
+  border-left: 1px solid transparent; 
+}
+
+
+.table tbody tr:nth-child(1) {
+  border-left-color: #ffc107 !important; 
+}
+
+.table tbody tr:nth-child(2) {
+  border-left-color: #dc3545 !important; 
+}
+
+.table tbody tr:nth-child(3) {
+  border-left-color: #28a745 !important; 
+}
+
+.table tbody tr:nth-child(4) {
+  border-left-color: #17a2b8 !important; 
+}
+
+.table tbody tr:nth-child(5) {
+  border-left-color: #6610f2 !important; 
+}
+
+.table tbody tr:nth-child(6) {
+  border-left-color: #416699 !important; 
+}
