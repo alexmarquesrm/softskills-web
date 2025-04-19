@@ -69,26 +69,3 @@
 }
 
 
-.table tbody tr:nth-child(1) {
-  border-left-color: #ffc107 !important; 
-}
-
-.table tbody tr:nth-child(2) {
-  border-left-color: #dc3545 !important; 
-}
-
-.table tbody tr:nth-child(3) {
-  border-left-color: #28a745 !important; 
-}
-
-.table tbody tr:nth-child(4) {
-  border-left-color: #17a2b8 !important; 
-}
-
-.table tbody tr:nth-child(5) {
-  border-left-color: #6610f2 !important; 
-}
-
-.table tbody tr:nth-child(6) {
-  border-left-color: #416699 !important; 
-}
