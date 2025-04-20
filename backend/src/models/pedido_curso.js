@@ -21,8 +21,8 @@ module.exports = function(sequelize, DataTypes) {
     },
     data: {
       type: DataTypes.DATE,
-      allowNull: true
-    },
+      allowNull: false
+    }
   }, {
     sequelize,
     tableName: 'pedido_curso',

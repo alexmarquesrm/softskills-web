@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from "react";
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from "react-router-dom";
 import axios from "../../config/configAxios";
 import { Container, Row, Col, Form } from "react-bootstrap";
 import profilePic from "../../logo.svg";
-
 // COMPONENTES
 import Guardar from "../../components/buttons/saveButton";
 import InputField from "../../components/textFields/basic";
 import Cancelar from "../../components/buttons/cancelButton";
-import  "../../modals/modalCustom";
-
+import "../../modals/modalCustom";
 // ICONS
 import { FaRegSave } from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
@@ -18,30 +18,99 @@ import { IoCalendarNumberSharp } from "react-icons/io5";
 import { FaBuilding } from "react-icons/fa";
 import { BsArrowReturnLeft } from "react-icons/bs";
 import { FaEye, FaEyeSlash } from "react-icons/fa6";
+import { FaCamera, FaTrash } from "react-icons/fa";
 
-export default function EditColab (){
+export default function EditColab() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
+    primeiroNome: "", ultimoNome: "", username: "", dataNasc: "", email: "", telefone: "", departamento: "",
+    cargo: "", sobre_mim: "", novaPassword: "", confirmarPassword: "", receberEmails: false, notificacoesForum: false,
+    fotoPerfilUrl: ""
+  });
+  
+  // Keep original name for display until save
+  const [displayName, setDisplayName] = useState({
     primeiroNome: "",
-    ultimoNome: "",
-    username: "",
-    dataNasc: "",
-    email: "",
-    telefone: "",
-    departamento: "",
-    cargo: "",
-    sobre_mim: "",
-    novaPassword: "",
-    confirmarPassword: "",
-    receberEmails: false,
-    notificacoesForum: false,
+    ultimoNome: ""
   });
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [fotoPerfil, setFotoPerfil] = useState(null);
+  const [previewFoto, setPreviewFoto] = useState(profilePic);
+  const [image, setImage] = useState('');
+  const [imageName, setImageName] = useState('');
+  const [imageSize, setImageSize] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [showPhotoOptions, setShowPhotoOptions] = useState(false);
+
+  const fileInputRef = React.createRef();
+
+  useEffect(() => {
+    if (formData.fotoPerfilUrl) {
+      setPreviewFoto(formData.fotoPerfilUrl);
+    }
+  }, [formData.fotoPerfilUrl]);
+
+  const handleFotoChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFotoPerfil(reader.result);
+        setPreviewFoto(reader.result);
+        // Show success toast for image selection
+        toast.success("Imagem selecionada com sucesso!");
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveFoto = () => {
+    setPreviewFoto(profilePic);
+    setFotoPerfil(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+    // Clear the photo URL in formData
+    setFormData({
+      ...formData,
+      fotoPerfilUrl: ""
+    });
+    toast.info("Foto de perfil removida");
+  };
+
+  const triggerFileInput = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  const getBase64FromUrl = async (url) => {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch image: ${response.status} ${response.statusText}`);
+      }
+      const blob = await response.blob();
+
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          resolve(reader.result);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    } catch (error) {
+      console.error("Error converting image URL to base64:", error);
+      return null;
+    }
+  };
 
   const fetchData = async () => {
     try {
+      setIsLoading(true);
       const token = sessionStorage.getItem("token");
       const id = sessionStorage.getItem("colaboradorid");
 
@@ -50,13 +119,13 @@ export default function EditColab (){
       });
 
       const utilizador = response.data;
-
-      const primeiroNome = utilizador.nome.split(" ")[0];
-      const ultimoNome = utilizador.nome.split(" ").slice(1).join(" ");
+      
+      const primeiroNome = utilizador.nome ? utilizador.nome.split(" ")[0] : "";
+      const ultimoNome = utilizador.nome ? utilizador.nome.split(" ").slice(1).join(" ") : "";
 
       setFormData({
-        primeiroNome: primeiroNome || "",
-        ultimoNome: ultimoNome || "",
+        primeiroNome: primeiroNome,
+        ultimoNome: ultimoNome,
         username: utilizador.username || "",
         dataNasc: utilizador.data_nasc || "",
         email: utilizador.email || "",
@@ -66,11 +135,49 @@ export default function EditColab (){
         sobre_mim: utilizador.sobre_mim || "",
         novaPassword: "",
         confirmarPassword: "",
-        //receberEmails: utilizador.receber_emails || false,
-        //notificacoesForum: utilizador.notificacoes_forum || false,
+        fotoPerfilUrl: utilizador.fotoPerfilUrl || "",
+        receberEmails: utilizador.receberEmails || false,
+        notificacoesForum: utilizador.notificacoesForum || false
       });
+      
+      // Set display name separately from form data
+      setDisplayName({
+        primeiroNome: primeiroNome,
+        ultimoNome: ultimoNome
+      });
+
+      // Set preview image if available
+      if (utilizador.fotoPerfilUrl) {
+        setPreviewFoto(utilizador.fotoPerfilUrl);
+      }
+
+      if (utilizador.imagem === undefined) {
+        setImageName('');
+        setImageSize(0);
+        setImage('');
+      } else {
+        if (utilizador.imagem.url === '' || utilizador.imagem.url === null) {
+          setImageName('');
+          setImageSize(0);
+          setImage('');
+        } else {
+          try {
+            const base64String = await getBase64FromUrl(utilizador.imagem.url);
+            if (base64String) {
+              setImage(base64String);
+              setImageName(utilizador.imagem.name);
+              setImageSize(utilizador.imagem.size);
+            }
+          } catch (error) {
+            console.error("Error processing image:", error);
+          }
+        }
+      }
     } catch (error) {
       console.error("Erro ao buscar dados do colaborador", error);
+      toast.error("Erro ao carregar dados do perfil");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -79,34 +186,61 @@ export default function EditColab (){
       const token = sessionStorage.getItem("token");
       const id = sessionStorage.getItem("colaboradorid");
 
+      // Validação das senhas
       if (formData.novaPassword || formData.confirmarPassword) {
         if (formData.novaPassword !== formData.confirmarPassword) {
-          alert("As palavras-passe não coincidem.");
+          toast.error("As palavras-passe não coincidem.");
           return;
         }
       }
 
+      // Preparando o payload para envio
       const payload = {
         ...formData,
         nome: `${formData.primeiroNome} ${formData.ultimoNome}`.trim(),
       };
 
-      if (formData.novaPassword) {
-        payload.pssword = formData.novaPassword;
+      // Adicionar foto de perfil se alterada
+      if (fotoPerfil) {
+        payload.fotoPerfil = {
+          base64: fotoPerfil,
+          nome: `foto_${id}.jpg`,
+          entidade: 'colaborador',
+          id,
+        };
       }
 
+      // Se nova senha foi fornecida, adiciona ao payload
+      if (formData.novaPassword) {
+        payload.password = formData.novaPassword;
+      }
+
+      // Removendo campos desnecessários do payload
       delete payload.confirmarPassword;
       delete payload.primeiroNome;
       delete payload.ultimoNome;
 
-      await axios.put(`/colaborador/atualizar/${id}`, payload, {
+      // Enviar atualização ao servidor
+      const response = await axios.put(`/colaborador/atualizar/${id}`, payload, {
         headers: { Authorization: `${token}` },
       });
 
-      alert("Perfil atualizado com sucesso!");
+      // Update display name after successful save
+      setDisplayName({
+        primeiroNome: formData.primeiroNome,
+        ultimoNome: formData.ultimoNome
+      });
+
+      toast.success("Perfil atualizado com sucesso!");
+      
+      // Refresh data after update
+      setTimeout(() => {
+        fetchData();
+      }, 1000);
+      
     } catch (error) {
       console.error("Erro ao atualizar perfil", error);
-      alert("Erro ao atualizar perfil.");
+      toast.error("Erro ao atualizar perfil.");
     }
   };
 
@@ -122,8 +256,34 @@ export default function EditColab (){
     });
   };
 
+  if (isLoading) {
+    return (
+      <Container className="mt-5">
+        <Row className="justify-content-center">
+          <Col md={6} className="text-center">
+            <h3>Carregando dados do perfil...</h3>
+          </Col>
+        </Row>
+      </Container>
+    );
+  }
+
   return (
     <Container className="mt-5">
+      {/* Add ToastContainer for notifications */}
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        style={{ marginTop: '60px' }} // Add margin to position below navbar
+      />
+      
       <Row className="justify-content-start">
         <Col md={10} className="mb-4">
           <h2 className="form-title">Perfil Utilizador</h2>
@@ -135,17 +295,70 @@ export default function EditColab (){
           <div className="border p-4 shadow-sm rounded">
             <Row className="mb-3" style={{ alignItems: "center" }}>
               <Col xs={4} sm={3} md={2} className="text-center">
-                <img
-                  src={profilePic}
-                  alt="Foto de Perfil"
-                  className="rounded-circle perfil-img shadow-lg"
-                  width="120"
-                  height="120"
-                  style={{ objectFit: "cover" }}
-                />
+                <div 
+                  className="position-relative" 
+                  style={{ width: "120px", height: "120px", margin: "0 auto" }}
+                  onMouseEnter={() => setShowPhotoOptions(true)}
+                  onMouseLeave={() => setShowPhotoOptions(false)}
+                >
+                  <img
+                    src={previewFoto}
+                    alt="Foto de Perfil"
+                    className="rounded-circle perfil-img shadow-lg"
+                    width="120"
+                    height="120"
+                    style={{ objectFit: "cover" }}
+                    onError={(e) => {
+                      console.error("Error loading profile image");
+                      e.target.src = profilePic;
+                    }}
+                  />
+                  
+                  {/* Hidden file input */}
+                  <input 
+                    type="file" 
+                    accept="image/*" 
+                    onChange={handleFotoChange} 
+                    ref={fileInputRef} 
+                    style={{ display: "none" }} 
+                  />
+                  
+                  {/* Photo control overlay */}
+                  {showPhotoOptions && (
+                    <div className="position-absolute top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center" 
+                      style={{ 
+                        background: "rgba(0,0,0,0.5)", 
+                        borderRadius: "50%",
+                      }}
+                    >
+                      <div className="d-flex">
+                        <div 
+                          className="bg-primary p-2 rounded-circle mx-1" 
+                          style={{ cursor: "pointer" }}
+                          onClick={triggerFileInput}
+                          title="Carregar nova foto"
+                        >
+                          <FaCamera color="white" size={20} />
+                        </div>
+                        
+                        {previewFoto !== profilePic && (
+                          <div 
+                            className="bg-danger p-2 rounded-circle mx-1" 
+                            style={{ cursor: "pointer" }}
+                            onClick={handleRemoveFoto}
+                            title="Remover foto"
+                          >
+                            <FaTrash color="white" size={20} />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </Col>
               <Col xs={8} sm={9} md={10}>
-                <h5 className="mt-3 perfil-nome">{formData.primeiroNome} {formData.ultimoNome}</h5>
+                {/* Use displayName here instead of formData */}
+                <h5 className="mt-3 perfil-nome">{displayName.primeiroNome} {displayName.ultimoNome}</h5>
                 <p>{formData.cargo}</p>
               </Col>
             </Row>
@@ -167,8 +380,8 @@ export default function EditColab (){
             </Row>
 
             <Row className="mb-3">
-              <InputField label="Departamento" name="departamento" value={formData.departamento} onChange={handleChange} icon={<FaBuilding />} colSize={6} disabled readOnly/>
-              <InputField label="Cargo" name="cargo" value={formData.cargo} onChange={handleChange} colSize={6} disabled readOnly/>
+              <InputField label="Departamento" name="departamento" value={formData.departamento} onChange={handleChange} icon={<FaBuilding />} colSize={6} disabled readOnly />
+              <InputField label="Cargo" name="cargo" value={formData.cargo} onChange={handleChange} colSize={6} disabled readOnly />
             </Row>
 
             <Row className="mb-3">
@@ -210,16 +423,4 @@ export default function EditColab (){
       </Row>
     </Container>
   );
-};
-
-            //<Guardar
-           // text={"Guardar"}
-           // onClick={() => setShowModalEditar(true)}
-            //Icon={FaRegSave}
-            ///>
-            //<ModalEditarPerfil show={showModalEditar} handleClose={() => setShowModalEditar(false)} />
-
-
-                   
-                   
-                  
+}

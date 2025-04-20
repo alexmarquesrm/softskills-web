@@ -7,42 +7,44 @@ const models = initModels(sequelizeConn);
 const controladorFicheiros = {
     adicionar: async (id, entidade, files, userID) => {
         try {
-            let objecto = await models.objecto.findOne({
-                where:{
-                    registoid: id,
+            // Verificar ou criar o objeto
+            let objeto = await models.objeto.findOne({
+                where: {
+                    registo_id: id,
                     entidade: entidade
                 }
             });
-            if (!objecto){
-                objecto = await models.objecto.create({
-                    registoid: id,
+            if (!objeto) {
+                objeto = await models.objeto.create({
+                    registo_id: id,
                     entidade: entidade
                 });
             }
-
-            let album = await models.album.findOne({
-                where:{
-                    objectoid: objecto.objectoid
-                }
-            });
-            if (!album){
-                album = await models.album.create({
-                    objectoid: objecto.objectoid,
-                    utilizadorid: userID,
-                    descricao: `${entidade}${id}`
-                });
-            }
-
-            for (const file of files){
-                await models.ficheiro.create({
-                    albumid: album.albumid,
+    
+            // Inserir os ficheiros usando um loop for
+            for (const file of files) {
+                // Calculando o tamanho e arredondando para um inteiro
+                const tamanho = file.tamanho ? Math.floor(file.tamanho) : Math.floor(file.base64.length * 0.75);
+    
+                // Criar ficheiro no banco de dados
+                const novoFicheiro = await models.ficheiro.create({
+                    objeto_id: objeto.objeto_id,
                     nome: file.nome,
                     extensao: file.nome.split('.')[1],
-                    tamanho: file.tamanho
+                    tamanho: tamanho
                 });
-
-                objStorage.insertFile(album.descricao, file.base64, file.nome);
+                
+                try {
+                    // Tentar fazer o upload do arquivo separadamente
+                    await objStorage.insertFile(`${entidade}${id}`, file.base64, file.nome);
+                } catch (uploadError) {
+                    console.error('Erro no upload do arquivo para o armazenamento:', uploadError);
+                    // Opcionalmente, pode-se excluir o registro do banco se o upload falhar
+                    // await novoFicheiro.destroy();
+                    // throw uploadError; // Você pode escolher se propaga o erro ou continua
+                }
             }
+    
             return true;
         } catch (error) {
             console.error('Não foi possível adicionar os ficheiros!', error);
@@ -50,33 +52,29 @@ const controladorFicheiros = {
         }
     },
 
-    removerTodosFicheirosAlbum: async (id, entidade, files) => {
+    removerTodosFicheirosAlbum: async (id, entidade) => {
         try {
-            const objecto = await models.objecto.findOne({
-                where:{
-                    registoid: id,
+            const objeto = await models.objeto.findOne({
+                where: {
+                    registo_id: id,
                     entidade: entidade
                 }
             });
 
-            if (!objecto){
+            if (!objeto) {
                 console.error('O objeto não existe!');
             } else {
-                const album = await models.album.findOne({
-                    where:{
-                        objectoid: objecto.objectoid
+                // Apagar todos os ficheiros associados ao objeto
+                const ficheiros = await models.ficheiro.findAll({
+                    where: {
+                        objeto_id: objeto.objeto_id
                     }
                 });
-                if (!album){
-                    console.error('O album não existe!');
-                } else {
-                    objStorage.deleteAllFiles(album.descricao);
-    
-                    await models.ficheiro.destroy({
-                        where: {
-                            albumid: album.albumid
-                        }
-                    });
+
+                // Apagar os ficheiros no MinIO e no banco de dados
+                for (const ficheiro of ficheiros) {
+                    await objStorage.deleteFile(`${entidade}_${id}`, ficheiro.nome);
+                    await ficheiro.destroy();
                 }
             }
         } catch (error) {
@@ -86,34 +84,59 @@ const controladorFicheiros = {
 
     getAllFilesByAlbum: async (id, entidade) => {
         try {
-            const objecto = await models.objecto.findOne({
-                where:{
-                    registoid: id,
-                    entidade: entidade
+            const standardEntidade = entidade.toLowerCase();
+            console.log(`Getting all files for ${standardEntidade}${id}`);
+            
+            const objeto = await models.objeto.findOne({
+                where: {
+                    registo_id: id,
+                    entidade: standardEntidade
                 }
             });
-            if (!objecto){
+            if (!objeto) {
                 console.error('O objeto não existe!');
                 return [];
             }
 
-            const album = await models.album.findOne({
-                where:{
-                    objectoid: objecto.objectoid
+            // Obter todos os ficheiros associados ao objeto
+            const ficheiros = await models.ficheiro.findAll({
+                where: {
+                    objeto_id: objeto.objeto_id
                 }
             });
-            if (!album){
-                console.error('O album não existe!');
-                return [];
+
+            const files = [];
+            for (const ficheiro of ficheiros) {
+                const presignedUrl = await objStorage.getPresignedUrl(`${standardEntidade}${id}`, ficheiro.nome);
+                files.push({ nome: ficheiro.nome, url: presignedUrl });
             }
 
-            const objects = await objStorage.getFilesByBucket(album.descricao);
-            return objects;
+            return files;
         } catch (error) {
-            console.error('Não foi possível remover os ficheiros!', error);
-            return false;
+            console.error('Não foi possível recuperar os ficheiros!', error);
+            return [];
+        }
+    },
+
+    getFilesFromBucketOnly: async (id, entidade) => {
+        try {
+            const standardEntidade = entidade.toLowerCase();
+            const bucketName = `${standardEntidade}${id}`;
+            console.log(`Getting files directly from bucket: ${bucketName}`);
+            
+            const files = await objStorage.getFilesByBucket(bucketName);
+            if (files.length > 0) {
+                console.log(`Found ${files.length} files in bucket ${bucketName}`);
+                console.log("First file URL:", files[0].url);
+            } else {
+                console.log(`No files found in bucket ${bucketName}`);
+            }
+            return files;
+        } catch (error) {
+            console.error('Erro ao buscar ficheiros no bucket:', error);
+            return [];
         }
     },
 }
 
-module.exports = controladorFicheiros
+module.exports = controladorFicheiros;

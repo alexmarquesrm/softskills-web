@@ -29,11 +29,16 @@ module.exports = function(sequelize, DataTypes) {
     },
     nota: {
       type: DataTypes.DOUBLE,
-      allowNull: false
+      allowNull: true,
+      defaultValue: 0
     },
     data_certificado: {
       type: DataTypes.DATE,
       allowNull: true
+    },
+    data_inscricao: {
+      type: DataTypes.DATE,
+      allowNull: false
     },
     estado: {
       type: DataTypes.BOOLEAN,

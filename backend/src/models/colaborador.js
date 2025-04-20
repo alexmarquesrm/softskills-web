@@ -27,15 +27,15 @@ module.exports = function(sequelize, DataTypes) {
     },
     data_nasc: {
       type: DataTypes.DATEONLY,
-      allowNull: false
+      allowNull: true
     },
     cargo: {
       type: DataTypes.TEXT,
-      allowNull: true
+      allowNull: false
     },
     departamento: {
       type: DataTypes.TEXT,
-      allowNull: true
+      allowNull: false
     },
     telefone: {
       type: DataTypes.DECIMAL,
@@ -50,6 +50,11 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.INTEGER,
       allowNull: true,
       defaultValue: 0
+    },
+    inativo: {
+      type: DataTypes.BOOLEAN,
+      allowNull: true,
+      defaultValue: false
     }
   }, {
     sequelize,
