@@ -35,7 +35,7 @@ function AppContent() {
                         <Route path="/gestor/dashboard" element={<PagGestor />} />
                         <Route path="/gestor/lista/colaboradores" element={<ListaUtilizadores />} />
                         <Route path="/gestor/colaborador/percursoFormativo" element={<PercursoFormativoGestor />} />
-                        <Route path="/gestor/gestaoCurso" element={<GestaoCursos />} />
+                        <Route path="/gestor/lista/cursos" element={<GestaoCursos />} />
                     </Route>
                     <Route path="*" element={<Navigate to="/" />} />
                 </Routes>
