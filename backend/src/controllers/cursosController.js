@@ -341,31 +341,59 @@ const controladorCursos = {
     try {
       const { id } = req.params;
 
-      const curso = await models.curso.findByPk(id, {
-        include: [
-          {
-            model: models.gestor,
-            as: "gestor",
-            attributes: ["gestor_id"],
-            include: [
-              {
-                model: models.colaborador,
-                as: "gestor_colab",
-                attributes: ["nome", "email"],
-              },
-            ],
-          },
-          {
-            model: models.topico,
-            as: "curso_topico",
-            attributes: ["topico_id", "descricao"],
-          },
-        ],
-      });
+      const cursoBasico = await models.curso.findByPk(id);
 
-      if (!curso) {
+      if (!cursoBasico) {
         return res.status(404).json({ message: "Curso não encontrado" });
       }
+
+      const includes = [
+        {
+          model: models.gestor,
+          as: "gestor",
+          attributes: ["gestor_id"],
+          include: [
+            {
+              model: models.colaborador,
+              as: "gestor_colab",
+              attributes: ["nome", "email"],
+            },
+          ],
+        },
+        {
+          model: models.topico,
+          as: "curso_topico",
+          attributes: ["topico_id", "descricao"],
+        }
+      ];
+
+      if (cursoBasico.tipo === 'S') {
+        includes.push({
+          model: models.sincrono,
+          as: "curso_sincrono",
+          include: [
+            {
+              model: models.formador,
+              as: "sincrono_formador",
+              attributes: ["formador_id", "especialidade"],
+              include: [
+                {
+                  model: models.colaborador,
+                  as: "formador_colab",
+                  attributes: ["nome", "email", "telefone"],
+                },
+              ],
+            },
+          ],
+        });
+      } else if (cursoBasico.tipo === 'A') {
+        includes.push({
+          model: models.assincrono,
+          as: "curso_assincrono",
+        });
+      }
+
+      const curso = await models.curso.findByPk(id, {include: includes});
 
       res.json(curso);
     } catch (error) {
@@ -426,7 +454,7 @@ const controladorCursos = {
       console.error("Erro ao obter cursos do formador:", error);
       res.status(500).json({ message: "Erro interno ao obter cursos do formador" });
     }
-  },  
+  },
 
   // Atualizar um curso pelo ID
   updateCurso: async (req, res) => {
