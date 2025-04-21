@@ -11,7 +11,7 @@ import { IoCalendarNumberSharp } from "react-icons/io5";
 import { useDropzone } from 'react-dropzone';
 import { FaRegSave } from "react-icons/fa";
 
-const ModalEditarFicheiro = ({ show, handleClose }) => {
+const ModalEditarFicheiro = ({ show, handleClose, allowDueDate=true }) => {
   const [formData, setFormData] = useState({});
   const [titulo, settitulo] = useState([]);
   const [dataentrega, setdataentrega] = useState([]);
@@ -50,8 +50,18 @@ const ModalEditarFicheiro = ({ show, handleClose }) => {
 
             <Row className="mb-3">
             <InputField label="Título" type="text" placeholder="video1" name="titulo" value={formData.titulo} onChange={handleChange} colSize={6}/>
-            <InputField label="Data Entrega" type="date" placeholder="" name="dataNasc" value={formData.dataentrega} onChange={handleChange} icon={<IoCalendarNumberSharp />} colSize={6} />
-            </Row>
+            {allowDueDate && (
+  <InputField
+    label="Data Entrega"
+    type="date"
+    placeholder=""
+    name="dataentrega"
+    value={formData.dataentrega}
+    onChange={handleChange}
+    icon={<IoCalendarNumberSharp />}
+    colSize={6}
+  />
+)}             </Row>
           
 
 
