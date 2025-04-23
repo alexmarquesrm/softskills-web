@@ -234,7 +234,7 @@ export default function CursoDetalhesGestor() {
                 </Card>
             </Container>
 
-            <ModalAdicionarFicheiro show={addFile} handleClose={() => setAddFile(false)} courseId={cursoId} allowDueDate={curso?.tipo !== 'A'} />
+            <ModalAdicionarFicheiro show={addFile} handleClose={() => setAddFile(false)}tiposPermitidos={['documento', 'video']} courseId={cursoId} allowDueDate={curso?.tipo !== 'A'} />
             <ModalEditarFicheiro show={editFile} handleClose={() => setEditFile(false)} allowDueDate={curso?.tipo !== 'A'} />
         </div>
     );

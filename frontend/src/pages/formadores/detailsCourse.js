@@ -236,7 +236,7 @@ export default function CursoDetalhes() {
         </Card>
       </Container>
 
-      <ModalAdicionarFicheiro show={addFile} handleClose={() => setAddFile(false)} courseId={courseId} />
+      <ModalAdicionarFicheiro show={addFile} handleClose={() => setAddFile(false)}  tiposPermitidos={['documento', 'video', 'entrega']} courseId={courseId} />
       <ModalEditarFicheiro show={editFile} handleClose={() => setEditFile(false)} />
     </div>
   );
