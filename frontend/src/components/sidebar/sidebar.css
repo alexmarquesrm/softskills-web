@@ -1,3 +1,18 @@
+:root {
+  --sidebar-width: 330px;
+  --sidebar-width-mobile: 280px;
+  --menu-width: 320px;
+  --accent-color: #00bfff;
+  --accent-light: rgba(0, 191, 255, 0.08);
+  --accent-medium: rgba(0, 191, 255, 0.12);
+  --text-dark: #323232;
+  --text-medium: #505050;
+  --text-light: #909090;
+  --border-light: rgba(0, 0, 0, 0.05);
+  --shadow-light: rgba(0, 0, 0, 0.1);
+  --shadow-medium: rgba(0, 0, 0, 0.15);
+}
+
 .sidebar-overlay {
   position: fixed;
   top: 0;
@@ -12,16 +27,16 @@
 .custom-sidebar {
   position: fixed;
   top: 0;
-  left: -300px;
-  width: 300px;
+  left: calc(-1 * var(--sidebar-width));
+  width: var(--sidebar-width);
   height: 100%;
-  background: linear-gradient(to bottom, #ffffff, #f8f9fa);
+  background: #ffffff;
   transition: all 0.3s ease-in-out;
   z-index: 1050;
   display: flex;
   flex-direction: column;
-  box-shadow: 3px 0 15px rgba(0, 0, 0, 0.1);
-  border-right: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 3px 0 15px var(--shadow-light);
+  border-right: 1px solid var(--border-light);
 }
 
 .custom-sidebar.open {
@@ -31,7 +46,7 @@
 /* Brand section */
 .sidebar-brand {
   padding: 1.8rem 2rem;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid var(--border-light);
 }
 
 .sidebar-brand h3 {
@@ -42,11 +57,11 @@
 }
 
 .brand-text-dark {
-  color: #323232;
+  color: var(--text-dark);
 }
 
 .brand-text-accent {
-  color: #00bfff;
+  color: var(--accent-color);
 }
 
 /* Menu sections */
@@ -65,7 +80,7 @@
   display: block;
   font-size: 0.75rem;
   font-weight: 600;
-  color: #909090;
+  color: var(--text-light);
   margin-bottom: 0.75rem;
   padding-left: 0.5rem;
   letter-spacing: 0.7px;
@@ -77,21 +92,22 @@
   align-items: center;
   padding: 0.75rem 0.5rem;
   margin-bottom: 0.25rem;
-  color: #505050;
+  color: var(--text-medium);
   text-decoration: none;
   border-radius: 8px;
   font-weight: 500;
   transition: all 0.2s ease;
+  position: relative;
 }
 
 .sidebar-item:hover {
-  background-color: rgba(0, 191, 255, 0.08);
-  color: #00bfff;
+  background-color: var(--accent-light);
+  color: var(--accent-color);
 }
 
 .sidebar-item.active {
-  background-color: rgba(0, 191, 255, 0.12);
-  color: #00bfff;
+  background-color: var(--accent-medium);
+  color: var(--accent-color);
   font-weight: 600;
 }
 
@@ -107,65 +123,158 @@
 
 .sidebar-label {
   font-size: 0.95rem;
+  flex: 1;
 }
 
-/* Accordion styling */
-.sidebar-accordion {
-  margin-bottom: 0.5rem;
+.chevron-icon {
+  margin-left: auto;
+  opacity: 0.7;
+  transition: transform 0.2s ease;
 }
 
-.accordion-item {
-  background: transparent;
-  border: none !important;
+.sidebar-item:hover .chevron-icon {
+  transform: translateX(2px);
 }
 
-.sidebar-accordion-header button {
+/* Sidebar category item */
+.sidebar-category-item {
+  position: relative;
+}
+
+/* Dropdown menus */
+.dropdown-menu {
+  position: fixed;
+  top: 0;
+  width: var(--menu-width);
+  background: white;
+  border-radius: 4px;
+  box-shadow: 0 5px 15px var(--shadow-medium);
+  z-index: 1500;
+  border: 1px solid var(--border-light);
+  overflow: hidden;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  opacity: 1;
+  transition: opacity 0.2s ease-in, visibility 0.2s ease-in;
+}
+
+/* Estilos específicos para cada nível de menu */
+.category-menu {
+  /* Posicionamento feito dinamicamente via JS */
+  z-index: 1500;
+  padding-right: 20px;
+}
+
+.topics-menu {
+  /* Posicionamento feito dinamicamente via JS */
+  z-index: 1600; /* Mais alto que o category-menu */
+  padding-left: 10px;
+}
+
+.menu-header {
+  padding: 16px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.menu-header h4 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--accent-color);
+}
+
+.menu-content {
+  padding: 8px 0;
+  overflow-y: auto;
+  flex: 1;
+  max-height: calc(90vh - 53px); /* 53px é a altura do header */
+}
+
+.menu-item {
+  position: relative;
+}
+
+.menu-link {
   display: flex;
   align-items: center;
-  background: transparent !important;
-  padding: 0.75rem 0.5rem !important;
-  margin-bottom: 0.25rem;
-  border: none !important;
-  border-radius: 8px !important;
-  color: #505050 !important;
-  box-shadow: none !important;
-  font-weight: 500;
+  justify-content: space-between;
+  padding: 12px 16px;
+  color: var(--text-medium);
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  width: 100%;
+  position: relative;
 }
 
-.sidebar-accordion-header button:hover {
-  background-color: rgba(0, 191, 255, 0.08) !important;
-  color: #00bfff !important;
+.menu-link:hover {
+  background-color: #f7f9fa;
+  color: var(--accent-color);
 }
 
-.sidebar-accordion-header button:focus {
-  box-shadow: none !important;
+.menu-chevron {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0.7;
 }
 
-.sidebar-accordion-header button::after {
-  margin-left: auto;
-  width: 1rem;
-  height: 1rem;
-  background-size: 0.8rem;
+/* Adicionar uma área de sobreposição para evitar a perda de hover */
+.menu-bridge {
+  position: absolute;
+  background: transparent;
+  z-index: 1550;
 }
 
-.accordion-body {
-  padding: 0.25rem 0 0.25rem 2.5rem !important;
+/* Animação de aparecimento e desaparecimento */
+.dropdown-menu.entering {
+  opacity: 0;
+  visibility: visible;
+}
+.dropdown-menu.entered {
+  opacity: 1;
+  visibility: visible;
+}
+.dropdown-menu.exiting {
+  opacity: 0;
+  visibility: visible;
+}
+.dropdown-menu.exited {
+  opacity: 0;
+  visibility: hidden;
 }
 
-.accordion-body .sidebar-item {
+/* Estilo para área com submenu ativo */
+.menu-item.active .menu-link {
+  background-color: var(--accent-light);
+  color: var(--accent-color);
+}
+
+/* Loading and error states */
+.sidebar-loading,
+.sidebar-error {
   padding: 0.6rem 0.5rem;
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+.sidebar-error {
+  color: #dc3545;
 }
 
 /* Footer section */
 .sidebar-footer {
   margin-top: auto;
-  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  border-top: 1px solid var(--border-light);
   padding-top: 1.5rem;
 }
 
 @media (max-width: 768px) {
   .custom-sidebar {
-    width: 260px;
+    width: var(--sidebar-width-mobile);
+    left: calc(-1 * var(--sidebar-width-mobile));
   }
   
   .sidebar-brand {
@@ -174,5 +283,9 @@
   
   .menu-section {
     padding: 0 1rem;
+  }
+  
+  .dropdown-menu {
+    width: 280px;
   }
 }

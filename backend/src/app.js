@@ -30,7 +30,7 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use("/colaborador", colaboradorRoutes);
 app.use("/formando", authenticate, formandoRoutes);
 app.use("/formador", authenticate, formadoresRoutes);
-app.use("/categoria", authenticate, categoriasRoutes);
+app.use("/categoria", categoriasRoutes);
 app.use("/area", authenticate, areasRoutes);
 app.use("/topico", authenticate, topicosRoutes);
 app.use("/forum", authenticate, forumRoutes);
