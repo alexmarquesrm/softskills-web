@@ -10,7 +10,8 @@ router.get("/username/:username", colaboradorController.getUserByLogin);
 router.get('/token/:id', colaboradorController.novoToken);
 
 // POST
-router.post("/criar", authenticate, colaboradorController.createColaborador);
+router.post("/registo", colaboradorController.registarNovoColaborador);
+router.post("/adicionar", authenticate, colaboradorController.criarColaborador);
 router.post('/login', colaboradorController.login);
 
 // PUT

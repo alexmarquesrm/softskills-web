@@ -1,0 +1,215 @@
+import React, { useState, useEffect } from "react";
+import { Dropdown, Image } from "react-bootstrap";
+import { BsPersonCircle, BsGear, BsBoxArrowRight } from "react-icons/bs";
+import { useNavigate } from "react-router-dom";
+import "./profileDropdown.css";
+import defaultProfilePic from "../../logo.svg"; // Update this path to match your project structure
+
+function ProfileDropdown({ onLogout }) {
+  const navigate = useNavigate();
+  
+  // Get current user type and all possible user types
+  const currentUserType = sessionStorage.getItem("tipo");
+  const userName = sessionStorage.getItem("nome");
+  const userEmail = sessionStorage.getItem("email");
+  const [profilePhoto, setProfilePhoto] = useState(null);
+  
+  const [userTypes, setUserTypes] = useState([]);
+  const [activeType, setActiveType] = useState(currentUserType);
+  const [show, setShow] = useState(false);
+
+  useEffect(() => {
+    // Get user's profile photo from session storage if available
+    const photoUrl = sessionStorage.getItem("fotoPerfilUrl");
+    
+    // Make sure we're setting a valid photo URL
+    if (photoUrl && photoUrl !== "undefined" && photoUrl !== "null") {
+      setProfilePhoto(photoUrl);
+      console.log("Profile photo set:", photoUrl);
+    } else {
+      console.log("No valid profile photo found in session storage");
+      setProfilePhoto(null);
+    }
+    
+    // Get all user types from session storage
+    const allUserTypes = sessionStorage.getItem("allUserTypes");
+    
+    if (allUserTypes) {
+      setUserTypes(allUserTypes.split(","));
+    } else {
+      // If allUserTypes isn't set, use the current type
+      setUserTypes(currentUserType ? [currentUserType] : []);
+    }
+    
+    setActiveType(currentUserType);
+  }, [currentUserType]);
+
+  const handleSwitchUserType = (type) => {
+    sessionStorage.setItem("tipo", type);
+    setActiveType(type);
+    setShow(false);
+    
+    switch(type) {
+      case "Formador":
+        navigate("/formador/dashboard");
+        break;
+      case "Gestor":
+        navigate("/gestor/dashboard");
+        break;
+      case "Formando":
+        navigate("/formando/dashboard");
+        break;
+      default:
+        navigate("/");
+    }
+  };
+
+  const hasMultipleRoles = userTypes.length > 1;
+
+  // Custom toggle component to handle clicks manually
+  const CustomToggle = React.forwardRef(({ onClick }, ref) => (
+    <div 
+      ref={ref}
+      className="profile-dropdown-toggle" 
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setShow(!show);
+      }}
+    >
+      <div className="profile-avatar">
+        {profilePhoto ? (
+          <Image 
+            src={profilePhoto} 
+            alt="Perfil" 
+            roundedCircle 
+            className="profile-image"
+            onError={(e) => {
+              console.error("Error loading profile image");
+              e.target.src = defaultProfilePic;
+            }}
+          />
+        ) : (
+          <BsPersonCircle size={22} />
+        )}
+      </div>
+    </div>
+  ));
+
+  // Custom menu component
+  const CustomMenu = React.forwardRef(
+    ({ children, style, className }, ref) => {
+      return (
+        <div
+          ref={ref}
+          style={{ ...style, display: show ? 'block' : 'none' }}
+          className={`${className} profile-dropdown-menu`}
+        >
+          {children}
+        </div>
+      );
+    },
+  );
+
+  return (
+    <div className="profile-dropdown-container">
+      <Dropdown 
+        show={show}
+        onToggle={(isOpen) => setShow(isOpen)}
+        align="end"
+      >
+        <Dropdown.Toggle as={CustomToggle} id="dropdown-profile" />
+
+        <Dropdown.Menu 
+          as={CustomMenu} 
+          className="profile-dropdown-menu" 
+          popperConfig={{
+            modifiers: [
+              {
+                name: 'preventOverflow',
+                options: {
+                  rootBoundary: 'viewport',
+                },
+              },
+            ],
+          }}
+        >
+          <div className="profile-header">
+            <div className="profile-info-container">
+              {profilePhoto ? (
+                <div className="dropdown-profile-image-container">
+                  <Image 
+                    src={profilePhoto} 
+                    alt="Perfil" 
+                    roundedCircle 
+                    className="dropdown-profile-image"
+                    onError={(e) => {
+                      console.error("Error loading profile image");
+                      e.target.src = defaultProfilePic;
+                    }}
+                  />
+                </div>
+              ) : (
+                <div className="dropdown-profile-icon">
+                  <BsPersonCircle size={42} />
+                </div>
+              )}
+              
+              <div className="profile-info">
+                <p className="profile-name">{userName || "Utilizador"}</p>
+                <p className="profile-email">{userEmail || "email@exemplo.com"}</p>
+                
+                {hasMultipleRoles ? (
+                  <div className="profile-roles-container">
+                    <span className="roles-title">Mudar modo de visão</span>
+                    <div className="roles-buttons">
+                      {userTypes.map((type) => (
+                        <span 
+                          key={type} 
+                          className={`profile-role ${type === activeType ? 'active-role' : ''}`}
+                          onClick={() => handleSwitchUserType(type)}
+                          title={type === activeType ? 'Modo ativo' : `Mudar para modo ${type}`}
+                        >
+                          {type}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  activeType && <span className="profile-role">{activeType}</span>
+                )}
+              </div>
+            </div>
+          </div>
+          
+          <Dropdown.Item 
+            href="/utilizadores/perfil" 
+            className="profile-menu-item"
+            onClick={() => setShow(false)}
+          >
+            <BsPersonCircle className="menu-icon" /> Perfil
+          </Dropdown.Item>
+          <Dropdown.Item 
+            href="/utilizadores/settings" 
+            className="profile-menu-item"
+            onClick={() => setShow(false)}
+          >
+            <BsGear className="menu-icon" /> Definições
+          </Dropdown.Item>
+          <Dropdown.Divider />
+          <Dropdown.Item 
+            onClick={() => {
+              setShow(false);
+              onLogout();
+            }} 
+            className="profile-menu-item logout-item"
+          >
+            <BsBoxArrowRight className="menu-icon" /> Logout
+          </Dropdown.Item>
+        </Dropdown.Menu>
+      </Dropdown>
+    </div>
+  );
+}
+
+export default ProfileDropdown;

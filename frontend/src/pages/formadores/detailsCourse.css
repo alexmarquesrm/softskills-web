@@ -1,0 +1,140 @@
+body {
+  background: #f8f9fa;
+}
+
+.curso-content {
+  padding: 0 50px;
+  max-width: 1650px;
+  margin: 0 auto;
+}
+
+.curso-card {
+  border: none;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.curso-header {
+  background: #fff;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 25px;
+}
+
+.section-title {
+  position: relative;
+  padding-bottom: 10px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 15px;
+}
+
+.section-title::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(135deg, #416699, #3b96d3);
+}
+
+.section-subtitle {
+  font-weight: 600;
+  color: #444;
+  margin-bottom: 15px;
+  font-size: 1.4rem;
+}
+
+.curso-meta {
+  font-size: 0.9rem;
+}
+
+.btn-gradient {
+  background: linear-gradient(135deg, #416699, #3b96d3);
+  border: none;
+  color: white;
+  border-radius: 6px;
+  padding: 8px 16px;
+  transition: all 0.3s ease;
+}
+
+.btn-gradient:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(59, 150, 211, 0.3);
+}
+
+.btn-edit-small {
+  background: transparent;
+  color: #416699;
+  border: none;
+  padding: 5px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.btn-edit-small:hover {
+  background: rgba(65, 102, 153, 0.1);
+}
+
+.info-card {
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.schedule-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+}
+
+.day {
+  font-weight: 500;
+  color: #333;
+}
+
+.time {
+  color: #666;
+}
+
+.attendance-section {
+  margin-bottom: 30px;
+}
+
+.curso-materials .material-item {
+  padding: 15px 20px;
+  transition: all 0.2s ease;
+  border-left: 3px solid transparent;
+}
+
+.curso-materials .material-item:hover {
+  background-color: rgba(65, 102, 153, 0.05);
+}
+
+/* Color coding for different material types */
+.material-documento {
+  border-left-color: #ffc107 !important;
+}
+
+.material-video {
+  border-left-color: #dc3545 !important;
+}
+
+.material-aula {
+  border-left-color: #28a745 !important;
+}
+
+.material-trabalho {
+  border-left-color: #17a2b8 !important;
+}
+
+.material-entrega {
+  border-left-color: #6610f2 !important;
+}
+
+.badge {
+  padding: 6px 12px;
+  font-weight: 500;
+  border-radius: 6px;
+}
+

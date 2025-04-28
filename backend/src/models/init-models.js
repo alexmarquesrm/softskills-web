@@ -1,6 +1,4 @@
 var DataTypes = require("sequelize").DataTypes;
-var _album = require("./album");
-var _anexo = require("./anexo");
 var _area = require("./area");
 var _assincrono = require("./assincrono");
 var _aula = require("./aula");
@@ -12,6 +10,7 @@ var _comentarios = require("./comentarios");
 var _curso = require("./curso");
 var _curso_copia = require("./curso_copia");
 var _denuncias = require("./denuncias");
+var _ficheiro = require("./ficheiro");
 var _formador = require("./formador");
 var _formando = require("./formando");
 var _forum = require("./forum");
@@ -34,8 +33,6 @@ var _trabalho = require("./trabalho");
 var _trabalhos_formando = require("./trabalhos_formando");
 
 function initModels(sequelize) {
-  var album = _album(sequelize, DataTypes);
-  var anexo = _anexo(sequelize, DataTypes);
   var area = _area(sequelize, DataTypes);
   var assincrono = _assincrono(sequelize, DataTypes);
   var aula = _aula(sequelize, DataTypes);
@@ -47,6 +44,7 @@ function initModels(sequelize) {
   var curso = _curso(sequelize, DataTypes);
   var curso_copia = _curso_copia(sequelize, DataTypes);
   var denuncias = _denuncias(sequelize, DataTypes);
+  var ficheiro = _ficheiro(sequelize, DataTypes);
   var formador = _formador(sequelize, DataTypes);
   var formando = _formando(sequelize, DataTypes);
   var forum = _forum(sequelize, DataTypes);
@@ -86,8 +84,6 @@ function initModels(sequelize) {
   quizz.belongsToMany(formando, { as: 'formando_id_formandos', through: avaliacao_quizz, foreignKey: "quizz_id", otherKey: "formando_id" });
   threads.belongsToMany(formando, { as: 'formando_id_formando_threads_avaliacaos', through: threads_avaliacao, foreignKey: "thread_id", otherKey: "formando_id" });
   trabalho.belongsToMany(formando, { as: 'formando_id_formando_trabalhos_formandos', through: trabalhos_formando, foreignKey: "trabalho_id", otherKey: "formando_id" });
-  anexo.belongsTo(album, { as: "album", foreignKey: "album_id"});
-  album.hasMany(anexo, { as: "anexos", foreignKey: "album_id"});
   topico.belongsTo(area, { as: "topico_area", foreignKey: "area_id"});
   area.hasMany(topico, { as: "area_topicos", foreignKey: "area_id"});
   presenca_form_sinc.belongsTo(aula, { as: "aula", foreignKey: "aula_id"});
@@ -156,8 +152,8 @@ function initModels(sequelize) {
   gestor.hasMany(quizz, { as: "quizzs", foreignKey: "gestor_id"});
   notificacoes_formando.belongsTo(notificacao, { as: "notificacao", foreignKey: "notificacao_id"});
   notificacao.hasMany(notificacoes_formando, { as: "notificacoes_formandos", foreignKey: "notificacao_id"});
-  album.belongsTo(objeto, { as: "objeto", foreignKey: "objeto_id"});
-  objeto.hasMany(album, { as: "albums", foreignKey: "objeto_id"});
+  ficheiro.belongsTo(objeto, { as: "ficheiro_objeto", foreignKey: "objeto_id"});
+  objeto.hasMany(ficheiro, { as: "objeto_ficheiros", foreignKey: "objeto_id"});
   respostas_quizz.belongsTo(questoes_quizz, { as: "questao", foreignKey: "questao_id"});
   questoes_quizz.hasMany(respostas_quizz, { as: "respostas_quizzs", foreignKey: "questao_id"});
   avaliacao_quizz.belongsTo(quizz, { as: "quizz", foreignKey: "quizz_id"});
@@ -182,8 +178,7 @@ function initModels(sequelize) {
   trabalho.hasMany(trabalhos_formando, { as: "trabalhos_formandos", foreignKey: "trabalho_id"});
 
   return {
-    album,
-    anexo,
+    ficheiro,
     area,
     assincrono,
     aula,

@@ -1,0 +1,364 @@
+.percurso-formativo-page {
+  background-color: #f5f7fa;
+  min-height: 100vh;
+  padding: 0.5rem 0 3rem;
+}
+
+.page-container {
+  padding: 1.5rem;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+/* Header principal */
+.percurso-header {
+  background: linear-gradient(135deg, #ffffff, #f0f7ff);
+  border-radius: 1.25rem;
+  padding: 2.5rem;
+  margin-bottom: 2.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.percurso-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 5px;
+  background: linear-gradient(90deg, #416699, #3b96d3);
+}
+
+.percurso-header-content {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.percurso-header-icon {
+  background: linear-gradient(135deg, #416699, #3b96d3);
+  color: white;
+  width: 70px;
+  height: 70px;
+  border-radius: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 16px rgba(97, 87, 255, 0.25);
+}
+
+.percurso-header-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.percurso-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+}
+
+.percurso-user-name {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #416699;
+  margin: 0.5rem 0 0 0;
+}
+
+/* Stats do percurso */
+.percurso-stats {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.percurso-stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #ffffff;
+  border-radius: 1rem;
+  padding: 1.25rem 1.5rem;
+  min-width: 120px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+  border: 1px solid #f0f0f0;
+}
+
+.percurso-stat-item.em-curso {
+  background-color: #f4f9ff;
+  border-left: 3px solid #3498db;
+}
+
+.percurso-stat-item.concluido {
+  background-color: #f4fff6;
+  border-left: 3px solid #2ecc71;
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #416699;
+}
+
+.stat-label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #666;
+  margin-top: 0.5rem;
+}
+
+/* Conteúdo principal */
+.percurso-content {
+  margin-top: 1rem;
+}
+
+/* Filtros */
+.filtros-sidebar {
+  transition: max-height 0.3s ease, opacity 0.3s ease;
+  margin-bottom: 2rem;
+}
+
+/* Mostra os filtros no desktop */
+@media (min-width: 992px) {
+  .filtros-sidebar {
+    display: block !important;
+  }
+}
+
+.filtros-sidebar.hidden {
+  display: none;
+}
+
+.filters-toggle-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1.5rem;
+}
+
+.filters-toggle-btn {
+  background: linear-gradient(135deg, #6157ff22, #74febd22);
+  border: 1px solid #e0e0e0;
+  padding: 0.6rem 1.25rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  color: #416699;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.filters-toggle-btn:hover {
+  background: linear-gradient(135deg, #6157ff33, #74febd33);
+  box-shadow: 0 3px 8px rgba(97, 87, 255, 0.1);
+}
+
+/* Header dos cursos */
+.courses-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  background-color: #ffffff;
+  border-radius: 1rem;
+  padding: 1rem 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.courses-count {
+  font-weight: 500;
+  color: #555;
+}
+
+.search-container {
+  flex-grow: 1;
+  max-width: 500px;
+  width: 100%;
+}
+
+/* Container de cursos */
+.courses-container {
+  margin-bottom: 3rem;
+}
+
+.courses-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.5rem;
+}
+
+@media (min-width: 1200px) {
+  .courses-grid {
+    grid-template-columns: repeat(4, 1fr); /* 4 cursos fixos no desktop */
+  }
+}
+
+/* Estado sem cursos */
+.no-courses {
+  background-color: #fff;
+  border-radius: 1rem;
+  padding: 3.5rem 2rem;
+  text-align: center;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  color: #666;
+}
+
+.no-courses p {
+  font-size: 1.1rem;
+  margin: 1rem 0;
+}
+
+.reset-search-btn {
+  margin-top: 1rem;
+  background-color: #f0f0f0;
+  border: 1px solid #e0e0e0;
+  padding: 0.5rem 1.25rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  color: #555;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.reset-search-btn:hover {
+  background-color: #e0e0e0;
+  color: #333;
+}
+
+/* Estados de loading e erro */
+.loading-container,
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  text-align: center;
+  padding: 2rem;
+}
+
+.loading-container p,
+.error-container p {
+  margin-top: 1rem;
+  color: #666;
+}
+
+.error-container h3 {
+  color: #dc3545;
+  margin-bottom: 1rem;
+}
+
+/* Ajustes responsivos */
+@media (max-width: 1199px) {
+  .percurso-stat-item {
+    min-width: 110px;
+    padding: 1rem 1.25rem;
+  }
+  
+  .stat-value {
+    font-size: 1.75rem;
+  }
+}
+
+@media (max-width: 991px) {
+  .percurso-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2rem;
+    padding: 2rem;
+  }
+  
+  .percurso-stats {
+    width: 100%;
+    justify-content: space-around;
+  }
+  
+  .percurso-stat-item {
+    flex: 1;
+    min-width: 0;
+  }
+  
+  .filtros-sidebar {
+    margin-bottom: 2rem;
+  }
+  
+  .main-content {
+    margin-top: 0;
+  }
+}
+
+@media (max-width: 767px) {
+  .page-container {
+    padding: 1rem;
+  }
+  
+  .percurso-header {
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  
+  .percurso-header-content {
+    gap: 1rem;
+  }
+  
+  .percurso-header-icon {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .percurso-title {
+    font-size: 1.3rem;
+  }
+  
+  .percurso-user-name {
+    font-size: 1.6rem;
+  }
+  
+  .courses-header {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+  
+  .search-container {
+    width: 100%;
+  }
+}
+
+@media (max-width: 576px) {
+  .percurso-header-content {
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+  }
+  
+  .percurso-stats {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .percurso-stat-item {
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+    padding: 1rem;
+  }
+  
+  .stat-value {
+    font-size: 1.5rem;
+  }
+  
+  .stat-label {
+    margin-top: 0;
+    font-size: 0.8rem;
+  }
+  
+  .no-courses {
+    padding: 2rem 1rem;
+  }
+}

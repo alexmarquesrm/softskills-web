@@ -1,5 +1,6 @@
 const initModels = require("../models/init-models");
 const sequelizeConn = require("../bdConexao");
+const e = require("express");
 const models = initModels(sequelizeConn);
 
 const controladorFormandos = {
@@ -31,18 +32,9 @@ const controladorFormandos = {
         where: { formando_id: id },
         include: [
           {
-            model: models.credenciais,
-            as: "formando_credenciais",
-            required: true,
-            include: [
-              {
-                model: models.colaborador,
-                as: "credenciais_colaborador",
-                required: true,
-                attributes: ["nome", "email", "telefone"],
-              },
-            ],
-            attributes: ["login", "password"],
+            model: models.colaborador,
+            as: "formando_colab",
+            attributes: { exclude: ["pssword"] },
           },
         ],
         attributes: ["formando_id"],
@@ -52,19 +44,7 @@ const controladorFormandos = {
         return res.status(404).json({ message: "Formando não encontrado" });
       }
 
-      const formandoData = {
-        id: formando.formando_id,
-        login: formando.formando_credenciais.login,
-        password: formando.formando_credenciais.password,
-        colaborador: {
-          nome: formando.formando_credenciais.credenciais_colaborador.nome,
-          email: formando.formando_credenciais.credenciais_colaborador.email,
-          telefone:
-            formando.formando_credenciais.credenciais_colaborador.telefone,
-        },
-      };
-
-      res.json(formandoData);
+      res.json(formando);
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: "Erro ao receber dados do formando" });

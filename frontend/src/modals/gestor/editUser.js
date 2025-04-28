@@ -1,29 +1,21 @@
 import React, { useState, useEffect } from "react";
-import axios from "../config/configAxios";
-import { Container, Row, Col, Form } from "react-bootstrap";
-import profilePic from "../logo.svg";
-
-// COMPONENTES
-import Guardar from "../components/buttons/saveButton";
-import InputField from "../components/textFields/basic";
-import Cancelar from "../components/buttons/cancelButton";
-
-// ICONS
-import { FaRegSave } from "react-icons/fa";
+import axios from "../../config/configAxios";
+import { Row, Col, Form } from "react-bootstrap";
+import profilePic from "../../logo.svg";
+/* COMPONENTES */
+import Guardar from "../../components/buttons/saveButton";
+import InputField from "../../components/textFields/basic";
+import Cancelar from "../../components/buttons/cancelButton";
+import DropdownCheckbox from "../../components/dropdown/dropdown";
+/* MODALS */
+import ModalCustom from "../modalCustom";
+/* ICONS */
+import { FaRegSave, FaMobileAlt, FaUser, FaBuilding } from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
-import { FaMobileAlt, FaUser, FaLock } from "react-icons/fa";
 import { IoCalendarNumberSharp } from "react-icons/io5";
-import { FaBuilding } from "react-icons/fa";
 import { BsArrowReturnLeft } from "react-icons/bs";
-import { FaEye, FaEyeSlash } from "react-icons/fa6";
 
-//import ModalEditarPerfil from "../modals/pedirCurso";
-//import ModalAdicionarFicheiro from "../modals/adicionarFicheiroAssincrono_Formador";
-
-//const [showModalEditar, setShowModalEditar] = useState(false);
-//const [showModalAdicionarFicheiro, setModalAdicionarFicheiro] = useState(false);
-
-const PerfilUtilizador = () => {
+export default function EditProfile ({ show, onClose, onSave, initialData = {} }){
   const [formData, setFormData] = useState({
     primeiroNome: "",
     ultimoNome: "",
@@ -33,20 +25,12 @@ const PerfilUtilizador = () => {
     telefone: "",
     departamento: "",
     cargo: "",
-    sobre_mim: "",
-    novaPassword: "",
-    confirmarPassword: "",
-    receberEmails: false,
-    notificacoesForum: false,
   });
-
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const fetchData = async () => {
     try {
       const token = sessionStorage.getItem("token");
-      const id = sessionStorage.getItem("colaboradorid");
+      const id = initialData.id;
 
       const response = await axios.get(`/colaborador/${id}`, {
         headers: { Authorization: `${token}` },
@@ -66,9 +50,6 @@ const PerfilUtilizador = () => {
         telefone: utilizador.telefone || "",
         departamento: utilizador.departamento || "",
         cargo: utilizador.cargo || "",
-        sobre_mim: utilizador.sobre_mim || "",
-        novaPassword: "",
-        confirmarPassword: "",
         //receberEmails: utilizador.receber_emails || false,
         //notificacoesForum: utilizador.notificacoes_forum || false,
       });
@@ -82,23 +63,11 @@ const PerfilUtilizador = () => {
       const token = sessionStorage.getItem("token");
       const id = sessionStorage.getItem("colaboradorid");
 
-      if (formData.novaPassword || formData.confirmarPassword) {
-        if (formData.novaPassword !== formData.confirmarPassword) {
-          alert("As palavras-passe não coincidem.");
-          return;
-        }
-      }
-
       const payload = {
         ...formData,
         nome: `${formData.primeiroNome} ${formData.ultimoNome}`.trim(),
       };
 
-      if (formData.novaPassword) {
-        payload.pssword = formData.novaPassword;
-      }
-
-      delete payload.confirmarPassword;
       delete payload.primeiroNome;
       delete payload.ultimoNome;
 
@@ -107,6 +76,8 @@ const PerfilUtilizador = () => {
       });
 
       alert("Perfil atualizado com sucesso!");
+      if (onSave) onSave(payload);
+      onClose();
     } catch (error) {
       console.error("Erro ao atualizar perfil", error);
       alert("Erro ao atualizar perfil.");
@@ -114,8 +85,10 @@ const PerfilUtilizador = () => {
   };
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (show && initialData?.id) {
+      fetchData();
+    }
+  }, [show, initialData]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -126,32 +99,23 @@ const PerfilUtilizador = () => {
   };
 
   return (
-    <Container className="mt-5">
-      <Row className="justify-content-start">
-        <Col md={10} className="mb-4">
-          <h2 className="form-title">Perfil Utilizador</h2>
-        </Col>
-      </Row>
-
+    <ModalCustom show={show} handleClose={onClose} title="Editar Utilizador" size="xl">
       <Row className="justify-content-start mb-4">
         <Col md={12}>
-          <div className="border p-4 shadow-sm rounded">
-            <Row className="mb-3" style={{ alignItems: "center" }}>
-              <Col xs={4} sm={3} md={2} className="text-center">
-                <img
-                  src={profilePic}
-                  alt="Foto de Perfil"
-                  className="rounded-circle perfil-img shadow-lg"
-                  width="120"
-                  height="120"
-                  style={{ objectFit: "cover" }}
-                />
+          <div className="border p-4 shadow-sm rounded" style={{ backgroundColor: "#fff" }}>
+            <Row className="mb-3 align-items-center">
+              <Col xs={4} sm={3} md={2} className="d-flex justify-content-center">
+                <img src={profilePic} alt="Foto de Perfil" className="rounded-circle shadow-lg"
+                  width="120" height="120" style={{ objectFit: "cover" }}/>
               </Col>
               <Col xs={8} sm={9} md={10}>
-                <h5 className="mt-3 perfil-nome">{formData.primeiroNome} {formData.ultimoNome}</h5>
-                <p>{formData.cargo}</p>
+                <h5 className="mt-3 perfil-nome">
+                  {initialData.nome || "Sem nome para mostrar"}
+                </h5>
+                <p>{initialData.funcao || "Sem dados"}</p>
               </Col>
             </Row>
+
             <hr />
 
             <Row className="mb-3">
@@ -175,17 +139,7 @@ const PerfilUtilizador = () => {
             </Row>
 
             <Row className="mb-3">
-              <InputField label="Sobre Mim" name="sobre_mim" value={formData.sobre_mim} onChange={handleChange} type="textarea" rows={5} style={{ resize: "none" }} colSize={12} />
-            </Row>
-
-            <Row className="mb-3">
-              <InputField label="Nova Password" name="novaPassword" value={formData.novaPassword} onChange={handleChange}
-                type={showPassword ? "text" : "password"} icon={<FaLock />} colSize={6}
-                endIcon={showPassword ? <FaEyeSlash /> : <FaEye />} onEndIconClick={() => setShowPassword(!showPassword)} />
-
-              <InputField label="Confirmar Password" name="confirmarPassword" value={formData.confirmarPassword} onChange={handleChange}
-                type={showConfirmPassword ? "text" : "password"} icon={<FaLock />} colSize={6}
-                endIcon={showConfirmPassword ? <FaEyeSlash /> : <FaEye />} onEndIconClick={() => setShowConfirmPassword(!showConfirmPassword)} />
+              <InputField label="Sobre Mim" name="sobre_mim" value={formData.sobre_mim} onChange={handleChange} type="textarea" rows={3} style={{ resize: "none" }} colSize={12} />
             </Row>
 
             <Row className="mb-3">
@@ -212,8 +166,6 @@ const PerfilUtilizador = () => {
           </div>
         </Col>
       </Row>
-    </Container>
+    </ModalCustom>
   );
 };
-
-export default PerfilUtilizador;

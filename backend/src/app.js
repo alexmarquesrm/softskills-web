@@ -1,7 +1,6 @@
 const express = require("express");
 const cors = require("cors");
 const app = express();
-const bodyParser = require("body-parser");
 const { authenticate } = require("./tokenUtils");
 const colaboradorRoutes = require("./routes/colaboradoresRoutes");
 const formandoRoutes = require("./routes/formandosRoutes");
@@ -16,6 +15,7 @@ const threadsDenRoutes = require("./routes/threadsDenRoutes");
 const cursosRoutes = require("./routes/cursosRoutes");
 const sincronosRoutes = require("./routes/sincronosRoutes");
 const pedidosRoutes = require("./routes/pedidosRoutes");
+const inscricoesRoutes = require("./routes/inscricoesRoutes");
 
 // Use CORS middleware
 app.use(cors({
@@ -24,12 +24,13 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
-app.use(bodyParser.json({ limit: '50mb' }));
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 app.use("/colaborador", colaboradorRoutes);
 app.use("/formando", authenticate, formandoRoutes);
 app.use("/formador", authenticate, formadoresRoutes);
-app.use("/categoria", authenticate, categoriasRoutes);
+app.use("/categoria", categoriasRoutes);
 app.use("/area", authenticate, areasRoutes);
 app.use("/topico", authenticate, topicosRoutes);
 app.use("/forum", authenticate, forumRoutes);
@@ -39,6 +40,7 @@ app.use("/denuncia", authenticate, threadsDenRoutes);
 app.use("/curso", cursosRoutes);
 app.use("/sincrono", authenticate, sincronosRoutes);
 app.use("/pedido", authenticate, pedidosRoutes);
+app.use("/inscricao", inscricoesRoutes);
 
 app.listen(8000, () => {
   console.log("Servidor na porta 8000");

@@ -1,74 +1,128 @@
 import React from "react";
-import { Card, Button} from "react-bootstrap";
-import { Clock, Users } from "react-feather";
+import { Card, Badge, Button } from "react-bootstrap";
+import { Clock, Users, Calendar, Award, CheckCircle, RefreshCcw } from "react-feather";
+import { useNavigate } from "react-router-dom";
 import ReactGif from "./../../images/react.gif";
 import "./cardCourses.css";
 
-function cardCourses({ curso }) {
+function CardCourses({ curso, inscricao, mostrarBotao = true }) {
+  const navigate = useNavigate();
+
+  const handleViewDetails = () => {
+    navigate(`/curso/${curso.curso_id}`, { 
+      state: { id: curso.curso_id } 
+    });
+  };
+
   const formatDate = (date) => {
     const data = new Date(date);
     return data.toISOString().split('T')[0];
   };
 
+  const getBadgeVariant = (tipo) => {
+    switch (tipo) {
+      case "S": return "primary";
+      case "A": return "success";
+      default: return "secondary";
+    }
+  };
+
+  const getTipoLabel = (tipo) => {
+    switch (tipo) {
+      case "S": return "Síncrono";
+      case "A": return "Assíncrono";
+      default: return "Desconhecido";
+    }
+  };
+
   return (
-      <Card className="mt-2 mb-3 shadow-lg border-0 d-flex flex-column w-100 h-100" style={{ borderRadius: "10px", maxWidth: "450px" }}>
-        <div
-          style={{
-            height: "200px",
-            background: "linear-gradient(to bottom, #9E7FCE, #5A4EAE)",
-            borderTopLeftRadius: "10px",
-            borderTopRightRadius: "10px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
+    <Card className="course-card h-100">
+      <div className="course-header" style={{ cursor: 'pointer' }} onClick={handleViewDetails}>
+        <img src={ReactGif} alt="Curso" className="course-image" />
+        <Badge
+          className="course-type-badge"
+          bg={getBadgeVariant(curso.tipo)}
         >
-          <img src={ReactGif} alt="Ícone" style={{ width: "150px", opacity: 0.8 }} />
+          {getTipoLabel(curso.tipo)}
+        </Badge>
+      </div>
+
+      <Card.Body className="d-flex flex-column">
+        <Card.Title 
+          className="course-title" 
+          style={{ cursor: 'pointer' }}
+          onClick={handleViewDetails}
+        >
+          {curso.titulo}
+        </Card.Title>
+
+        {curso.sincrono?.formador?.colaborador?.nome && (
+          <div className="course-instructor">
+            <Award size={16} className="icon" />
+            <span>{curso.sincrono.formador.colaborador.nome}</span>
+          </div>
+        )}
+
+        <div className="course-description">
+          <p>{curso.descricao}</p>
         </div>
 
-        <Card.Body className="d-flex flex-column">
-          <Card.Title className="text-primary fw-bold border-bottom pb-2">{curso.titulo}</Card.Title>
-
-          {curso.sincrono?.formador?.colaborador?.nome && (
-            <Card.Subtitle className="text-muted mt-1 mb-2">Professor: {curso.sincrono.formador.colaborador.nome}</Card.Subtitle>
-          )}
-
-          <div className="mt-1">
-            <strong>Descrição:</strong>
-            <p className="text-muted mt-1 descricao-limitada">{curso.descricao}</p>
-          </div>
-          
+        <div className="course-meta">
           {curso.total_horas && (
-            <div className="d-flex align-items-center mb-1">
-              <Clock size={16} className="me-2 text-secondary" />
-              <span>{curso.total_horas} Horas</span>
+            <div className="meta-item">
+              <Clock size={16} className="icon" />
+              <span>{curso.total_horas} horas</span>
             </div>
           )}
 
           {curso.sincrono?.vagas && (
-            <div className="d-flex align-items-center mb-2">
-              <Users size={16} className="me-2 text-secondary" />
-              <span>{curso.sincrono.vagas} Vagas</span>
+            <div className="meta-item">
+              <Users size={16} className="icon" />
+              <span>{curso.sincrono.vagas} vagas</span>
             </div>
           )}
-
-          <div className="text-muted">
-            Tipo: {curso.tipo === "S" ? "Sincrono" : curso.tipo === "A" ? "Assincrono" : "Desconhecido"}
-          </div>
 
           {curso.sincrono?.inicio && (
-            <div className="text-muted">
-              Início: {formatDate(curso.sincrono.inicio)}
+            <div className="meta-item">
+              <Calendar size={16} className="icon" />
+              <span>Inicío: {formatDate(curso.sincrono.inicio)}</span>
             </div>
           )}
 
-          <Button variant="link" className="p-0 mt-auto text-dark fw-bold align-self-start">
-            Ver Mais
-          </Button>
-        </Card.Body>
+          {(inscricao?.estado !== undefined || curso?.sincrono?.estado !== undefined) && (
+            <div className="meta-item">
+              <RefreshCcw size={16} className="icon" />
+              <span>Estado: {(inscricao?.estado ?? curso?.sincrono?.estado) ? 'Concluído' : 'Em curso'}</span>
+            </div>
+          )}
 
-      </Card>
+          {inscricao && inscricao.nota !== 0 && (
+            <div className="meta-item">
+              <CheckCircle size={16} className="icon" />
+              <span>Nota: {inscricao.nota}</span>
+            </div>
+          )}
+
+          {inscricao?.data_certificado && (
+            <div className="meta-item">
+              <Award size={16} className="icon" />
+              <span>Certificado: {formatDate(inscricao.data_certificado)}</span>
+            </div>
+          )}
+        </div>
+
+        {mostrarBotao && (
+          <Button 
+            variant="primary" 
+            className="course-button mt-auto"
+            onClick={handleViewDetails}
+          >
+            Ver Detalhes
+          </Button>
+        )}
+      </Card.Body>
+    </Card>
   );
 }
 
-export default cardCourses;
+export default CardCourses;

@@ -6,7 +6,6 @@ const controladorTopicos = {
   // Criar novo tópico
   createTopico: async (req, res) => {
     const { area_id, descricao } = req.body;
-    console.log("Dados recebidos:", req.body);
     try {
       const novoTopico = await models.topico.create({ area_id, descricao });
       res.status(201).json(novoTopico);
@@ -47,7 +46,6 @@ const controladorTopicos = {
   updateTopico: async (req, res) => {
     const { id } = req.params;
     const { area_id, descricao } = req.body;
-    console.log("Dados recebidos para atualização:", req.body);
     try {
       const topico = await models.topico.findByPk(id);
       if (!topico) {
