@@ -91,7 +91,7 @@ export default function CourseManage() {
     }, [curso]);
 
     const renderCourseCard = (curso, index) => (
-        <FeaturedCourses key={curso.curso_id || index} curso={curso} mostrarBotao={true} />
+        <FeaturedCourses key={curso.id || index} curso={curso} mostrarBotao={true} />
     );
 
     const handleSearchChange = (event) => {
