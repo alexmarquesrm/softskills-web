@@ -59,7 +59,7 @@ const controladorCursos = {
           {
             model: models.sincrono,
             as: "curso_sincrono",
-            attributes: ["curso_id", "formador_id", "limite_vagas", "data_inicio", "data_fim", "estado"],
+            attributes: ["curso_id", "formador_id", "limite_vagas", "data_limite_inscricao", "data_inicio", "data_fim", "estado"],
             include: [
               {
                 model: models.formador,
@@ -113,6 +113,7 @@ const controladorCursos = {
           sincrono: curso.curso_sincrono ? {
             inicio: curso.curso_sincrono.data_inicio,
             fim: curso.curso_sincrono.data_fim,
+            data_limite_inscricao: curso.curso_sincrono.data_limite_inscricao,
             vagas: curso.curso_sincrono.limite_vagas,
             estado: curso.curso_sincrono.estado,
             formador: curso.curso_sincrono.sincrono_formador ? {
