@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { 
-  Container, Row, Col, Card, ListGroup, Spinner, 
+import {
+  Container, Row, Col, Card, ListGroup, Spinner,
   ProgressBar, Badge, Accordion, Button, Alert
 } from "react-bootstrap";
 import { useParams } from "react-router-dom";
@@ -46,18 +46,22 @@ export default function CursoFormando() {
     fetchCursoData();
   }, [id]);
 
-  const items = [
-    { label: "Apresentação do curso", icon: <BsFileText className="me-2" />, type: "documento", completed: true, downloadable: true },
-    { label: "Vídeo 1: Introdução", icon: <BsCameraVideo className="me-2" />, type: "video", completed: true, duration: "15 min" },
-    { label: "Vídeo 2: Conceitos Básicos", icon: <BsCameraVideo className="me-2" />, type: "video", completed: true, duration: "22 min" },
-    { label: "Vídeo 3: Prática Guiada", icon: <BsCameraVideo className="me-2" />, type: "video", completed: false, duration: "30 min" },
-    { label: "Vídeo 4: Demonstração", icon: <BsCameraVideo className="me-2" />, type: "video", completed: false, duration: "18 min" },
-    { label: "Vídeo 5: Casos de Uso", icon: <BsCameraVideo className="me-2" />, type: "video", completed: false, duration: "25 min" },
-    { label: "Aula Teórica 1: Fundamentos", icon: <BsBook className="me-2" />, type: "aula", completed: false, downloadable: true },
-    { label: "Aula Teórica 2: Metodologia", icon: <BsBook className="me-2" />, type: "aula", completed: false, downloadable: true },
-    { label: "Aula Teórica 3: Aplicações", icon: <BsBook className="me-2" />, type: "aula", completed: false, downloadable: true },
-    { label: "Aula Teórica 4: Revisão", icon: <BsBook className="me-2" />, type: "aula", completed: false, downloadable: true },
-    { label: "Entrega Trabalho Prático 1", icon: <BsUpload className="me-2" />, type: "entrega", completed: false, deadline: "15/05/2025" },
+  const materiaisSincronos = [
+    { id: 1, label: "Apresentação do curso", icon: <BsFileText className="me-2" />, type: "documento", downloadable: true },
+    { id: 2, label: "Vídeo 1: Introdução", icon: <BsCameraVideo className="me-2" />, type: "video", duration: "15 min" },
+    { id: 3, label: "Vídeo 2: Conceitos Básicos", icon: <BsCameraVideo className="me-2" />, type: "video", duration: "22 min" },
+    { id: 4, label: "Aula Teórica 1: Fundamentos", icon: <BsBook className="me-2" />, type: "aula", downloadable: true },
+    { id: 5, label: "Aula Teórica 2: Metodologia", icon: <BsBook className="me-2" />, type: "aula", downloadable: true },
+    { id: 6, label: "Trabalho Prático 1", icon: <BsTools className="me-2" />, type: "trabalho", downloadable: true  },
+    { id: 7, label: "Entrega Trabalho Prático 1", icon: <BsUpload className="me-2" />, type: "entrega", deadline: "15/05/2025" },
+  ];
+
+  const materiaisAssincronos = [
+    { id: 1, label: "Apresentação do curso", icon: <BsFileText className="me-2" />, type: "documento", downloadable: true },
+    { id: 2, label: "Vídeo 1: Introdução", icon: <BsCameraVideo className="me-2" />, type: "video", duration: "15 min" },
+    { id: 3, label: "Vídeo 2: Conceitos Básicos", icon: <BsCameraVideo className="me-2" />, type: "video", duration: "22 min" },
+    { id: 4, label: "Aula Teórica 1: Fundamentos", icon: <BsBook className="me-2" />, type: "aula", downloadable: true },
+    { id: 5, label: "Quiz", icon: <BsTools className="me-2" />, type: "entrega" },
   ];
 
   const objetivos = [
@@ -67,6 +71,9 @@ export default function CursoFormando() {
     "Criar soluções para problemas complexos",
     "Avaliar resultados e propor melhorias"
   ];
+
+  const items = curso?.tipo === "S" ? materiaisSincronos : materiaisAssincronos;
+
 
   const faqs = [
     {
@@ -150,7 +157,7 @@ export default function CursoFormando() {
               </div>
             </Container>
           </div>
-          
+
           {/* Barra de Progresso */}
           <div className="progress-section p-3 bg-light border-bottom">
             <Container>
@@ -158,41 +165,41 @@ export default function CursoFormando() {
                 <h6 className="mb-0 fw-bold">Seu progresso no curso</h6>
                 <span className="text-primary fw-bold">{progressPercent}%</span>
               </div>
-              <ProgressBar 
-                now={progressPercent} 
-                variant="primary" 
-                className="progress-custom" 
-                style={{ height: "10px", borderRadius: "5px" }} 
+              <ProgressBar
+                now={progressPercent}
+                variant="primary"
+                className="progress-custom"
+                style={{ height: "10px", borderRadius: "5px" }}
               />
             </Container>
           </div>
-          
+
           {/* Menu de Navegação */}
           <div className="course-navigation bg-white p-2">
             <Container>
               <div className="d-flex flex-wrap">
-                <Button 
+                <Button
                   variant={activeSection === "sobre" ? "primary" : "light"}
                   onClick={() => handleSectionChange("sobre")}
                   className="me-2 mb-2"
                 >
                   <BsInfoCircle className="me-1" /> Sobre
                 </Button>
-                <Button 
+                <Button
                   variant={activeSection === "materiais" ? "primary" : "light"}
                   onClick={() => handleSectionChange("materiais")}
                   className="me-2 mb-2"
                 >
                   <BsBook className="me-1" /> Materiais
                 </Button>
-                <Button 
+                <Button
                   variant={activeSection === "objetivos" ? "primary" : "light"}
                   onClick={() => handleSectionChange("objetivos")}
                   className="me-2 mb-2"
                 >
                   <BsFlag className="me-1" /> Objetivos
                 </Button>
-                <Button 
+                <Button
                   variant={activeSection === "faq" ? "primary" : "light"}
                   onClick={() => handleSectionChange("faq")}
                   className="me-2 mb-2"
@@ -214,7 +221,7 @@ export default function CursoFormando() {
                   <BsInfoCircle className="me-2 text-primary" />
                   Informações do Curso
                 </h4>
-                
+
                 <Row>
                   <Col lg={8}>
                     <div className="curso-info mb-4">
@@ -239,7 +246,7 @@ export default function CursoFormando() {
                       )}
                     </div>
                   </Col>
-                  
+
                   <Col lg={4}>
                     <Card className="info-card bg-light border-0">
                       <Card.Body>
@@ -249,49 +256,49 @@ export default function CursoFormando() {
                             <li className="mb-2 d-flex">
                               <BsCalendarCheck className="me-2 text-primary mt-1" />
                               <div>
-                                <strong>Início:</strong><br/>
+                                <strong>Início:</strong><br />
                                 {formatDate(curso.curso_sincrono[0].data_inicio)}
                               </div>
                             </li>
                           )}
-                          
+
                           {curso?.curso_sincrono?.[0]?.data_fim && (
                             <li className="mb-2 d-flex">
                               <BsCalendarCheck className="me-2 text-primary mt-1" />
                               <div>
-                                <strong>Término:</strong><br/>
+                                <strong>Término:</strong><br />
                                 {formatDate(curso.curso_sincrono[0].data_fim)}
                               </div>
                             </li>
                           )}
-                          
+
                           {curso?.curso_sincrono?.[0]?.limite_vagas && (
                             <li className="mb-2 d-flex">
                               <BsFillPeopleFill className="me-2 text-primary mt-1" />
                               <div>
-                                <strong>Vagas:</strong><br/>
+                                <strong>Vagas:</strong><br />
                                 {curso.curso_sincrono[0].limite_vagas}
                               </div>
                             </li>
                           )}
-                          
+
                           {curso?.curso_sincrono?.[0]?.estado !== undefined && (
                             <li className="mb-2 d-flex">
                               <BsCheckCircle className="me-2 text-primary mt-1" />
                               <div>
-                                <strong>Estado:</strong><br/>
+                                <strong>Estado:</strong><br />
                                 <Badge bg={curso.curso_sincrono[0].estado ? 'success' : 'warning'}>
                                   {curso.curso_sincrono[0].estado ? 'Concluído' : 'Em curso'}
                                 </Badge>
                               </div>
                             </li>
                           )}
-                          
+
                           {curso?.total_horas && (
                             <li className="mb-2 d-flex">
                               <BsClock className="me-2 text-primary mt-1" />
                               <div>
-                                <strong>Carga horária:</strong><br/>
+                                <strong>Carga horária:</strong><br />
                                 {curso.total_horas} horas
                               </div>
                             </li>
@@ -299,12 +306,12 @@ export default function CursoFormando() {
                         </ul>
                       </Card.Body>
                     </Card>
-                    
+
                     {/* Próximo evento ou prazo */}
                     <Alert variant="warning" className="mt-3 d-flex align-items-center">
                       <BsClock className="me-2 text-warning" size={20} />
                       <div>
-                        <strong>Próximo prazo:</strong><br/>
+                        <strong>Próximo prazo:</strong><br />
                         Entrega do Trabalho Prático 1 - 15/05/2025
                       </div>
                     </Alert>
@@ -322,7 +329,7 @@ export default function CursoFormando() {
                   <BsBook className="me-2 text-primary" />
                   Materiais do Curso
                 </h4>
-                
+
                 {/* Organização por tipo */}
                 <Accordion defaultActiveKey="0" className="material-accordion">
                   <Accordion.Item eventKey="0">
@@ -341,8 +348,8 @@ export default function CursoFormando() {
                             <ListGroup.Item key={idx} className="material-item py-3">
                               <div className="d-flex justify-content-between align-items-center">
                                 <div className="d-flex align-items-center">
-                                  {item.completed ? 
-                                    <BsCheckCircle className="me-2 text-success" /> : 
+                                  {item.completed ?
+                                    <BsCheckCircle className="me-2 text-success" /> :
                                     <div className="me-2 uncompleted-circle"></div>
                                   }
                                   <div>
@@ -357,11 +364,11 @@ export default function CursoFormando() {
                                 </Button>
                               </div>
                             </ListGroup.Item>
-                        ))}
+                          ))}
                       </ListGroup>
                     </Accordion.Body>
                   </Accordion.Item>
-                  
+
                   <Accordion.Item eventKey="1">
                     <Accordion.Header>
                       <div className="d-flex align-items-center">
@@ -380,8 +387,8 @@ export default function CursoFormando() {
                             <ListGroup.Item key={idx} className="material-item py-3">
                               <div className="d-flex justify-content-between align-items-center">
                                 <div className="d-flex align-items-center">
-                                  {item.completed ? 
-                                    <BsCheckCircle className="me-2 text-success" /> : 
+                                  {item.completed ?
+                                    <BsCheckCircle className="me-2 text-success" /> :
                                     <div className="me-2 uncompleted-circle"></div>
                                   }
                                   <div className="fw-bold">{item.label}</div>
@@ -398,49 +405,77 @@ export default function CursoFormando() {
                                 </div>
                               </div>
                             </ListGroup.Item>
-                        ))}
+                          ))}
                       </ListGroup>
                     </Accordion.Body>
                   </Accordion.Item>
-                  
+
                   <Accordion.Item eventKey="2">
-                    <Accordion.Header>
-                      <div className="d-flex align-items-center">
-                        <BsUpload className="me-2 text-primary" />
-                        <span>Entregas e Avaliações</span>
-                        <Badge bg="primary" className="ms-2">
-                          {items.filter(i => i.type === "entrega").length}
-                        </Badge>
-                      </div>
-                    </Accordion.Header>
-                    <Accordion.Body>
-                      <ListGroup variant="flush" className="material-list">
-                        {items
-                          .filter(item => item.type === "entrega")
-                          .map((item, idx) => (
-                            <ListGroup.Item key={idx} className="material-item py-3">
-                              <div className="d-flex justify-content-between align-items-center">
-                                <div className="d-flex align-items-center">
-                                  {item.completed ? 
-                                    <BsCheckCircle className="me-2 text-success" /> : 
-                                    <div className="me-2 uncompleted-circle"></div>
-                                  }
-                                  <div>
-                                    <div className="fw-bold">{item.label}</div>
-                                    <Badge bg="warning" text="dark">
-                                      <BsClock className="me-1" /> Prazo: {item.deadline}
-                                    </Badge>
-                                  </div>
-                                </div>
-                                <Button variant="primary" size="sm">
-                                  Submeter
-                                </Button>
-                              </div>
-                            </ListGroup.Item>
-                        ))}
-                      </ListGroup>
-                    </Accordion.Body>
-                  </Accordion.Item>
+  <Accordion.Header>
+    <div className="d-flex align-items-center">
+      <BsUpload className="me-2 text-primary" />
+      <span>Entregas e Avaliações</span>
+      <Badge bg="primary" className="ms-2">
+        {items.filter(i => i.type === "entrega" || i.type === "trabalho" || i.type === "quiz").length}
+      </Badge>
+    </div>
+  </Accordion.Header>
+  <Accordion.Body>
+    <ListGroup variant="flush" className="material-list">
+      {items
+        .filter(item => item.type === "entrega" || item.type === "trabalho" || item.type === "quiz")
+        .map((item, idx) => (
+          <ListGroup.Item key={idx} className="material-item py-3">
+            <div className="d-flex justify-content-between align-items-center">
+              <div className="d-flex align-items-center">
+                {item.completed ? (
+                  <BsCheckCircle className="me-2 text-success" />
+                ) : (
+                  <div className="me-2 uncompleted-circle"></div>
+                )}
+                <div>
+                  <div className="fw-bold">{item.label}</div>
+                  {/* Verifique se o item é síncrono e se tem prazo */}
+                  {item.deadline && item.type !== "assíncrono" && (
+                    <Badge bg="warning" text="dark">
+                      <BsClock className="me-1" /> Prazo: {item.deadline}
+                    </Badge>
+                  )}
+                </div>
+              </div>
+              <div>
+                {/* Verifica se o tipo é 'trabalho' */}
+                {item.type === "trabalho" ? (
+                  <>
+                    {item.downloadable && (
+                      <Button variant="outline-primary" size="sm" className="me-2">
+                        <BsDownload className="me-1" /> Download
+                      </Button>
+                    )}
+                    <Button variant="primary" size="sm">
+                      Visualizar
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    {item.downloadable && (
+                      <Button variant="outline-primary" size="sm" className="me-2">
+                        <BsDownload className="me-1" /> Download
+                      </Button>
+                    )}
+                    <Button variant="primary" size="sm">
+                      Submeter
+                    </Button>
+                  </>
+                )}
+              </div>
+            </div>
+          </ListGroup.Item>
+        ))}
+    </ListGroup>
+  </Accordion.Body>
+</Accordion.Item>
+
                 </Accordion>
               </Card.Body>
             </Card>
@@ -454,7 +489,7 @@ export default function CursoFormando() {
                   <BsFlag className="me-2 text-primary" />
                   Objetivos de Aprendizagem
                 </h4>
-                
+
                 <Row>
                   <Col md={12}>
                     <div className="objectives-container p-4 bg-light rounded">
@@ -481,7 +516,7 @@ export default function CursoFormando() {
                     <h5 className="mb-0">Certificação</h5>
                   </div>
                   <p className="mb-0">
-                    Ao completar este curso com sucesso e obtendo uma classificação mínima de 70%, 
+                    Ao completar este curso com sucesso e obtendo uma classificação mínima de 70%,
                     receberá um certificado digital que pode ser adicionado ao seu perfil profissional.
                   </p>
                 </div>
@@ -497,7 +532,7 @@ export default function CursoFormando() {
                   <BsQuestionCircle className="me-2 text-primary" />
                   Perguntas Frequentes
                 </h4>
-                
+
                 <Accordion className="faq-accordion">
                   {faqs.map((faq, idx) => (
                     <Accordion.Item eventKey={idx.toString()} key={idx}>
@@ -510,7 +545,7 @@ export default function CursoFormando() {
                     </Accordion.Item>
                   ))}
                 </Accordion>
-                
+
                 <div className="additional-help mt-4 p-4 bg-light rounded">
                   <div className="d-flex align-items-center mb-3">
                     <BsInfoCircle className="me-2 text-primary" size={24} />
@@ -525,7 +560,7 @@ export default function CursoFormando() {
                         <BsFillPeopleFill className="me-2" /> Contactar Formador
                       </Button>
                     </Col>
-                  
+
                   </Row>
                 </div>
               </Card.Body>
@@ -533,8 +568,8 @@ export default function CursoFormando() {
           )}
         </div>
       </Container>
-      
-     
+
+    
     </div>
   );
 }
