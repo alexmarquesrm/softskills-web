@@ -1,0 +1,193 @@
+/* Estilos para o Modal de Editar Ficheiro */
+
+.editar-ficheiro-modal .content-container {
+    border-radius: 12px;
+  }
+  
+  /* Input fields styling */
+  .editar-ficheiro-modal .form-control {
+    border-radius: 6px;
+    padding: 10px 12px;
+    transition: all 0.2s ease;
+    border: 1px solid #dee2e6;
+  }
+  
+  .editar-ficheiro-modal .form-control:focus {
+    box-shadow: 0 0 0 3px rgba(74, 107, 175, 0.25);
+    border-color: #4a6baf;
+  }
+  
+  .editar-ficheiro-modal .form-label {
+    font-weight: 600;
+    margin-bottom: 8px;
+    font-size: 14px;
+    color: #495057;
+  }
+  
+  /* Área de dropzone */
+  .editar-ficheiro-modal .dropzone {
+    border: 2px dashed #4a6baf;
+    padding: 30px;
+    text-align: center;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+  
+  .editar-ficheiro-modal .dropzone:hover,
+  .editar-ficheiro-modal .dropzone.active {
+    background-color: #eef2ff;
+    border-color: #0d6efd;
+  }
+  
+  .editar-ficheiro-modal .upload-icon {
+    color: #4a6baf;
+    margin-bottom: 10px;
+    opacity: 0.8;
+  }
+  
+  .editar-ficheiro-modal .dropzone:hover .upload-icon,
+  .editar-ficheiro-modal .dropzone.active .upload-icon {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+  
+  /* Lista de arquivos */
+  .editar-ficheiro-modal .files-container {
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 15px;
+    margin-top: 15px;
+  }
+  
+  .editar-ficheiro-modal .file-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .editar-ficheiro-modal .file-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    border-bottom: 1px solid #e9ecef;
+    background-color: white;
+    margin-bottom: 8px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+  
+  .editar-ficheiro-modal .file-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+  }
+  
+  .editar-ficheiro-modal .file-item:hover {
+    background-color: #f0f4ff;
+    transform: translateX(5px);
+  }
+  
+  .editar-ficheiro-modal .file-badge {
+    font-size: 11px;
+    padding: 6px 8px;
+    border-radius: 4px;
+  }
+  
+  .editar-ficheiro-modal .file-info {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .editar-ficheiro-modal .file-name {
+    font-weight: 500;
+    word-break: break-word;
+  }
+  
+  .editar-ficheiro-modal .file-size {
+    font-size: 12px;
+    color: #6c757d;
+  }
+  
+  .editar-ficheiro-modal .remove-btn {
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+  }
+  
+  .editar-ficheiro-modal .remove-btn:hover {
+    background-color: #dc3545;
+    color: white;
+  }
+  
+  /* Alerta de feedback */
+  .editar-ficheiro-modal .alert {
+    border-radius: 8px;
+    padding: 12px 16px;
+    border-left-width: 4px;
+    display: flex;
+    align-items: center;
+  }
+  
+  .editar-ficheiro-modal .alert svg {
+    margin-right: 10px;
+  }
+  
+  /* Botões de ação */
+  .editar-ficheiro-modal .action-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 20px;
+  }
+  
+  .editar-ficheiro-modal .card {
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    border: none;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  
+  .editar-ficheiro-modal .card-body {
+    padding: 20px;
+  }
+  
+  /* Data picker */
+  .editar-ficheiro-modal .date-input-group {
+    position: relative;
+  }
+  
+  .editar-ficheiro-modal .date-input-icon {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+    pointer-events: none;
+  }
+  
+  /* Responsividade */
+  @media (max-width: 768px) {
+    .editar-ficheiro-modal .file-item {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    
+    .editar-ficheiro-modal .remove-btn {
+      margin-top: 10px;
+      margin-left: auto;
+    }
+    
+    .editar-ficheiro-modal .action-buttons {
+      flex-direction: column;
+      width: 100%;
+    }
+    
+    .editar-ficheiro-modal .action-buttons button {
+      width: 100%;
+      margin-bottom: 8px;
+    }
+  }
