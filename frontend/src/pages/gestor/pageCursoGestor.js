@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { 
-  Container, Row, Col, Card, ListGroup, Spinner, 
-  ProgressBar, Badge, Accordion, Button, Alert
+import {
+    Container, Row, Col, Card, ListGroup, Spinner,
+    ProgressBar, Badge, Accordion, Button, Alert
 } from "react-bootstrap";
 import { useLocation, useParams } from "react-router-dom";
 import "./detailsCourseGestor.css";
 import {
-  BsFillPeopleFill, BsCalendarCheck, BsPlusCircle, BsPencilSquare, BsFileText,
-  BsCameraVideo, BsBook, BsTools, BsUpload, BsInfoCircle, BsExclamationTriangle,
-  BsCheckCircle, BsQuestionCircle, BsClock, BsFlag, BsDownload
+    BsFillPeopleFill, BsCalendarCheck, BsPlusCircle, BsPencilSquare, BsFileText,
+    BsCameraVideo, BsBook, BsTools, BsUpload, BsInfoCircle, BsExclamationTriangle,
+    BsCheckCircle, BsQuestionCircle, BsClock, BsFlag, BsDownload
 } from "react-icons/bs";
 import axios from "../../config/configAxios";
 
@@ -31,6 +31,7 @@ export default function CursoDetalhesGestor() {
     const [error, setError] = useState(null);
     const [activeSection, setActiveSection] = useState("sobre");
     const [editItemId, setEditItemId] = useState(null);
+    const [currentFileData, setCurrentFileData] = useState(null);
 
     useEffect(() => {
         const fetchCursoData = async () => {
@@ -98,12 +99,71 @@ export default function CursoDetalhesGestor() {
     };
 
     const handleEditItem = (itemId) => {
-        setEditItemId(itemId);
-        setEditFile(true);
+        const itemToEdit = findItemById(itemId);
+
+        if (itemToEdit) {
+            // Prepara os dados do ficheiro para o modal baseado no tipo do item
+            const fileType = mapItemTypeToFileType(itemToEdit.type);
+
+            // Cria um objeto simulado de ficheiros para o modal
+            // Na implementação real, você buscaria esses dados do servidor
+            const mockFiles = [];
+
+            // Se tiver um item baixável, adicione um arquivo simulado
+            if (itemToEdit.downloadable) {
+                mockFiles.push({
+                    name: `${itemToEdit.label}.${fileType === 'documento' ? 'pdf' : 'mp4'}`,
+                    size: 1024 * 1024 * (fileType === 'video' ? 15 : 2), // 15MB para vídeo, 2MB para documento
+                    type: fileType === 'video' ? 'video/mp4' : 'application/pdf'
+                });
+            }
+
+            // Cria um objeto com os dados do ficheiro para o modal
+            const fileData = {
+                id: itemToEdit.id,
+                titulo: itemToEdit.label,
+                descricao: `Descrição para ${itemToEdit.label}`, // Descrição simulada
+                tipo: fileType,
+                dataEntrega: itemToEdit.deadline || '',
+                ficheiros: mockFiles,
+                cursoId: cursoId
+            };
+
+            // Guarda os dados do ficheiro no estado
+            setCurrentFileData(fileData);
+            setEditItemId(itemId);
+
+            // Abre o modal
+            setEditFile(true);
+        } else {
+            console.error("Item não encontrado:", itemId);
+        }
+    };
+
+    const handleEditSuccess = (updatedFileData) => {
+        console.log("Arquivo atualizado com sucesso:", updatedFileData);
     };
 
     const handleAddContent = () => {
         setAddFile(true);
+    };
+
+    const findItemById = (itemId) => {
+        const items = curso?.tipo === "S" ? materiaisSincronos : materiaisAssincronos;
+        return items.find(item => item.id === itemId);
+    };
+
+    const mapItemTypeToFileType = (itemType) => {
+        const typeMapping = {
+            'documento': 'documento',
+            'aula': 'documento',
+            'video': 'video',
+            'trabalho': 'entrega',
+            'entrega': 'entrega',
+            'quiz': 'entrega'
+        };
+
+        return typeMapping[itemType] || 'documento'; // Default para documento se não encontrar
     };
 
     const objetivos = [
@@ -173,30 +233,30 @@ export default function CursoDetalhesGestor() {
                                         )}
                                     </div>
                                 </div>
-                               
+
                             </div>
                         </Container>
                     </div>
-                    
+
                     {/* Menu de Navegação */}
                     <div className="course-navigation bg-white p-2">
                         <Container>
                             <div className="d-flex flex-wrap">
-                                <Button 
+                                <Button
                                     variant={activeSection === "sobre" ? "primary" : "light"}
                                     onClick={() => handleSectionChange("sobre")}
                                     className="me-2 mb-2"
                                 >
                                     <BsInfoCircle className="me-1" /> Sobre
                                 </Button>
-                                <Button 
+                                <Button
                                     variant={activeSection === "materiais" ? "primary" : "light"}
                                     onClick={() => handleSectionChange("materiais")}
                                     className="me-2 mb-2"
                                 >
                                     <BsBook className="me-1" /> Materiais
                                 </Button>
-                                <Button 
+                                <Button
                                     variant={activeSection === "objetivos" ? "primary" : "light"}
                                     onClick={() => handleSectionChange("objetivos")}
                                     className="me-2 mb-2"
@@ -204,7 +264,7 @@ export default function CursoDetalhesGestor() {
                                     <BsFlag className="me-1" /> Objetivos
                                 </Button>
                                 {curso?.tipo === "S" && (
-                                    <Button 
+                                    <Button
                                         variant={activeSection === "alunos" ? "primary" : "light"}
                                         onClick={() => handleSectionChange("alunos")}
                                         className="me-2 mb-2"
@@ -227,7 +287,7 @@ export default function CursoDetalhesGestor() {
                                     <BsInfoCircle className="me-2 text-primary" />
                                     Informações do Curso
                                 </h4>
-                                
+
                                 <Row>
                                     <Col lg={8}>
                                         <div className="curso-info mb-4">
@@ -252,7 +312,7 @@ export default function CursoDetalhesGestor() {
                                             )}
                                         </div>
                                     </Col>
-                                    
+
                                     <Col lg={4}>
                                         <Card className="info-card bg-light border-0">
                                             <Card.Body>
@@ -262,49 +322,49 @@ export default function CursoDetalhesGestor() {
                                                         <li className="mb-2 d-flex">
                                                             <BsCalendarCheck className="me-2 text-primary mt-1" />
                                                             <div>
-                                                                <strong>Início:</strong><br/>
+                                                                <strong>Início:</strong><br />
                                                                 {formatDate(curso.curso_sincrono[0].data_inicio)}
                                                             </div>
                                                         </li>
                                                     )}
-                                                    
+
                                                     {curso?.curso_sincrono?.[0]?.data_fim && (
                                                         <li className="mb-2 d-flex">
                                                             <BsCalendarCheck className="me-2 text-primary mt-1" />
                                                             <div>
-                                                                <strong>Término:</strong><br/>
+                                                                <strong>Término:</strong><br />
                                                                 {formatDate(curso.curso_sincrono[0].data_fim)}
                                                             </div>
                                                         </li>
                                                     )}
-                                                    
+
                                                     {curso?.curso_sincrono?.[0]?.limite_vagas && (
                                                         <li className="mb-2 d-flex">
                                                             <BsFillPeopleFill className="me-2 text-primary mt-1" />
                                                             <div>
-                                                                <strong>Vagas:</strong><br/>
+                                                                <strong>Vagas:</strong><br />
                                                                 {curso.curso_sincrono[0].limite_vagas}
                                                             </div>
                                                         </li>
                                                     )}
-                                                    
+
                                                     {curso?.curso_sincrono?.[0]?.estado !== undefined && (
                                                         <li className="mb-2 d-flex">
                                                             <BsCheckCircle className="me-2 text-primary mt-1" />
                                                             <div>
-                                                                <strong>Estado:</strong><br/>
+                                                                <strong>Estado:</strong><br />
                                                                 <Badge bg={curso.curso_sincrono[0].estado ? 'success' : 'warning'}>
                                                                     {curso.curso_sincrono[0].estado ? 'Concluído' : 'Em curso'}
                                                                 </Badge>
                                                             </div>
                                                         </li>
                                                     )}
-                                                    
+
                                                     {curso?.total_horas && (
                                                         <li className="mb-2 d-flex">
                                                             <BsClock className="me-2 text-primary mt-1" />
                                                             <div>
-                                                                <strong>Carga horária:</strong><br/>
+                                                                <strong>Carga horária:</strong><br />
                                                                 {curso.total_horas} horas
                                                             </div>
                                                         </li>
@@ -328,24 +388,24 @@ export default function CursoDetalhesGestor() {
                                         Materiais do Curso
                                     </h4>
                                     <div className="curso-actions d-flex" style={{ gap: "10px" }}>
-                                    <AddButton 
-                                        text="Adicionar Material" 
-                                        Icon={BsPlusCircle} 
-                                        onClick={handleAddContent} 
-                                        inline={true} 
-                                        className="btn-action" 
-                                    />
-                                    {curso?.tipo === 'A' && (
-                                        <AddButton 
-                                            text="Adicionar Quizz" 
-                                            Icon={BsPlusCircle} 
-                                            inline={true} 
-                                            className="btn-action" 
+                                        <AddButton
+                                            text="Adicionar Material"
+                                            Icon={BsPlusCircle}
+                                            onClick={handleAddContent}
+                                            inline={true}
+                                            className="btn-action"
                                         />
-                                    )}
+                                        {curso?.tipo === 'A' && (
+                                            <AddButton
+                                                text="Adicionar Quizz"
+                                                Icon={BsPlusCircle}
+                                                inline={true}
+                                                className="btn-action"
+                                            />
+                                        )}
+                                    </div>
                                 </div>
-                                </div>
-                                
+
                                 {/* Organização por tipo */}
                                 <Accordion defaultActiveKey="0" className="material-accordion">
                                     <Accordion.Item eventKey="0">
@@ -389,7 +449,7 @@ export default function CursoDetalhesGestor() {
                                             </ListGroup>
                                         </Accordion.Body>
                                     </Accordion.Item>
-                                    
+
                                     <Accordion.Item eventKey="1">
                                         <Accordion.Header>
                                             <div className="d-flex align-items-center">
@@ -426,7 +486,7 @@ export default function CursoDetalhesGestor() {
                                             </ListGroup>
                                         </Accordion.Body>
                                     </Accordion.Item>
-                                    
+
                                     <Accordion.Item eventKey="2">
                                         <Accordion.Header>
                                             <div className="d-flex align-items-center">
@@ -484,9 +544,9 @@ export default function CursoDetalhesGestor() {
                                         <BsFlag className="me-2 text-primary" />
                                         Objetivos de Aprendizagem
                                     </h4>
-                                   
+
                                 </div>
-                                
+
                                 <Row>
                                     <Col md={12}>
                                         <div className="objectives-container p-4 bg-light rounded">
@@ -500,7 +560,7 @@ export default function CursoDetalhesGestor() {
                                                             </div>
                                                             <div className="d-flex justify-content-between align-items-center w-100">
                                                                 <div>{objetivo}</div>
-                                                              
+
                                                             </div>
                                                         </div>
                                                     </ListGroup.Item>
@@ -512,7 +572,7 @@ export default function CursoDetalhesGestor() {
                             </Card.Body>
                         </Card>
                     )}
-                    
+
                     {/* Seção "Alunos" (apenas para cursos síncronos) */}
                     {activeSection === "alunos" && curso?.tipo === "S" && (
                         <Card className="shadow-sm border-0">
@@ -521,7 +581,7 @@ export default function CursoDetalhesGestor() {
                                     <BsFillPeopleFill className="me-2 text-primary" />
                                     Alunos Inscritos
                                 </h4>
-                                
+
                                 <div className="d-flex justify-content-between align-items-center mb-3">
                                     <div>
                                         <Badge bg="primary" className="me-2 py-2 px-3">
@@ -535,7 +595,7 @@ export default function CursoDetalhesGestor() {
                                         Exportar Lista
                                     </Button>
                                 </div>
-                                
+
                                 <ListGroup variant="flush" className="material-list">
                                     {[...Array(5)].map((_, idx) => (
                                         <ListGroup.Item key={idx} className="material-item py-3">
@@ -560,19 +620,25 @@ export default function CursoDetalhesGestor() {
                 </div>
             </Container>
 
-            <ModalAdicionarFicheiro 
-                show={addFile} 
-                handleClose={() => setAddFile(false)} 
-                tiposPermitidos={curso?.tipo === 'S' ? ['documento', 'video', 'entrega'] : ['documento', 'video']} 
-                courseId={cursoId} 
-                allowDueDate={curso?.tipo !== 'A'} 
+            <ModalAdicionarFicheiro
+                show={addFile}
+                handleClose={() => setAddFile(false)}
+                tiposPermitidos={curso?.tipo === 'S' ? ['documento', 'video', 'entrega'] : ['documento', 'video']}
+                courseId={cursoId}
+                allowDueDate={curso?.tipo !== 'A'}
             />
-            
-            <ModalEditarFicheiro 
-                show={editFile} 
-                handleClose={() => setEditFile(false)} 
-                allowDueDate={curso?.tipo !== 'A'} 
+
+            <ModalEditarFicheiro
+                show={editFile}
+                handleClose={() => {
+                    setEditFile(false);
+                    setCurrentFileData(null);
+                }}
+                allowDueDate={curso?.tipo === 'S'}
                 itemId={editItemId}
+                ficheiro={currentFileData}
+                cursoId={cursoId}
+                onSaveSuccess={handleEditSuccess}
             />
         </div>
     );
