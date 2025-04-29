@@ -6,7 +6,6 @@ import axios from "../../config/configAxios";
 /* COMPONENTES */
 import FeaturedCourses from "../../components/cards/cardCourses";
 import SearchBar from '../../components/textFields/search';
-import CardRow from '../../components/cards/cardRow';
 import Filtros from '../../components/filters/filtros';
 /* CSS */
 import './percursoFormativo.css';

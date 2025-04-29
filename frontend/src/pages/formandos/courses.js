@@ -6,7 +6,6 @@ import axios from "../../config/configAxios";
 /* COMPONENTES */
 import FeaturedCourses from "../../components/cards/cardCourses";
 import SearchBar from '../../components/textFields/search';
-import CardRow from '../../components/cards/cardRow';
 import Filtros from '../../components/filters/filtros';
 /* CSS */
 
@@ -32,7 +31,6 @@ export default function Courses() {
             });
 
             const cursos = response.data;
-            console.log(cursos);
             setCurso(cursos);
         } catch (error) {
             console.error("Erro ao buscar inscrições", error);
@@ -158,7 +156,7 @@ export default function Courses() {
 
                     <div className="percurso-stats">
                         <div className="percurso-stat-item">
-                            <span className="stat-value">{stats.emCurso}</span>
+                            <span className="stat-value">{filteredInscricoes.length}</span>
                             <span className="stat-label">Total de Cursos</span>
                         </div>
                     </div>

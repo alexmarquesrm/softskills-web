@@ -6,12 +6,11 @@ import axios from "../../config/configAxios";
 /* COMPONENTES */
 import FeaturedCourses from "../../components/cards/cardCourses";
 import SearchBar from '../../components/textFields/search';
-import CardRow from '../../components/cards/cardRow';
 import Filtros from '../../components/filters/filtros';
 /* CSS */
 import './percursoFormativo.css';
 
-export default function PercursoFormativo() {
+export default function CourseManage() {
     const location = useLocation();
     const id = location.state?.id;
     const [nome, setNome] = useState('');
