@@ -11,6 +11,7 @@ import {
   BsQuestionCircle, BsTrophy, BsClock, BsStarFill, BsDownload, BsFlag
 } from "react-icons/bs";
 import axios from "../../config/configAxios";
+import ModalSubmeterTrabalho from '../../modals/formando/submeterFicheiro';
 
 export default function CursoFormando() {
   const { id } = useParams();
@@ -19,6 +20,8 @@ export default function CursoFormando() {
   const [error, setError] = useState(null);
   const [activeSection, setActiveSection] = useState("sobre");
   const [progressPercent] = useState(35); // Simulação de progresso, idealmente viria da API
+  const [showSubmeterModal, setShowSubmeterModal] = useState(false);
+  const [selectedAvaliacao, setSelectedAvaliacao] = useState(null);
 
   useEffect(() => {
     const fetchCursoData = async () => {
@@ -53,7 +56,7 @@ export default function CursoFormando() {
     { id: 4, label: "Aula Teórica 1: Fundamentos", icon: <BsBook className="me-2" />, type: "aula", downloadable: true },
     { id: 5, label: "Aula Teórica 2: Metodologia", icon: <BsBook className="me-2" />, type: "aula", downloadable: true },
     { id: 6, label: "Trabalho Prático 1", icon: <BsTools className="me-2" />, type: "trabalho", downloadable: true  },
-    { id: 7, label: "Entrega Trabalho Prático 1", icon: <BsUpload className="me-2" />, type: "entrega", deadline: "15/05/2025" },
+    { id: 7, label: "Entrega Trabalho Prático 1", icon: <BsUpload className="me-2" />, type: "entrega", deadline: "15/05/2025",avaliacaoInfo: {id: 1, titulo: "Trabalho Prático 1", dataEntrega: "2025-05-15T23:59:59", descricao: "Realize a entrega do trabalho prático  conforme as instruções fornecidas no documento sobre o mesmo"}},
   ];
 
   const materiaisAssincronos = [
@@ -73,7 +76,6 @@ export default function CursoFormando() {
   ];
 
   const items = curso?.tipo === "S" ? materiaisSincronos : materiaisAssincronos;
-
 
   const faqs = [
     {
@@ -101,6 +103,24 @@ export default function CursoFormando() {
 
   const handleSectionChange = (section) => {
     setActiveSection(section);
+  };
+
+  // Função para abrir o modal de submissão de trabalho
+  const handleOpenSubmeterModal = (avaliacao) => {
+    setSelectedAvaliacao(avaliacao);
+    setShowSubmeterModal(true);
+  };
+
+  // Função para fechar o modal de submissão de trabalho
+  const handleCloseSubmeterModal = () => {
+    setShowSubmeterModal(false);
+  };
+
+  // Função para lidar com o sucesso da submissão
+  const handleSubmitSuccess = (submissaoData) => {
+    console.log("Submissão realizada com sucesso:", submissaoData);
+    // Aqui você poderia atualizar o estado do app para refletir a submissão
+    // Por exemplo, marcar o item como completo, atualizar a lista de entregas, etc.
   };
 
   if (loading) {
@@ -411,71 +431,72 @@ export default function CursoFormando() {
                   </Accordion.Item>
 
                   <Accordion.Item eventKey="2">
-  <Accordion.Header>
-    <div className="d-flex align-items-center">
-      <BsUpload className="me-2 text-primary" />
-      <span>Entregas e Avaliações</span>
-      <Badge bg="primary" className="ms-2">
-        {items.filter(i => i.type === "entrega" || i.type === "trabalho" || i.type === "quiz").length}
-      </Badge>
-    </div>
-  </Accordion.Header>
-  <Accordion.Body>
-    <ListGroup variant="flush" className="material-list">
-      {items
-        .filter(item => item.type === "entrega" || item.type === "trabalho" || item.type === "quiz")
-        .map((item, idx) => (
-          <ListGroup.Item key={idx} className="material-item py-3">
-            <div className="d-flex justify-content-between align-items-center">
-              <div className="d-flex align-items-center">
-                {item.completed ? (
-                  <BsCheckCircle className="me-2 text-success" />
-                ) : (
-                  <div className="me-2 uncompleted-circle"></div>
-                )}
-                <div>
-                  <div className="fw-bold">{item.label}</div>
-                  {/* Verifique se o item é síncrono e se tem prazo */}
-                  {item.deadline && item.type !== "assíncrono" && (
-                    <Badge bg="warning" text="dark">
-                      <BsClock className="me-1" /> Prazo: {item.deadline}
-                    </Badge>
-                  )}
-                </div>
-              </div>
-              <div>
-                {/* Verifica se o tipo é 'trabalho' */}
-                {item.type === "trabalho" ? (
-                  <>
-                    {item.downloadable && (
-                      <Button variant="outline-primary" size="sm" className="me-2">
-                        <BsDownload className="me-1" /> Download
-                      </Button>
-                    )}
-                    <Button variant="primary" size="sm">
-                      Visualizar
-                    </Button>
-                  </>
-                ) : (
-                  <>
-                    {item.downloadable && (
-                      <Button variant="outline-primary" size="sm" className="me-2">
-                        <BsDownload className="me-1" /> Download
-                      </Button>
-                    )}
-                    <Button variant="primary" size="sm">
-                      Submeter
-                    </Button>
-                  </>
-                )}
-              </div>
-            </div>
-          </ListGroup.Item>
-        ))}
-    </ListGroup>
-  </Accordion.Body>
-</Accordion.Item>
-
+                    <Accordion.Header>
+                      <div className="d-flex align-items-center">
+                        <BsUpload className="me-2 text-primary" />
+                        <span>Entregas e Avaliações</span>
+                        <Badge bg="primary" className="ms-2">
+                          {items.filter(i => i.type === "entrega" || i.type === "trabalho" || i.type === "quiz").length}
+                        </Badge>
+                      </div>
+                    </Accordion.Header>
+                    <Accordion.Body>
+                      <ListGroup variant="flush" className="material-list">
+                        {items
+                          .filter(item => item.type === "entrega" || item.type === "trabalho" || item.type === "quiz")
+                          .map((item, idx) => (
+                            <ListGroup.Item key={idx} className="material-item py-3">
+                              <div className="d-flex justify-content-between align-items-center">
+                                <div className="d-flex align-items-center">
+                                  {item.completed ? (
+                                    <BsCheckCircle className="me-2 text-success" />
+                                  ) : (
+                                    <div className="me-2 uncompleted-circle"></div>
+                                  )}
+                                  <div>
+                                    <div className="fw-bold">{item.label}</div>
+                                    {item.deadline && item.type !== "assíncrono" && (
+                                      <Badge bg="warning" text="dark">
+                                        <BsClock className="me-1" /> Prazo: {item.deadline}
+                                      </Badge>
+                                    )}
+                                  </div>
+                                </div>
+                                <div>
+                                  {item.type === "trabalho" ? (
+                                    <>
+                                      {item.downloadable && (
+                                        <Button variant="outline-primary" size="sm" className="me-2">
+                                          <BsDownload className="me-1" /> Download
+                                        </Button>
+                                      )}
+                                      <Button variant="primary" size="sm">
+                                        Visualizar
+                                      </Button>
+                                    </>
+                                  ) : (
+                                    <>
+                                      {item.downloadable && (
+                                        <Button variant="outline-primary" size="sm" className="me-2">
+                                          <BsDownload className="me-1" /> Download
+                                        </Button>
+                                      )}
+                                      <Button 
+                                        variant="primary" 
+                                        size="sm"
+                                        onClick={() => handleOpenSubmeterModal(item.avaliacaoInfo)}
+                                      >
+                                        Submeter
+                                      </Button>
+                                    </>
+                                  )}
+                                </div>
+                              </div>
+                            </ListGroup.Item>
+                          ))}
+                      </ListGroup>
+                    </Accordion.Body>
+                  </Accordion.Item>
                 </Accordion>
               </Card.Body>
             </Card>
@@ -560,7 +581,6 @@ export default function CursoFormando() {
                         <BsFillPeopleFill className="me-2" /> Contactar Formador
                       </Button>
                     </Col>
-
                   </Row>
                 </div>
               </Card.Body>
@@ -569,7 +589,15 @@ export default function CursoFormando() {
         </div>
       </Container>
 
-    
+      {/* Modal de Submissão de Trabalho */}
+      <ModalSubmeterTrabalho 
+        show={showSubmeterModal} 
+        handleClose={handleCloseSubmeterModal}
+        avaliacao={selectedAvaliacao}
+        onSubmitSuccess={handleSubmitSuccess}
+        cursoId={id}
+        moduloId={null} // Adicionar moduloId se necessário
+      />
     </div>
   );
 }
