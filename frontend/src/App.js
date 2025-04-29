@@ -32,7 +32,7 @@ function AppContent() {
                         {/* Formandos Routes */}
                         <Route path="/utilizadores/perfil" element={<PerfilUtilizador />} />
                         <Route path="/utilizadores/curso/:id" element={<CursoFormando />} />
-                        <Route path="/utilizadores/cursos" element={<CursosFormando />} />
+                        <Route path="/utilizadores/lista/cursos" element={<CursosFormando />} />
                         {/* Formador Routes */}
                         <Route path="/formador/cursos" element={<ManageCourses />} />
                         <Route path="/formador/curso/:id" element={<FormadorCurso />} />

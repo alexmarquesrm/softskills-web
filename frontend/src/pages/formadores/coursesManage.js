@@ -8,7 +8,7 @@ import FeaturedCourses from "../../components/cards/cardCourses";
 import SearchBar from '../../components/textFields/search';
 import Filtros from '../../components/filters/filtros';
 
-export default function PercursoFormativo() {
+export default function CoursesManage() {
     const navigate = useNavigate();
     const [cursos, setCursos] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
