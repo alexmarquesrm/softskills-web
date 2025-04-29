@@ -7,11 +7,18 @@ import "./cardCourses.css";
 
 function CardCourses({ curso, inscricao, mostrarBotao = true }) {
   const navigate = useNavigate();
+  const tipoUser = sessionStorage.getItem('tipo');
 
   const handleViewDetails = () => {
-    navigate(`/curso/${curso.curso_id}`, {
-      state: { id: curso.curso_id }
-    });
+    if (tipoUser === "Gestor") {
+      navigate(`/gestor/cursodetalhes/${curso.id}`, {
+          state: { id: curso.id }
+      });
+    } else {
+      navigate(`/curso/${curso.curso_id}`, {
+        state: { id: curso.curso_id }
+      });
+    }
   };
 
   const formatDate = (date) => {

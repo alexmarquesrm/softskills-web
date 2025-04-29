@@ -32,7 +32,6 @@ export default function PercursoFormativo() {
             });
 
             const cursos = response.data;
-            console.log(cursos);
             setCurso(cursos);
         } catch (error) {
             console.error("Erro ao buscar inscrições", error);
@@ -93,7 +92,7 @@ export default function PercursoFormativo() {
     }, [curso]);
 
     const renderCourseCard = (curso, index) => (
-        <FeaturedCourses key={curso.curso_id || index} curso={curso} mostrarBotao={true} />
+        <FeaturedCourses key={curso.id || index} curso={curso} mostrarBotao={true} />
     );
 
     const handleSearchChange = (event) => {
