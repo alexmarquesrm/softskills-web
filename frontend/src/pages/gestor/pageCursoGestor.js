@@ -173,23 +173,7 @@ export default function CursoDetalhesGestor() {
                                         )}
                                     </div>
                                 </div>
-                                <div className="curso-actions d-flex" style={{ gap: "10px" }}>
-                                    <AddButton 
-                                        text="Adicionar Material" 
-                                        Icon={BsPlusCircle} 
-                                        onClick={handleAddContent} 
-                                        inline={true} 
-                                        className="btn-action" 
-                                    />
-                                    {curso?.tipo === 'A' && (
-                                        <AddButton 
-                                            text="Adicionar Quizz" 
-                                            Icon={BsPlusCircle} 
-                                            inline={true} 
-                                            className="btn-action" 
-                                        />
-                                    )}
-                                </div>
+                               
                             </div>
                         </Container>
                     </div>
@@ -343,13 +327,23 @@ export default function CursoDetalhesGestor() {
                                         <BsBook className="me-2 text-primary" />
                                         Materiais do Curso
                                     </h4>
-                                    <Button 
-                                        variant="primary" 
-                                        className="d-flex align-items-center"
-                                        onClick={handleAddContent}
-                                    >
-                                        <BsPlusCircle className="me-2" /> Adicionar Material
-                                    </Button>
+                                    <div className="curso-actions d-flex" style={{ gap: "10px" }}>
+                                    <AddButton 
+                                        text="Adicionar Material" 
+                                        Icon={BsPlusCircle} 
+                                        onClick={handleAddContent} 
+                                        inline={true} 
+                                        className="btn-action" 
+                                    />
+                                    {curso?.tipo === 'A' && (
+                                        <AddButton 
+                                            text="Adicionar Quizz" 
+                                            Icon={BsPlusCircle} 
+                                            inline={true} 
+                                            className="btn-action" 
+                                        />
+                                    )}
+                                </div>
                                 </div>
                                 
                                 {/* Organização por tipo */}
@@ -490,12 +484,7 @@ export default function CursoDetalhesGestor() {
                                         <BsFlag className="me-2 text-primary" />
                                         Objetivos de Aprendizagem
                                     </h4>
-                                    <Button 
-                                        variant="outline-primary" 
-                                        className="d-flex align-items-center"
-                                    >
-                                        <BsPlusCircle className="me-2" /> Adicionar Objetivo
-                                    </Button>
+                                   
                                 </div>
                                 
                                 <Row>
@@ -511,13 +500,7 @@ export default function CursoDetalhesGestor() {
                                                             </div>
                                                             <div className="d-flex justify-content-between align-items-center w-100">
                                                                 <div>{objetivo}</div>
-                                                                <EditButton
-                                                                    text=""
-                                                                    Icon={BsPencilSquare}
-                                                                    onClick={() => {}}
-                                                                    inline={true}
-                                                                    className="btn-edit-small"
-                                                                />
+                                                              
                                                             </div>
                                                         </div>
                                                     </ListGroup.Item>
