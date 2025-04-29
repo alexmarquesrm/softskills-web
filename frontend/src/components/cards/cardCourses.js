@@ -9,8 +9,8 @@ function CardCourses({ curso, inscricao, mostrarBotao = true }) {
   const navigate = useNavigate();
 
   const handleViewDetails = () => {
-    navigate(`/curso/${curso.curso_id}`, { 
-      state: { id: curso.curso_id } 
+    navigate(`/curso/${curso.curso_id}`, {
+      state: { id: curso.curso_id }
     });
   };
 
@@ -48,8 +48,8 @@ function CardCourses({ curso, inscricao, mostrarBotao = true }) {
       </div>
 
       <Card.Body className="d-flex flex-column">
-        <Card.Title 
-          className="course-title" 
+        <Card.Title
+          className="course-title"
           style={{ cursor: 'pointer' }}
           onClick={handleViewDetails}
         >
@@ -82,17 +82,38 @@ function CardCourses({ curso, inscricao, mostrarBotao = true }) {
             </div>
           )}
 
-          {curso.sincrono?.inicio && (
+          {curso.sincrono?.inicio && curso.sincrono?.estado !== true && (
             <div className="meta-item">
               <Calendar size={16} className="icon" />
-              <span>Inicío: {formatDate(curso.sincrono.inicio)}</span>
+              <span>Início: {formatDate(curso.sincrono.inicio)}</span>
+            </div>
+          )}
+
+          {curso.sincrono?.fim && curso.sincrono?.estado === true && (
+            <div className="meta-item">
+              <Calendar size={16} className="icon" />
+              <span>Fim: {formatDate(curso.sincrono.fim)}</span>
+            </div>
+          )}
+
+          {curso.sincrono?.data_limite_inscricao && !curso.sincrono.estado && new Date(curso.sincrono.data_limite_inscricao) > new Date() && (
+            <div className="meta-item">
+              <Calendar size={16} className="icon" />
+              <span>Inscrição até: {formatDate(curso.sincrono.data_limite_inscricao)}</span>
             </div>
           )}
 
           {(inscricao?.estado !== undefined || curso?.sincrono?.estado !== undefined) && (
             <div className="meta-item">
               <RefreshCcw size={16} className="icon" />
-              <span>Estado: {(inscricao?.estado ?? curso?.sincrono?.estado) ? 'Concluído' : 'Em curso'}</span>
+              <span>Estado: {(() => {
+                const estado = inscricao?.estado ?? curso?.sincrono?.estado;
+                const dataInicio = curso?.sincrono?.data_limite_inscricao;
+
+                if (estado) return 'Concluído';
+                if (dataInicio && new Date(dataInicio) > new Date()) return 'Por começar';
+                return 'Em curso';
+              })()}</span>
             </div>
           )}
 
@@ -112,8 +133,8 @@ function CardCourses({ curso, inscricao, mostrarBotao = true }) {
         </div>
 
         {mostrarBotao && (
-          <Button 
-            variant="primary" 
+          <Button
+            variant="primary"
             className="course-button mt-auto"
             onClick={handleViewDetails}
           >

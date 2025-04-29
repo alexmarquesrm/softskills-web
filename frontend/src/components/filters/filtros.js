@@ -7,11 +7,13 @@ function FiltrosCursos({
     setTipoSelecionado,
     estadoSelecionado,
     setEstadoSelecionado,
+    mostrarTipo = true,
+    mostrarEstado = true
 }) {
     const [tipoAberto, setTipoAberto] = useState(true);
     const [estadoAberto, setEstadoAberto] = useState(true);
     const [filtersExpanded, setFiltersExpanded] = useState(true);
-    
+
     // Toggle individual filter value
     const toggleTipo = (tipo) => {
         setTipoSelecionado((prev) => ({ ...prev, [tipo]: !prev[tipo] }));
@@ -32,7 +34,7 @@ function FiltrosCursos({
         // Contamos apenas os filtros que estão selecionados (true)
         const selectedTipos = Object.values(tipoSelecionado).filter(value => value).length;
         const selectedEstados = Object.values(estadoSelecionado).filter(value => value).length;
-        
+
         return selectedTipos + selectedEstados;
     };
 
@@ -40,8 +42,7 @@ function FiltrosCursos({
 
     return (
         <div className="filtros-container-wrapper">
-            {/* Visible on mobile */}
-            <div 
+            <div
                 className="filtros-mobile-toggle"
                 onClick={() => setFiltersExpanded(!filtersExpanded)}
             >
@@ -57,8 +58,8 @@ function FiltrosCursos({
 
             <div className={`filtros-content ${filtersExpanded ? 'expanded' : ''}`}>
                 {/* Botão agora sempre presente, mas com classe visible controlando a visibilidade */}
-                <button 
-                    className={`reset-filters-btn ${activeCount > 0 ? 'visible' : ''}`} 
+                <button
+                    className={`reset-filters-btn ${activeCount > 0 ? 'visible' : ''}`}
                     onClick={resetFilters}
                 >
                     <X size={14} />
@@ -66,7 +67,7 @@ function FiltrosCursos({
                 </button>
 
                 {/* Tipo Curso */}
-                <div className="filtro-box">
+                {mostrarTipo && (<div className="filtro-box">
                     <div
                         className={`filtro-header ${tipoAberto ? 'active' : ''}`}
                         onClick={() => setTipoAberto(!tipoAberto)}
@@ -98,10 +99,10 @@ function FiltrosCursos({
                             </div>
                         </div>
                     </div>
-                </div>
+                </div>)}
 
                 {/* Estado Curso */}
-                <div className="filtro-box">
+                {mostrarEstado && (<div className="filtro-box">
                     <div
                         className={`filtro-header ${estadoAberto ? 'active' : ''}`}
                         onClick={() => setEstadoAberto(!estadoAberto)}
@@ -133,7 +134,7 @@ function FiltrosCursos({
                             </div>
                         </div>
                     </div>
-                </div>
+                </div>)}
             </div>
         </div>
     );
