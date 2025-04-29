@@ -13,6 +13,7 @@ import FormadorCurso from "./pages/formadores/detailsCourse";
 import AvaliarFormando from "./pages/formadores/evaluateFormando";
 import ManageCourses from "./pages/formadores/coursesManage";
 import CursoDetalhesGestor from "./pages/gestor/pageCursoGestor";
+import CursoFormando from "./pages/formandos/pageCourse";
 
 // Components
 import CustomNavbar from "./components/navbar/customNavbar";
@@ -29,6 +30,8 @@ function AppContent() {
                     <Route element={<ProtectedRoute />}>
                         {/* Formandos Routes */}
                         <Route path="/utilizadores/perfil" element={<PerfilUtilizador />} />
+                        <Route path="/utilizadores/curso/:id" element={<CursoFormando />} />
+
                         {/* Formador Routes */}
                         <Route path="/formador/cursos" element={<ManageCourses />} />
                         <Route path="/formador/curso/:id" element={<FormadorCurso />} />
