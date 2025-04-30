@@ -166,11 +166,12 @@ const ListaPedidos = () => {
             >
               Tópico de Fórum
             </button>
+            
             <button
-              className={filtro === "curso" ? "filtro-button active" : "filtro-button"}
-              onClick={() => setFiltro("curso")}
+              className={filtro === "Tipo de Curso" ? "filtro-button active" : "filtro-button"}
+              onClick={() => setFiltro("Tipo de Curso")}
             >
-              Curso
+              Tipo de Curso
             </button>
           </div>
         </div>
