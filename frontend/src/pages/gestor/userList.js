@@ -19,12 +19,12 @@ export default function UsersTable() {
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
-  
+
   const navigate = useNavigate();
 
   const tableColumns = [
-    { field: 'id', headerName: 'Nº Colaborador', align: 'left', headerAlign: 'left', width: '120px'}, { 
-      field: 'nome', headerName: 'Nome', align: 'left', headerAlign: 'left', minWidth: '180px', renderCell: ({ row }) => ( 
+    { field: 'id', headerName: 'Nº Colaborador', align: 'left', headerAlign: 'left', width: '120px' }, {
+      field: 'nome', headerName: 'Nome', align: 'left', headerAlign: 'left', minWidth: '180px', renderCell: ({ row }) => (
         <span onClick={() => navigate('/gestor/colaborador/percursoFormativo', { state: { id: row.id } })}
           style={{ color: '#3182ce', cursor: 'pointer', fontWeight: 500 }} >
           {row.nome}
@@ -32,16 +32,20 @@ export default function UsersTable() {
       )
     },
     { field: 'email', headerName: 'Email', align: 'left', headerAlign: 'left', minWidth: '220px' },
-    { field: 'telefone', headerName: 'Telefone', align: 'left', headerAlign: 'left', width: '150px' 
+    {
+      field: 'telefone', headerName: 'Telefone', align: 'left', headerAlign: 'left', width: '150px'
     },
-    { field: 'departamento', headerName: 'Departamento', align: 'left', headerAlign: 'left', minWidth: '160px'
+    {
+      field: 'departamento', headerName: 'Departamento', align: 'left', headerAlign: 'left', minWidth: '160px'
     },
-    { field: 'funcao', headerName: 'Função', align: 'left', headerAlign: 'left', minWidth: '160px'
+    {
+      field: 'funcao', headerName: 'Função', align: 'left', headerAlign: 'left', minWidth: '160px'
     },
-    { field: 'percurso', headerName: 'Percurso', align: 'left', headerAlign: 'left', sortable: false, width: '100px', 
+    {
+      field: 'percurso', headerName: 'Percurso', align: 'left', headerAlign: 'left', sortable: false, width: '100px',
       renderCell: ({ row }) => (
         <div style={{ textAlign: 'left' }}>
-          <button className="btn btn-sm btn-outline-info" 
+          <button className="btn btn-sm btn-outline-info"
             onClick={(e) => {
               e.stopPropagation();
               navigate('/gestor/colaborador/percursoFormativo', { state: { id: row.id } });
@@ -52,10 +56,11 @@ export default function UsersTable() {
         </div>
       )
     },
-    { field: 'actions', headerName: 'Ações', align: 'left', headerAlign: 'left', sortable: false, width: '100px', 
+    {
+      field: 'actions', headerName: 'Ações', align: 'left', headerAlign: 'left', sortable: false, width: '100px',
       renderCell: ({ row }) => (
         <div style={{ textAlign: 'left' }}>
-          <button className="btn btn-sm btn-outline-primary" 
+          <button className="btn btn-sm btn-outline-primary"
             onClick={(e) => {
               e.stopPropagation();
               handleEditClick(row);
@@ -67,7 +72,7 @@ export default function UsersTable() {
       )
     },
   ];
-  
+
   const handleEditClick = (userData) => {
     setSelectedUser(userData);
     setShowModal(true);
@@ -81,11 +86,19 @@ export default function UsersTable() {
   const fetchData = async () => {
     try {
       const token = sessionStorage.getItem('token');
+      const userType = sessionStorage.getItem('tipo');
+      console.log("Tipo de utilizador:", userType);
+      if (!token) {
+        setError(new Error('No authentication token found'));
+        console.error("No authentication token found");
+        return;
+      }
 
       const response = await axios.get(`/colaborador`, {
         headers: { Authorization: `${token}` }
       });
       const utilizadores = response.data;
+      console.log("Utilizadores:", utilizadores);
       const sortedUtilizadores = utilizadores.sort((a, b) => a.colaborador_id - b.colaborador_id);
 
       setTableRows(
@@ -121,15 +134,33 @@ export default function UsersTable() {
         <h3>Lista de Colaboradores</h3>
       </div>
       
-      <DataTable columns={tableColumns} rows={tableRows || []} title=" " showSearch={true} pageSize={10} emptyStateMessage="Nenhum colaborador encontrado" headerActions={
-          <AddButton 
-            text="Adicionar Colaborador" 
-            onClick={() => setNewModalOpen(true)} 
-            Icon={IoMdAddCircleOutline} 
-            inline 
-          />
-        }/>
-
+      {error && error.response && error.response.status === 403 ? (
+        <div className="alert alert-danger">
+          Sem permissão para visualizar a lista de colaboradores.
+        </div>
+      ) : error ? (
+        <div className="alert alert-danger">
+          Erro ao carregar dados: {error.message}
+        </div>
+      ) : (
+        <DataTable 
+          columns={tableColumns} 
+          rows={tableRows || []} 
+          title=" " 
+          showSearch={true} 
+          pageSize={10} 
+          emptyStateMessage="Nenhum colaborador encontrado" 
+          headerActions={
+            <AddButton 
+              text="Adicionar Colaborador" 
+              onClick={() => setNewModalOpen(true)} 
+              Icon={IoMdAddCircleOutline} 
+              inline 
+            />
+          }
+        />
+      )}
+  
       <NovoUser show={isNewModalOpen} onClose={() => setNewModalOpen(false)} />
       
       <EditUser show={showModal} onClose={() => setShowModal(false)} onSave={handleSave} initialData={selectedUser || {}} />

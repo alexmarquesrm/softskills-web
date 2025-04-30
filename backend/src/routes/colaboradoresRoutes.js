@@ -12,10 +12,10 @@ router.post("/registo", colaboradorController.registarNovoColaborador);
 router.post('/login', colaboradorController.login);
 
 // Rotas protegidas que exigem autenticação
-// Listar todos colaboradores (apenas admin/gestor)
+// Listar todos colaboradores (apenas gestor)
 router.get("/", authenticate, colaboradorController.getAllColaboradores);
 
-// Obter colaborador pelo ID (apenas admin/gestor ou o próprio usuário)
+// Obter colaborador pelo ID (apenas gestor ou o próprio usuário)
 router.get("/:id", authenticate, validateResourceAccess, colaboradorController.getColaboradorById);
 
 // Gerar token (função mantida para compatibilidade, mas protegida)
