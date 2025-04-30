@@ -9,14 +9,14 @@ const controladorInscricoes = {
       // Validar se o usuário autenticado é o mesmo que está sendo inscrito
       // Isso evita que um usuário inscreva outro usuário
       if (req.body.formando_id && req.body.formando_id !== req.user.id) {
-        return res.status(403).json({ 
-          erro: "Não é permitido criar inscrições para outros usuários" 
+        return res.status(403).json({
+          erro: "Não é permitido criar inscrições para outros usuários"
         });
       }
-      
+
       // Garantir que o formando_id seja o ID do usuário autenticado
       req.body.formando_id = req.user.id;
-      
+
       const novaInscricao = await models.inscricao.create(req.body);
       res.status(201).json(novaInscricao);
     } catch (error) {
@@ -27,29 +27,35 @@ const controladorInscricoes = {
   // Listar todas as inscrições (apenas para administradores)
   async getAll(req, res) {
     try {
-      // Verificar se o usuário é administrador
-      if (req.user.tipo !== 'admin') {
-        return res.status(403).json({ 
-          erro: "Apenas administradores podem listar todas as inscrições" 
+      console.log("Verificando permissões do usuário:", req.user);
+
+      // Verificar se o usuário é Gestor, seja como tipo ativo ou como um dos tipos disponíveis
+      const userRoles = req.user.allUserTypes?.split(',') || [];
+
+      if (req.user.tipo !== 'Gestor' && !userRoles.includes('Gestor')) {
+        return res.status(403).json({
+          erro: "Apenas administradores podem listar todas as inscrições"
         });
       }
-      
+
       const inscricoes = await models.inscricao.findAll({
         include: [
           {
             model: models.curso,
             as: "inscricao_curso",
             include: [
-                {
-                    model: models.topico,
-                    as: "curso_topico"
-                }
+              {
+                model: models.topico,
+                as: "curso_topico"
+              }
             ]
           },
         ]
       });
+
       res.json(inscricoes);
     } catch (error) {
+      console.error("Erro ao listar inscrições:", error);
       res.status(500).json({ erro: "Erro ao encontrar inscrições", detalhes: error.message });
     }
   },
@@ -59,7 +65,7 @@ const controladorInscricoes = {
     try {
       // Usar o ID do usuário autenticado a partir do token JWT
       const formandoId = req.user.id;
-  
+
       const inscricoes = await models.inscricao.findAll({
         where: { formando_id: formandoId },
         include: [
@@ -86,7 +92,7 @@ const controladorInscricoes = {
           }
         ]
       });
-  
+
       res.json(inscricoes);
     } catch (error) {
       res.status(500).json({ erro: "Erro ao buscar inscrições", detalhes: error.message });
@@ -97,15 +103,15 @@ const controladorInscricoes = {
   async getByFormandoId(req, res) {
     try {
       const formandoId = parseInt(req.params.id);
-      
+
       // Verificar se o usuário está tentando acessar seus próprios dados
       // ou se é um administrador
       if (formandoId !== req.user.id && req.user.tipo !== 'admin') {
-        return res.status(403).json({ 
-          erro: "Não autorizado a acessar inscrições de outro formando" 
+        return res.status(403).json({
+          erro: "Não autorizado a acessar inscrições de outro formando"
         });
       }
-  
+
       const inscricoes = await models.inscricao.findAll({
         where: { formando_id: formandoId },
         include: [
@@ -132,11 +138,11 @@ const controladorInscricoes = {
           }
         ]
       });
-  
+
       if (inscricoes.length === 0) {
         return res.status(404).json({ erro: "Nenhuma inscrição encontrada para este formando" });
       }
-  
+
       res.json(inscricoes);
     } catch (error) {
       res.status(500).json({ erro: "Erro ao buscar inscrições", detalhes: error.message });
@@ -147,7 +153,7 @@ const controladorInscricoes = {
   async getById(req, res) {
     try {
       const inscricaoId = parseInt(req.params.id);
-      
+
       const inscricao = await models.inscricao.findByPk(inscricaoId, {
         include: [
           {
@@ -156,18 +162,18 @@ const controladorInscricoes = {
           }
         ]
       });
-      
+
       if (!inscricao) {
         return res.status(404).json({ erro: "Inscrição não encontrada" });
       }
-      
+
       // Verificar se a inscrição pertence ao usuário autenticado ou se é um admin
       if (inscricao.formando_id !== req.user.id && req.user.tipo !== 'admin') {
-        return res.status(403).json({ 
-          erro: "Não autorizado a acessar esta inscrição" 
+        return res.status(403).json({
+          erro: "Não autorizado a acessar esta inscrição"
         });
       }
-      
+
       res.json(inscricao);
     } catch (error) {
       res.status(500).json({ erro: "Erro ao buscar inscrição", detalhes: error.message });
@@ -178,32 +184,32 @@ const controladorInscricoes = {
   async update(req, res) {
     try {
       const id = parseInt(req.params.id);
-      
+
       // Verificar se a inscrição existe e pertence ao usuário autenticado
       const inscricao = await models.inscricao.findByPk(id);
-      
+
       if (!inscricao) {
         return res.status(404).json({ erro: "Inscrição não encontrada para atualização" });
       }
-      
+
       // Verificar se a inscrição pertence ao usuário autenticado ou se é um admin
       if (inscricao.formando_id !== req.user.id && req.user.tipo !== 'admin') {
-        return res.status(403).json({ 
-          erro: "Não autorizado a atualizar esta inscrição" 
+        return res.status(403).json({
+          erro: "Não autorizado a atualizar esta inscrição"
         });
       }
-      
+
       // Impedir alteração do formando_id para manter a segurança
       if (req.body.formando_id && parseInt(req.body.formando_id) !== req.user.id && req.user.tipo !== 'admin') {
-        return res.status(403).json({ 
-          erro: "Não é permitido alterar o proprietário da inscrição" 
+        return res.status(403).json({
+          erro: "Não é permitido alterar o proprietário da inscrição"
         });
       }
-      
+
       const [atualizado] = await models.inscricao.update(req.body, {
         where: { inscricao_id: id }
       });
-      
+
       res.json({ mensagem: "Inscrição atualizada com sucesso" });
     } catch (error) {
       res.status(500).json({ erro: "Erro ao atualizar inscrição", detalhes: error.message });
@@ -214,25 +220,25 @@ const controladorInscricoes = {
   async delete(req, res) {
     try {
       const id = parseInt(req.params.id);
-      
+
       // Verificar se a inscrição existe e pertence ao usuário autenticado
       const inscricao = await models.inscricao.findByPk(id);
-      
+
       if (!inscricao) {
         return res.status(404).json({ erro: "Inscrição não encontrada para exclusão" });
       }
-      
+
       // Verificar se a inscrição pertence ao usuário autenticado ou se é um admin
       if (inscricao.formando_id !== req.user.id && req.user.tipo !== 'admin') {
-        return res.status(403).json({ 
-          erro: "Não autorizado a excluir esta inscrição" 
+        return res.status(403).json({
+          erro: "Não autorizado a excluir esta inscrição"
         });
       }
-      
+
       await models.inscricao.destroy({
         where: { inscricao_id: id }
       });
-      
+
       res.json({ mensagem: "Inscrição deletada com sucesso" });
     } catch (error) {
       res.status(500).json({ erro: "Erro ao deletar inscrição", detalhes: error.message });

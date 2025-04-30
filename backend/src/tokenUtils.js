@@ -10,9 +10,10 @@ const JWT_SECRET = process.env.JWT_SECRET || 'chaveFixe';
  */
 const generateToken = (user) => {
     const payload = {
-        id: user.utilizadorid || user.colaborador_id, // Aceitar ambos os formatos de ID
+        id: user.utilizadorid || user.colaborador_id,
         email: user.email,
-        tipo: user.tipo
+        tipo: user.tipo,
+        allUserTypes: user.allUserTypes
     };
 
     return jwt.sign(payload, JWT_SECRET, { expiresIn: '10h' });
