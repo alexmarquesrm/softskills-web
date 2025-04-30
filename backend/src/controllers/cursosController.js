@@ -52,6 +52,16 @@ const controladorCursos = {
     }
   },
 
+  getCountCursos: async (req, res) => {
+    try {
+      const totalCursos = await models.curso.count();
+      res.status(200).json({ total: totalCursos });
+    } catch (error) {
+      console.error("Erro ao contar cursos:", error);
+      res.status(500).json({ message: "Erro interno ao contar cursos" });
+    }
+  },
+
   getAllCursos: async (req, res) => {
     try {
       const cursos = await models.curso.findAll({

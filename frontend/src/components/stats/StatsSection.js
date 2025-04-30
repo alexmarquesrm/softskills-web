@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import axios from "../../config/configAxios";
 import { Container, Row, Col, Card, ProgressBar } from "react-bootstrap";
 import { PeopleFill, BookFill, PersonBadgeFill } from "react-bootstrap-icons";
 import "./statsSection.css";
@@ -19,22 +20,63 @@ function StatsSection() {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    const fetchStats = async () => {
+    const fetchContagemFormandos = async () => {
       try {
-        const data = {
-          activeStudents: 25843,
-          totalCourses: 899,
-          instructors: 158
-        };
-        setStats(data);
+        const token = sessionStorage.getItem('token');
+        const response = await axios.get(`/formando/totalformandos`, {
+          headers: { Authorization: `${token}` }
+        });
+  
+        const countformandos = response.data.total;
+  
+        setStats(prevStats => ({
+          ...prevStats,
+          activeStudents: countformandos
+        }));
       } catch (error) {
-        console.error("Failed to fetch stats:", error);
+        console.error("Erro ao carregar estatísticas de formandos:", error);
       }
     };
 
-    fetchStats();
+    const fetchContagemCursos = async () => {
+      try {
+        const token = sessionStorage.getItem('token');
+        const response = await axios.get(`/curso/totalcursos`, {
+          headers: { Authorization: `${token}` }
+        });
+  
+        const countcursos = response.data.total;
+  
+        setStats(prevStats => ({
+          ...prevStats,
+          totalCourses: countcursos
+        }));
+      } catch (error) {
+        console.error("Erro ao carregar estatísticas de cursos:", error);
+      }
+    };
+  
+    const fetchContagemFormadores = async () => {
+      try {
+        const token = sessionStorage.getItem('token');
+        const response = await axios.get(`/formador/totalformadores`, {
+          headers: { Authorization: `${token}` }
+        });
+  
+        const countformadores = response.data.total;
 
-    // Intersection Observer to trigger animation when section is visible
+        setStats(prevStats => ({
+          ...prevStats,
+          instructors: countformadores
+        }));
+      } catch (error) {
+        console.error("Erro ao carregar estatísticas de formadores:", error);
+      }
+    };
+    fetchContagemFormandos();
+    fetchContagemCursos();
+    fetchContagemFormadores();
+  
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -44,14 +86,15 @@ function StatsSection() {
       },
       { threshold: 0.2 }
     );
-
+  
     const section = document.querySelector(".stats-section");
     if (section) observer.observe(section);
-
+  
     return () => {
       if (section) observer.unobserve(section);
     };
   }, []);
+  
 
   useEffect(() => {
     if (!isVisible) return;
@@ -89,11 +132,11 @@ function StatsSection() {
     <section className="stats-section">
       <div className="stats-bg-shape"></div>
       <Container fluid> {/* Alterado para Container fluid para largura total */}
-        <div className="section-header">
+        <div className="section-header-stats">
           <h2 className="stats-section-title">Our Impact</h2>
           <p className="stats-section-subtitle">Transforming education worldwide</p>
         </div>
-        
+
         <Row className="g-4 justify-content-center"> {/* Adicionado justify-content-center */}
           <Col lg={3} md={6} sm={12}> {/* Ajustado tamanho das colunas */}
             <Card className={`stats-card h-100 text-center ${isVisible ? 'animate-in' : ''}`}>
@@ -104,11 +147,11 @@ function StatsSection() {
                 <Card.Title className="stats-number">
                   {displayStats.activeStudents.toLocaleString()}+
                 </Card.Title>
-                <Card.Text className="stats-label">Active Students</Card.Text>
-                <ProgressBar 
-                  now={calculateProgress(displayStats.activeStudents, stats.activeStudents)} 
-                  variant="primary" 
-                  className="stats-progress" 
+                <Card.Text className="stats-label">Formandos Ativos</Card.Text>
+                <ProgressBar
+                  now={calculateProgress(displayStats.activeStudents, stats.activeStudents)}
+                  variant="primary"
+                  className="stats-progress"
                 />
                 <p className="stats-caption">Engaged learners across the globe</p>
               </Card.Body>
@@ -124,11 +167,11 @@ function StatsSection() {
                 <Card.Title className="stats-number">
                   {displayStats.totalCourses.toLocaleString()}
                 </Card.Title>
-                <Card.Text className="stats-label">Total Courses</Card.Text>
-                <ProgressBar 
-                  now={calculateProgress(displayStats.totalCourses, stats.totalCourses)} 
-                  variant="success" 
-                  className="stats-progress" 
+                <Card.Text className="stats-label">Total de Cursos</Card.Text>
+                <ProgressBar
+                  now={calculateProgress(displayStats.totalCourses, stats.totalCourses)}
+                  variant="success"
+                  className="stats-progress"
                 />
                 <p className="stats-caption">Diverse learning opportunities</p>
               </Card.Body>
@@ -144,18 +187,18 @@ function StatsSection() {
                 <Card.Title className="stats-number">
                   {displayStats.instructors.toLocaleString()}
                 </Card.Title>
-                <Card.Text className="stats-label">Expert Instructors</Card.Text>
-                <ProgressBar 
-                  now={calculateProgress(displayStats.instructors, stats.instructors)} 
-                  variant="info" 
-                  className="stats-progress" 
+                <Card.Text className="stats-label">Total de Formadores</Card.Text>
+                <ProgressBar
+                  now={calculateProgress(displayStats.instructors, stats.instructors)}
+                  variant="info"
+                  className="stats-progress"
                 />
                 <p className="stats-caption">Industry leaders and educators</p>
               </Card.Body>
             </Card>
           </Col>
         </Row>
-        
+
         <div className="stats-footnote">
           <p>Join our growing community of lifelong learners today!</p>
           <button className="btn btn-primary btn-lg stats-cta">Get Started</button>
