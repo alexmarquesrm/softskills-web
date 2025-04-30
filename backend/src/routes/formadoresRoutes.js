@@ -1,20 +1,21 @@
 const express = require("express");
 const router = express.Router();
+const { authenticate } = require("../tokenUtils");
 const formadoresController = require("../controllers/formadoresController");
 const { route } = require("./formandosRoutes");
 
 // GET
-router.get("/", formadoresController.getAllFormadores);
+router.get("/", authenticate, formadoresController.getAllFormadores);
 router.get("/totalformadores", formadoresController.getCountFormadores);
-router.get("/:id", formadoresController.getFormadorById);
+router.get("/:id", authenticate, formadoresController.getFormadorById);
 
 // POST
-router.post("/criar", formadoresController.createFormador);
+router.post("/criar", authenticate, formadoresController.createFormador);
 
 // PUT
-router.put("/atualizar/:id", formadoresController.updateFormador);
+router.put("/atualizar/:id", authenticate, formadoresController.updateFormador);
 
 // DEL
-router.delete("/apagar/:id", formadoresController.deleteFormador);
+router.delete("/apagar/:id", authenticate, formadoresController.deleteFormador);
 
 module.exports = router;
