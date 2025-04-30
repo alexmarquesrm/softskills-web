@@ -8,11 +8,9 @@ import FeaturedCourses from "../../components/cards/cardCourses";
 import SearchBar from '../../components/textFields/search';
 import Filtros from '../../components/filters/filtros';
 /* CSS */
-import './percursoFormativo.css';
 
-export default function PercursoFormativo() {
+export default function PercursoFormativoFormando() {
     const location = useLocation();
-    const id = location.state?.id;
     const [nome, setNome] = useState('');
     const [inscricao, setInscricao] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
@@ -22,17 +20,20 @@ export default function PercursoFormativo() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isFiltersVisible, setIsFiltersVisible] = useState(true);
+    const id = sessionStorage.getItem("colaboradorid");
 
     // Memorizar dados do colaborador
     const fetchDataColab = async () => {
         try {
             const token = sessionStorage.getItem("token");
-
+            
+            
             const response = await axios.get(`/colaborador/${id}`, {
                 headers: { Authorization: `${token}` },
             });
-
+            
             const utilizador = response.data;
+
             setNome(utilizador.nome);
         } catch (error) {
             console.error("Erro ao procurar dados do colaborador", error);

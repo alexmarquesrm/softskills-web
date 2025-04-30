@@ -6,16 +6,16 @@ import "./App.css";
 import LandingPage from "./pages/landingPage";
 import PagGestor from "./pages/gestor/pageGestor";
 import ListaUtilizadores from "./pages/gestor/userList";
-import PerfilUtilizador from "./pages/formandos/userProfile";
 import PercursoFormativoGestor from "./pages/gestor/percursoFormativo";
 import GestaoCursos from "./pages/gestor/courseManage";
+import CursoDetalhesGestor from "./pages/gestor/pageCursoGestor";
 import FormadorCurso from "./pages/formadores/detailsCourse";
 import AvaliarFormando from "./pages/formadores/evaluateFormando";
 import ManageCourses from "./pages/formadores/coursesManage";
-import CursoDetalhesGestor from "./pages/gestor/pageCursoGestor";
+import PerfilUtilizador from "./pages/formandos/userProfile";
 import CursoFormando from "./pages/formandos/pageCourse";
 import CursosFormando from "./pages/formandos/courses";
-
+import PercursoFormativoFormando from "./pages/formandos/percursoFormativo";
 // Components
 import CustomNavbar from "./components/navbar/customNavbar";
 import Footer from "./components/footer/footer";
@@ -33,6 +33,7 @@ function AppContent() {
                         <Route path="/utilizadores/perfil" element={<PerfilUtilizador />} />
                         <Route path="/utilizadores/curso/:id" element={<CursoFormando />} />
                         <Route path="/utilizadores/lista/cursos" element={<CursosFormando />} />
+                        <Route path="/utilizadores/percursoFormativo" element={<PercursoFormativoFormando />} />
                         {/* Formador Routes */}
                         <Route path="/formador/cursos" element={<ManageCourses />} />
                         <Route path="/formador/curso/:id" element={<FormadorCurso />} />
