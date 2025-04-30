@@ -76,7 +76,7 @@ function CustomNavbar() {
             
             <Nav className="me-auto d-none d-lg-flex">
               <Nav.Link href="/" className="nav-link-custom">Home</Nav.Link>
-              <Nav.Link href="/cursos" className="nav-link-custom">
+              <Nav.Link href="/utilizadores/lista/cursos" className="nav-link-custom">
                 <FaGraduationCap className="nav-icon" /> Cursos
               </Nav.Link>
               <Nav.Link href="/ajuda" className="nav-link-custom">

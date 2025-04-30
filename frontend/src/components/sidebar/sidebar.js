@@ -303,7 +303,7 @@ const Sidebar = ({ isOpen, onClose }) => {
 
             {tipoUtilizador === "Formando" && (
               <>
-                <NavItem href="/" icon={<Flag size={18} />} label="Percurso Formativo" itemName="percurso" />
+                <NavItem href="/utilizadores/percursoFormativo" icon={<Flag size={18} />} label="Percurso Formativo" itemName="percurso" />
                 <NavItem href="/" icon={<EnvelopeOpen size={18} />} label="Fórum" itemName="forum" />
               </>
             )}
