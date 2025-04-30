@@ -4,6 +4,7 @@ const formandoController = require("../controllers/formandosController");
 
 // GET
 router.get("/", formandoController.getAllFormandos);
+router.get("/totalformandos", formandoController.getCountFormandos);
 router.get("/:id", formandoController.getFormandoById);
 
 // POST

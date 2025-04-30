@@ -5,6 +5,7 @@ const { route } = require("./formandosRoutes");
 
 // GET
 router.get("/", formadoresController.getAllFormadores);
+router.get("/totalformadores", formadoresController.getCountFormadores);
 router.get("/:id", formadoresController.getFormadorById);
 
 // POST
