@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Container, Row, Col, Spinner } from "react-bootstrap";
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Book, AlertCircle, Award, Calendar, User } from 'react-feather';
 import axios from "../../config/configAxios";
 /* COMPONENTES */
@@ -11,60 +11,80 @@ import Filtros from '../../components/filters/filtros';
 
 export default function PercursoFormativoFormando() {
     const location = useLocation();
+    const navigate = useNavigate();
     const [nome, setNome] = useState('');
     const [inscricao, setInscricao] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
-    // Modificando o estado inicial para false (não selecionado)
     const [tipoSelecionado, setTipoSelecionado] = useState({ S: false, A: false });
     const [estadoSelecionado, setEstadoSelecionado] = useState({ emCurso: false, terminado: false });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isFiltersVisible, setIsFiltersVisible] = useState(true);
-    const id = sessionStorage.getItem("colaboradorid");
+    
+    // Verificar autenticação no carregamento inicial
+    useEffect(() => {
+        const token = sessionStorage.getItem("token");
+        if (!token) {
+            setError("Sessão expirada. Por favor, faça login novamente.");
+            setTimeout(() => navigate('/login'), 2000);
+            return;
+        }
+        
+        // Carregar dados se autenticado
+        fetchDataColab();
+        fetchDataInscricao();
+    }, [navigate]);
 
-    // Memorizar dados do colaborador
+    // Carregar dados do colaborador autenticado
     const fetchDataColab = async () => {
         try {
-            const token = sessionStorage.getItem("token");
-            
-            
-            const response = await axios.get(`/colaborador/${id}`, {
-                headers: { Authorization: `${token}` },
-            });
-            
+            // Usar a rota segura que obtém dados do próprio perfil
+            // baseada no token JWT, não no ID do sessionStorage
+            const response = await axios.get('/colaborador/me');
             const utilizador = response.data;
-
+            // Armazenar o ID do usuário no sessionStorage apenas para interface
+            if (utilizador.colaborador_id) {
+                sessionStorage.setItem("colaboradorid", utilizador.colaborador_id);
+            }
+            
             setNome(utilizador.nome);
         } catch (error) {
-            console.error("Erro ao procurar dados do colaborador", error);
-            setError("Não foi possível carregar os dados do colaborador");
+            handleApiError(error, "Erro ao procurar dados do colaborador");
         }
     };
 
-    // Buscar dados de inscrição
+    // Buscar inscrições do usuário autenticado
     const fetchDataInscricao = async () => {
         try {
-            const token = sessionStorage.getItem('token');
-            const response = await axios.get(`/inscricao/listar`, {
-                headers: { Authorization: `${token}` }
-            });
-
-            const inscricoesFiltradas = response.data.filter(item => item.formando_id === parseInt(id));
-            setInscricao(inscricoesFiltradas);
+            // Usar a rota segura que retorna apenas as inscrições 
+            // do usuário autenticado com base no token JWT
+            const response = await axios.get('/inscricao/minhas');
+            
+            // Não é mais necessário filtrar as inscrições, pois a API já retorna
+            // apenas as inscrições do usuário autenticado
+            setInscricao(response.data);
         } catch (error) {
-            console.error("Erro ao procurar inscrições", error);
-            setError("Não foi possível carregar as inscrições");
+            handleApiError(error, "Erro ao procurar inscrições");
         } finally {
             setLoading(false);
         }
     };
 
-    useEffect(() => {
-        fetchDataColab();
-        fetchDataInscricao();
-    }, [id]);
+    // Função para tratar erros de API de forma consistente
+    const handleApiError = (error, defaultMessage) => {
+        console.error(defaultMessage, error);
+        
+        // Verificar se é erro de autenticação
+        if (error.response?.status === 401 || error.response?.status === 403) {
+            setError("Sessão expirada ou sem permissão. Por favor, faça login novamente.");
+            sessionStorage.clear();
+            setTimeout(() => navigate('/login'), 2000);
+        } else {
+            setError(defaultMessage);
+        }
+    };
 
-    // Memoizar inscrições filtradas para melhorar desempenho
+    // Memoizar inscrições filtradas para melhorar desempenho (permanece igual)
     const filteredInscricoes = useMemo(() => {
         if (inscricao.length === 0) return [];
 
@@ -99,7 +119,7 @@ export default function PercursoFormativoFormando() {
         });
     }, [inscricao, tipoSelecionado, estadoSelecionado, searchTerm]);
 
-    // Stats
+    // Stats (permanece igual)
     const stats = useMemo(() => {
         if (inscricao.length === 0) return { total: 0, emCurso: 0, terminados: 0 };
 
@@ -126,7 +146,7 @@ export default function PercursoFormativoFormando() {
         setIsFiltersVisible(!isFiltersVisible);
     };
 
-    // Função para limpar filtros modificada
+    // Função para limpar filtros
     const clearFilters = () => {
         setTipoSelecionado({ S: false, A: false });
         setEstadoSelecionado({ emCurso: false, terminado: false });

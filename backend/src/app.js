@@ -40,7 +40,7 @@ app.use("/denuncia", authenticate, threadsDenRoutes);
 app.use("/curso", cursosRoutes);
 app.use("/sincrono", authenticate, sincronosRoutes);
 app.use("/pedido", authenticate, pedidosRoutes);
-app.use("/inscricao", inscricoesRoutes);
+app.use("/inscricao", authenticate, inscricoesRoutes);
 
 app.listen(8000, () => {
   console.log("Servidor na porta 8000");
