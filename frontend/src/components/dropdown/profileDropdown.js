@@ -4,6 +4,7 @@ import { BsPersonCircle, BsGear, BsBoxArrowRight } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
 import "./profileDropdown.css";
 import defaultProfilePic from "../../logo.svg"; // Update this path to match your project structure
+import axios from "../../config/configAxios";
 
 function ProfileDropdown({ onLogout }) {
   const navigate = useNavigate();
@@ -18,18 +19,54 @@ function ProfileDropdown({ onLogout }) {
   const [activeType, setActiveType] = useState(currentUserType);
   const [show, setShow] = useState(false);
 
-  useEffect(() => {
-    // Get user's profile photo from session storage if available
-    const photoUrl = sessionStorage.getItem("fotoPerfilUrl");
-    
-    // Make sure we're setting a valid photo URL
-    if (photoUrl && photoUrl !== "undefined" && photoUrl !== "null") {
-      setProfilePhoto(photoUrl);
-      console.log("Profile photo set:", photoUrl);
-    } else {
-      console.log("No valid profile photo found in session storage");
+  // Function to fetch user profile data including the profile photo
+  const fetchUserProfileData = async () => {
+    try {
+      const token = sessionStorage.getItem("token");
+      if (!token) {
+        console.error("Token not found, cannot fetch profile photo");
+        return;
+      }
+      
+      // Fetch current user data
+      const response = await axios.get('/colaborador/me');
+      const userData = response.data;
+      
+      // Check if photo URL exists and is valid
+      if (userData.fotoPerfilUrl && 
+          userData.fotoPerfilUrl !== "undefined" && 
+          userData.fotoPerfilUrl !== "null" && 
+          userData.fotoPerfilUrl !== "") {
+        setProfilePhoto(userData.fotoPerfilUrl);
+        console.log("Profile photo fetched from API:", userData.fotoPerfilUrl);
+      } else {
+        console.log("No valid profile photo found in API response");
+        setProfilePhoto(null);
+      }
+    } catch (error) {
+      console.error("Error fetching profile data:", error);
       setProfilePhoto(null);
     }
+  };
+
+  useEffect(() => {
+    // Fetch user profile including photo on component mount
+    fetchUserProfileData();
+    
+    // Create a custom event listener for profile updates
+    const handleProfileUpdate = () => {
+      console.log("Profile update event received, fetching new data");
+      fetchUserProfileData();
+    };
+    
+    // Listen for custom profile-updated event
+    window.addEventListener('profile-updated', handleProfileUpdate);
+    
+    // Set interval to periodically check for profile updates
+    // This helps in case the event is missed or when the user refreshes just one component
+    const profileCheckInterval = setInterval(() => {
+      fetchUserProfileData();
+    }, 60000); // Check every minute
     
     // Get all user types from session storage
     const allUserTypes = sessionStorage.getItem("allUserTypes");
@@ -42,6 +79,12 @@ function ProfileDropdown({ onLogout }) {
     }
     
     setActiveType(currentUserType);
+
+    // Cleanup event listener and interval
+    return () => {
+      window.removeEventListener('profile-updated', handleProfileUpdate);
+      clearInterval(profileCheckInterval);
+    };
   }, [currentUserType]);
 
   const handleSwitchUserType = (type) => {
@@ -87,6 +130,7 @@ function ProfileDropdown({ onLogout }) {
             onError={(e) => {
               console.error("Error loading profile image");
               e.target.src = defaultProfilePic;
+              setProfilePhoto(null);
             }}
           />
         ) : (
