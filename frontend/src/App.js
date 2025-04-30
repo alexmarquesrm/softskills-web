@@ -16,6 +16,8 @@ import PerfilUtilizador from "./pages/formandos/userProfile";
 import CursoFormando from "./pages/formandos/pageCourse";
 import CursosFormando from "./pages/formandos/courses";
 import PercursoFormativoFormando from "./pages/formandos/percursoFormativo";
+import ListaPedidos from "./pages/gestor/pedidos";
+
 // Components
 import CustomNavbar from "./components/navbar/customNavbar";
 import Footer from "./components/footer/footer";
@@ -44,6 +46,8 @@ function AppContent() {
                         <Route path="/gestor/colaborador/percursoFormativo" element={<PercursoFormativoGestor />} />
                         <Route path="/gestor/lista/cursos" element={<GestaoCursos />} />
                         <Route path="/gestor/cursodetalhes/:id" element={<CursoDetalhesGestor />} />
+                        <Route path="/gestor/lista/pedidos" element={<ListaPedidos />} />
+
                     </Route>
                     <Route path="*" element={<Navigate to="/" />} />
                 </Routes>
