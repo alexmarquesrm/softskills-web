@@ -81,9 +81,13 @@ const validateResourceAccess = (req, res, next) => {
     // Obter ID do usuário autenticado do token
     const userId = req.user.id;
     
+    // Verificar se o usuário tem a função de Gestor através do campo allUserTypes
+    const userRoles = req.user.allUserTypes?.split(',') || [];
+    const isGestor = req.user.tipo === 'Gestor' || userRoles.includes('Gestor');
+    
     // Se o ID do recurso não coincide com o ID do usuário autenticado
-    // e o usuário não é um administrador, negar acesso
-    if (resourceId !== userId && req.user.tipo !== 'Gestor' && req.user.tipo !== 'admin') {
+    // e o usuário não é um gestor, negar acesso
+    if (resourceId !== userId && !isGestor) {
         return res.status(403).json({ 
             error: 'Não autorizado a acessar dados de outro usuário' 
         });

@@ -35,9 +35,8 @@ export default function EditProfile ({ show, onClose, onSave, initialData = {} }
       const response = await axios.get(`/colaborador/${id}`, {
         headers: { Authorization: `${token}` },
       });
-
       const utilizador = response.data;
-
+      
       const primeiroNome = utilizador.nome.split(" ")[0];
       const ultimoNome = utilizador.nome.split(" ").slice(1).join(" ");
 
@@ -61,16 +60,18 @@ export default function EditProfile ({ show, onClose, onSave, initialData = {} }
   const handleGuardar = async () => {
     try {
       const token = sessionStorage.getItem("token");
-      const id = sessionStorage.getItem("colaboradorid");
+      const id = initialData.id;
 
       const payload = {
         ...formData,
         nome: `${formData.primeiroNome} ${formData.ultimoNome}`.trim(),
+        data_nasc: formData.dataNasc,
       };
 
       delete payload.primeiroNome;
       delete payload.ultimoNome;
-
+      delete payload.dataNasc;
+      
       await axios.put(`/colaborador/atualizar/${id}`, payload, {
         headers: { Authorization: `${token}` },
       });

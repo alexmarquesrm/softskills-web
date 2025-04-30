@@ -15,7 +15,6 @@ minioClient.listBuckets(function(err, buckets) {
     if (err) {
         return console.log('Erro ao listar os buckets:', err);
     }
-    console.log('Buckets:', buckets);
 });
 
 const objectStorage = {

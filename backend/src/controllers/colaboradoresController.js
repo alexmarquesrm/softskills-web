@@ -37,8 +37,6 @@ const controladorUtilizadores = {
   },
 
   getAllColaboradores: async (req, res) => {
-    console.log("user", req);
-    console.log("testeeeeeeee", req.user.allUserTypes);
     try {
       const userRoles = req.user.allUserTypes?.split(',') || [];
       if (req.user.tipo !== 'Gestor' && !userRoles.includes('Gestor')) {
@@ -61,12 +59,12 @@ const controladorUtilizadores = {
 
   getColaboradorById: async (req, res) => {
     const id = req.params.id;
-
     try {
       // Verificar se o usuário está tentando acessar seu próprio perfil
       // ou se tem permissão administrativa
       const isOwnProfile = parseInt(id) === req.user.id;
-      const isAdmin = req.user.tipo === 'Gestor' || req.user.tipo === 'admin';
+      const userRoles = req.user.allUserTypes?.split(',') || [];
+      const isAdmin = req.user.tipo === 'Gestor' || userRoles.includes('Gestor');
 
       if (!isOwnProfile && !isAdmin) {
         return res.status(403).json({
@@ -309,8 +307,9 @@ const controladorUtilizadores = {
 
   criarColaborador: async (req, res) => {
     try {
-      // Verificar se o usuário tem permissão de admin/gestor
-      if (req.user.tipo !== 'Gestor' && req.user.tipo !== 'admin') {
+      // Verificar se o usuário tem permissão de Gestor
+      const userRoles = req.user.allUserTypes?.split(',') || [];
+      if (req.user.tipo !== 'Gestor' && !userRoles.includes('Gestor')) {
         return res.status(403).json({
           message: "Não autorizado a criar colaboradores"
         });
@@ -390,14 +389,14 @@ const controladorUtilizadores = {
   },
 
   updateColaborador: async (req, res) => {
-    console.log("Atualizando colaborador:", req.body);
     const id = req.params.id;
 
     try {
       // Verificar se o usuário está atualizando seu próprio perfil
       // ou se tem permissão administrativa
       const isOwnProfile = parseInt(id) === req.user.id;
-      const isAdmin = req.user.tipo === 'Gestor' || req.user.tipo === 'admin';
+      const userRoles = req.user.allUserTypes?.split(',') || [];
+      const isAdmin = req.user.tipo === 'Gestor' || userRoles.includes('Gestor');
 
       if (!isOwnProfile && !isAdmin) {
         return res.status(403).json({
@@ -425,7 +424,6 @@ const controladorUtilizadores = {
       if (updated[0]) {
         // Se vier uma nova foto de perfil, chamamos o ficheirosController
         if (dadosAtualizados.fotoPerfil) {
-          console.log("Adicionando nova foto de perfil:", dadosAtualizados.fotoPerfil);
           await ficheirosController.adicionar(id, 'colaborador', [dadosAtualizados.fotoPerfil], req.user.id || null);
         }
 
@@ -446,8 +444,8 @@ const controladorUtilizadores = {
 
     try {
       // Verificar se o usuário tem permissão administrativa
-      // (normalmente não permitimos que um usuário exclua a si mesmo)
-      const isAdmin = req.user.tipo === 'Gestor' || req.user.tipo === 'admin';
+      const userRoles = req.user.allUserTypes?.split(',') || [];
+      const isAdmin = req.user.tipo === 'Gestor' || userRoles.includes('Gestor');
 
       if (!isAdmin) {
         return res.status(403).json({

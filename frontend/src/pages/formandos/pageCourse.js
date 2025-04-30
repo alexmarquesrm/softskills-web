@@ -11,7 +11,7 @@ import {
   BsQuestionCircle, BsTrophy, BsClock, BsStarFill, BsDownload, BsFlag
 } from "react-icons/bs";
 import axios from "../../config/configAxios";
-import ModalSubmeterTrabalho from '../../modals/formando/submeterFicheiro';
+import ModalSubmeterTrabalho from '../../modals/formandos/submeterFicheiro';
 
 export default function CursoFormando() {
   const { id } = useParams();
