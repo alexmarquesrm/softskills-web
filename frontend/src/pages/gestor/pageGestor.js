@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import axios from "../../config/configAxios";
 import { Container, Row, Col, Card } from "react-bootstrap";
 import CardInfo from "../../components/cards/cardDestaque";
@@ -131,12 +131,19 @@ export default function PaginaGestor() {
       setLoading(false);
     }
   };
-
+  
   useEffect(() => {
     fetchDataDenun();
     fetchDataPedidos();
   }, []);
 
+  const filteredPedido = useMemo(() => {
+    if (pedidos.length === 0) return [];
+    
+    return pedidos.filter(pedido => pedido.ped_curso.pendente === true);
+
+  }, [pedidos]);
+  
   const renderPedidoCard = (pedido, index) => (
     <CardPedido index={index} pedido={pedido} />
   );
@@ -194,7 +201,7 @@ export default function PaginaGestor() {
               <h3 className="metric-value">{pedidos.length}</h3>
               <p className="metric-label">Total de Pedidos</p>
               <div className="metric-progress">
-                <div className="progress-bar pedidos-bar" style={{ width: '8%' }}></div>
+                <div className="progress-bar pedidos-bar" style={{ width: '100%' }}></div>
               </div>
               <p className="metric-detail">+8% que o mês anterior</p>
             </Card.Body>
@@ -217,7 +224,7 @@ export default function PaginaGestor() {
               <h3 className="metric-value">{tableRows.length}</h3>
               <p className="metric-label">Total de Denúncias</p>
               <div className="metric-progress">
-                <div className="progress-bar denuncias-bar" style={{ width: '45%' }}></div>
+                <div className="progress-bar denuncias-bar" style={{ width: '100%' }}></div>
               </div>
               <p className="metric-detail">-45% que o mês anterior</p>
             </Card.Body>
@@ -237,7 +244,7 @@ export default function PaginaGestor() {
               <h3 className="metric-value">12 dias</h3>
               <p className="metric-label">Última Atividade</p>
               <div className="metric-progress">
-                <div className="progress-bar atividade-bar" style={{ width: '85%' }}></div>
+                <div className="progress-bar atividade-bar" style={{ width: '100%' }}></div>
               </div>
               <p className="metric-detail">Atualizado em 4/Abr/2025</p>
             </Card.Body>
@@ -264,8 +271,8 @@ export default function PaginaGestor() {
               <div className="loading-spinner"></div>
               <p>Carregando pedidos...</p>
             </div>
-          ) : pedidos.length > 0 ? (
-            <CardRow dados={pedidos} renderCard={renderPedidoCard} scrollable={true} />
+          ) : filteredPedido.length > 0 ? (
+            <CardRow dados={[...filteredPedido].sort((a, b) => new Date(b.data) - new Date(a.data))} renderCard={renderPedidoCard} scrollable={true} />
           ) : (
             <div className="empty-state">
               <FileEarmarkText size={40} className="empty-icon" />
