@@ -12,9 +12,10 @@ import CursoDetalhesGestor from "./pages/gestor/pageCursoGestor";
 import FormadorCurso from "./pages/formadores/detailsCourse";
 import AvaliarFormando from "./pages/formadores/evaluateFormando";
 import ManageCourses from "./pages/formadores/coursesManage";
+import PagFormador from "./pages/formadores/pageFormador";
 import PerfilUtilizador from "./pages/formandos/userProfile";
 import CursoFormando from "./pages/formandos/pageCourse";
-import CursosFormando from "./pages/formandos/courses";
+import CursosFormando from "./pages/formandos/listCourses";
 import PercursoFormativoFormando from "./pages/formandos/percursoFormativo";
 import ListaPedidos from "./pages/gestor/pedidos";
 
@@ -40,6 +41,7 @@ function AppContent() {
                         <Route path="/formador/cursos" element={<ManageCourses />} />
                         <Route path="/formador/curso/:id" element={<FormadorCurso />} />
                         <Route path="/formador/curso/avaliar" element={<AvaliarFormando />} />
+                        <Route path="/formador/dashboard" element={<PagFormador />} />
                         {/* Gestor Routes */}
                         <Route path="/gestor/dashboard" element={<PagGestor />} />
                         <Route path="/gestor/lista/colaboradores" element={<ListaUtilizadores />} />
