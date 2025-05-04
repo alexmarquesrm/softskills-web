@@ -16,6 +16,7 @@ const cursosRoutes = require("./routes/cursosRoutes");
 const sincronosRoutes = require("./routes/sincronosRoutes");
 const pedidosRoutes = require("./routes/pedidosRoutes");
 const inscricoesRoutes = require("./routes/inscricoesRoutes");
+const materiaisRoutes = require("./routes/materialsRoutes");
 
 // Use CORS middleware
 app.use(cors({
@@ -41,6 +42,7 @@ app.use("/curso", cursosRoutes);
 app.use("/sincrono", authenticate, sincronosRoutes);
 app.use("/pedido", authenticate, pedidosRoutes);
 app.use("/inscricao", authenticate, inscricoesRoutes);
+app.use("/material", materiaisRoutes);
 
 app.listen(8000, () => {
   console.log("Servidor na porta 8000");

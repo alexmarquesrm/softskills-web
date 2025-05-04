@@ -9,6 +9,7 @@ import { IoCalendarNumberSharp } from "react-icons/io5";
 import { useDropzone } from 'react-dropzone';
 import { FaRegSave, FaTrashAlt } from "react-icons/fa";
 import { FiFile, FiVideo, FiFileText, FiUploadCloud } from 'react-icons/fi';
+import axios from "../config/configAxios";
 
 const ModalAdicionarFicheiro = ({ 
   show, 
@@ -80,6 +81,35 @@ const ModalAdicionarFicheiro = ({
       cor: 'warning',
       icon: <FiFile size={24} />,
       descricao: 'Entregas de trabalhos (PDF, DOC, ZIP, RAR, etc.)'
+    },
+    aula: {
+      accept: {
+        'application/pdf': ['.pdf'],
+        'application/msword': ['.doc'],
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
+        'application/vnd.ms-powerpoint': ['.ppt'],
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation': ['.pptx']
+      },
+      maxSize: 20 * 1024 * 1024, // 20MB
+      requerData: false,
+      cor: 'success',
+      icon: <FiFileText size={24} />,
+      descricao: 'Materiais de aula (PDF, DOC, PPT, etc.)'
+    },
+    trabalho: {
+      accept: {
+        'application/pdf': ['.pdf'],
+        'application/msword': ['.doc'],
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
+        'application/zip': ['.zip'],
+        'application/x-rar-compressed': ['.rar'],
+        'text/plain': ['.txt']
+      },
+      maxSize: 20 * 1024 * 1024, // 20MB
+      requerData: true,
+      cor: 'info',
+      icon: <FiFile size={24} />,
+      descricao: 'Trabalhos para realizar (PDF, DOC, ZIP, etc.)'
     }
   };
 
@@ -162,47 +192,78 @@ const ModalAdicionarFicheiro = ({
       return;
     }
 
+    if (!cursoId) {
+      setFeedbackMsg({
+        show: true,
+        message: 'ID do curso não encontrado.',
+        type: 'danger'
+      });
+      return;
+    }
+
     try {
       setUploading(true);
+      const token = sessionStorage.getItem('token');
       
-      // Simula um atraso para demonstrar o estado de "uploading"
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      const dadosEnvio = {
-        tipo: tipoFicheiro,
-        titulo: formData.titulo,
-        descricao: formData.descricao,
-        dataEntrega: formData.dataentrega || null,
-        ficheiros: ficheirosCarregados,
-        cursoId,
-        moduloId
-      };
-
-      console.log('Dados a enviar:', dadosEnvio);
-      
-      // Aqui você enviaria os dados para o servidor
-      // Exemplo: await api.post('/ficheiros', dadosEnvio);
-      
-      if (onUploadSuccess) {
-        onUploadSuccess(dadosEnvio);
-      }
-      
-      setFeedbackMsg({
-        show: true,
-        message: 'Material adicionado com sucesso!',
-        type: 'success'
+      // Preparar os arquivos para upload
+      const filesPromises = ficheirosCarregados.map(file => {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            // Extrair a parte base64 do resultado
+            const base64 = reader.result.split(',')[1];
+            resolve({
+              nome: file.name,
+              base64: base64,
+              tamanho: file.size
+            });
+          };
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
       });
       
-      setTimeout(() => {
-        limparFormulario();
-        handleClose();
-      }, 1500);
+      // Aguardar a leitura de todos os arquivos
+      const filesData = await Promise.all(filesPromises);
       
+      // Preparar dados para a API
+      const dadosEnvio = {
+        titulo: formData.titulo,
+        descricao: formData.descricao || '',
+        tipo: tipoFicheiro,
+        dataEntrega: formData.dataentrega || null,
+        ficheiros: filesData
+      };
+      
+      // Enviar para a API
+      const response = await axios.post(`/material/curso/${cursoId}/materiais`, dadosEnvio, {
+        headers: { Authorization: `${token}` }
+      });
+      
+      if (response.data.success) {
+        setFeedbackMsg({
+          show: true,
+          message: 'Material adicionado com sucesso!',
+          type: 'success'
+        });
+        
+        if (onUploadSuccess) {
+          onUploadSuccess(response.data.data);
+        }
+        
+        // Fechar modal após um breve delay
+        setTimeout(() => {
+          limparFormulario();
+          handleClose();
+        }, 1500);
+      } else {
+        throw new Error(response.data.message || 'Erro ao adicionar material');
+      }
     } catch (error) {
-      console.error('Erro ao adicionar ficheiro:', error);
+      console.error('Erro ao adicionar material:', error);
       setFeedbackMsg({
         show: true,
-        message: 'Erro ao adicionar material. Tente novamente.',
+        message: error.response?.data?.message || 'Erro ao adicionar material. Tente novamente.',
         type: 'danger'
       });
     } finally {

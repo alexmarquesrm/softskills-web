@@ -1,9 +1,11 @@
-/* Estilos para a página de detalhes do curso (instructor view) */
-
 /* Estilo geral */
 .curso-content {
   font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
   color: #333;
+}
+
+body {
+  background-color: rgb(245, 247, 250);
 }
 
 /* Banner do curso */

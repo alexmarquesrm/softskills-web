@@ -3,18 +3,19 @@ import {
   Container, Row, Col, Card, ListGroup, Spinner,
   ProgressBar, Badge, Accordion, Button, Alert
 } from "react-bootstrap";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import "./pageCourse.css";
 import {
   BsFillPeopleFill, BsCalendarCheck, BsFileText, BsCameraVideo, BsBook,
   BsTools, BsUpload, BsInfoCircle, BsExclamationTriangle, BsCheckCircle,
-  BsQuestionCircle, BsTrophy, BsClock, BsStarFill, BsDownload, BsFlag
+  BsQuestionCircle, BsTrophy, BsClock, BsDownload, BsFlag, BsPlayFill
 } from "react-icons/bs";
 import axios from "../../config/configAxios";
 import ModalSubmeterTrabalho from '../../modals/formandos/submeterFicheiro';
 
 export default function CursoFormando() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [curso, setCurso] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -22,6 +23,10 @@ export default function CursoFormando() {
   const [progressPercent] = useState(35); // Simulação de progresso, idealmente viria da API
   const [showSubmeterModal, setShowSubmeterModal] = useState(false);
   const [selectedAvaliacao, setSelectedAvaliacao] = useState(null);
+  const [materials, setMaterials] = useState([]);
+  const [materialLoading, setMaterialLoading] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [loadingFileId, setLoadingFileId] = useState(null);
 
   useEffect(() => {
     const fetchCursoData = async () => {
@@ -49,23 +54,162 @@ export default function CursoFormando() {
     fetchCursoData();
   }, [id]);
 
-  const materiaisSincronos = [
-    { id: 1, label: "Apresentação do curso", icon: <BsFileText className="me-2" />, type: "documento", downloadable: true },
-    { id: 2, label: "Vídeo 1: Introdução", icon: <BsCameraVideo className="me-2" />, type: "video", duration: "15 min" },
-    { id: 3, label: "Vídeo 2: Conceitos Básicos", icon: <BsCameraVideo className="me-2" />, type: "video", duration: "22 min" },
-    { id: 4, label: "Aula Teórica 1: Fundamentos", icon: <BsBook className="me-2" />, type: "aula", downloadable: true },
-    { id: 5, label: "Aula Teórica 2: Metodologia", icon: <BsBook className="me-2" />, type: "aula", downloadable: true },
-    { id: 6, label: "Trabalho Prático 1", icon: <BsTools className="me-2" />, type: "trabalho", downloadable: true  },
-    { id: 7, label: "Entrega Trabalho Prático 1", icon: <BsUpload className="me-2" />, type: "entrega", deadline: "15/05/2025",avaliacaoInfo: {id: 1, titulo: "Trabalho Prático 1", dataEntrega: "2025-05-15T23:59:59", descricao: "Realize a entrega do trabalho prático  conforme as instruções fornecidas no documento sobre o mesmo"}},
-  ];
+  // 1. First, update your material fetching function in the course page component
+  // to match the structure used in the modal
 
-  const materiaisAssincronos = [
-    { id: 1, label: "Apresentação do curso", icon: <BsFileText className="me-2" />, type: "documento", downloadable: true },
-    { id: 2, label: "Vídeo 1: Introdução", icon: <BsCameraVideo className="me-2" />, type: "video", duration: "15 min" },
-    { id: 3, label: "Vídeo 2: Conceitos Básicos", icon: <BsCameraVideo className="me-2" />, type: "video", duration: "22 min" },
-    { id: 4, label: "Aula Teórica 1: Fundamentos", icon: <BsBook className="me-2" />, type: "aula", downloadable: true },
-    { id: 5, label: "Quiz", icon: <BsTools className="me-2" />, type: "entrega" },
-  ];
+  useEffect(() => {
+    const fetchMaterials = async () => {
+      if (!id) return;
+
+      try {
+        setMaterialLoading(true);
+        const token = sessionStorage.getItem('token');
+
+        // Using the same endpoint format that works in the modal
+        const response = await axios.get(`/material/curso/${id}/materiais`, {
+          headers: { Authorization: `${token}` }
+        });
+
+        if (response.data.success) {
+          const materialsData = response.data.data;
+
+          // Debug the materials data structure
+          console.log("Raw materials data:", materialsData);
+
+          // Check if each material has files property with expected structure
+          const hasFilesWithUrls = materialsData.some(m =>
+            m.ficheiros &&
+            m.ficheiros.length > 0 &&
+            m.ficheiros[0].url
+          );
+
+          console.log("Materials have files with URLs:", hasFilesWithUrls);
+
+          if (!hasFilesWithUrls) {
+            // If files don't have URLs, we need to fetch each material individually
+            // to get the complete data structure (like the modal does)
+            console.log("Files missing URLs, fetching individual materials...");
+
+            const enhancedMaterials = await Promise.all(
+              materialsData.map(async (material) => {
+                try {
+                  // Fetch complete material data like the modal does
+                  const detailResponse = await axios.get(`/material/curso/${material.id}`, {
+                    headers: { Authorization: `${token}` }
+                  });
+
+                  if (detailResponse.data) {
+                    return detailResponse.data;
+                  }
+                  return material;
+                } catch (error) {
+                  console.error(`Error fetching details for material ${material.id}:`, error);
+                  return material;
+                }
+              })
+            );
+
+            console.log("Enhanced materials:", enhancedMaterials);
+            setMaterials(enhancedMaterials);
+          } else {
+            // Data already has the right structure
+            setMaterials(materialsData);
+          }
+        } else {
+          console.error("Error loading materials:", response.data.message);
+        }
+      } catch (err) {
+        console.error("Error loading course materials:", err);
+      } finally {
+        setMaterialLoading(false);
+      }
+    };
+
+    if (activeSection === "materiais") {
+      fetchMaterials();
+    }
+  }, [id, activeSection, refreshTrigger]);
+
+  // 2. Update your handleFileAction function to be more robust with different data structures
+  // Função para abrir ou baixar um arquivo
+  const handleFileAction = (file) => {
+    console.log("handleFileAction called with file:", file);
+
+    // First check if we have a file object
+    if (!file) {
+      console.error("No file object provided");
+      alert("Erro: Arquivo não disponível");
+      return;
+    }
+
+    // Try to get URL using different possible property names
+    let fileUrl = null;
+    if (file.url) fileUrl = file.url;
+    else if (file.ficheiro_url) fileUrl = file.ficheiro_url;
+    else if (file.path) fileUrl = file.path;
+    else if (file.link) fileUrl = file.link;
+
+    // If we still don't have a URL, try to look deeper
+    if (!fileUrl && typeof file === 'object') {
+      console.log("URL not found in top-level properties, checking nested objects");
+
+      // Check if any property might contain an object with URL
+      for (const key in file) {
+        if (
+          typeof file[key] === 'object' &&
+          file[key] !== null &&
+          !Array.isArray(file[key]) &&
+          file[key].url
+        ) {
+          fileUrl = file[key].url;
+          console.log(`Found URL in nested property: ${key}`);
+          break;
+        }
+      }
+    }
+
+    if (!fileUrl) {
+      console.error("URL not found in file object:", file);
+      alert("URL do arquivo não disponível. Por favor, tente novamente mais tarde.");
+      return;
+    }
+
+    // Get file name and extension
+    let fileName = file.nome || file.name || '';
+    let extension = '';
+
+    if (fileName) {
+      extension = fileName.split('.').pop().toLowerCase();
+    } else {
+      // Try to extract filename from URL
+      const urlParts = fileUrl.split('/');
+      fileName = urlParts[urlParts.length - 1];
+      extension = fileName.split('.').pop().toLowerCase();
+    }
+
+    console.log(`Processing file: URL=${fileUrl}, Name=${fileName}, Extension=${extension}`);
+
+    try {
+      // Check if it's a viewable file type
+      const viewableExtensions = ['pdf', 'jpg', 'jpeg', 'png', 'gif', 'mp4', 'webm'];
+
+      if (viewableExtensions.includes(extension)) {
+        console.log(`Opening ${extension} file in new tab`);
+        window.open(fileUrl, '_blank');
+      } else {
+        console.log("Downloading file");
+        const link = document.createElement('a');
+        link.href = fileUrl;
+        link.download = fileName || 'download';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+    } catch (error) {
+      console.error("Error processing file action:", error);
+      alert("Erro ao processar o arquivo. Por favor, tente novamente mais tarde.");
+    }
+  };
 
   const objetivos = [
     "Compreender os princípios fundamentais da matéria",
@@ -74,8 +218,6 @@ export default function CursoFormando() {
     "Criar soluções para problemas complexos",
     "Avaliar resultados e propor melhorias"
   ];
-
-  const items = curso?.tipo === "S" ? materiaisSincronos : materiaisAssincronos;
 
   const faqs = [
     {
@@ -92,6 +234,11 @@ export default function CursoFormando() {
     }
   ];
 
+  // Group materials by type
+  const getMaterialsByType = (tipo) => {
+    return materials.filter(material => material.tipo === tipo);
+  };
+
   const getFormadorNome = () => {
     return curso?.curso_sincrono?.sincrono_formador?.formador_colab?.nome || "Não especificado";
   };
@@ -105,9 +252,43 @@ export default function CursoFormando() {
     setActiveSection(section);
   };
 
+  // Função para determinar ícone com base na extensão do arquivo
+  const getFileIcon = (fileName) => {
+    const extension = fileName.split('.').pop().toLowerCase();
+
+    // Document types
+    if (['pdf', 'doc', 'docx', 'txt', 'rtf'].includes(extension)) {
+      return <BsFileText className="me-2" />;
+    }
+    // Video types
+    else if (['mp4', 'avi', 'mov', 'wmv', 'mkv', 'webm'].includes(extension)) {
+      return <BsCameraVideo className="me-2" />;
+    }
+    // Presentation types
+    else if (['ppt', 'pptx'].includes(extension)) {
+      return <BsBook className="me-2" />;
+    }
+    // Compressed files
+    else if (['zip', 'rar', '7z'].includes(extension)) {
+      return <BsTools className="me-2" />;
+    }
+    // Spreadsheets
+    else if (['xls', 'xlsx', 'csv'].includes(extension)) {
+      return <BsFileText className="me-2" />;
+    }
+    // Default
+    return <BsFileText className="me-2" />;
+  };
+
   // Função para abrir o modal de submissão de trabalho
-  const handleOpenSubmeterModal = (avaliacao) => {
-    setSelectedAvaliacao(avaliacao);
+  const handleOpenSubmeterModal = (material) => {
+    const avaliacaoInfo = {
+      id: material.id,
+      titulo: material.titulo,
+      dataEntrega: material.data_entrega,
+      descricao: material.descricao
+    };
+    setSelectedAvaliacao(avaliacaoInfo);
     setShowSubmeterModal(true);
   };
 
@@ -119,8 +300,8 @@ export default function CursoFormando() {
   // Função para lidar com o sucesso da submissão
   const handleSubmitSuccess = (submissaoData) => {
     console.log("Submissão realizada com sucesso:", submissaoData);
-    // Aqui você poderia atualizar o estado do app para refletir a submissão
-    // Por exemplo, marcar o item como completo, atualizar a lista de entregas, etc.
+    // Atualizar o estado do app para refletir a submissão
+    setRefreshTrigger(prev => prev + 1);
   };
 
   if (loading) {
@@ -138,10 +319,26 @@ export default function CursoFormando() {
         <BsExclamationTriangle size={48} className="text-danger mb-3" />
         <h3>Erro</h3>
         <p>{error}</p>
-        <Button variant="outline-primary">Voltar à página inicial</Button>
+        <Button variant="outline-primary" onClick={() => navigate('/cursos')}>Voltar à página inicial</Button>
       </div>
     );
   }
+
+  // Encontra o próximo prazo (usando a data de entrega mais próxima no futuro)
+  const getPrazoProximo = () => {
+    const entregas = materials.filter(m => m.tipo === 'entrega' && m.data_entrega);
+    if (entregas.length === 0) return null;
+
+    const hoje = new Date();
+    const entregasFuturas = entregas.filter(e => new Date(e.data_entrega) > hoje);
+    if (entregasFuturas.length === 0) return null;
+
+    // Ordenar por data mais próxima
+    entregasFuturas.sort((a, b) => new Date(a.data_entrega) - new Date(b.data_entrega));
+    return entregasFuturas[0];
+  };
+
+  const proximoPrazo = getPrazoProximo();
 
   return (
     <div className="curso-content" style={{ backgroundColor: "#f5f7fa" }}>
@@ -175,22 +372,6 @@ export default function CursoFormando() {
                   </Badge>
                 )}
               </div>
-            </Container>
-          </div>
-
-          {/* Barra de Progresso */}
-          <div className="progress-section p-3 bg-light border-bottom">
-            <Container>
-              <div className="d-flex justify-content-between align-items-center mb-2">
-                <h6 className="mb-0 fw-bold">Seu progresso no curso</h6>
-                <span className="text-primary fw-bold">{progressPercent}%</span>
-              </div>
-              <ProgressBar
-                now={progressPercent}
-                variant="primary"
-                className="progress-custom"
-                style={{ height: "10px", borderRadius: "5px" }}
-              />
             </Container>
           </div>
 
@@ -328,13 +509,15 @@ export default function CursoFormando() {
                     </Card>
 
                     {/* Próximo evento ou prazo */}
-                    <Alert variant="warning" className="mt-3 d-flex align-items-center">
-                      <BsClock className="me-2 text-warning" size={20} />
-                      <div>
-                        <strong>Próximo prazo:</strong><br />
-                        Entrega do Trabalho Prático 1 - 15/05/2025
-                      </div>
-                    </Alert>
+                    {proximoPrazo && (
+                      <Alert variant="warning" className="mt-3 d-flex align-items-center">
+                        <BsClock className="me-2 text-warning" size={20} />
+                        <div>
+                          <strong>Próximo prazo:</strong><br />
+                          {proximoPrazo.titulo} - {formatDate(proximoPrazo.data_entrega)}
+                        </div>
+                      </Alert>
+                    )}
                   </Col>
                 </Row>
               </Card.Body>
@@ -350,154 +533,385 @@ export default function CursoFormando() {
                   Materiais do Curso
                 </h4>
 
-                {/* Organização por tipo */}
-                <Accordion defaultActiveKey="0" className="material-accordion">
-                  <Accordion.Item eventKey="0">
-                    <Accordion.Header>
-                      <div className="d-flex align-items-center">
-                        <BsCameraVideo className="me-2 text-primary" />
-                        <span>Vídeos</span>
-                        <Badge bg="primary" className="ms-2">{items.filter(i => i.type === "video").length}</Badge>
-                      </div>
-                    </Accordion.Header>
-                    <Accordion.Body>
-                      <ListGroup variant="flush" className="material-list">
-                        {items
-                          .filter(item => item.type === "video")
-                          .map((item, idx) => (
-                            <ListGroup.Item key={idx} className="material-item py-3">
-                              <div className="d-flex justify-content-between align-items-center">
-                                <div className="d-flex align-items-center">
-                                  {item.completed ?
-                                    <BsCheckCircle className="me-2 text-success" /> :
-                                    <div className="me-2 uncompleted-circle"></div>
-                                  }
+                {materialLoading ? (
+                  <div className="text-center py-4">
+                    <Spinner animation="border" variant="primary" />
+                    <p className="mt-2">A carregar materiais do curso...</p>
+                  </div>
+                ) : materials.length === 0 ? (
+                  <Alert variant="light" className="text-center">
+                    <BsInfoCircle className="me-2" />
+                    Nenhum material disponível para este curso ainda.
+                  </Alert>
+                ) : (
+                  // Organizando materiais por tipo
+                  <Accordion defaultActiveKey={[]} alwaysOpen className="material-accordion">
+                    {/* Vídeos */}
+                    <Accordion.Item eventKey="0">
+                      <Accordion.Header>
+                        <div className="d-flex align-items-center">
+                          <BsCameraVideo className="me-2 text-danger" />
+                          <span>Vídeos</span>
+                          <Badge bg="danger" className="ms-2">
+                            {getMaterialsByType('video').length}
+                          </Badge>
+                        </div>
+                      </Accordion.Header>
+                      <Accordion.Body>
+                        {getMaterialsByType('video').length === 0 ? (
+                          <p className="text-muted text-center py-3">Nenhum vídeo disponível</p>
+                        ) : (
+                          <ListGroup variant="flush" className="material-list">
+                            {getMaterialsByType('video').map((material) => (
+                              <ListGroup.Item key={material.id} className="material-item py-3">
+                                <div className="d-flex justify-content-between align-items-center">
+                                  <div className="d-flex align-items-start">
+                                    <div className="me-3 text-danger">
+                                      <BsPlayFill size={24} />
+                                    </div>
+                                    <div>
+                                      <div className="fw-bold">{material.titulo}</div>
+                                      {material.descricao && (
+                                        <small className="text-muted d-block mb-2">{material.descricao}</small>
+                                      )}
+                                      <div>
+                                        {material.ficheiros.map((file, idx) => (
+                                          <Badge
+                                            key={idx}
+                                            bg="light"
+                                            text="danger"
+                                            onClick={() => handleFileAction(file)}
+                                            style={{ cursor: 'pointer' }}
+                                            className="me-2 mb-1 text-decoration-none d-inline-flex align-items-center"
+                                          >
+                                            <BsDownload className="me-1" /> {file.nome.split('.').pop().toUpperCase()} • {file.nome}
+                                          </Badge>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  </div>
                                   <div>
-                                    <div className="fw-bold">{item.label}</div>
-                                    <small className="text-muted d-flex align-items-center">
-                                      <BsClock className="me-1" /> {item.duration}
-                                    </small>
+                                    {/* Always render both buttons, just disable them when no files exist */}
+                                    <Button
+                                      variant="outline-primary"
+                                      size="sm"
+                                      className="me-2"
+                                      onClick={(e) => {
+                                        e.stopPropagation(); // Stop event propagation
+                                        if (material.ficheiros && material.ficheiros.length > 0) {
+                                          handleFileAction(material.ficheiros[0]);
+                                        }
+                                      }}
+                                      disabled={!material.ficheiros || material.ficheiros.length === 0 || loadingFileId === material.id}
+                                    >
+                                      {loadingFileId === material.id ? (
+                                        <Spinner animation="border" size="sm" />
+                                      ) : (
+                                        <>
+                                          <BsDownload className="me-1" /> Download
+                                        </>
+                                      )}
+                                    </Button>
+
+                                    <Button
+                                      variant="primary"
+                                      size="sm"
+                                      onClick={(e) => {
+                                        e.stopPropagation(); // Stop event propagation
+                                        if (material.ficheiros && material.ficheiros.length > 0) {
+                                          handleFileAction(material.ficheiros[0]);
+                                        }
+                                      }}
+                                      disabled={!material.ficheiros || material.ficheiros.length === 0}
+                                    >
+                                      Visualizar
+                                    </Button>
                                   </div>
                                 </div>
-                                <Button variant="outline-primary" size="sm">
-                                  Assistir
-                                </Button>
-                              </div>
-                            </ListGroup.Item>
-                          ))}
-                      </ListGroup>
-                    </Accordion.Body>
-                  </Accordion.Item>
+                              </ListGroup.Item>
+                            ))}
+                          </ListGroup>
+                        )}
+                      </Accordion.Body>
+                    </Accordion.Item>
 
-                  <Accordion.Item eventKey="1">
-                    <Accordion.Header>
-                      <div className="d-flex align-items-center">
-                        <BsFileText className="me-2 text-primary" />
-                        <span>Documentos e Aulas</span>
-                        <Badge bg="primary" className="ms-2">
-                          {items.filter(i => i.type === "documento" || i.type === "aula").length}
-                        </Badge>
-                      </div>
-                    </Accordion.Header>
-                    <Accordion.Body>
-                      <ListGroup variant="flush" className="material-list">
-                        {items
-                          .filter(item => item.type === "documento" || item.type === "aula")
-                          .map((item, idx) => (
-                            <ListGroup.Item key={idx} className="material-item py-3">
-                              <div className="d-flex justify-content-between align-items-center">
-                                <div className="d-flex align-items-center">
-                                  {item.completed ?
-                                    <BsCheckCircle className="me-2 text-success" /> :
-                                    <div className="me-2 uncompleted-circle"></div>
-                                  }
-                                  <div className="fw-bold">{item.label}</div>
-                                </div>
-                                <div>
-                                  {item.downloadable && (
-                                    <Button variant="outline-primary" size="sm" className="me-2">
+                    {/* Documentos e Aulas */}
+                    <Accordion.Item eventKey="1">
+                      <Accordion.Header>
+                        <div className="d-flex align-items-center">
+                          <BsFileText className="me-2 text-primary" />
+                          <span>Documentos e Aulas</span>
+                          <Badge bg="primary" className="ms-2">
+                            {getMaterialsByType('documento').length + getMaterialsByType('aula').length}
+                          </Badge>
+                        </div>
+                      </Accordion.Header>
+                      <Accordion.Body>
+                        {getMaterialsByType('documento').length === 0 && getMaterialsByType('aula').length === 0 ? (
+                          <p className="text-muted text-center py-3">Nenhum documento ou aula disponível</p>
+                        ) : (
+                          <ListGroup variant="flush" className="material-list">
+                            {/* Listar documentos */}
+                            {getMaterialsByType('documento').map((material) => (
+                              <ListGroup.Item key={`doc-${material.id}`} className="material-item py-3">
+                                <div className="d-flex justify-content-between align-items-center">
+                                  <div className="d-flex align-items-start">
+                                    {/* Content section */}
+                                    <div className="me-3 text-primary">
+                                      <BsFileText size={24} />
+                                    </div>
+                                    <div>
+                                      <div className="fw-bold">{material.titulo}</div>
+                                      {material.descricao && (
+                                        <small className="text-muted d-block mb-2">{material.descricao}</small>
+                                      )}
+                                      <div>
+                                        {material.ficheiros && material.ficheiros.map((file, idx) => (
+                                          <Badge
+                                            key={idx}
+                                            bg="light"
+                                            text="primary"
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              e.preventDefault();
+                                              handleFileAction(file);
+                                            }}
+                                            style={{ cursor: 'pointer' }}
+                                            className="me-2 mb-1 text-decoration-none d-inline-flex align-items-center"
+                                          >
+                                            <BsDownload className="me-1" />
+                                            {(file.nome || file.name || '').split('.').pop().toUpperCase() || 'FILE'} •
+                                            {file.nome || file.name || 'arquivo'}
+                                          </Badge>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div className="button-container" style={{ position: 'relative', zIndex: 10 }}>
+                                    <Button
+                                      variant="outline-primary"
+                                      size="sm"
+                                      className="me-2"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        if (material.ficheiros && material.ficheiros.length > 0) {
+                                          handleFileAction(material.ficheiros[0]);
+                                        }
+                                      }}
+                                      disabled={!material.ficheiros || material.ficheiros.length === 0}
+                                    >
                                       <BsDownload className="me-1" /> Download
                                     </Button>
-                                  )}
-                                  <Button variant="primary" size="sm">
-                                    Visualizar
-                                  </Button>
-                                </div>
-                              </div>
-                            </ListGroup.Item>
-                          ))}
-                      </ListGroup>
-                    </Accordion.Body>
-                  </Accordion.Item>
 
-                  <Accordion.Item eventKey="2">
-                    <Accordion.Header>
-                      <div className="d-flex align-items-center">
-                        <BsUpload className="me-2 text-primary" />
-                        <span>Entregas e Avaliações</span>
-                        <Badge bg="primary" className="ms-2">
-                          {items.filter(i => i.type === "entrega" || i.type === "trabalho" || i.type === "quiz").length}
-                        </Badge>
-                      </div>
-                    </Accordion.Header>
-                    <Accordion.Body>
-                      <ListGroup variant="flush" className="material-list">
-                        {items
-                          .filter(item => item.type === "entrega" || item.type === "trabalho" || item.type === "quiz")
-                          .map((item, idx) => (
-                            <ListGroup.Item key={idx} className="material-item py-3">
-                              <div className="d-flex justify-content-between align-items-center">
-                                <div className="d-flex align-items-center">
-                                  {item.completed ? (
-                                    <BsCheckCircle className="me-2 text-success" />
-                                  ) : (
-                                    <div className="me-2 uncompleted-circle"></div>
-                                  )}
-                                  <div>
-                                    <div className="fw-bold">{item.label}</div>
-                                    {item.deadline && item.type !== "assíncrono" && (
-                                      <Badge bg="warning" text="dark">
-                                        <BsClock className="me-1" /> Prazo: {item.deadline}
-                                      </Badge>
-                                    )}
+                                    <Button
+                                      variant="primary"
+                                      size="sm"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        if (material.ficheiros && material.ficheiros.length > 0) {
+                                          handleFileAction(material.ficheiros[0]);
+                                        }
+                                      }}
+                                      disabled={!material.ficheiros || material.ficheiros.length === 0}
+                                    >
+                                      Visualizar
+                                    </Button>
                                   </div>
                                 </div>
-                                <div>
-                                  {item.type === "trabalho" ? (
-                                    <>
-                                      {item.downloadable && (
-                                        <Button variant="outline-primary" size="sm" className="me-2">
-                                          <BsDownload className="me-1" /> Download
-                                        </Button>
+                              </ListGroup.Item>
+                            ))}
+
+
+                            {/* Listar aulas */}
+                            {getMaterialsByType('aula').map((material) => (
+                              <ListGroup.Item key={`aula-${material.id}`} className="material-item py-3">
+                                <div className="d-flex justify-content-between align-items-center">
+                                  <div className="d-flex align-items-start">
+                                    <div className="me-3 text-success">
+                                      <BsBook size={24} />
+                                    </div>
+                                    <div>
+                                      <div className="fw-bold">{material.titulo}</div>
+                                      {material.descricao && (
+                                        <small className="text-muted d-block mb-2">{material.descricao}</small>
                                       )}
-                                      <Button variant="primary" size="sm">
-                                        Visualizar
-                                      </Button>
-                                    </>
-                                  ) : (
-                                    <>
-                                      {item.downloadable && (
-                                        <Button variant="outline-primary" size="sm" className="me-2">
-                                          <BsDownload className="me-1" /> Download
-                                        </Button>
-                                      )}
-                                      <Button 
-                                        variant="primary" 
-                                        size="sm"
-                                        onClick={() => handleOpenSubmeterModal(item.avaliacaoInfo)}
-                                      >
-                                        Submeter
-                                      </Button>
-                                    </>
-                                  )}
+                                      <div>
+                                        {material.ficheiros.map((file, idx) => (
+                                          <Badge
+                                            key={idx}
+                                            bg="light"
+                                            text="success"
+                                            onClick={() => handleFileAction(file)}
+                                            style={{ cursor: 'pointer' }}
+                                            className="me-2 mb-1 text-decoration-none d-inline-flex align-items-center"
+                                          >
+                                            <BsDownload className="me-1" /> {file.nome.split('.').pop().toUpperCase()} • {file.nome}
+                                          </Badge>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div>
+                                    {/* Always show the Download button but disable it when no files are available */}
+                                    <Button
+                                      variant="outline-success"
+                                      size="sm"
+                                      className="me-2"
+                                      onClick={() => material.ficheiros.length > 0 && handleFileAction(material.ficheiros[0])}
+                                      disabled={material.ficheiros.length === 0}
+                                    >
+                                      <BsDownload className="me-1" /> Download
+                                    </Button>
+                                    <Button
+                                      variant="success"
+                                      size="sm"
+                                      onClick={() => material.ficheiros.length > 0 && handleFileAction(material.ficheiros[0])}
+                                      disabled={material.ficheiros.length === 0}
+                                    >
+                                      Visualizar
+                                    </Button>
+                                  </div>
                                 </div>
-                              </div>
-                            </ListGroup.Item>
-                          ))}
-                      </ListGroup>
-                    </Accordion.Body>
-                  </Accordion.Item>
-                </Accordion>
+                              </ListGroup.Item>
+                            ))}
+                          </ListGroup>
+                        )}
+                      </Accordion.Body>
+                    </Accordion.Item>
+
+                    {/* Entregas e Trabalhos */}
+                    <Accordion.Item eventKey="2">
+                      <Accordion.Header>
+                        <div className="d-flex align-items-center">
+                          <BsUpload className="me-2 text-warning" />
+                          <span>Entregas e Avaliações</span>
+                          <Badge bg="warning" text="dark" className="ms-2">
+                            {getMaterialsByType('entrega').length + getMaterialsByType('trabalho').length}
+                          </Badge>
+                        </div>
+                      </Accordion.Header>
+                      <Accordion.Body>
+                        {getMaterialsByType('entrega').length === 0 && getMaterialsByType('trabalho').length === 0 ? (
+                          <p className="text-muted text-center py-3">Nenhuma entrega ou avaliação disponível</p>
+                        ) : (
+                          <ListGroup variant="flush" className="material-list">
+                            {/* Listar trabalhos */}
+                            {getMaterialsByType('trabalho').map((material) => (
+                              <ListGroup.Item key={`trabalho-${material.id}`} className="material-item py-3">
+                                <div className="d-flex justify-content-between align-items-center">
+                                  <div className="d-flex align-items-start">
+                                    <div className="me-3 text-info">
+                                      <BsTools size={24} />
+                                    </div>
+                                    <div>
+                                      <div className="fw-bold">{material.titulo}</div>
+                                      {material.descricao && (
+                                        <small className="text-muted d-block mb-2">{material.descricao}</small>
+                                      )}
+                                      <div>
+                                        {material.ficheiros.map((file, idx) => (
+                                          <Badge
+                                            key={idx}
+                                            bg="light"
+                                            text="info"
+                                            onClick={() => handleFileAction(file)}
+                                            style={{ cursor: 'pointer' }}
+                                            className="me-2 mb-1 text-decoration-none d-inline-flex align-items-center"
+                                          >
+                                            <BsDownload className="me-1" /> {file.nome.split('.').pop().toUpperCase()} • {file.nome}
+                                          </Badge>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div>
+                                    {/* Always show the Download button but disable it when no files are available */}
+                                    <Button
+                                      variant="outline-info"
+                                      size="sm"
+                                      className="me-2"
+                                      onClick={() => material.ficheiros.length > 0 && handleFileAction(material.ficheiros[0])}
+                                      disabled={material.ficheiros.length === 0}
+                                    >
+                                      <BsDownload className="me-1" /> Download
+                                    </Button>
+                                    <Button
+                                      variant="info"
+                                      size="sm"
+                                      onClick={() => material.ficheiros.length > 0 && handleFileAction(material.ficheiros[0])}
+                                      disabled={material.ficheiros.length === 0}
+                                    >
+                                      Visualizar
+                                    </Button>
+                                  </div>
+                                </div>
+                              </ListGroup.Item>
+                            ))}
+
+                            {/* Listar entregas */}
+                            {getMaterialsByType('entrega').map((material) => (
+                              <ListGroup.Item key={`entrega-${material.id}`} className="material-item py-3">
+                                <div className="d-flex justify-content-between align-items-center">
+                                  <div className="d-flex align-items-start">
+                                    {/* Content section remains the same */}
+                                    <div className="me-3 text-warning">
+                                      <BsUpload size={24} />
+                                    </div>
+                                    <div>
+                                      <div className="fw-bold">{material.titulo}</div>
+                                      {material.descricao && (
+                                        <small className="text-muted d-block mb-2">{material.descricao}</small>
+                                      )}
+                                      {material.data_entrega && (
+                                        <Badge bg="warning" text="dark" className="mb-2">
+                                          <BsClock className="me-1" /> Prazo: {formatDate(material.data_entrega)}
+                                        </Badge>
+                                      )}
+                                      <div>
+                                        {material.ficheiros.map((file, idx) => (
+                                          <Badge
+                                            key={idx}
+                                            bg="light"
+                                            text="warning"
+                                            onClick={() => handleFileAction(file)}
+                                            style={{ cursor: 'pointer' }}
+                                            className="me-2 mb-1 text-decoration-none d-inline-flex align-items-center"
+                                          >
+                                            <BsDownload className="me-1" /> {file.nome.split('.').pop().toUpperCase()} • {file.nome}
+                                          </Badge>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div>
+                                    <Button
+                                      variant="outline-warning"
+                                      size="sm"
+                                      className="me-2"
+                                      onClick={() => material.ficheiros.length > 0 && handleFileAction(material.ficheiros[0])}
+                                      disabled={material.ficheiros.length === 0}
+                                    >
+                                      <BsDownload className="me-1" /> Download
+                                    </Button>
+                                    <Button
+                                      variant="warning"
+                                      size="sm"
+                                      onClick={() => handleOpenSubmeterModal(material)}
+                                    >
+                                      <BsUpload className="me-1" /> Submeter
+                                    </Button>
+                                  </div>
+                                </div>
+                              </ListGroup.Item>
+                            ))}
+                          </ListGroup>
+                        )}
+                      </Accordion.Body>
+                    </Accordion.Item>
+                  </Accordion>
+                )}
               </Card.Body>
             </Card>
           )}
@@ -590,8 +1004,8 @@ export default function CursoFormando() {
       </Container>
 
       {/* Modal de Submissão de Trabalho */}
-      <ModalSubmeterTrabalho 
-        show={showSubmeterModal} 
+      <ModalSubmeterTrabalho
+        show={showSubmeterModal}
         handleClose={handleCloseSubmeterModal}
         avaliacao={selectedAvaliacao}
         onSubmitSuccess={handleSubmitSuccess}
