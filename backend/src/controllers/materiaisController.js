@@ -265,7 +265,6 @@ const cursoMaterialController = {
 
     // Buscar um material específico pelo ID
     getMaterialById: async (req, res) => {
-        console.log("getMaterialById", req.params.id);
         try {
             const materialId = req.params.id;
 

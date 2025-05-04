@@ -20,12 +20,12 @@ minioClient.listBuckets(function (err, buckets) {
 const objectStorage = {
     insertFile: async function (bucketName, file, fileName) {
         const standardBucketName = bucketName.toLowerCase();
-        console.log(`Inserting file into bucket: ${standardBucketName}, filename: ${fileName}`);
+        //console.log(`Inserting file into bucket: ${standardBucketName}, filename: ${fileName}`);
 
         const exists = await minioClient.bucketExists(standardBucketName);
 
         if (!exists) {
-            console.log(`Creating new bucket: ${standardBucketName}`);
+            //console.log(`Creating new bucket: ${standardBucketName}`);
             minioClient.makeBucket(standardBucketName, function (err) {
                 if (err) return console.log('Error creating bucket with object lock.', err)
                 console.log('Bucket created successfully and enabled object lock')
@@ -116,7 +116,7 @@ const objectStorage = {
                 stream.on('end', function () {
                     Promise.all(objectPromises)
                         .then(objectsWithUrls => {
-                            console.log(`Found ${objectsWithUrls.length} files in bucket ${standardBucketName}`);
+                            //console.log(`Found ${objectsWithUrls.length} files in bucket ${standardBucketName}`);
                             resolve(objectsWithUrls);
                         })
                         .catch(err => {

@@ -36,7 +36,6 @@ const ModalEditarFicheiro = ({
   useEffect(() => {
     const fetchMaterialData = async () => {
       if (!fileId || !show) return;
-      console.log('Fetching material data for fileId:', fileId);
       setLoading(true);
       try {
         const token = sessionStorage.getItem('token');
@@ -45,8 +44,6 @@ const ModalEditarFicheiro = ({
         });
         if (response.data) {
           const materialData = response.data;
-          console.log('Material data:', materialData);
-          
           setFormData({
             titulo: materialData.titulo || '',
             descricao: materialData.descricao || '',

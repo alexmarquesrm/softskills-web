@@ -36,7 +36,6 @@ export default function CoursesManage() {
                 setFormadorNome(response.data[0].curso_sincrono[0].sincrono_formador.formador_colab.nome);
             }
             
-            console.log("Cursos carregados:", response.data);
         } catch (error) {
             console.error("Erro ao carregar cursos:", error);
             setError("Não foi possível carregar os cursos");

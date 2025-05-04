@@ -86,8 +86,6 @@ export default function UsersTable() {
   const fetchData = async () => {
     try {
       const token = sessionStorage.getItem('token');
-      const userType = sessionStorage.getItem('tipo');
-      console.log("Tipo de utilizador:", userType);
       if (!token) {
         setError(new Error('No authentication token found'));
         console.error("No authentication token found");
@@ -98,7 +96,6 @@ export default function UsersTable() {
         headers: { Authorization: `${token}` }
       });
       const utilizadores = response.data;
-      console.log("Utilizadores:", utilizadores);
       const sortedUtilizadores = utilizadores.sort((a, b) => a.colaborador_id - b.colaborador_id);
 
       setTableRows(

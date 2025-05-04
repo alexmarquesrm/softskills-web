@@ -40,7 +40,6 @@ export default function CursoDetalhes() {
   // Fetch course data based on the ID
   useEffect(() => {
     const fetchCursoData = async () => {
-      console.log("Fetching course data for ID:", courseId);
       if (!courseId) {
         setError("ID do curso não encontrado");
         setLoading(false);
@@ -62,7 +61,6 @@ export default function CursoDetalhes() {
         if (foundCourse) {
           setCurso(foundCourse);
           setSelectedCursoId(foundCourse.curso_id);
-          console.log("Dados do curso carregados:", foundCourse);
         } else {
           setError("Curso não encontrado");
         }
@@ -93,7 +91,6 @@ export default function CursoDetalhes() {
 
         if (response.data.success) {
           setMaterials(response.data.data);
-          console.log("Materiais do curso carregados:", response.data.data);
         } else {
           console.error("Erro ao carregar materiais:", response.data.message);
         }

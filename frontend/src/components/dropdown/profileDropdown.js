@@ -38,9 +38,7 @@ function ProfileDropdown({ onLogout }) {
           userData.fotoPerfilUrl !== "null" && 
           userData.fotoPerfilUrl !== "") {
         setProfilePhoto(userData.fotoPerfilUrl);
-        console.log("Profile photo fetched from API:", userData.fotoPerfilUrl);
       } else {
-        console.log("No valid profile photo found in API response");
         setProfilePhoto(null);
       }
     } catch (error) {
@@ -55,7 +53,6 @@ function ProfileDropdown({ onLogout }) {
     
     // Create a custom event listener for profile updates
     const handleProfileUpdate = () => {
-      console.log("Profile update event received, fetching new data");
       fetchUserProfileData();
     };
     

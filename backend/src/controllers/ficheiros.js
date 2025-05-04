@@ -94,7 +94,7 @@ const controladorFicheiros = {
     getAllFilesByAlbum: async (id, entidade) => {
         try {
             const standardEntidade = entidade.toLowerCase();
-            console.log(`Getting all files for ${standardEntidade}${id}`);
+            //console.log(`Getting all files for ${standardEntidade}${id}`);
             
             const objeto = await models.objeto.findOne({
                 where: {
@@ -142,11 +142,11 @@ const controladorFicheiros = {
         try {
             const standardEntidade = entidade.toLowerCase();
             const bucketName = `${standardEntidade}${id}`;
-            console.log(`Getting files directly from bucket: ${bucketName}`);
+            //console.log(`Getting files directly from bucket: ${bucketName}`);
             
             const files = await objStorage.getFilesByBucket(bucketName);
             if (files.length > 0) {
-                console.log(`Found ${files.length} files in bucket ${bucketName}`);
+                //console.log(`Found ${files.length} files in bucket ${bucketName}`);
                 console.log("First file URL:", files[0].url);
             } else {
                 console.log(`No files found in bucket ${bucketName}`);

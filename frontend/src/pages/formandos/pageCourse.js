@@ -73,9 +73,6 @@ export default function CursoFormando() {
         if (response.data.success) {
           const materialsData = response.data.data;
 
-          // Debug the materials data structure
-          console.log("Raw materials data:", materialsData);
-
           // Check if each material has files property with expected structure
           const hasFilesWithUrls = materialsData.some(m =>
             m.ficheiros &&
@@ -83,13 +80,7 @@ export default function CursoFormando() {
             m.ficheiros[0].url
           );
 
-          console.log("Materials have files with URLs:", hasFilesWithUrls);
-
           if (!hasFilesWithUrls) {
-            // If files don't have URLs, we need to fetch each material individually
-            // to get the complete data structure (like the modal does)
-            console.log("Files missing URLs, fetching individual materials...");
-
             const enhancedMaterials = await Promise.all(
               materialsData.map(async (material) => {
                 try {
@@ -109,7 +100,6 @@ export default function CursoFormando() {
               })
             );
 
-            console.log("Enhanced materials:", enhancedMaterials);
             setMaterials(enhancedMaterials);
           } else {
             // Data already has the right structure
@@ -133,8 +123,6 @@ export default function CursoFormando() {
   // 2. Update your handleFileAction function to be more robust with different data structures
   // Função para abrir ou baixar um arquivo
   const handleFileAction = (file) => {
-    console.log("handleFileAction called with file:", file);
-
     // First check if we have a file object
     if (!file) {
       console.error("No file object provided");
@@ -151,7 +139,6 @@ export default function CursoFormando() {
 
     // If we still don't have a URL, try to look deeper
     if (!fileUrl && typeof file === 'object') {
-      console.log("URL not found in top-level properties, checking nested objects");
 
       // Check if any property might contain an object with URL
       for (const key in file) {
@@ -162,7 +149,6 @@ export default function CursoFormando() {
           file[key].url
         ) {
           fileUrl = file[key].url;
-          console.log(`Found URL in nested property: ${key}`);
           break;
         }
       }
@@ -187,17 +173,13 @@ export default function CursoFormando() {
       extension = fileName.split('.').pop().toLowerCase();
     }
 
-    console.log(`Processing file: URL=${fileUrl}, Name=${fileName}, Extension=${extension}`);
-
     try {
       // Check if it's a viewable file type
       const viewableExtensions = ['pdf', 'jpg', 'jpeg', 'png', 'gif', 'mp4', 'webm'];
 
       if (viewableExtensions.includes(extension)) {
-        console.log(`Opening ${extension} file in new tab`);
         window.open(fileUrl, '_blank');
       } else {
-        console.log("Downloading file");
         const link = document.createElement('a');
         link.href = fileUrl;
         link.download = fileName || 'download';
@@ -299,7 +281,6 @@ export default function CursoFormando() {
 
   // Função para lidar com o sucesso da submissão
   const handleSubmitSuccess = (submissaoData) => {
-    console.log("Submissão realizada com sucesso:", submissaoData);
     // Atualizar o estado do app para refletir a submissão
     setRefreshTrigger(prev => prev + 1);
   };

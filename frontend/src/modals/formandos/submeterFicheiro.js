@@ -131,8 +131,6 @@ const ModalSubmeterTrabalho = ({
         estado: 'submetido'
       };
 
-      console.log('Dados de submissão:', dadosSubmissao);
-      
       // Aqui  enviaremos os dados para o servidor
       // Exemplo: await api.post(`/submissoes`, dadosSubmissao);
       

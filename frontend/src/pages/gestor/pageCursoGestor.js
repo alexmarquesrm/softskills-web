@@ -51,7 +51,6 @@ export default function CursoDetalhesGestor() {
                 const foundCourse = response.data;
                 if (foundCourse) {
                     setCurso(foundCourse);
-                    console.log("Dados do curso carregados (Gestor):", foundCourse);
                 } else {
                     setError("Curso não encontrado");
                 }
@@ -141,7 +140,7 @@ export default function CursoDetalhesGestor() {
     };
 
     const handleEditSuccess = (updatedFileData) => {
-        console.log("Arquivo atualizado com sucesso:", updatedFileData);
+        //console.log("Arquivo atualizado com sucesso:", updatedFileData);
     };
 
     const handleAddContent = () => {

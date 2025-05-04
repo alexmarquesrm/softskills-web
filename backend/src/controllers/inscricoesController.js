@@ -27,8 +27,6 @@ const controladorInscricoes = {
   // Listar todas as inscrições (apenas para administradores)
   async getAll(req, res) {
     try {
-      console.log("Verificando permissões do usuário:", req.user);
-
       // Verificar se o usuário é Gestor, seja como tipo ativo ou como um dos tipos disponíveis
       const userRoles = req.user.allUserTypes?.split(',') || [];
 
