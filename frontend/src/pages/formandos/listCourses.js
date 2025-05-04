@@ -53,11 +53,14 @@ export default function Courses() {
 
         return curso.filter(item => {
 
-            const isEmCurso = 
-            item.tipo === 'A' || 
-            (item.tipo === 'S' && item.sincrono && !item.sincrono.estado);
-            if (!isEmCurso) return false;
+            // Ignora cursos pendentes
+            if (item.pendente) return false;
             
+            const isEmCurso =
+                item.tipo === 'A' ||
+                (item.tipo === 'S' && item.sincrono && !item.sincrono.estado);
+            if (!isEmCurso) return false;
+
             // Filtrar por começar
             if (item.tipo === 'S') {
                 const dataLimite = item.sincrono?.data_limite_inscricao;
