@@ -16,6 +16,7 @@ var _formando = require("./formando");
 var _forum = require("./forum");
 var _gestor = require("./gestor");
 var _inscricao = require("./inscricao");
+var _material = require("./material");
 var _notificacao = require("./notificacao");
 var _notificacoes_formando = require("./notificacoes_formando");
 var _objeto = require("./objeto");
@@ -50,6 +51,7 @@ function initModels(sequelize) {
   var forum = _forum(sequelize, DataTypes);
   var gestor = _gestor(sequelize, DataTypes);
   var inscricao = _inscricao(sequelize, DataTypes);
+  var material = _material(sequelize, DataTypes);
   var notificacao = _notificacao(sequelize, DataTypes);
   var notificacoes_formando = _notificacoes_formando(sequelize, DataTypes);
   var objeto = _objeto(sequelize, DataTypes);
@@ -114,6 +116,8 @@ function initModels(sequelize) {
   curso.hasMany(inscricao, { as: "curso_inscricaos", foreignKey: "curso_id"});
   notificacao.belongsTo(curso, { as: "curso", foreignKey: "curso_id"});
   curso.hasMany(notificacao, { as: "notificacaos", foreignKey: "curso_id"});
+  material.belongsTo(curso, { as: "curso", foreignKey: "curso_id"});
+  curso.hasMany(material, { as: "materials", foreignKey: "curso_id"});
   pedido_curso.belongsTo(curso, { as: "ped_curso", foreignKey: "curso_id"});
   curso.hasMany(pedido_curso, { as: "curso_ped", foreignKey: "curso_id"});
   quizz.belongsTo(curso, { as: "curso", foreignKey: "curso_id"});
@@ -195,6 +199,7 @@ function initModels(sequelize) {
     forum,
     gestor,
     inscricao,
+    material,
     notificacao,
     notificacoes_formando,
     objeto,
