@@ -18,11 +18,13 @@ import CursoFormando from "./pages/formandos/pageCourse";
 import CursosFormando from "./pages/formandos/listCourses";
 import PercursoFormativoFormando from "./pages/formandos/percursoFormativo";
 import ListaPedidos from "./pages/gestor/pedidos";
+import AdicionarCurso from "./pages/gestor/addCourse";
 
 // Components
 import CustomNavbar from "./components/navbar/customNavbar";
 import Footer from "./components/footer/footer";
 import ProtectedRoute from "./components/ProtectedRoute";
+import AddCourse from "./pages/gestor/addCourse";
 
 function AppContent() {
     return (
@@ -49,6 +51,7 @@ function AppContent() {
                         <Route path="/gestor/lista/cursos" element={<GestaoCursos />} />
                         <Route path="/gestor/cursodetalhes/:id" element={<CursoDetalhesGestor />} />
                         <Route path="/gestor/lista/pedidos" element={<ListaPedidos />} />
+                        <Route path="/gestor/cursos/add" element={<AdicionarCurso />} />
 
                     </Route>
                     <Route path="*" element={<Navigate to="/" />} />
