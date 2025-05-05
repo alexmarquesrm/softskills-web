@@ -5,14 +5,14 @@ import { useNavigate } from "react-router-dom";
 import ReactGif from "./../../images/react.gif";
 import "./cardCourses.css";
 
-function CardCourses({ curso, inscricao, mostrarBotao = true }) {
+function CardCourses({ curso, inscricao, mostrarBotao = true, mostrarInicioEFim = false }) {
   const navigate = useNavigate();
   const tipoUser = sessionStorage.getItem('tipo');
 
   const handleViewDetails = () => {
     if (tipoUser === "Gestor") {
       navigate(`/gestor/cursodetalhes/${curso.id}`, {
-          state: { id: curso.id }
+        state: { id: curso.id }
       });
     } else {
       navigate(`/curso/${curso.curso_id}`, {
@@ -89,14 +89,14 @@ function CardCourses({ curso, inscricao, mostrarBotao = true }) {
             </div>
           )}
 
-          {curso.sincrono?.inicio && curso.sincrono?.estado !== true && (
+          {(curso.sincrono?.inicio && (mostrarInicioEFim || curso.sincrono?.estado !== true)) && (
             <div className="meta-item">
               <Calendar size={16} className="icon" />
               <span>Início: {formatDate(curso.sincrono.inicio)}</span>
             </div>
           )}
 
-          {curso.sincrono?.fim && curso.sincrono?.estado === true && (
+          {(curso.sincrono?.fim && (mostrarInicioEFim || curso.sincrono?.estado === true)) && (
             <div className="meta-item">
               <Calendar size={16} className="icon" />
               <span>Fim: {formatDate(curso.sincrono.fim)}</span>
