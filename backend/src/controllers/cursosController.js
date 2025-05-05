@@ -12,11 +12,12 @@ const controladorCursos = {
       const {
         gestor_id,
         topico_id,
-        tipo,
+        tipo,  
         total_horas,
         titulo,
         descricao,
         pendente,
+        certificado,
         nivel,
         sincrono
       } = req.body;
@@ -30,7 +31,8 @@ const controladorCursos = {
         titulo,
         descricao,
         pendente,
-        nivel,
+        certificado,
+        nivel
       }, { transaction: t });
 
       // Se for do tipo S (Sincrono), criar entrada na tabela sincrono
