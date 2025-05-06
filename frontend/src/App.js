@@ -24,7 +24,7 @@ import AdicionarCurso from "./pages/gestor/addCourse";
 import CustomNavbar from "./components/navbar/customNavbar";
 import Footer from "./components/footer/footer";
 import ProtectedRoute from "./components/ProtectedRoute";
-import AddCourse from "./pages/gestor/addCourse";
+
 
 function AppContent() {
     return (

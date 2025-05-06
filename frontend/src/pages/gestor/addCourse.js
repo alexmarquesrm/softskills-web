@@ -93,18 +93,27 @@ export default function AddCourse() {
         setError(null);
 
         if (formData.tipo === 'S') {
+            const hoje = new Date();
+            hoje.setHours(0, 0, 0, 0); 
+        
             const inscricao = new Date(formData.data_limite_inscricao);
             const inicio = new Date(formData.data_inicio);
             const fim = new Date(formData.data_fim);
-
-            if (inscricao >= inicio) {
-                setError("A data limite de inscrição deve ser anterior à data de início do curso.");
+        
+            if (inscricao < hoje) {
+                setError("A data limite de inscrição não pode ser anterior à data atual.");
                 setLoading(false);
                 return;
             }
-
+        
+            if (inscricao >= inicio) {
+                setError("A data de início do curso deve ser posterior à data limite de inscrição.");
+                setLoading(false);
+                return;
+            }
+        
             if (inicio >= fim) {
-                setError("A data de início deve ser anterior à data de fim do curso.");
+                setError("A data de fim do curso deve ser posterior à data de início.");
                 setLoading(false);
                 return;
             }
