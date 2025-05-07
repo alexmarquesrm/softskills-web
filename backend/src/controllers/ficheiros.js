@@ -147,9 +147,9 @@ const controladorFicheiros = {
             const files = await objStorage.getFilesByBucket(bucketName);
             if (files.length > 0) {
                 //console.log(`Found ${files.length} files in bucket ${bucketName}`);
-                console.log("First file URL:", files[0].url);
+                //console.log("First file URL:", files[0].url);
             } else {
-                console.log(`No files found in bucket ${bucketName}`);
+                //console.log(`No files found in bucket ${bucketName}`);
             }
             return files;
         } catch (error) {

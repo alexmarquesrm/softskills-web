@@ -61,8 +61,8 @@ export default function CourseManage() {
 
             // Filtrar por estado - só aplica se algum estado estiver selecionado
              if (anyEstadoSelected) {
-                if (!item.sincrono?.estado && !estadoSelecionado.emCurso) return false;
-                if (item.sincrono?.estado && !estadoSelecionado.terminado) return false;
+                if (!item.curso_sincrono?.estado && !estadoSelecionado.emCurso) return false;
+                if (item.curso_sincrono?.estado && !estadoSelecionado.terminado) return false;
             } 
 
             // Filtrar por termo de pesquisa
@@ -71,7 +71,7 @@ export default function CourseManage() {
                 return (
                     item?.titulo?.toLowerCase().includes(searchLower) ||
                     item.descricao?.toLowerCase().includes(searchLower) ||
-                    (item?.sincrono?.formador?.colaborador?.nome?.toLowerCase().includes(searchLower))
+                    (item?.curso_sincrono?.formador?.colaborador?.nome?.toLowerCase().includes(searchLower))
                 );
             }
 
@@ -84,7 +84,7 @@ export default function CourseManage() {
         if (curso.length === 0) return { total: 0, emCurso: 0, terminados: 0 };
 
         const total = curso.length;
-        const terminados = curso.filter(item => item.sincrono?.estado).length;
+        const terminados = curso.filter(item => item.curso_sincrono?.estado).length;
         const emCurso = total - terminados;
 
         return { total, emCurso };

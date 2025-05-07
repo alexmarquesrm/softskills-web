@@ -122,7 +122,7 @@ const controladorCursos = {
             nome: curso.gestor?.gestor_colab?.nome || null,
             email: curso.gestor?.gestor_colab?.email || null,
           },
-          sincrono: curso.curso_sincrono ? {
+          curso_sincrono: curso.curso_sincrono ? {
             inicio: curso.curso_sincrono.data_inicio,
             fim: curso.curso_sincrono.data_fim,
             data_limite_inscricao: curso.curso_sincrono.data_limite_inscricao,
@@ -141,7 +141,7 @@ const controladorCursos = {
         };
       });
 
-      res.json(cursosResumidos);
+      res.json(cursos);
     } catch (error) {
       console.error("Erro ao obter cursos:", error);
       res.status(500).json({ message: "Erro interno ao obter cursos" });
@@ -425,7 +425,7 @@ const controladorCursos = {
             model: models.sincrono,
             as: "curso_sincrono",
             where: { formador_id: id },
-            attributes: ["curso_id", "formador_id", "limite_vagas", "data_inicio", "data_fim", "estado"],
+            attributes: ["curso_id", "formador_id", "limite_vagas", "data_limite_inscricao", "data_inicio", "data_fim", "estado"],
             include: [
               {
                 model: models.formador,

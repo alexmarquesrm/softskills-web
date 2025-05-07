@@ -130,7 +130,7 @@ function FiltrosCursos({
                                     checked={estadoSelecionado.terminado}
                                     onChange={() => toggleEstado("terminado")}
                                 />
-                                <label htmlFor="estado-terminado">Terminado</label>
+                                <label htmlFor="estado-terminado">Concluído</label>
                             </div>
                         </div>
                     </div>

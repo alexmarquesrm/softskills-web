@@ -1,23 +1,25 @@
 import React, { useEffect, useState, useMemo } from "react";
 import axios from "../../config/configAxios";
-import { Container, Row, Col, Card } from "react-bootstrap";
+import { Container } from "react-bootstrap";
+import { FileEarmarkText, ExclamationTriangle, ArrowRightCircle, } from 'react-bootstrap-icons';
+import { useNavigate } from 'react-router-dom';
+/* COMPONENTES */
 import CardInfo from "../../components/cards/cardDestaque";
 import CardPedido from '../../components/cards/cardPedido';
 import CardRow from '../../components/cards/cardRow';
-import {
-  FileEarmarkText,
-  ExclamationTriangle,
-  ArrowRightCircle,
-} from 'react-bootstrap-icons';
+import FeaturedCourses from "../../components/cards/cardCourses";
 
 export default function PaginaGestor() {
   const [curso, setCurso] = useState([]);
-  const [estadoSelecionado, setEstadoSelecionado] = useState({ emCurso: false, terminado: false });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const nome = sessionStorage.getItem('nome');
   const id = sessionStorage.getItem('colaboradorid');
-
+  const navigate = useNavigate();
+  const navToPage=(url)=>{
+      navigate(url)
+  }
+  
   const fetchCursos = async () => {
     try {
       const token = sessionStorage.getItem('token');
@@ -39,19 +41,15 @@ export default function PaginaGestor() {
     fetchCursos();
   }, []);
 
-  const filteredCurso= useMemo(() => {
+  const filteredCurso = useMemo(() => {
     if (curso.length === 0) return [];
 
     return curso.filter(item => {
       if (item.tipo !== 'S') return false;
 
-      // Verifica se ainda está em período de inscrição
+      // Verifica se ainda está em período de inicio
       const dataLimite = item.sincrono?.inicio;
       if (!dataLimite || new Date(dataLimite) <= new Date()) return false;
-
-      // (Opcional) filtro por estado (emCurso / terminado)
-      if (estadoSelecionado.emCurso && item.sincrono?.estado !== false) return false;
-      if (estadoSelecionado.terminado && item.sincrono?.estado !== true) return false;
 
       // Verifica se o formador é o mesmo que o utilizador logado
       const formadorCurso = item.sincrono?.formador?.formador_id;
@@ -59,10 +57,34 @@ export default function PaginaGestor() {
 
       return true;
     });
-  }, [curso, estadoSelecionado]);
+  }, [curso, id]);
+
+  const filteredCursoAtivo = useMemo(() => {
+    if (curso.length === 0) return [];
+
+    return curso.filter(item => {
+      if (item.tipo !== 'S') return false;
+
+      // Verifica se já começou
+      const dataLimite = item.sincrono?.inicio;
+      if (!dataLimite || new Date(dataLimite) > new Date()) return false;
+
+      if (item.sincrono?.estado === true) return false;
+      
+      // Verifica se o formador é o mesmo que o utilizador logado
+      const formadorCurso = item.sincrono?.formador?.formador_id;
+      if (formadorCurso && Number(formadorCurso) !== Number(id)) return false;
+
+      return true;
+    });
+  }, [curso, id]);
 
   const renderPedidoCard = (curso, index) => (
     <CardPedido index={index} curso={curso} />
+  );
+
+  const renderCourseCard = (curso, index) => (
+    <FeaturedCourses key={curso.curso_id || index} curso={curso} mostrarBotao={true} mostrarInicioEFim={true}/>
   );
 
   if (error) {
@@ -108,7 +130,7 @@ export default function PaginaGestor() {
           {loading ? (
             <div className="loading-container">
               <div className="loading-spinner"></div>
-              <p>Carregando pedidos...</p>
+              <p>A carregar cursos...</p>
             </div>
           ) : filteredCurso.length > 0 ? (
             <CardRow dados={[...filteredCurso].sort((a, b) => new Date(a.sincrono?.inicio) - new Date(b.sincrono?.inicio))} renderCard={renderPedidoCard} scrollable={true} />
@@ -116,6 +138,40 @@ export default function PaginaGestor() {
             <div className="empty-state text-center">
               <FileEarmarkText size={40} className="empty-icon mb-3" />
               <p>Não há cursos programados para começar neste momento.</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="section-wrapper">
+        <div className="section-header">
+          <h2 className="section-title">
+            <FileEarmarkText className="section-icon" />
+            Cursos ativos
+          </h2>
+          <div className="section-actions">
+            <button className="btn btn-link section-link" onClick={()=>navToPage('/formador/cursos')}>
+              Ver Todos <ArrowRightCircle size={16} className="ms-1" /> 
+            </button>   
+          </div>
+        </div>
+
+        <div className="section-content">
+          {loading ? (
+            <div className="loading-container">
+              <div className="loading-spinner"></div>
+              <p>A carregar cursos...</p>
+            </div>
+          ) : filteredCursoAtivo.length > 0 ? (
+            <div className="courses-grid">
+              {filteredCursoAtivo.slice(0, 8).map((item, index) =>
+                renderCourseCard(item, index)
+              )}
+            </div>
+          ) : (
+            <div className="empty-state text-center">
+              <FileEarmarkText size={40} className="empty-icon mb-3" />
+              <p>Não há cursos ativos neste momento.</p>
             </div>
           )}
         </div>
