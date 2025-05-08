@@ -222,6 +222,47 @@ export default function CursoDetalhesGestor() {
         "Avaliar resultados e propor melhorias"
     ];
 
+    // Função para exportar lista de alunos para CSV
+    const exportarListaAlunos = () => {
+        if (alunos.length === 0) {
+            alert('Não há alunos para exportar.');
+            return;
+        }
+
+        // Cabeçalho do CSV
+        const headers = ['Nome', 'Email', 'Data de Inscricao', 'Estado', 'Tipo de Avaliacao', 'Nota', 'Data do Certificado'];
+        
+        // Dados dos alunos
+        const csvData = alunos.map(aluno => [
+            aluno.nome,
+            aluno.email,
+            formatDate(aluno.data_inscricao),
+            aluno.estado,
+            aluno.tipo_avaliacao || 'N/A',
+            aluno.nota || 'N/A',
+            aluno.data_certificado ? formatDate(aluno.data_certificado) : 'N/A'
+        ]);
+
+        // Combinar cabeçalho e dados
+        const csvContent = [
+            headers.join(','),
+            ...csvData.map(row => row.join(','))
+        ].join('\n');
+
+        // Criar blob e link para download
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        
+        link.setAttribute('href', url);
+        link.setAttribute('download', `alunos_${curso?.titulo || 'curso'}_${new Date().toISOString().split('T')[0]}.csv`);
+        link.style.visibility = 'hidden';
+        
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
     if (loading) {
         return (
             <div className="loading-container d-flex justify-content-center align-items-center" style={{ height: "80vh" }}>
@@ -720,7 +761,12 @@ export default function CursoDetalhesGestor() {
                                             Inscritos: {alunos.length} Alunos
                                         </Badge>
                                     </div>
-                                    <Button variant="outline-primary">
+                                    <Button 
+                                        variant="outline-primary" 
+                                        onClick={exportarListaAlunos}
+                                        disabled={alunos.length === 0}
+                                    >
+                                        <BsDownload className="me-2" />
                                         Exportar Lista
                                     </Button>
                                 </div>
