@@ -130,9 +130,18 @@ export default function PercursoFormativoFormando() {
         return { total, emCurso, terminados };
     }, [inscricao]);
 
-    const renderCourseCard = (inscricao, index) => (
-        <FeaturedCourses key={inscricao.inscricao_id || index} curso={inscricao.inscricao_curso} inscricao={inscricao} mostrarBotao={false}/>
-    );
+    const renderCourseCard = (inscricao, index) => {
+        // Verifica se o curso está em andamento
+        const isEmCurso = !inscricao.estado;
+        return (
+            <FeaturedCourses 
+                key={inscricao.inscricao_id || index} 
+                curso={inscricao.inscricao_curso} 
+                inscricao={inscricao} 
+                mostrarBotao={isEmCurso}
+            />
+        );
+    };
 
     const handleSearchChange = (event) => {
         setSearchTerm(event.target.value);

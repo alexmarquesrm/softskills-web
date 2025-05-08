@@ -14,6 +14,11 @@ function CardCourses({ curso, inscricao, mostrarBotao = true, mostrarInicioEFim 
       navigate(`/gestor/cursodetalhes/${curso.id}`, {
         state: { id: curso.id }
       });
+    } else if (tipoUser === "Formando") {
+      const cursoId = curso.curso_id || curso.id;
+      navigate(`/utilizadores/curso/${cursoId}`);
+    } else if (tipoUser === "Formador") {
+      navigate(`/formador/curso/${curso.curso_id}`);
     } else {
       navigate(`/curso/${curso.curso_id}`, {
         state: { id: curso.curso_id }
