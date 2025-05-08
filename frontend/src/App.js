@@ -12,16 +12,19 @@ import CursoDetalhesGestor from "./pages/gestor/pageCursoGestor";
 import FormadorCurso from "./pages/formadores/detailsCourse";
 import AvaliarFormando from "./pages/formadores/evaluateFormando";
 import ManageCourses from "./pages/formadores/coursesManage";
+import PagFormador from "./pages/formadores/pageFormador";
 import PerfilUtilizador from "./pages/formandos/userProfile";
 import CursoFormando from "./pages/formandos/pageCourse";
-import CursosFormando from "./pages/formandos/courses";
+import CursosFormando from "./pages/formandos/listCourses";
 import PercursoFormativoFormando from "./pages/formandos/percursoFormativo";
 import ListaPedidos from "./pages/gestor/pedidos";
+import AdicionarCurso from "./pages/gestor/addCourse";
 
 // Components
 import CustomNavbar from "./components/navbar/customNavbar";
 import Footer from "./components/footer/footer";
 import ProtectedRoute from "./components/ProtectedRoute";
+
 
 function AppContent() {
     return (
@@ -40,6 +43,7 @@ function AppContent() {
                         <Route path="/formador/cursos" element={<ManageCourses />} />
                         <Route path="/formador/curso/:id" element={<FormadorCurso />} />
                         <Route path="/formador/curso/avaliar" element={<AvaliarFormando />} />
+                        <Route path="/formador/dashboard" element={<PagFormador />} />
                         {/* Gestor Routes */}
                         <Route path="/gestor/dashboard" element={<PagGestor />} />
                         <Route path="/gestor/lista/colaboradores" element={<ListaUtilizadores />} />
@@ -47,6 +51,7 @@ function AppContent() {
                         <Route path="/gestor/lista/cursos" element={<GestaoCursos />} />
                         <Route path="/gestor/cursodetalhes/:id" element={<CursoDetalhesGestor />} />
                         <Route path="/gestor/lista/pedidos" element={<ListaPedidos />} />
+                        <Route path="/gestor/cursos/add" element={<AdicionarCurso />} />
 
                     </Route>
                     <Route path="*" element={<Navigate to="/" />} />

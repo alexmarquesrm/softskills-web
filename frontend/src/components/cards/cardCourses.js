@@ -5,14 +5,14 @@ import { useNavigate } from "react-router-dom";
 import ReactGif from "./../../images/react.gif";
 import "./cardCourses.css";
 
-function CardCourses({ curso, inscricao, mostrarBotao = true }) {
+function CardCourses({ curso, inscricao, mostrarBotao = true, mostrarInicioEFim = false }) {
   const navigate = useNavigate();
   const tipoUser = sessionStorage.getItem('tipo');
 
   const handleViewDetails = () => {
     if (tipoUser === "Gestor") {
       navigate(`/gestor/cursodetalhes/${curso.id}`, {
-          state: { id: curso.id }
+        state: { id: curso.id }
       });
     } else {
       navigate(`/curso/${curso.curso_id}`, {
@@ -63,10 +63,10 @@ function CardCourses({ curso, inscricao, mostrarBotao = true }) {
           {curso.titulo}
         </Card.Title>
 
-        {curso.sincrono?.formador?.colaborador?.nome && (
+        {curso.curso_sincrono?.formador?.colaborador?.nome && (
           <div className="course-instructor">
             <Award size={16} className="icon" />
-            <span>{curso.sincrono.formador.colaborador.nome}</span>
+            <span>{curso.curso_sincrono.formador.colaborador.nome}</span>
           </div>
         )}
 
@@ -82,40 +82,40 @@ function CardCourses({ curso, inscricao, mostrarBotao = true }) {
             </div>
           )}
 
-          {curso.sincrono?.vagas && (
+          {curso.curso_sincrono?.vagas && (
             <div className="meta-item">
               <Users size={16} className="icon" />
-              <span>{curso.sincrono.vagas} vagas</span>
+              <span>{curso.curso_sincrono.vagas} vagas</span>
             </div>
           )}
 
-          {curso.sincrono?.inicio && curso.sincrono?.estado !== true && (
+          {(curso.curso_sincrono?.data_inicio && (mostrarInicioEFim || curso.curso_sincrono?.estado !== true)) && (
             <div className="meta-item">
               <Calendar size={16} className="icon" />
-              <span>Início: {formatDate(curso.sincrono.inicio)}</span>
+              <span>Início: {formatDate(curso.curso_sincrono.data_inicio)}</span>
             </div>
           )}
 
-          {curso.sincrono?.fim && curso.sincrono?.estado === true && (
+          {(curso.curso_sincrono?.data_fim && (mostrarInicioEFim || curso.curso_sincrono?.estado === true)) && (
             <div className="meta-item">
               <Calendar size={16} className="icon" />
-              <span>Fim: {formatDate(curso.sincrono.fim)}</span>
+              <span>Fim: {formatDate(curso.curso_sincrono.data_fim)}</span>
             </div>
           )}
 
-          {curso.sincrono?.data_limite_inscricao && !curso.sincrono.estado && new Date(curso.sincrono.data_limite_inscricao) > new Date() && (
+          {curso.curso_sincrono?.data_limite_inscricao && !curso.curso_sincrono.estado && new Date(curso.curso_sincrono.data_limite_inscricao) > new Date() && (
             <div className="meta-item">
               <Calendar size={16} className="icon" />
-              <span>Inscrição até: {formatDate(curso.sincrono.data_limite_inscricao)}</span>
+              <span>Inscrição até: {formatDate(curso.curso_sincrono.data_limite_inscricao)}</span>
             </div>
           )}
 
-          {(inscricao?.estado !== undefined || curso?.sincrono?.estado !== undefined) && (
+          {(inscricao?.estado !== undefined || curso?.curso_sincrono?.estado !== undefined) && (
             <div className="meta-item">
               <RefreshCcw size={16} className="icon" />
               <span>Estado: {(() => {
-                const estado = inscricao?.estado ?? curso?.sincrono?.estado;
-                const dataInicio = curso?.sincrono?.data_limite_inscricao;
+                const estado = inscricao?.estado ?? curso?.curso_sincrono?.estado;
+                const dataInicio = curso?.curso_sincrono?.data_limite_inscricao;
 
                 if (estado) return 'Concluído';
                 if (dataInicio && new Date(dataInicio) > new Date()) return 'Por começar';

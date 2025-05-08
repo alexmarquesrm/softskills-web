@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Container, Row, Col, Spinner } from "react-bootstrap";
-import { useLocation } from 'react-router-dom';
-import { Book, AlertCircle, Award, Calendar, User } from 'react-feather';
+import { Book, AlertCircle} from 'react-feather';
 import axios from "../../config/configAxios";
 /* COMPONENTES */
 import FeaturedCourses from "../../components/cards/cardCourses";
@@ -11,9 +10,6 @@ import Filtros from '../../components/filters/filtros';
 
 
 export default function Courses() {
-    const location = useLocation();
-    const id = location.state?.id;
-    const [nome, setNome] = useState('');
     const [curso, setCurso] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     // Modificando o estado inicial para false (não selecionado)
@@ -53,14 +49,17 @@ export default function Courses() {
 
         return curso.filter(item => {
 
-            const isEmCurso = 
-            item.tipo === 'A' || 
-            (item.tipo === 'S' && item.sincrono && !item.sincrono.estado);
-            if (!isEmCurso) return false;
+            // Ignora cursos pendentes
+            if (item.pendente) return false;
             
+            const isEmCurso =
+                item.tipo === 'A' ||
+                (item.tipo === 'S' && item.curso_sincrono && !item.curso_sincrono.estado);
+            if (!isEmCurso) return false;
+
             // Filtrar por começar
             if (item.tipo === 'S') {
-                const dataLimite = item.sincrono?.data_limite_inscricao;
+                const dataLimite = item.curso_sincrono?.data_limite_inscricao;
                 if (!dataLimite || new Date(dataLimite) <= new Date()) return false;
             }
 
@@ -76,7 +75,7 @@ export default function Courses() {
                 return (
                     item?.titulo?.toLowerCase().includes(searchLower) ||
                     item.descricao?.toLowerCase().includes(searchLower) ||
-                    (item?.sincrono?.formador?.colaborador?.nome?.toLowerCase().includes(searchLower))
+                    (item?.curso_sincrono?.formador?.colaborador?.nome?.toLowerCase().includes(searchLower))
                 );
             }
 
@@ -89,7 +88,7 @@ export default function Courses() {
         if (curso.length === 0) return { total: 0, emCurso: 0, terminados: 0 };
 
         const total = curso.length;
-        const terminados = curso.filter(item => item.sincrono?.estado).length;
+        const terminados = curso.filter(item => item.curso_sincrono?.estado).length;
         const emCurso = total - terminados;
 
         return { total, emCurso };
@@ -150,7 +149,6 @@ export default function Courses() {
                         </div>
                         <div className="percurso-header-info">
                             <h1 className="percurso-title">Cursos Disponiveis</h1>
-                            <h2 className="percurso-user-name">{nome}</h2>
                         </div>
                     </div>
 
