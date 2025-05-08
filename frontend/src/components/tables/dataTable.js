@@ -3,7 +3,7 @@ import { Table, Pagination, Form, InputGroup, Badge, Button } from 'react-bootst
 import { Search, ArrowUp, ArrowDown, ChevronLeft, ChevronRight } from 'react-bootstrap-icons';
 import './dataTable.css';
 
-export default function DataTable({ columns, rows, pageSize = 10, title = "Data Table", showSearch = true, theme = "light", selectable = false, onRowSelect, emptyStateMessage = "No data found", headerActions })
+export default function DataTable({ columns, rows, pageSize = 10, title = "Data Table", showSearch = true, theme = "light", selectable = false, onRowSelect, emptyStateMessage = "No data found", headerActions, addButton })
 {
   const [currentPage, setCurrentPage] = useState(1);
   const [sortField, setSortField] = useState(null);
@@ -196,7 +196,6 @@ export default function DataTable({ columns, rows, pageSize = 10, title = "Data 
       <div className="table-header">
         <div className="d-flex align-items-center gap-3">
           <h5 className="table-title mb-0">{title}</h5>
-          {/* Place the action button right after the title */}
           {headerActions && (
             <div className="header-action-button">
               {headerActions}
@@ -204,30 +203,37 @@ export default function DataTable({ columns, rows, pageSize = 10, title = "Data 
           )}
         </div>
         
-        {showSearch && (
-          <div className="table-search-wrapper">
-            <InputGroup className="table-search">
-              <InputGroup.Text>
-                <Search />
-              </InputGroup.Text>
-              <Form.Control 
-                placeholder="Search..." 
-                value={searchQuery} 
-                onChange={(e) => setSearchQuery(e.target.value)} 
-                aria-label="Search table" 
-              />
-              {searchQuery && ( 
-                <Button 
-                  variant="outline-secondary" 
-                  onClick={() => setSearchQuery('')} 
-                  className="clear-search"
-                >
-                  ×
-                </Button>
-              )}
-            </InputGroup>
+        <div className="d-flex justify-content-between align-items-center mt-3">
+          <div style={{ minWidth: '200px' }}>
+            {addButton}
           </div>
-        )}
+          <div className="flex-grow-1 d-flex justify-content-end">
+            {showSearch && (
+              <div className="table-search-wrapper">
+                <InputGroup className="table-search">
+                  <InputGroup.Text>
+                    <Search />
+                  </InputGroup.Text>
+                  <Form.Control 
+                    placeholder="Pesquisar..." 
+                    value={searchQuery} 
+                    onChange={(e) => setSearchQuery(e.target.value)} 
+                    aria-label="Search table" 
+                  />
+                  {searchQuery && ( 
+                    <Button 
+                      variant="outline-secondary" 
+                      onClick={() => setSearchQuery('')} 
+                      className="clear-search"
+                    >
+                      ×
+                    </Button>
+                  )}
+                </InputGroup>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
       
       <div className="table-responsive">
