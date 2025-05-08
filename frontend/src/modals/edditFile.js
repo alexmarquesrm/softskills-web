@@ -333,23 +333,135 @@ const ModalEditarFicheiro = ({
   // Lista de extensões aceitas para exibição
   const extensoesAceitas = Object.values(configAtual.accept).flat().join(', ');
 
-  // Renderizar campo de data de entrega se necessário
-  const renderCampoDataEntrega = () => {
-    if (configAtual.requerData && allowDueDate) {
-      return (
-        <InputField 
-          label="Data Entrega" 
-          type="datetime-local" 
-          placeholder="" 
-          name="dataentrega" 
-          value={formData.dataentrega || ''} 
-          onChange={handleChange} 
-          icon={<IoCalendarNumberSharp />} 
-          colSize={6}
-        />
-      );
+  // Renderizar título da modal baseado no tipo
+  const getModalTitle = () => {
+    switch (tipoFicheiro) {
+      case 'video':
+        return 'Editar Vídeo';
+      case 'entrega':
+        return 'Editar Entrega';
+      case 'trabalho':
+        return 'Editar Trabalho';
+      case 'aula':
+        return 'Editar Material de Aula';
+      default:
+        return 'Editar Documento';
     }
-    return null;
+  };
+
+  // Renderizar campos específicos baseados no tipo
+  const renderCamposEspecificos = () => {
+    switch (tipoFicheiro) {
+      case 'entrega':
+        return (
+          <>
+            <Row className="mb-4">
+              <InputField 
+                label="Título" 
+                type="text" 
+                placeholder="Nome da entrega" 
+                name="titulo" 
+                value={formData.titulo || ''} 
+                onChange={handleChange} 
+                colSize={6}
+              />
+              <InputField 
+                label="Data Entrega" 
+                type="datetime-local" 
+                placeholder="" 
+                name="dataentrega" 
+                value={formData.dataentrega || ''} 
+                onChange={handleChange} 
+                icon={<IoCalendarNumberSharp />} 
+                colSize={6}
+              />
+            </Row>
+            <Row className="mb-4">
+              <InputField 
+                label="Descrição" 
+                type="textarea" 
+                placeholder="Descreva a entrega e seus requisitos" 
+                name="descricao" 
+                value={formData.descricao || ''} 
+                onChange={handleChange} 
+                colSize={12} 
+                rows={3} 
+                style={{ resize: 'none' }}
+              />
+            </Row>
+          </>
+        );
+      case 'trabalho':
+        return (
+          <>
+            <Row className="mb-4">
+              <InputField 
+                label="Título" 
+                type="text" 
+                placeholder="Nome do trabalho" 
+                name="titulo" 
+                value={formData.titulo || ''} 
+                onChange={handleChange} 
+                colSize={12}
+              />
+            </Row>
+            <Row className="mb-4">
+              <InputField 
+                label="Descrição" 
+                type="textarea" 
+                placeholder="Descreva o trabalho e suas instruções" 
+                name="descricao" 
+                value={formData.descricao || ''} 
+                onChange={handleChange} 
+                colSize={12} 
+                rows={3} 
+                style={{ resize: 'none' }}
+              />
+            </Row>
+          </>
+        );
+      default:
+        return (
+          <>
+            <Row className="mb-4">
+              <InputField 
+                label="Título" 
+                type="text" 
+                placeholder="Nome do material" 
+                name="titulo" 
+                value={formData.titulo || ''} 
+                onChange={handleChange} 
+                colSize={configAtual.requerData && allowDueDate ? 6 : 12}
+              />
+              {configAtual.requerData && allowDueDate && (
+                <InputField 
+                  label="Data Entrega" 
+                  type="datetime-local" 
+                  placeholder="" 
+                  name="dataentrega" 
+                  value={formData.dataentrega || ''} 
+                  onChange={handleChange} 
+                  icon={<IoCalendarNumberSharp />} 
+                  colSize={6}
+                />
+              )}
+            </Row>
+            <Row className="mb-4">
+              <InputField 
+                label="Descrição" 
+                type="textarea" 
+                placeholder="Descrição do material (opcional)" 
+                name="descricao" 
+                value={formData.descricao || ''} 
+                onChange={handleChange} 
+                colSize={12} 
+                rows={3} 
+                style={{ resize: 'none' }}
+              />
+            </Row>
+          </>
+        );
+    }
   };
 
   // Renderizar instruções específicas baseadas no tipo de arquivo
@@ -399,7 +511,7 @@ const ModalEditarFicheiro = ({
     <ModalCustom 
       show={show} 
       handleClose={handleClose} 
-      title={`Editar ${tipoFicheiro === 'video' ? 'Vídeo' : tipoFicheiro === 'entrega' ? 'Avaliação' : tipoFicheiro === 'trabalho' ? 'Trabalho' : tipoFicheiro === 'aula' ? 'Aula' : 'Documento'}`}
+      title={getModalTitle()}
       onSubmit={handleSubmit}
       size="lg"
       className="editar-ficheiro-modal"
@@ -444,70 +556,44 @@ const ModalEditarFicheiro = ({
           {/* Instruções específicas baseadas no tipo de arquivo */}
           {renderInstrucoesPorTipo()}
 
-          {/* Campos de formulário */}
-          <Row className="mb-4">
-            <InputField 
-              label="Título" 
-              type="text" 
-              placeholder="Nome do material" 
-              name="titulo" 
-              value={formData.titulo || ''} 
-              onChange={handleChange} 
-              colSize={configAtual.requerData && allowDueDate ? 6 : 12}
-            />
-            
-            {renderCampoDataEntrega()}
-          </Row>
-
-          <Row className="mb-4">
-            <InputField 
-              label="Descrição" 
-              type="textarea" 
-              placeholder={tipoFicheiro === 'entrega' ? 
-                "Descreva a avaliação, critérios e instruções para os alunos" : 
-                "Descrição do material (opcional)"} 
-              name="descricao" 
-              value={formData.descricao || ''} 
-              onChange={handleChange} 
-              colSize={12} 
-              rows={3} 
-              style={{ resize: 'none' }}
-            />
-          </Row>
+          {/* Campos específicos baseados no tipo */}
+          {renderCamposEspecificos()}
 
           {/* Área de upload de novos arquivos */}
-          <Row className="mb-4">
-            <Col md={12}>
-              <Form.Label className="fw-bold mb-2">Upload de Arquivos</Form.Label>
-              <div 
-                {...getRootProps()} 
-                className={`text-center p-4 rounded ${isDragActive ? 'bg-light' : 'bg-light'}`}
-                style={{
-                  border: `2px dashed ${isDragActive ? '#0d6efd' : '#4a6baf'}`,
-                  transition: 'all 0.2s ease',
-                  cursor: 'pointer'
-                }}
-              >
-                <input {...getInputProps()} />
-                <FiUploadCloud size={36} className="text-primary mb-2" />
-                <p className="mb-1 fw-bold">Arraste e solte ou clique para adicionar novos arquivos</p>
-                <p className="mb-1 text-muted small">
-                  {(ficheirosExistentes.length > 0 || ficheirosNovos.length > 0) ? 
-                    "Os arquivos existentes serão mantidos a menos que você os remova" : 
-                    "Nenhum arquivo atualmente"}
-                </p>
-                <p className="mb-1 small text-muted">
-                  Tipos permitidos: {extensoesAceitas}
-                </p>
-                <p className="small text-muted">
-                  Tamanho máximo: {configAtual.maxSize / (1024 * 1024)}MB
-                </p>
-              </div>
-            </Col>
-          </Row>
+          {tipoFicheiro !== 'entrega' && (
+            <Row className="mb-4">
+              <Col md={12}>
+                <Form.Label className="fw-bold mb-2">Upload de Arquivos</Form.Label>
+                <div 
+                  {...getRootProps()} 
+                  className={`text-center p-4 rounded ${isDragActive ? 'bg-light' : 'bg-light'}`}
+                  style={{
+                    border: `2px dashed ${isDragActive ? '#0d6efd' : '#4a6baf'}`,
+                    transition: 'all 0.2s ease',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <input {...getInputProps()} />
+                  <FiUploadCloud size={36} className="text-primary mb-2" />
+                  <p className="mb-1 fw-bold">Arraste e solte ou clique para adicionar novos arquivos</p>
+                  <p className="mb-1 text-muted small">
+                    {(ficheirosExistentes.length > 0 || ficheirosNovos.length > 0) ? 
+                      "Os arquivos existentes serão mantidos a menos que você os remova" : 
+                      "Nenhum arquivo atualmente"}
+                  </p>
+                  <p className="mb-1 small text-muted">
+                    Tipos permitidos: {extensoesAceitas}
+                  </p>
+                  <p className="small text-muted">
+                    Tamanho máximo: {configAtual.maxSize / (1024 * 1024)}MB
+                  </p>
+                </div>
+              </Col>
+            </Row>
+          )}
 
           {/* Lista de arquivos existentes */}
-          {ficheirosExistentes.length > 0 && (
+          {ficheirosExistentes.length > 0 && tipoFicheiro !== 'entrega' && (
             <Row className="mb-4">
               <Col md={12}>
                 <Card className="bg-light border-0">
@@ -561,7 +647,7 @@ const ModalEditarFicheiro = ({
           )}
 
           {/* Lista de novos arquivos adicionados */}
-          {ficheirosNovos.length > 0 && (
+          {ficheirosNovos.length > 0 && tipoFicheiro !== 'entrega' && (
             <Row className="mb-4">
               <Col md={12}>
                 <Card className="bg-light border-0">
@@ -617,11 +703,16 @@ const ModalEditarFicheiro = ({
             <Guardar 
               text={
                 uploading ? "A guardar..." : 
-                (ficheirosExistentes.length > 0 || ficheirosNovos.length > 0) ? "Guardar Alterações" : "Selecione um arquivo"
+                (ficheirosExistentes.length > 0 || ficheirosNovos.length > 0 || tipoFicheiro === 'entrega') ? 
+                "Guardar Alterações" : "Selecione um arquivo"
               } 
               onClick={handleSubmit} 
               Icon={uploading ? null : FaRegSave} 
-              disabled={(ficheirosExistentes.length === 0 && ficheirosNovos.length === 0) || !formData.titulo || uploading}
+              disabled={
+                !formData.titulo || 
+                uploading || 
+                (tipoFicheiro !== 'entrega' && ficheirosExistentes.length === 0 && ficheirosNovos.length === 0)
+              }
               loading={uploading}
             />
           </div>

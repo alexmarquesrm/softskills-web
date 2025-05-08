@@ -635,20 +635,11 @@ export default function CursoDetalhes() {
                                       {material.descricao && (
                                         <small className="text-muted d-block mb-2">{material.descricao}</small>
                                       )}
-                                      <div>
-                                        {material.ficheiros.map((file, idx) => (
-                                          <Badge
-                                            key={idx}
-                                            bg="light"
-                                            text="danger"
-                                            onClick={() => handleFileAction(file)}
-                                            style={{ cursor: 'pointer' }}
-                                            className="me-2 mb-1 text-decoration-none d-inline-flex align-items-center"
-                                          >
-                                            <BsDownload className="me-1" /> {file.nome.split('.').pop().toUpperCase()} • {file.nome}
-                                          </Badge>
-                                        ))}
-                                      </div>
+                                      {material.data_entrega && (
+                                        <Badge bg="info" text="dark" className="mb-2">
+                                          <BsClock className="me-1" /> Prazo: {formatDate(material.data_entrega)}
+                                        </Badge>
+                                      )}
                                     </div>
                                   </div>
                                   <EditButton

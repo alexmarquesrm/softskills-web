@@ -8,8 +8,9 @@ import "./detailsCourseGestor.css";
 import {
     BsFillPeopleFill, BsCalendarCheck, BsPlusCircle, BsPencilSquare, BsFileText,
     BsCameraVideo, BsBook, BsTools, BsUpload, BsInfoCircle, BsExclamationTriangle,
-    BsCheckCircle, BsQuestionCircle, BsClock, BsFlag, BsDownload
+    BsCheckCircle, BsQuestionCircle, BsClock, BsFlag, BsDownload, BsPlayFill
 } from "react-icons/bs";
+import { FiUpload, FiEye, FiDownload } from "react-icons/fi";
 import axios from "../../config/configAxios";
 
 /* COMPONENTES */
@@ -30,8 +31,11 @@ export default function CursoDetalhesGestor() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [activeSection, setActiveSection] = useState("sobre");
-    const [editItemId, setEditItemId] = useState(null);
-    const [currentFileData, setCurrentFileData] = useState(null);
+    const [materials, setMaterials] = useState([]);
+    const [selectedFileId, setSelectedFileId] = useState(null);
+    const [materialLoading, setMaterialLoading] = useState(false);
+    const [refreshTrigger, setRefreshTrigger] = useState(0);
+    const [selectedVideo, setSelectedVideo] = useState(null);
 
     useEffect(() => {
         const fetchCursoData = async () => {
@@ -66,8 +70,107 @@ export default function CursoDetalhesGestor() {
         fetchCursoData();
     }, [cursoId]);
 
-    const getFormadorNome = () => {
-        return curso?.curso_sincrono?.sincrono_formador?.formador_colab?.nome || "Não especificado";
+    // Fetch course materials when the active section changes to "materiais"
+    useEffect(() => {
+        const fetchMaterials = async () => {
+            if (!cursoId) return;
+
+            try {
+                setMaterialLoading(true);
+                const token = sessionStorage.getItem('token');
+
+                const response = await axios.get(`/material/curso/${cursoId}/materiais`, {
+                    headers: { Authorization: `${token}` }
+                });
+
+                if (response.data.success) {
+                    setMaterials(response.data.data);
+                } else {
+                    console.error("Erro ao carregar materiais:", response.data.message);
+                }
+            } catch (err) {
+                console.error("Erro ao carregar materiais do curso:", err);
+            } finally {
+                setMaterialLoading(false);
+            }
+        };
+
+        if (activeSection === "materiais") {
+            fetchMaterials();
+        }
+    }, [cursoId, activeSection, refreshTrigger]);
+
+    const handleSectionChange = (section) => {
+        setActiveSection(section);
+    };
+
+    const handleEditFile = (fileId) => {
+        setSelectedFileId(fileId);
+        setEditFile(true);
+    };
+
+    const handleAddContent = () => {
+        setAddFile(true);
+    };
+
+    const handleUploadSuccess = () => {
+        setRefreshTrigger(prev => prev + 1);
+    };
+
+    const handleUpdateSuccess = (updatedMaterial, isDeleted = false) => {
+        setRefreshTrigger(prev => prev + 1);
+    };
+
+    // Group materials by type
+    const getMaterialsByType = (tipo) => {
+        return materials.filter(material => material.tipo === tipo);
+    };
+
+    const handleFileAction = async (material, action = 'view') => {
+        try {
+            const token = sessionStorage.getItem('token');
+            const response = await axios.get(`/material/${material.id}/download`, {
+                headers: { Authorization: `${token}` },
+                responseType: 'blob'
+            });
+
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const extension = material.nome.split('.').pop().toLowerCase();
+
+            if (action === 'view') {
+                if (['mp4', 'webm', 'ogg'].includes(extension)) {
+                    setSelectedVideo({ url, title: material.nome });
+                } else if (['pdf', 'jpg', 'jpeg', 'png', 'gif'].includes(extension)) {
+                    window.open(url, '_blank');
+                } else {
+                    // For other file types, force download
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.setAttribute('download', material.nome);
+                    document.body.appendChild(link);
+                    link.click();
+                    link.remove();
+                }
+            } else if (action === 'download') {
+                const link = document.createElement('a');
+                link.href = url;
+                link.setAttribute('download', material.nome);
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+            }
+        } catch (error) {
+            console.error('Erro ao processar arquivo:', error);
+            alert('Erro ao processar arquivo. Por favor, tente novamente.');
+        }
+    };
+
+    const formatFileSize = (bytes) => {
+        if (!bytes) return 'Desconhecido';
+
+        if (bytes < 1024) return bytes + ' B';
+        else if (bytes < 1048576) return (bytes / 1024).toFixed(2) + ' KB';
+        else return (bytes / 1048576).toFixed(2) + ' MB';
     };
 
     const formatDate = (dateString) => {
@@ -75,94 +178,8 @@ export default function CursoDetalhesGestor() {
         return new Date(dateString).toLocaleDateString('pt-PT');
     };
 
-    const materiaisSincronos = [
-        { id: 1, label: "Apresentação do curso", icon: <BsFileText className="me-2" />, type: "documento", downloadable: true },
-        { id: 2, label: "Vídeo 1: Introdução", icon: <BsCameraVideo className="me-2" />, type: "video", duration: "15 min" },
-        { id: 3, label: "Vídeo 2: Conceitos Básicos", icon: <BsCameraVideo className="me-2" />, type: "video", duration: "22 min" },
-        { id: 4, label: "Aula Teórica 1: Fundamentos", icon: <BsBook className="me-2" />, type: "aula", downloadable: true },
-        { id: 5, label: "Aula Teórica 2: Metodologia", icon: <BsBook className="me-2" />, type: "aula", downloadable: true },
-        { id: 6, label: "Trabalho Prático 1", icon: <BsTools className="me-2" />, type: "trabalho" },
-        { id: 7, label: "Entrega Trabalho Prático 1", icon: <BsUpload className="me-2" />, type: "entrega", deadline: "15/05/2025" },
-    ];
-
-    const materiaisAssincronos = [
-        { id: 1, label: "Apresentação do curso", icon: <BsFileText className="me-2" />, type: "documento", downloadable: true },
-        { id: 2, label: "Vídeo 1: Introdução", icon: <BsCameraVideo className="me-2" />, type: "video", duration: "15 min" },
-        { id: 3, label: "Vídeo 2: Conceitos Básicos", icon: <BsCameraVideo className="me-2" />, type: "video", duration: "22 min" },
-        { id: 4, label: "Aula Teórica 1: Fundamentos", icon: <BsBook className="me-2" />, type: "aula", downloadable: true },
-        { id: 5, label: "Quiz", icon: <BsTools className="me-2" />, type: "quiz" },
-    ];
-
-    const handleSectionChange = (section) => {
-        setActiveSection(section);
-    };
-
-    const handleEditItem = (itemId) => {
-        const itemToEdit = findItemById(itemId);
-
-        if (itemToEdit) {
-            // Prepara os dados do ficheiro para o modal baseado no tipo do item
-            const fileType = mapItemTypeToFileType(itemToEdit.type);
-
-            // Cria um objeto simulado de ficheiros para o modal
-            // Na implementação real, você buscaria esses dados do servidor
-            const mockFiles = [];
-
-            // Se tiver um item baixável, adicione um arquivo simulado
-            if (itemToEdit.downloadable) {
-                mockFiles.push({
-                    name: `${itemToEdit.label}.${fileType === 'documento' ? 'pdf' : 'mp4'}`,
-                    size: 1024 * 1024 * (fileType === 'video' ? 15 : 2), // 15MB para vídeo, 2MB para documento
-                    type: fileType === 'video' ? 'video/mp4' : 'application/pdf'
-                });
-            }
-
-            // Cria um objeto com os dados do ficheiro para o modal
-            const fileData = {
-                id: itemToEdit.id,
-                titulo: itemToEdit.label,
-                descricao: `Descrição para ${itemToEdit.label}`, // Descrição simulada
-                tipo: fileType,
-                dataEntrega: itemToEdit.deadline || '',
-                ficheiros: mockFiles,
-                cursoId: cursoId
-            };
-
-            // Guarda os dados do ficheiro no estado
-            setCurrentFileData(fileData);
-            setEditItemId(itemId);
-
-            // Abre o modal
-            setEditFile(true);
-        } else {
-            console.error("Item não encontrado:", itemId);
-        }
-    };
-
-    const handleEditSuccess = (updatedFileData) => {
-        //console.log("Arquivo atualizado com sucesso:", updatedFileData);
-    };
-
-    const handleAddContent = () => {
-        setAddFile(true);
-    };
-
-    const findItemById = (itemId) => {
-        const items = curso?.tipo === "S" ? materiaisSincronos : materiaisAssincronos;
-        return items.find(item => item.id === itemId);
-    };
-
-    const mapItemTypeToFileType = (itemType) => {
-        const typeMapping = {
-            'documento': 'documento',
-            'aula': 'documento',
-            'video': 'video',
-            'trabalho': 'entrega',
-            'entrega': 'entrega',
-            'quiz': 'entrega'
-        };
-
-        return typeMapping[itemType] || 'documento'; // Default para documento se não encontrar
+    const getFormadorNome = () => {
+        return curso?.curso_sincrono?.sincrono_formador?.formador_colab?.nome || "Não especificado";
     };
 
     const objetivos = [
@@ -172,8 +189,6 @@ export default function CursoDetalhesGestor() {
         "Criar soluções para problemas complexos",
         "Avaliar resultados e propor melhorias"
     ];
-
-    const items = curso?.tipo === "S" ? materiaisSincronos : materiaisAssincronos;
 
     if (loading) {
         return (
@@ -405,131 +420,214 @@ export default function CursoDetalhesGestor() {
                                     </div>
                                 </div>
 
-                                {/* Organização por tipo */}
-                                <Accordion defaultActiveKey="0" className="material-accordion">
-                                    <Accordion.Item eventKey="0">
-                                        <Accordion.Header>
-                                            <div className="d-flex align-items-center">
-                                                <BsCameraVideo className="me-2 text-primary" />
-                                                <span>Vídeos</span>
-                                                <Badge bg="primary" className="ms-2">{items.filter(i => i.type === "video").length}</Badge>
-                                            </div>
-                                        </Accordion.Header>
-                                        <Accordion.Body>
-                                            <ListGroup variant="flush" className="material-list">
-                                                {items
-                                                    .filter(item => item.type === "video")
-                                                    .map((item) => (
-                                                        <ListGroup.Item key={item.id} className="material-item py-3">
-                                                            <div className="d-flex justify-content-between align-items-center">
-                                                                <div className="d-flex align-items-center">
-                                                                    {item.icon}
-                                                                    <div>
-                                                                        <div className="fw-bold">{item.label}</div>
-                                                                        {item.duration && (
-                                                                            <small className="text-muted d-flex align-items-center">
-                                                                                <BsClock className="me-1" /> {item.duration}
-                                                                            </small>
-                                                                        )}
+                                {materialLoading ? (
+                                    <div className="text-center py-4">
+                                        <Spinner animation="border" role="status" variant="primary">
+                                            <span className="visually-hidden">A carregar materiais...</span>
+                                        </Spinner>
+                                        <p className="mt-2">A carregar os materiais do curso...</p>
+                                    </div>
+                                ) : materials.length === 0 ? (
+                                    <Alert variant="light" className="text-center">
+                                        <BsInfoCircle className="me-2" />
+                                        Nenhum material foi adicionado a este curso ainda.
+                                        <div className="mt-3">
+                                            <Button
+                                                variant="primary"
+                                                size="sm"
+                                                onClick={handleAddContent}
+                                                className="d-inline-flex align-items-center"
+                                            >
+                                                <BsPlusCircle className="me-2" />
+                                                Adicionar Primeiro Material
+                                            </Button>
+                                        </div>
+                                    </Alert>
+                                ) : (
+                                    <Accordion defaultActiveKey={[]} alwaysOpen className="material-accordion">
+                                        {/* Vídeos */}
+                                        <Accordion.Item eventKey="0">
+                                            <Accordion.Header>
+                                                <div className="d-flex align-items-center">
+                                                    <BsCameraVideo className="me-2 text-danger" />
+                                                    <span>Vídeos</span>
+                                                    <Badge bg="danger" className="ms-2">
+                                                        {getMaterialsByType('video').length}
+                                                    </Badge>
+                                                </div>
+                                            </Accordion.Header>
+                                            <Accordion.Body>
+                                                {getMaterialsByType('video').length === 0 ? (
+                                                    <p className="text-muted text-center py-3">Nenhum vídeo adicionado</p>
+                                                ) : (
+                                                    <ListGroup variant="flush" className="material-list">
+                                                        {getMaterialsByType('video').map((material) => (
+                                                            <ListGroup.Item key={material.id} className="material-item py-3">
+                                                                <div className="d-flex justify-content-between align-items-center">
+                                                                    <div className="d-flex align-items-start">
+                                                                        <div className="me-3 text-danger">
+                                                                            <BsPlayFill size={24} />
+                                                                        </div>
+                                                                        <div>
+                                                                            <div className="fw-bold">{material.titulo}</div>
+                                                                            {material.descricao && (
+                                                                                <small className="text-muted d-block mb-2">{material.descricao}</small>
+                                                                            )}
+                                                                            <div>
+                                                                                {material.ficheiros.map((file, idx) => (
+                                                                                    <Badge
+                                                                                        key={idx}
+                                                                                        bg="light"
+                                                                                        text="danger"
+                                                                                        onClick={() => handleFileAction(material, 'view')}
+                                                                                        style={{ cursor: 'pointer' }}
+                                                                                        className="me-2 mb-1 text-decoration-none d-inline-flex align-items-center"
+                                                                                    >
+                                                                                        <BsDownload className="me-1" /> {file.nome.split('.').pop().toUpperCase()} • {file.nome}
+                                                                                    </Badge>
+                                                                                ))}
+                                                                            </div>
+                                                                        </div>
                                                                     </div>
-                                                                </div>
-                                                                <div>
                                                                     <EditButton
                                                                         text=""
                                                                         Icon={BsPencilSquare}
-                                                                        onClick={() => handleEditItem(item.id)}
+                                                                        onClick={() => handleEditFile(material.id)}
                                                                         inline={true}
                                                                         className="btn-edit-small"
                                                                     />
                                                                 </div>
-                                                            </div>
-                                                        </ListGroup.Item>
-                                                    ))}
-                                            </ListGroup>
-                                        </Accordion.Body>
-                                    </Accordion.Item>
+                                                            </ListGroup.Item>
+                                                        ))}
+                                                    </ListGroup>
+                                                )}
+                                            </Accordion.Body>
+                                        </Accordion.Item>
 
-                                    <Accordion.Item eventKey="1">
-                                        <Accordion.Header>
-                                            <div className="d-flex align-items-center">
-                                                <BsFileText className="me-2 text-primary" />
-                                                <span>Documentos e Aulas</span>
-                                                <Badge bg="primary" className="ms-2">
-                                                    {items.filter(i => i.type === "documento" || i.type === "aula").length}
-                                                </Badge>
-                                            </div>
-                                        </Accordion.Header>
-                                        <Accordion.Body>
-                                            <ListGroup variant="flush" className="material-list">
-                                                {items
-                                                    .filter(item => item.type === "documento" || item.type === "aula")
-                                                    .map((item) => (
-                                                        <ListGroup.Item key={item.id} className="material-item py-3">
-                                                            <div className="d-flex justify-content-between align-items-center">
-                                                                <div className="d-flex align-items-center">
-                                                                    {item.icon}
-                                                                    <div className="fw-bold">{item.label}</div>
-                                                                </div>
-                                                                <div>
-                                                                    <EditButton
-                                                                        text=""
-                                                                        Icon={BsPencilSquare}
-                                                                        onClick={() => handleEditItem(item.id)}
-                                                                        inline={true}
-                                                                        className="btn-edit-small"
-                                                                    />
-                                                                </div>
-                                                            </div>
-                                                        </ListGroup.Item>
-                                                    ))}
-                                            </ListGroup>
-                                        </Accordion.Body>
-                                    </Accordion.Item>
-
-                                    <Accordion.Item eventKey="2">
-                                        <Accordion.Header>
-                                            <div className="d-flex align-items-center">
-                                                <BsUpload className="me-2 text-primary" />
-                                                <span>Entregas e Avaliações</span>
-                                                <Badge bg="primary" className="ms-2">
-                                                    {items.filter(i => i.type === "entrega" || i.type === "trabalho" || i.type === "quiz").length}
-                                                </Badge>
-                                            </div>
-                                        </Accordion.Header>
-                                        <Accordion.Body>
-                                            <ListGroup variant="flush" className="material-list">
-                                                {items
-                                                    .filter(item => item.type === "entrega" || item.type === "trabalho" || item.type === "quiz")
-                                                    .map((item) => (
-                                                        <ListGroup.Item key={item.id} className="material-item py-3">
-                                                            <div className="d-flex justify-content-between align-items-center">
-                                                                <div className="d-flex align-items-center">
-                                                                    {item.icon}
-                                                                    <div>
-                                                                        <div className="fw-bold">{item.label}</div>
-                                                                        {item.deadline && (
-                                                                            <Badge bg="warning" text="dark">
-                                                                                <BsClock className="me-1" /> Prazo: {item.deadline}
-                                                                            </Badge>
-                                                                        )}
+                                        {/* Documentos e Aulas */}
+                                        <Accordion.Item eventKey="1">
+                                            <Accordion.Header>
+                                                <div className="d-flex align-items-center">
+                                                    <BsFileText className="me-2 text-primary" />
+                                                    <span>Documentos e Aulas</span>
+                                                    <Badge bg="primary" className="ms-2">
+                                                        {getMaterialsByType('documento').length + getMaterialsByType('aula').length}
+                                                    </Badge>
+                                                </div>
+                                            </Accordion.Header>
+                                            <Accordion.Body>
+                                                {getMaterialsByType('documento').length === 0 && getMaterialsByType('aula').length === 0 ? (
+                                                    <p className="text-muted text-center py-3">Nenhum documento ou aula adicionado</p>
+                                                ) : (
+                                                    <ListGroup variant="flush" className="material-list">
+                                                        {[...getMaterialsByType('documento'), ...getMaterialsByType('aula')].map((material) => (
+                                                            <ListGroup.Item key={material.id} className="material-item py-3">
+                                                                <div className="d-flex justify-content-between align-items-center">
+                                                                    <div className="d-flex align-items-start">
+                                                                        <div className="me-3 text-primary">
+                                                                            {material.tipo === 'aula' ? <BsBook size={24} /> : <BsFileText size={24} />}
+                                                                        </div>
+                                                                        <div>
+                                                                            <div className="fw-bold">{material.titulo}</div>
+                                                                            {material.descricao && (
+                                                                                <small className="text-muted d-block mb-2">{material.descricao}</small>
+                                                                            )}
+                                                                            <div>
+                                                                                {material.ficheiros.map((file, idx) => (
+                                                                                    <Badge
+                                                                                        key={idx}
+                                                                                        bg="light"
+                                                                                        text="primary"
+                                                                                        onClick={() => handleFileAction(material, 'view')}
+                                                                                        style={{ cursor: 'pointer' }}
+                                                                                        className="me-2 mb-1 text-decoration-none d-inline-flex align-items-center"
+                                                                                    >
+                                                                                        <BsDownload className="me-1" /> {file.nome.split('.').pop().toUpperCase()} • {file.nome}
+                                                                                    </Badge>
+                                                                                ))}
+                                                                            </div>
+                                                                        </div>
                                                                     </div>
-                                                                </div>
-                                                                <div>
                                                                     <EditButton
                                                                         text=""
                                                                         Icon={BsPencilSquare}
-                                                                        onClick={() => handleEditItem(item.id)}
+                                                                        onClick={() => handleEditFile(material.id)}
                                                                         inline={true}
                                                                         className="btn-edit-small"
                                                                     />
                                                                 </div>
-                                                            </div>
-                                                        </ListGroup.Item>
-                                                    ))}
-                                            </ListGroup>
-                                        </Accordion.Body>
-                                    </Accordion.Item>
-                                </Accordion>
+                                                            </ListGroup.Item>
+                                                        ))}
+                                                    </ListGroup>
+                                                )}
+                                            </Accordion.Body>
+                                        </Accordion.Item>
+
+                                        {/* Entregas e Avaliações */}
+                                        <Accordion.Item eventKey="2">
+                                            <Accordion.Header>
+                                                <div className="d-flex align-items-center">
+                                                    <BsUpload className="me-2 text-warning" />
+                                                    <span>Entregas e Avaliações</span>
+                                                    <Badge bg="warning" className="ms-2">
+                                                        {getMaterialsByType('entrega').length + getMaterialsByType('trabalho').length}
+                                                    </Badge>
+                                                </div>
+                                            </Accordion.Header>
+                                            <Accordion.Body>
+                                                {getMaterialsByType('entrega').length === 0 && getMaterialsByType('trabalho').length === 0 ? (
+                                                    <p className="text-muted text-center py-3">Nenhuma entrega ou trabalho adicionado</p>
+                                                ) : (
+                                                    <ListGroup variant="flush" className="material-list">
+                                                        {[...getMaterialsByType('entrega'), ...getMaterialsByType('trabalho')].map((material) => (
+                                                            <ListGroup.Item key={material.id} className="material-item py-3">
+                                                                <div className="d-flex justify-content-between align-items-center">
+                                                                    <div className="d-flex align-items-start">
+                                                                        <div className="me-3 text-warning">
+                                                                            <BsUpload size={24} />
+                                                                        </div>
+                                                                        <div>
+                                                                            <div className="fw-bold">{material.titulo}</div>
+                                                                            {material.descricao && (
+                                                                                <small className="text-muted d-block mb-2">{material.descricao}</small>
+                                                                            )}
+                                                                            {material.data_entrega && (
+                                                                                <Badge bg="warning" text="dark" className="mb-2">
+                                                                                    <BsClock className="me-1" /> Prazo: {formatDate(material.data_entrega)}
+                                                                                </Badge>
+                                                                            )}
+                                                                            <div>
+                                                                                {material.ficheiros.map((file, idx) => (
+                                                                                    <Badge
+                                                                                        key={idx}
+                                                                                        bg="light"
+                                                                                        text="warning"
+                                                                                        onClick={() => handleFileAction(material, 'view')}
+                                                                                        style={{ cursor: 'pointer' }}
+                                                                                        className="me-2 mb-1 text-decoration-none d-inline-flex align-items-center"
+                                                                                    >
+                                                                                        <BsDownload className="me-1" /> {file.nome.split('.').pop().toUpperCase()} • {file.nome}
+                                                                                    </Badge>
+                                                                                ))}
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <EditButton
+                                                                        text=""
+                                                                        Icon={BsPencilSquare}
+                                                                        onClick={() => handleEditFile(material.id)}
+                                                                        inline={true}
+                                                                        className="btn-edit-small"
+                                                                    />
+                                                                </div>
+                                                            </ListGroup.Item>
+                                                        ))}
+                                                    </ListGroup>
+                                                )}
+                                            </Accordion.Body>
+                                        </Accordion.Item>
+                                    </Accordion>
+                                )}
                             </Card.Body>
                         </Card>
                     )}
@@ -622,22 +720,20 @@ export default function CursoDetalhesGestor() {
             <ModalAdicionarFicheiro
                 show={addFile}
                 handleClose={() => setAddFile(false)}
-                tiposPermitidos={curso?.tipo === 'S' ? ['documento', 'video', 'entrega'] : ['documento', 'video']}
+                tiposPermitidos={curso?.tipo === 'S' ? ['documento', 'video', 'entrega', 'trabalho', 'aula'] : ['documento', 'video']}
                 courseId={cursoId}
-                allowDueDate={curso?.tipo !== 'A'}
+                onUploadSuccess={handleUploadSuccess}
             />
 
             <ModalEditarFicheiro
                 show={editFile}
                 handleClose={() => {
                     setEditFile(false);
-                    setCurrentFileData(null);
+                    setSelectedFileId(null);
                 }}
-                allowDueDate={curso?.tipo === 'S'}
-                itemId={editItemId}
-                ficheiro={currentFileData}
+                fileId={selectedFileId}
                 cursoId={cursoId}
-                onSaveSuccess={handleEditSuccess}
+                onUpdateSuccess={handleUpdateSuccess}
             />
         </div>
     );
