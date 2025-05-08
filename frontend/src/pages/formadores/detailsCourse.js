@@ -36,6 +36,9 @@ export default function CursoDetalhes() {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [materialLoading, setMaterialLoading] = useState(false);
   const [selectedCursoId, setSelectedCursoId] = useState(null);
+  const [selectedVideo, setSelectedVideo] = useState(null);
+  const [alunos, setAlunos] = useState([]);
+  const [alunosLoading, setAlunosLoading] = useState(false);
 
   // Fetch course data based on the ID
   useEffect(() => {
@@ -105,6 +108,36 @@ export default function CursoDetalhes() {
       fetchMaterials();
     }
   }, [selectedCursoId, activeSection, refreshTrigger]);
+
+  // Fetch alunos when the active section changes to "alunos"
+  useEffect(() => {
+    const fetchAlunos = async () => {
+      if (!courseId || curso?.tipo !== 'S') return;
+
+      try {
+        setAlunosLoading(true);
+        const token = sessionStorage.getItem('token');
+
+        const response = await axios.get(`/curso/${courseId}/alunos`, {
+          headers: { Authorization: `${token}` }
+        });
+
+        if (response.data.success) {
+          setAlunos(response.data.data);
+        } else {
+          console.error("Erro ao carregar alunos:", response.data.message);
+        }
+      } catch (err) {
+        console.error("Erro ao carregar alunos do curso:", err);
+      } finally {
+        setAlunosLoading(false);
+      }
+    };
+
+    if (activeSection === "alunos") {
+      fetchAlunos();
+    }
+  }, [courseId, activeSection, curso?.tipo]);
 
   const handleSectionChange = (section) => {
     setActiveSection(section);
@@ -285,6 +318,13 @@ export default function CursoDetalhes() {
                   className="me-2 mb-2"
                 >
                   <BsBook className="me-1" /> Materiais
+                </Button>
+                <Button
+                  variant={activeSection === "alunos" ? "primary" : "light"}
+                  onClick={() => handleSectionChange("alunos")}
+                  className="me-2 mb-2"
+                >
+                  <BsFillPeopleFill className="me-1" /> Alunos
                 </Button>
               </div>
             </Container>
@@ -702,6 +742,69 @@ export default function CursoDetalhes() {
                       </Accordion.Body>
                     </Accordion.Item>
                   </Accordion>
+                )}
+              </Card.Body>
+            </Card>
+          )}
+
+          {/* Seção "Alunos" (apenas para cursos síncronos) */}
+          {activeSection === "alunos" && curso?.tipo === "S" && (
+            <Card className="shadow-sm border-0">
+              <Card.Body>
+                <h4 className="section-subtitle mb-4">
+                  <BsFillPeopleFill className="me-2 text-primary" />
+                  Alunos Inscritos
+                </h4>
+
+                <div className="d-flex justify-content-between align-items-center mb-3">
+                  <div>
+                    <Badge bg="primary" className="me-2 py-2 px-3">
+                      Total: {curso?.curso_sincrono?.[0]?.limite_vagas || 0} Vagas
+                    </Badge>
+                    <Badge bg="success" className="me-2 py-2 px-3">
+                      Inscritos: {alunos.length} Alunos
+                    </Badge>
+                  </div>
+                </div>
+
+                {alunosLoading ? (
+                  <div className="text-center py-4">
+                    <Spinner animation="border" role="status" variant="primary">
+                      <span className="visually-hidden">A carregar alunos...</span>
+                    </Spinner>
+                    <p className="mt-2">A carregar lista de alunos...</p>
+                  </div>
+                ) : alunos.length === 0 ? (
+                  <Alert variant="light" className="text-center">
+                    <BsInfoCircle className="me-2" />
+                    Nenhum aluno inscrito neste curso ainda.
+                  </Alert>
+                ) : (
+                  <ListGroup variant="flush" className="material-list">
+                    {alunos.map((aluno) => (
+                      <ListGroup.Item key={aluno.id} className="material-item py-3">
+                        <div className="d-flex justify-content-between align-items-center">
+                          <div className="d-flex align-items-center">
+                            <div className="formador-avatar bg-light text-primary rounded-circle d-flex align-items-center justify-content-center me-3" style={{ width: "40px", height: "40px" }}>
+                              <BsFillPeopleFill size={20} />
+                            </div>
+                            <div>
+                              <div className="fw-bold">{aluno.nome}</div>
+                              <small className="text-muted">{aluno.email}</small>
+                              <div className="mt-1">
+                                <small className="text-muted">
+                                  Inscrito em: {formatDate(aluno.data_inscricao)}
+                                </small>
+                              </div>
+                            </div>
+                          </div>
+                          <Badge bg={aluno.estado === 'Concluído' ? 'success' : 'warning'}>
+                            {aluno.estado}
+                          </Badge>
+                        </div>
+                      </ListGroup.Item>
+                    ))}
+                  </ListGroup>
                 )}
               </Card.Body>
             </Card>

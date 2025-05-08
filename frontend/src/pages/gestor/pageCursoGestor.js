@@ -36,6 +36,8 @@ export default function CursoDetalhesGestor() {
     const [materialLoading, setMaterialLoading] = useState(false);
     const [refreshTrigger, setRefreshTrigger] = useState(0);
     const [selectedVideo, setSelectedVideo] = useState(null);
+    const [alunos, setAlunos] = useState([]);
+    const [alunosLoading, setAlunosLoading] = useState(false);
 
     useEffect(() => {
         const fetchCursoData = async () => {
@@ -99,6 +101,36 @@ export default function CursoDetalhesGestor() {
             fetchMaterials();
         }
     }, [cursoId, activeSection, refreshTrigger]);
+
+    // Fetch alunos when the active section changes to "alunos"
+    useEffect(() => {
+        const fetchAlunos = async () => {
+            if (!cursoId || curso?.tipo !== 'S') return;
+
+            try {
+                setAlunosLoading(true);
+                const token = sessionStorage.getItem('token');
+
+                const response = await axios.get(`/curso/${cursoId}/alunos`, {
+                    headers: { Authorization: `${token}` }
+                });
+
+                if (response.data.success) {
+                    setAlunos(response.data.data);
+                } else {
+                    console.error("Erro ao carregar alunos:", response.data.message);
+                }
+            } catch (err) {
+                console.error("Erro ao carregar alunos do curso:", err);
+            } finally {
+                setAlunosLoading(false);
+            }
+        };
+
+        if (activeSection === "alunos") {
+            fetchAlunos();
+        }
+    }, [cursoId, activeSection, curso?.tipo]);
 
     const handleSectionChange = (section) => {
         setActiveSection(section);
@@ -685,7 +717,7 @@ export default function CursoDetalhesGestor() {
                                             Total: {curso?.curso_sincrono?.[0]?.limite_vagas || 0} Vagas
                                         </Badge>
                                         <Badge bg="success" className="me-2 py-2 px-3">
-                                            Inscritos: 12 Alunos
+                                            Inscritos: {alunos.length} Alunos
                                         </Badge>
                                     </div>
                                     <Button variant="outline-primary">
@@ -693,24 +725,45 @@ export default function CursoDetalhesGestor() {
                                     </Button>
                                 </div>
 
-                                <ListGroup variant="flush" className="material-list">
-                                    {[...Array(5)].map((_, idx) => (
-                                        <ListGroup.Item key={idx} className="material-item py-3">
-                                            <div className="d-flex justify-content-between align-items-center">
-                                                <div className="d-flex align-items-center">
-                                                    <div className="formador-avatar bg-light text-primary rounded-circle d-flex align-items-center justify-content-center me-3" style={{ width: "40px", height: "40px" }}>
-                                                        <BsFillPeopleFill size={20} />
+                                {alunosLoading ? (
+                                    <div className="text-center py-4">
+                                        <Spinner animation="border" role="status" variant="primary">
+                                            <span className="visually-hidden">A carregar alunos...</span>
+                                        </Spinner>
+                                        <p className="mt-2">A carregar lista de alunos...</p>
+                                    </div>
+                                ) : alunos.length === 0 ? (
+                                    <Alert variant="light" className="text-center">
+                                        <BsInfoCircle className="me-2" />
+                                        Nenhum aluno inscrito neste curso ainda.
+                                    </Alert>
+                                ) : (
+                                    <ListGroup variant="flush" className="material-list">
+                                        {alunos.map((aluno) => (
+                                            <ListGroup.Item key={aluno.id} className="material-item py-3">
+                                                <div className="d-flex justify-content-between align-items-center">
+                                                    <div className="d-flex align-items-center">
+                                                        <div className="formador-avatar bg-light text-primary rounded-circle d-flex align-items-center justify-content-center me-3" style={{ width: "40px", height: "40px" }}>
+                                                            <BsFillPeopleFill size={20} />
+                                                        </div>
+                                                        <div>
+                                                            <div className="fw-bold">{aluno.nome}</div>
+                                                            <small className="text-muted">{aluno.email}</small>
+                                                            <div className="mt-1">
+                                                                <small className="text-muted">
+                                                                    Inscrito em: {formatDate(aluno.data_inscricao)}
+                                                                </small>
+                                                            </div>
+                                                        </div>
                                                     </div>
-                                                    <div>
-                                                        <div className="fw-bold">Aluno {idx + 1}</div>
-                                                        <small className="text-muted">aluno{idx + 1}@email.com</small>
-                                                    </div>
+                                                    <Badge bg={aluno.estado === 'Concluído' ? 'success' : 'warning'}>
+                                                        {aluno.estado}
+                                                    </Badge>
                                                 </div>
-                                                <Badge bg="success">Inscrito</Badge>
-                                            </div>
-                                        </ListGroup.Item>
-                                    ))}
-                                </ListGroup>
+                                            </ListGroup.Item>
+                                        ))}
+                                    </ListGroup>
+                                )}
                             </Card.Body>
                         </Card>
                     )}
