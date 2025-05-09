@@ -16,27 +16,28 @@ export default function PaginaGestor() {
   const nome = sessionStorage.getItem('nome');
   const id = sessionStorage.getItem('colaboradorid');
   const navigate = useNavigate();
-  const navToPage=(url)=>{
-      navigate(url)
+  const navToPage = (url) => {
+    navigate(url)
   }
-  
+
   const fetchCursos = async () => {
     try {
       const token = sessionStorage.getItem('token');
-      const response = await axios.get(`/curso`, {
+      const formadorId = sessionStorage.getItem('colaboradorid');
+
+      const response = await axios.get(`/curso/formador/${formadorId}`, {
         headers: { Authorization: `${token}` }
       });
 
-      const cursos = response.data;
-      setCurso(cursos);
+      setCurso(response.data);
+
     } catch (error) {
-      console.error("Erro ao buscar inscrições", error);
-      setError("Não foi possível carregar as inscrições");
+      console.error("Erro ao carregar cursos:", error);
+      setError("Não foi possível carregar os cursos");
     } finally {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     fetchCursos();
   }, []);
@@ -45,15 +46,10 @@ export default function PaginaGestor() {
     if (curso.length === 0) return [];
 
     return curso.filter(item => {
-      if (item.tipo !== 'S') return false;
 
-      // Verifica se ainda está em período de inicio
-      const dataLimite = item.sincrono?.inicio;
+     // Verifica se ainda está em período de inicio
+      const dataLimite = item.curso_sincrono?.data_inicio;
       if (!dataLimite || new Date(dataLimite) <= new Date()) return false;
-
-      // Verifica se o formador é o mesmo que o utilizador logado
-      const formadorCurso = item.sincrono?.formador?.formador_id;
-      if (formadorCurso && Number(formadorCurso) !== Number(id)) return false;
 
       return true;
     });
@@ -63,17 +59,12 @@ export default function PaginaGestor() {
     if (curso.length === 0) return [];
 
     return curso.filter(item => {
-      if (item.tipo !== 'S') return false;
 
       // Verifica se já começou
-      const dataLimite = item.sincrono?.inicio;
+      const dataLimite = item.curso_sincrono?.data_inicio;
       if (!dataLimite || new Date(dataLimite) > new Date()) return false;
 
-      if (item.sincrono?.estado === true) return false;
-      
-      // Verifica se o formador é o mesmo que o utilizador logado
-      const formadorCurso = item.sincrono?.formador?.formador_id;
-      if (formadorCurso && Number(formadorCurso) !== Number(id)) return false;
+      if (item.curso_sincrono?.estado === true) return false;
 
       return true;
     });
@@ -84,7 +75,7 @@ export default function PaginaGestor() {
   );
 
   const renderCourseCard = (curso, index) => (
-    <FeaturedCourses key={curso.curso_id || index} curso={curso} mostrarBotao={true} mostrarInicioEFim={true}/>
+    <FeaturedCourses key={curso.curso_id || index} curso={curso} mostrarBotao={true} mostrarInicioEFim={true} />
   );
 
   if (error) {
@@ -133,7 +124,7 @@ export default function PaginaGestor() {
               <p>A carregar cursos...</p>
             </div>
           ) : filteredCurso.length > 0 ? (
-            <CardRow dados={[...filteredCurso].sort((a, b) => new Date(a.sincrono?.inicio) - new Date(b.sincrono?.inicio))} renderCard={renderPedidoCard} scrollable={true} />
+            <CardRow dados={[...filteredCurso].sort((a, b) => new Date(a.curso_sincrono?.data_inicio) - new Date(b.curso_sincrono?.data_inicio))} renderCard={renderPedidoCard} scrollable={true} />
           ) : (
             <div className="empty-state text-center">
               <FileEarmarkText size={40} className="empty-icon mb-3" />
@@ -150,9 +141,9 @@ export default function PaginaGestor() {
             Cursos ativos
           </h2>
           <div className="section-actions">
-            <button className="btn btn-link section-link" onClick={()=>navToPage('/formador/cursos')}>
-              Ver Todos <ArrowRightCircle size={16} className="ms-1" /> 
-            </button>   
+            <button className="btn btn-link section-link" onClick={() => navToPage('/formador/cursos')}>
+              Ver Todos <ArrowRightCircle size={16} className="ms-1" />
+            </button>
           </div>
         </div>
 

@@ -57,7 +57,7 @@ function CardPedido({ pedido = null, curso = null, index }) {
   const formador = isPedido
     ? pedido?.ped_formador?.formador_colab?.nome ?? 'N/A'
     : curso?.curso_sincrono?.[0]?.sincrono_formador?.formador_colab?.nome ?? 'N/A';
-  const dataRaw = isPedido ? pedido?.data : curso?.curso_sincrono?.inicio;
+  const dataRaw = isPedido ? pedido?.data : curso?.curso_sincrono?.data_inicio;
   const data = formatDate(dataRaw);
   const daysAgo = isPedido ? getDaysAgo(dataRaw) : getDaysUntil(dataRaw);
 
