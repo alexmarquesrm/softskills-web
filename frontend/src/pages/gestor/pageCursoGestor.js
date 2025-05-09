@@ -1,16 +1,15 @@
 import React, { useState, useEffect } from "react";
 import {
     Container, Row, Col, Card, ListGroup, Spinner,
-    ProgressBar, Badge, Accordion, Button, Alert
+    Badge, Accordion, Button, Alert
 } from "react-bootstrap";
 import { useLocation, useParams } from "react-router-dom";
 import "./detailsCourseGestor.css";
 import {
     BsFillPeopleFill, BsCalendarCheck, BsPlusCircle, BsPencilSquare, BsFileText,
-    BsCameraVideo, BsBook, BsTools, BsUpload, BsInfoCircle, BsExclamationTriangle,
-    BsCheckCircle, BsQuestionCircle, BsClock, BsFlag, BsDownload, BsPlayFill
+    BsCameraVideo, BsBook, BsUpload, BsInfoCircle, BsExclamationTriangle,
+    BsCheckCircle, BsClock, BsFlag, BsDownload, BsPlayFill
 } from "react-icons/bs";
-import { FiUpload, FiEye, FiDownload } from "react-icons/fi";
 import axios from "../../config/configAxios";
 
 /* COMPONENTES */

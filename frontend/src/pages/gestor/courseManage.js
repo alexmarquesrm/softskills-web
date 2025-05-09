@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Container, Row, Col, Spinner } from "react-bootstrap";
-import { useLocation } from 'react-router-dom';
-import { Book, AlertCircle, Award, Calendar, User } from 'react-feather';
+import { Book, AlertCircle} from 'react-feather';
 import axios from "../../config/configAxios";
 /* COMPONENTES */
 import FeaturedCourses from "../../components/cards/cardCourses";
@@ -11,9 +10,6 @@ import Filtros from '../../components/filters/filtros';
 import './percursoFormativo.css';
 
 export default function CourseManage() {
-    const location = useLocation();
-    const curso_id = location.state?.curso_id;
-    const [nome, setNome] = useState('');
     const [curso, setCurso] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     // Modificando o estado inicial para false (não selecionado)
@@ -145,7 +141,6 @@ export default function CourseManage() {
                         </div>
                         <div className="percurso-header-info">
                             <h1 className="percurso-title">Gestão de Cursos</h1>
-                            <h2 className="percurso-user-name">{nome}</h2>
                         </div>
                     </div>
 

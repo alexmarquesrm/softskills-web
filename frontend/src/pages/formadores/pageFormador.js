@@ -14,7 +14,6 @@ export default function PaginaGestor() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const nome = sessionStorage.getItem('nome');
-  const id = sessionStorage.getItem('colaboradorid');
   const navigate = useNavigate();
   const navToPage = (url) => {
     navigate(url)
@@ -53,7 +52,7 @@ export default function PaginaGestor() {
 
       return true;
     });
-  }, [curso, id]);
+  }, [curso]);
 
   const filteredCursoAtivo = useMemo(() => {
     if (curso.length === 0) return [];
@@ -68,7 +67,7 @@ export default function PaginaGestor() {
 
       return true;
     });
-  }, [curso, id]);
+  }, [curso]);
 
   const renderPedidoCard = (curso, index) => (
     <CardPedido index={index} curso={curso} />

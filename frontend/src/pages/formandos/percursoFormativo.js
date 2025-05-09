@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Container, Row, Col, Spinner } from "react-bootstrap";
-import { useLocation, useNavigate } from 'react-router-dom';
-import { Book, AlertCircle, Award, Calendar, User } from 'react-feather';
+import { useNavigate } from 'react-router-dom';
+import { Book, AlertCircle} from 'react-feather';
 import axios from "../../config/configAxios";
 /* COMPONENTES */
 import FeaturedCourses from "../../components/cards/cardCourses";
@@ -10,7 +10,6 @@ import Filtros from '../../components/filters/filtros';
 /* CSS */
 
 export default function PercursoFormativoFormando() {
-    const location = useLocation();
     const navigate = useNavigate();
     const [nome, setNome] = useState('');
     const [inscricao, setInscricao] = useState([]);
