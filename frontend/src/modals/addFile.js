@@ -17,7 +17,7 @@ const ModalAdicionarFicheiro = ({
   tiposPermitidos = ['documento', 'video', 'entrega'],
   tipoInicial = 'documento',
   onUploadSuccess = null,
-  cursoId = null,
+  courseId = null,
   moduloId = null,
   allowDueDate = true
 }) => {
@@ -68,19 +68,12 @@ const ModalAdicionarFicheiro = ({
       descricao: 'Vídeos (MP4, WEBM, AVI, MOV, etc.)'
     },
     entrega: {
-      accept: {
-        'application/pdf': ['.pdf'],
-        'application/msword': ['.doc'],
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
-        'application/zip': ['.zip'],
-        'application/x-rar-compressed': ['.rar'],
-        'text/plain': ['.txt']
-      },
-      maxSize: 50 * 1024 * 1024, // 50MB
+      accept: {},
+      maxSize: 0,
       requerData: true,
       cor: 'warning',
       icon: <FiFile size={24} />,
-      descricao: 'Entregas de trabalhos (PDF, DOC, ZIP, RAR, etc.)'
+      descricao: 'Entregas de trabalhos'
     },
     aula: {
       accept: {
@@ -106,7 +99,7 @@ const ModalAdicionarFicheiro = ({
         'text/plain': ['.txt']
       },
       maxSize: 20 * 1024 * 1024, // 20MB
-      requerData: true,
+      requerData: false,
       cor: 'info',
       icon: <FiFile size={24} />,
       descricao: 'Trabalhos para realizar (PDF, DOC, ZIP, etc.)'
@@ -174,28 +167,38 @@ const ModalAdicionarFicheiro = ({
 
   const handleSubmit = async () => {
     // Validação básica
-    if (!formData.titulo || ficheirosCarregados.length === 0) {
-      setFeedbackMsg({
-        show: true,
-        message: 'Por favor, preencha o título e carregue pelo menos um arquivo.',
-        type: 'danger'
-      });
-      return;
-    }
-
-    if (configAtual.requerData && allowDueDate && !formData.dataentrega) {
-      setFeedbackMsg({
-        show: true,
-        message: 'Por favor, defina uma data de entrega.',
-        type: 'danger'
-      });
-      return;
-    }
-
-    if (!cursoId) {
+    if (!courseId) {
       setFeedbackMsg({
         show: true,
         message: 'ID do curso não encontrado.',
+        type: 'danger'
+      });
+      return;
+    }
+
+    if (!formData.titulo) {
+      setFeedbackMsg({
+        show: true,
+        message: 'Por favor, preencha o título.',
+        type: 'danger'
+      });
+      return;
+    }
+
+    // Validação específica por tipo
+    if (tipoFicheiro === 'trabalho' && ficheirosCarregados.length === 0) {
+      setFeedbackMsg({
+        show: true,
+        message: 'Por favor, carregue o arquivo do trabalho.',
+        type: 'danger'
+      });
+      return;
+    }
+
+    if (tipoFicheiro === 'entrega' && !formData.dataentrega) {
+      setFeedbackMsg({
+        show: true,
+        message: 'Por favor, defina uma data de entrega.',
         type: 'danger'
       });
       return;
@@ -205,26 +208,27 @@ const ModalAdicionarFicheiro = ({
       setUploading(true);
       const token = sessionStorage.getItem('token');
       
-      // Preparar os arquivos para upload
-      const filesPromises = ficheirosCarregados.map(file => {
-        return new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onloadend = () => {
-            // Extrair a parte base64 do resultado
-            const base64 = reader.result.split(',')[1];
-            resolve({
-              nome: file.name,
-              base64: base64,
-              tamanho: file.size
-            });
-          };
-          reader.onerror = reject;
-          reader.readAsDataURL(file);
+      // Preparar os arquivos para upload (apenas se for trabalho)
+      let filesData = [];
+      if (tipoFicheiro === 'trabalho') {
+        const filesPromises = ficheirosCarregados.map(file => {
+          return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+              const base64 = reader.result.split(',')[1];
+              resolve({
+                nome: file.name,
+                base64: base64,
+                tamanho: file.size
+              });
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+          });
         });
-      });
-      
-      // Aguardar a leitura de todos os arquivos
-      const filesData = await Promise.all(filesPromises);
+        
+        filesData = await Promise.all(filesPromises);
+      }
       
       // Preparar dados para a API
       const dadosEnvio = {
@@ -236,11 +240,35 @@ const ModalAdicionarFicheiro = ({
       };
       
       // Enviar para a API
-      const response = await axios.post(`/material/curso/${cursoId}/materiais`, dadosEnvio, {
+      const response = await axios.post(`/material/curso/${courseId}/materiais`, dadosEnvio, {
         headers: { Authorization: `${token}` }
       });
       
       if (response.data.success) {
+        // Se for um trabalho, perguntar se deseja criar a entrega
+        if (tipoFicheiro === 'trabalho') {
+          const criarEntrega = window.confirm('Deseja criar automaticamente a entrega correspondente a este trabalho?');
+          
+          if (criarEntrega) {
+            const entregaData = {
+              titulo: `Entrega: ${formData.titulo}`,
+              descricao: formData.descricao || '',
+              tipo: 'entrega',
+              dataEntrega: formData.dataentrega || null,
+              ficheiros: [] // Entrega começa sem arquivos
+            };
+
+            try {
+              await axios.post(`/material/curso/${courseId}/materiais`, entregaData, {
+                headers: { Authorization: `${token}` }
+              });
+            } catch (error) {
+              console.error('Erro ao criar entrega automática:', error);
+              // Não interrompe o fluxo se falhar ao criar a entrega
+            }
+          }
+        }
+
         setFeedbackMsg({
           show: true,
           message: 'Material adicionado com sucesso!',
@@ -380,30 +408,33 @@ const ModalAdicionarFicheiro = ({
             />
           </Row>
 
-          <Row className="mb-4">
-            <Col md={12}>
-              <Form.Label className="fw-bold mb-2">Upload de Arquivos</Form.Label>
-              <div 
-                {...getRootProps()} 
-                className={`text-center p-4 rounded ${isDragActive ? 'bg-light' : 'bg-light'}`}
-                style={{
-                  border: `2px dashed ${isDragActive ? '#0d6efd' : '#4a6baf'}`,
-                  transition: 'all 0.2s ease',
-                  cursor: 'pointer'
-                }}
-              >
-                <input {...getInputProps()} />
-                <FiUploadCloud size={36} className="text-primary mb-2" />
-                <p className="mb-1 fw-bold">Arraste e solte ou clique para selecionar</p>
-                <p className="mb-1 small text-muted">
-                  Tipos permitidos: {extensoesAceitas}
-                </p>
-                <p className="small text-muted">
-                  Tamanho máximo: {configAtual.maxSize / (1024 * 1024)}MB
-                </p>
-              </div>
-            </Col>
-          </Row>
+          {/* Upload de Arquivos - Mostrar apenas para trabalho */}
+          {tipoFicheiro === 'trabalho' && (
+            <Row className="mb-4">
+              <Col md={12}>
+                <Form.Label className="fw-bold mb-2">Upload de Arquivo</Form.Label>
+                <div 
+                  {...getRootProps()} 
+                  className={`text-center p-4 rounded ${isDragActive ? 'bg-light' : 'bg-light'}`}
+                  style={{
+                    border: `2px dashed ${isDragActive ? '#0d6efd' : '#4a6baf'}`,
+                    transition: 'all 0.2s ease',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <input {...getInputProps()} />
+                  <FiUploadCloud size={36} className="text-primary mb-2" />
+                  <p className="mb-1 fw-bold">Arraste e solte ou clique para selecionar</p>
+                  <p className="mb-1 small text-muted">
+                    Tipos permitidos: {extensoesAceitas}
+                  </p>
+                  <p className="small text-muted">
+                    Tamanho máximo: {configAtual.maxSize / (1024 * 1024)}MB
+                  </p>
+                </div>
+              </Col>
+            </Row>
+          )}
 
           {/* Lista de arquivos carregados */}
           {ficheirosCarregados.length > 0 && (

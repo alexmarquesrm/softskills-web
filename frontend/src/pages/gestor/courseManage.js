@@ -12,7 +12,7 @@ import './percursoFormativo.css';
 
 export default function CourseManage() {
     const location = useLocation();
-    const id = location.state?.id;
+    const curso_id = location.state?.curso_id;
     const [nome, setNome] = useState('');
     const [curso, setCurso] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
@@ -91,7 +91,7 @@ export default function CourseManage() {
     }, [curso]);
 
     const renderCourseCard = (curso, index) => (
-        <FeaturedCourses key={curso.id || index} curso={curso} mostrarBotao={true} />
+        <FeaturedCourses key={curso.curso_id || index} curso={curso} mostrarBotao={true} />
     );
 
     const handleSearchChange = (event) => {

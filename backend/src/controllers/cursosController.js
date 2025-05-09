@@ -469,6 +469,55 @@ const controladorCursos = {
     }
   },
 
+  // Obter alunos inscritos em um curso
+  getAlunosInscritos: async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      const inscricoes = await models.inscricao.findAll({
+        where: { curso_id: id },
+        include: [
+          {
+            model: models.formando,
+            as: "inscricao_formando",
+            include: [
+              {
+                model: models.colaborador,
+                as: "formando_colab",
+                attributes: ["nome", "email"]
+              }
+            ]
+          }
+        ],
+        attributes: ["inscricao_id", "tipo_avaliacao", "nota", "data_certificado", "data_inscricao", "estado"]
+      });
+
+      // Transformar os dados para o formato desejado
+      const alunos = inscricoes.map(inscricao => ({
+        id: inscricao.inscricao_formando.formando_id,
+        nome: inscricao.inscricao_formando.formando_colab.nome,
+        email: inscricao.inscricao_formando.formando_colab.email,
+        tipo_avaliacao: inscricao.tipo_avaliacao,
+        nota: inscricao.nota,
+        data_certificado: inscricao.data_certificado,
+        data_inscricao: inscricao.data_inscricao,
+        estado: inscricao.estado ? 'Concluído' : 'Em curso'
+      }));
+
+      res.json({
+        success: true,
+        data: alunos,
+        total: alunos.length
+      });
+    } catch (error) {
+      console.error("Erro ao obter alunos inscritos:", error);
+      res.status(500).json({ 
+        success: false, 
+        message: "Erro interno ao obter alunos inscritos" 
+      });
+    }
+  },
+
   // Atualizar um curso pelo ID
   updateCurso: async (req, res) => {
     try {
