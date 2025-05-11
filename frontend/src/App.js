@@ -4,21 +4,24 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
 // Pages
 import LandingPage from "./pages/landingPage";
-import PagGestor from "./pages/gestor/pageGestor";
-import ListaUtilizadores from "./pages/gestor/userList";
-import PercursoFormativoGestor from "./pages/gestor/percursoFormativo";
-import GestaoCursos from "./pages/gestor/courseManage";
-import CursoDetalhesGestor from "./pages/gestor/pageCursoGestor";
-import FormadorCurso from "./pages/formadores/detailsCourse";
-import AvaliarFormando from "./pages/formadores/evaluateFormando";
-import ManageCourses from "./pages/formadores/coursesManage";
-import PagFormador from "./pages/formadores/pageFormador";
 import PerfilUtilizador from "./pages/formandos/userProfile";
 import CursoFormando from "./pages/formandos/pageCourse";
 import CursosFormando from "./pages/formandos/listCourses";
 import PercursoFormativoFormando from "./pages/formandos/percursoFormativo";
+import PagFormando from "./pages/formandos/pageFormando";
+
+import FormadorCurso from "./pages/formadores/detailsCourse";
+import AvaliarFormando from "./pages/formadores/evaluateFormando";
+import ManageCourses from "./pages/formadores/coursesManage";
+import PagFormador from "./pages/formadores/pageFormador";
+
+import PagGestor from "./pages/gestor/pageGestor";
+import ListaUtilizadores from "./pages/gestor/userList";
+import CursoDetalhesGestor from "./pages/gestor/pageCursoGestor";
 import ListaPedidos from "./pages/gestor/pedidos";
 import AdicionarCurso from "./pages/gestor/addCourse";
+import PercursoFormativoGestor from "./pages/gestor/percursoFormativo";
+import GestaoCursos from "./pages/gestor/courseManage";
 
 // Components
 import CustomNavbar from "./components/navbar/customNavbar";
@@ -39,6 +42,7 @@ function AppContent() {
                         <Route path="/utilizadores/curso/:id" element={<CursoFormando />} />
                         <Route path="/utilizadores/lista/cursos" element={<CursosFormando />} />
                         <Route path="/utilizadores/percursoFormativo" element={<PercursoFormativoFormando />} />
+                        <Route path="/formando/dashboard" element={<PagFormando />} /> {/* Mudar o nome para /utilizadores/dashboard, porem falta mudar depois o caminho no perfil */}
                         {/* Formador Routes */}
                         <Route path="/formador/cursos" element={<ManageCourses />} />
                         <Route path="/formador/curso/:id" element={<FormadorCurso />} />

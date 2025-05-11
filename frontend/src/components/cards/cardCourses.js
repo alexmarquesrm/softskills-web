@@ -129,14 +129,14 @@ function CardCourses({ curso, inscricao, mostrarBotao = true, mostrarInicioEFim 
             </div>
           )}
 
-          {inscricao && inscricao.nota !== 0 && (
+          {inscricao && inscricao?.estado && inscricao.nota !== 0 && (
             <div className="meta-item">
               <CheckCircle size={16} className="icon" />
               <span>Nota: {inscricao.nota}</span>
             </div>
           )}
 
-          {inscricao?.data_certificado && (
+          {inscricao?.data_certificado && inscricao?.estado && (
             <div className="meta-item">
               <Award size={16} className="icon" />
               <span>Certificado: {formatDate(inscricao.data_certificado)}</span>
