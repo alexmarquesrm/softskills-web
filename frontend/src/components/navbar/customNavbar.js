@@ -79,19 +79,19 @@ function CustomNavbar() {
               <Nav.Link href="/utilizadores/lista/cursos" className="nav-link-custom">
                 <FaGraduationCap className="nav-icon" /> Cursos
               </Nav.Link>
-              <Nav.Link href="/ajuda" className="nav-link-custom">
+              {/*<Nav.Link href="/ajuda" className="nav-link-custom">
                 <BsQuestionCircle className="nav-icon" /> Ajuda
-              </Nav.Link>
+              </Nav.Link>*/}
             </Nav>
           </div>
 
           <div className="d-flex align-items-center">
-            <div className="search-box-container me-3 d-none d-md-block">
+            {/*<div className="search-box-container me-3 d-none d-md-block">
               <div className="search-box-navbar">
                 <input type="text" placeholder="Pesquisar..." className="search-input" />
                 <LuSearch className="search-icon-navbar" />
               </div>
-            </div>
+            </div>*/}
             
             {!isLoggedIn ? (
               <>

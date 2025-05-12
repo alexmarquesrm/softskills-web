@@ -133,8 +133,8 @@ function StatsSection() {
       <div className="stats-bg-shape"></div>
       <Container fluid> {/* Alterado para Container fluid para largura total */}
         <div className="section-header-stats">
-          <h2 className="stats-section-title">Our Impact</h2>
-          <p className="stats-section-subtitle">Transforming education worldwide</p>
+          <h2 className="stats-section-title">O nosso impacto</h2>
+          <p className="stats-section-subtitle">A transformar a educação pouco a pouco</p>
         </div>
 
         <Row className="g-4 justify-content-center"> {/* Adicionado justify-content-center */}
@@ -153,7 +153,7 @@ function StatsSection() {
                   variant="primary"
                   className="stats-progress"
                 />
-                <p className="stats-caption">Engaged learners across the globe</p>
+                <p className="stats-caption">Ativos nas diversas áreas</p>
               </Card.Body>
             </Card>
           </Col>
@@ -173,7 +173,7 @@ function StatsSection() {
                   variant="success"
                   className="stats-progress"
                 />
-                <p className="stats-caption">Diverse learning opportunities</p>
+                <p className="stats-caption">Diversas oportunidades de aprender</p>
               </Card.Body>
             </Card>
           </Col>
@@ -193,15 +193,15 @@ function StatsSection() {
                   variant="info"
                   className="stats-progress"
                 />
-                <p className="stats-caption">Industry leaders and educators</p>
+                <p className="stats-caption">Os melhores formadores</p>
               </Card.Body>
             </Card>
           </Col>
         </Row>
 
         <div className="stats-footnote">
-          <p>Join our growing community of lifelong learners today!</p>
-          <button className="btn btn-primary btn-lg stats-cta">Get Started</button>
+          <p>Junta-te à nossa comunidade de formandos ainda hoje!</p>
+          <button className="btn btn-primary btn-lg stats-cta">Começar!</button>
         </div>
       </Container>
     </section>

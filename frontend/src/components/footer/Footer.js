@@ -13,7 +13,7 @@ function Footer() {
           <Col lg={4} md={6} className="mb-4 mb-md-0">
             <h5 className="footer-heading mb-4">Sobre Nós</h5>
             <p className="footer-about">
-              Fornecemos soluções inovadoras para empresas e particulares em todo Portugal.
+              Fornecemos os melhores cursos para os nossos formandos.
               A nossa missão é criar valor e excelência através da tecnologia.
             </p>
             <div className="social-icons mt-3">
