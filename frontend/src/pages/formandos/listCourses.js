@@ -1,30 +1,23 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Container, Row, Col, Spinner } from "react-bootstrap";
-import { Book, AlertCircle } from 'react-feather';
-import { useNavigate } from 'react-router-dom';
-import { FaRegSave } from "react-icons/fa";
-
+import { Book, AlertCircle} from 'react-feather';
 import axios from "../../config/configAxios";
-import Guardar from "../../components/buttons/saveButton";
-
 /* COMPONENTES */
 import FeaturedCourses from "../../components/cards/cardCourses";
 import SearchBar from '../../components/textFields/search';
 import Filtros from '../../components/filters/filtros';
+/* CSS */
+
 
 export default function Courses() {
-    const navigate = useNavigate();
-
     const [curso, setCurso] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
+    // Modificando o estado inicial para false (não selecionado)
     const [tipoSelecionado, setTipoSelecionado] = useState({ S: false, A: false });
     const [estadoSelecionado, setEstadoSelecionado] = useState({ emCurso: false, terminado: false });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isFiltersVisible, setIsFiltersVisible] = useState(true);
-
-    // Verifica o tipo de usuário no sessionStorage
-    const tipoUser = sessionStorage.getItem('tipo');
 
     const fetchData = async () => {
         try {
@@ -32,6 +25,7 @@ export default function Courses() {
             const response = await axios.get(`/curso`, {
                 headers: { Authorization: `${token}` }
             });
+
             const cursos = response.data;
             setCurso(cursos);
         } catch (error) {
@@ -46,29 +40,36 @@ export default function Courses() {
         fetchData();
     }, []);
 
+    // Memoizar inscrições filtradas para melhorar desempenho
     const filteredInscricoes = useMemo(() => {
         if (curso.length === 0) return [];
 
+        // Verificar se algum filtro está ativo
         const anyTipoSelected = tipoSelecionado.S || tipoSelecionado.A;
 
         return curso.filter(item => {
-            if (item.pendente) return false;
 
+            // Ignora cursos pendentes
+            if (item.pendente) return false;
+            
             const isEmCurso =
                 item.tipo === 'A' ||
                 (item.tipo === 'S' && item.curso_sincrono && !item.curso_sincrono.estado);
             if (!isEmCurso) return false;
 
+            // Filtrar por começar
             if (item.tipo === 'S') {
                 const dataLimite = item.curso_sincrono?.data_limite_inscricao;
                 if (!dataLimite || new Date(dataLimite) <= new Date()) return false;
             }
 
+            // Filtrar por tipo de curso - só aplica se algum tipo estiver selecionado
             if (anyTipoSelected) {
                 if (item?.tipo === 'S' && !tipoSelecionado.S) return false;
                 if (item?.tipo === 'A' && !tipoSelecionado.A) return false;
             }
 
+            // Filtrar por termo de pesquisa
             if (searchTerm.trim() !== '') {
                 const searchLower = searchTerm.toLowerCase();
                 return (
@@ -82,6 +83,7 @@ export default function Courses() {
         });
     }, [curso, tipoSelecionado, estadoSelecionado, searchTerm]);
 
+    // Stats
     const stats = useMemo(() => {
         if (curso.length === 0) return { total: 0, emCurso: 0, terminados: 0 };
 
@@ -108,17 +110,11 @@ export default function Courses() {
         setIsFiltersVisible(!isFiltersVisible);
     };
 
+    // Função para limpar filtros modificada
     const clearFilters = () => {
         setTipoSelecionado({ S: false, A: false });
         setEstadoSelecionado({ emCurso: false, terminado: false });
         setSearchTerm('');
-    };
-
-    // Função para tratar a navegação do botão "Adicionar Curso"
-    const handleAddCourse = () => {
-        if (tipoUser === "Gestor") {
-            navigate('/gestor/cursos/add');
-        }
     };
 
     if (loading) {
@@ -145,13 +141,14 @@ export default function Courses() {
     return (
         <div className="percurso-formativo-page">
             <Container fluid className="page-container">
+                {/* Header principal com resumo */}
                 <div className="percurso-header">
                     <div className="percurso-header-content">
                         <div className="percurso-header-icon">
                             <Book size={32} />
                         </div>
                         <div className="percurso-header-info">
-                            <h1 className="percurso-title">Cursos Disponíveis</h1>
+                            <h1 className="percurso-title">Cursos Disponiveis</h1>
                         </div>
                     </div>
 
@@ -163,13 +160,16 @@ export default function Courses() {
                     </div>
                 </div>
 
+                {/* Conteúdo principal - Filtros e Lista de Cursos */}
                 <Row className="percurso-content">
+                    {/* Botão para mostrar/ocultar filtros (apenas visível em mobile) */}
                     <div className="filters-toggle-wrapper d-lg-none">
                         <button className="filters-toggle-btn" onClick={toggleFilters}>
                             {isFiltersVisible ? "Ocultar Filtros" : "Mostrar Filtros"}
                         </button>
                     </div>
 
+                    {/* Sidebar com filtros */}
                     <Col lg={3} md={12} className={`filtros-sidebar ${isFiltersVisible ? "visible" : "hidden"}`}>
                         <Filtros
                             tipoSelecionado={tipoSelecionado}
@@ -181,6 +181,7 @@ export default function Courses() {
                         />
                     </Col>
 
+                    {/* Conteúdo principal */}
                     <Col lg={9} md={12} className="main-content">
                         <div className="courses-header">
                             <div className="courses-count">
@@ -191,22 +192,13 @@ export default function Courses() {
                                 )}
                             </div>
 
-                            <div className="search-container d-flex align-items-center gap-2">
-                            {tipoUser === "Gestor" && (
-                                    <Guardar
-                                        text={"Novo Curso"}
-                                        onClick={handleAddCourse}
-                                        Icon={FaRegSave}
-                                        
-                                    />
-                                )}
+                            <div className="search-container">
                                 <SearchBar
                                     searchTerm={searchTerm}
                                     handleSearchChange={handleSearchChange}
                                     handleSearchClick={handleSearchClick}
                                     placeholder="Pesquisar cursos..."
                                 />
-                              
                             </div>
                         </div>
 
@@ -233,4 +225,3 @@ export default function Courses() {
         </div>
     );
 }
-
