@@ -4,177 +4,155 @@ const { get } = require("../routes/formandosRoutes");
 const models = initModels(sequelizeConn);
 
 const controladorFormadores = {
-    getAllFormadores: async (req, res) => {
-        try {
-          const formadores = await models.formador.findAll({
-            include: [
-              {
-                model: models.credenciais,
-                as: "formador_credenciais",
-                required: true,
-                include: [
-                  {
-                    model: models.colaborador,
-                    as: "credenciais_colaborador",
-                    required: true,
-                    attributes: ["nome", "email", "telefone"],
-                  },
-                ],
-                attributes: ["login", "password"],
-              },
-            ],
-            attributes: ["formador_id"],
-          });
-      
-          const allFormadores = formadores.map((formador) => {
-            return {
-              id: formador.formador_id,
-              login: formador.formador_credenciais.login,
-              password: formador.formador_credenciais.password,
-              colaborador: {
-                nome: formador.formador_credenciais.credenciais_colaborador.nome,
-                email: formador.formador_credenciais.credenciais_colaborador.email,
-                telefone:
-                  formador.formador_credenciais.credenciais_colaborador.telefone,
-              },
-            };
-          });
-      
-          res.json(allFormadores);
-        } catch (error) {
-          console.error(error);
-          res.status(500).json({ message: "Erro ao receber dados dos formadores" });
-        }
-      },
-  
-    getFormadorById: async (req, res) => {
-        const { id } = req.params;
-        try {
-          const formador = await models.formador.findOne({
-            where: { formador_id: id },
-            include: [
-              {
-                model: models.credenciais,
-                as: "formador_credenciais",
-                required: true,
-                include: [
-                  {
-                    model: models.colaborador,
-                    as: "credenciais_colaborador",
-                    required: true,
-                    attributes: ["nome", "email", "telefone"],
-                  },
-                ],
-                attributes: ["login", "password"],
-              },
-            ],
-            attributes: ["formador_id"],
-          });
-  
-          if (!formador) {
-            return res.status(404).json({ message: "Formador não encontrado" });
-          }
-  
-          const formadorData = {
-            id: formador.formador_id,
-            login: formador.formador_credenciais.login,
-            password: formador.formador_credenciais.password,
-            colaborador: {
-              nome: formador.formador_credenciais.credenciais_colaborador.nome,
-              email:
-                formador.formador_credenciais.credenciais_colaborador.email,
-              telefone:
-                formador.formador_credenciais.credenciais_colaborador.telefone,
-            },
-          };
-  
-          res.json(formadorData);
-        } catch (error) {
-          console.error(error);
-          res.status(500).json({ message: "Erro ao receber dados do formador" });
-        }
-      },
+  getAllFormadores: async (req, res) => {
+    try {
+      const formadores = await models.formador.findAll({
+        include: [
+          {
+            model: models.colaborador,
+            as: "formador_colab",
+            required: true,
+            attributes: ["nome", "email", "telefone"],
 
-      createFormador: async (req, res) => {
-        const { colaborador_id, especialidade } = req.body;
+          },
+        ],
+        attributes: ["formador_id"],
+      });
 
-        try {
-          // Verificar se o colaborador existe
-          const colaborador = await models.colaborador.findByPk(colaborador_id);
-          console.log("Colaborador", colaborador);
-          if (!colaborador) {
-            return res.status(404).json({ message: "Colaborador não encontrado" });
-          }
-      
-          // Obter as credenciais associadas ao colaborador
-          const credenciais = await models.credenciais.findOne({
-            where: { colaborador_id },
-          });
-          console.log("Credenciais", credenciais);
-      
-          if (!credenciais) {
-            return res.status(404).json({ message: "Credenciais não encontradas para o colaborador" });
-          }
-      
-          // Criar o formador com o mesmo ID das credenciais
-          const novoFormador = await models.formador.create({
-            formador_id: credenciais.credencial_id,
-            especialidade,
-          });
-      
-          res.status(201).json({
-            message: "Formador criado com sucesso",
-            formador: {
-              id: novoFormador.formador_id,
-              especialidade: novoFormador.especialidade,
-            },
-          });
-        } catch (error) {
-          console.error(error);
-          res.status(500).json({ message: "Erro ao criar formador" });
-        }
-      },
+      const allFormadores = formadores.map((formador) => {
+        return {
+          id: formador.formador_id,
+          colaborador: {
+            nome: formador.formador_colab.nome,
+            email: formador.formador_colab.email,
+            telefone:
+              formador.formador_colab.telefone,
+          },
+        };
+      });
 
-      updateFormador: async (req, res) => {
-        const { id } = req.params;
-        const { colaborador_id, especialidade } = req.body;
-    
-        try {
-          // Verificar se o formador existe
-          const formador = await models.formador.findByPk(id);
-          if (!formador) {
-            return res.status(404).json({ message: "Formador não encontrado" });
-          }
-    
-          // Atualizar os dados do formador
-          await formador.update({ colaborador_id, especialidade });
-    
-          res.json({ message: "Formador atualizado com sucesso" });
-        } catch (error) {
-          console.error(error);
-          res.status(500).json({ message: "Erro ao atualizar formador" });
-        }
-      },
+      res.json(allFormadores);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Erro ao receber dados dos formadores" });
+    }
+  },
 
-      deleteFormador: async (req, res) => {
-        const { id } = req.params;
-    
-        try {
-          // Verificar se o formador existe
-          const formador = await models.formador.findByPk(id);
-          if (!formador) {
-            return res.status(404).json({ message: "Formador não encontrado" });
-          }
-    
-          // Deletar o formador
-          await formador.destroy();
-    
-          res.json({ message: "Formador apagado com sucesso" });
-        } catch (error) {
-          console.error(error);
-          res.status(500).json({ message: "Erro ao apagar formador" });
-        }
-      },
+  getCountFormadores: async (req, res) => {
+      try {
+        const totalFormadores = await models.formador.count();
+        res.status(200).json({ total: totalFormadores });
+      } catch (error) {
+        console.error("Erro ao contar formadores:", error);
+        res.status(500).json({ message: "Erro interno ao contar formadores" });
+      }
+    },
+
+  getFormadorById: async (req, res) => {
+    const { id } = req.params;
+    try {
+      const formador = await models.formador.findOne({
+        where: { formador_id: id },
+        include: [
+          {
+            model: models.colaborador,
+            as: "formador_colab",
+            required: true,
+            attributes: ["nome", "email", "telefone"],
+          },
+        ],
+        attributes: ["formador_id"],
+      });
+
+      if (!formador) {
+        return res.status(404).json({ message: "Formador não encontrado" });
+      }
+
+      const formadorData = {
+        id: formador.formador_id,
+        colaborador: {
+          nome: formador.formador_colab.nome,
+          email:
+            formador.formador_colab.email,
+          telefone:
+            formador.formador_colab.telefone,
+        },
+      };
+
+      res.json(formadorData);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Erro ao receber dados do formador" });
+    }
+  },
+
+  createFormador: async (req, res) => {
+    const { colaborador_id, especialidade } = req.body;
+
+    try {
+      const colaborador = await models.colaborador.findByPk(colaborador_id);
+      if (!colaborador) {
+        return res.status(404).json({ message: "Colaborador não encontrado" });
+      }
+
+      const novoFormador = await models.formador.create({
+        formador_id: colaborador.colaborador_id,
+        especialidade,
+      });
+
+      res.status(201).json({
+        message: "Formador criado com sucesso",
+        formador: {
+          id: novoFormador.formador_id,
+          especialidade: novoFormador.especialidade,
+        },
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Erro ao criar formador" });
+    }
+  },
+
+  updateFormador: async (req, res) => {
+    const { id } = req.params;
+    const { colaborador_id, especialidade } = req.body;
+
+    try {
+      // Verificar se o formador existe
+      const formador = await models.formador.findByPk(id);
+      if (!formador) {
+        return res.status(404).json({ message: "Formador não encontrado" });
+      }
+
+      // Atualizar os dados do formador
+      await formador.update({ colaborador_id, especialidade });
+
+      res.json({ message: "Formador atualizado com sucesso" });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Erro ao atualizar formador" });
+    }
+  },
+
+  deleteFormador: async (req, res) => {
+    const { id } = req.params;
+
+    try {
+      // Verificar se o formador existe
+      const formador = await models.formador.findByPk(id);
+      if (!formador) {
+        return res.status(404).json({ message: "Formador não encontrado" });
+      }
+
+      // Deletar o formador
+      await formador.destroy();
+
+      res.json({ message: "Formador apagado com sucesso" });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Erro ao apagar formador" });
+    }
+  },
 
 };
 module.exports = controladorFormadores;

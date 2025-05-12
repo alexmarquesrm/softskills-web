@@ -1,0 +1,233 @@
+/* Estilos para a página do curso */
+
+/* Estilo geral */
+.curso-content {
+  font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  color: #333;
+  padding: 0 50px;
+  max-width: 1650px;
+  margin: 0 auto;
+}
+
+/* Banner do curso */
+.curso-banner {
+  background: linear-gradient(135deg, #4a6baf 0%, #2a4fa5 100%);
+  border-radius: 12px 12px 0 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.curso-banner::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 200px;
+  height: 200px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  transform: translate(30%, -30%);
+}
+
+/* Cards e conteúdo */
+.curso-card {
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.info-card {
+  border-radius: 10px;
+  border: none;
+}
+
+.section-subtitle {
+  font-weight: 600;
+  color: #333;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+}
+
+/* Materiais do curso */
+.material-list .material-item {
+  border-left: none;
+  border-right: none;
+  transition: all 0.2s ease;
+}
+
+.material-list .material-item:hover {
+  background-color: #f8f9fa;
+  transform: translateX(5px);
+}
+
+.material-list .material-item:first-child {
+  border-top: none;
+}
+
+.material-list .material-item:last-child {
+  border-bottom: none;
+}
+
+/* Indicadores de progresso */
+.uncompleted-circle {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid #dee2e6;
+}
+
+/* Navegação do curso */
+.course-navigation .btn {
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.course-navigation .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Accordion personalizado */
+.material-accordion .accordion-button:not(.collapsed) {
+  background-color: #f0f4ff;
+  color: #0d6efd;
+  box-shadow: none;
+}
+
+.material-accordion .accordion-button:focus {
+  box-shadow: none;
+  border-color: #dee2e6;
+}
+
+/* Seção de objetivos */
+.objectives-container {
+  border-left: 4px solid #0d6efd;
+}
+
+.objective-number {
+  min-width: 30px;
+  height: 30px;
+  font-weight: bold;
+}
+
+/* Botões de ação */
+.btn-action {
+  background: #fff;
+  color: #0d6efd;
+  border: 1px solid #0d6efd;
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.btn-action:hover {
+  background: #0d6efd;
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(13, 110, 253, 0.2);
+}
+
+.btn-edit-small {
+  background: transparent;
+  color: #0d6efd;
+  border: none;
+  padding: 5px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.btn-edit-small:hover {
+  background: rgba(13, 110, 253, 0.1);
+}
+
+/* Área do formador */
+.formador-avatar {
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Diferenciação de tipos de materiais */
+.material-documento {
+  border-left: 3px solid #ffc107;
+}
+
+.material-video {
+  border-left: 3px solid #dc3545;
+}
+
+.material-aula {
+  border-left: 3px solid #28a745;
+}
+
+.material-trabalho, .material-quiz {
+  border-left: 3px solid #17a2b8;
+}
+
+.material-entrega {
+  border-left: 3px solid #6610f2;
+}
+
+/* Adaptações para mobile */
+@media (max-width: 768px) {
+  .curso-content {
+    padding: 0 15px;
+  }
+  
+  .curso-banner h1 {
+    font-size: 1.5rem;
+  }
+  
+  .course-navigation .btn {
+    font-size: 0.8rem;
+    padding: 6px 12px;
+  }
+  
+  .curso-actions {
+    margin-top: 15px;
+    width: 100%;
+  }
+  
+  .material-item {
+    flex-direction: column;
+    align-items: flex-start !important;
+  }
+  
+  .material-item .btn-edit-small {
+    margin-top: 10px;
+    margin-left: 30px;
+  }
+}
+
+/* Estilos dos estados hover */
+.btn-primary:hover {
+  background-color: #0b5ed7;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(13, 110, 253, 0.3);
+}
+
+.btn-outline-primary:hover {
+  background-color: #0d6efd;
+  color: white;
+  transform: translateY(-2px);
+}
+
+/* Loading e erro */
+.loading-container .spinner-border {
+  width: 3rem;
+  height: 3rem;
+}
+
+.badge {
+  transition: all 0.2s ease;
+}
+
+.badge:hover {
+  transform: scale(1.05);
+}

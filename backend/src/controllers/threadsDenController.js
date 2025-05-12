@@ -7,7 +7,6 @@ const models = initModels(sequelizeConn);
 const controladorThreadsDen = {
   // Criar uma nova denúncia
   createDenuncia: async (req, res) => {
-    console.log(req.body);
     try {
       const { thread_id, formando_id, descricao } = req.body;
 
@@ -41,11 +40,18 @@ const controladorThreadsDen = {
         include: [
           {
             model: models.threads,
-            as: "thread",
+            as: "den_thread",
           },
           {
             model: models.formando,
             as: "formando",
+            include: [
+              {
+                model: models.colaborador,
+                as: "formando_colab",
+                attributes: ["nome"],
+              },
+            ],
           },
         ],
       });

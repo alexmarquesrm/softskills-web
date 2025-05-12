@@ -1,0 +1,64 @@
+/* cardRow.css */
+.card-row-scroll-wrapper {
+  position: relative;
+  padding: 0.5rem 0;
+}
+
+.card-row-container {
+  display: flex;
+  overflow-x: auto;
+  gap: 1rem;
+  padding: 1rem 0.5rem;
+  scrollbar-width: thin;
+  scroll-snap-type: x mandatory;
+  position: relative;
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.card-row-container::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+.card-row-item {
+  flex: 0 0 auto;
+  width: 320px;
+  scroll-snap-align: start;
+  transition: transform 0.3s ease;
+}
+
+.card-row-item:hover {
+  transform: translateY(-5px);
+}
+
+.scroll-button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.scroll-button:hover {
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+  background: #f8f9fa;
+}
+
+.scroll-left {
+  left: -10px;
+}
+
+.scroll-right {
+  right: -10px;
+}
+

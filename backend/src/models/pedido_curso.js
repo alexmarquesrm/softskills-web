@@ -18,6 +18,10 @@ module.exports = function(sequelize, DataTypes) {
         model: 'curso',
         key: 'curso_id'
       }
+    },
+    data: {
+      type: DataTypes.DATE,
+      allowNull: false
     }
   }, {
     sequelize,

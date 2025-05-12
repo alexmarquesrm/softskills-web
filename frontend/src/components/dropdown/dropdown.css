@@ -1,0 +1,29 @@
+.dropdown-toggle {
+    background-color: white !important;
+    color: #212529 !important; 
+    border-color: #ced4da !important; 
+    box-shadow: none !important;
+  }
+  
+
+  .dropdown-toggle:hover,
+  .dropdown-toggle:focus {
+    background-color: white !important;
+    color: #212529 !important;
+    border-color: #ced4da !important;
+    box-shadow: none !important;
+  }
+  .dropdown-toggle::after {
+    float: none;
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  
+ 
+  .dropdown-toggle {
+    position: relative; 
+    text-align: left !important;
+    padding-right: 2rem;
+  }

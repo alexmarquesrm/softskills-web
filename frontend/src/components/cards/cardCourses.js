@@ -1,59 +1,161 @@
 import React from "react";
-import { Card, Button, Container, Row, Col } from "react-bootstrap";
-import { Clock, Users } from "react-feather";
+import { Card, Badge, Button } from "react-bootstrap";
+import { Clock, Users, Calendar, Award, CheckCircle, RefreshCcw } from "react-feather";
+import { useNavigate } from "react-router-dom";
 import ReactGif from "./../../images/react.gif";
+import "./cardCourses.css";
 
-function cardCourses({ cursos = [] }) {
+function CardCourses({ curso, inscricao, mostrarBotao = true, mostrarInicioEFim = false }) {
+  const navigate = useNavigate();
+  const tipoUser = sessionStorage.getItem('tipo');
+
+  const handleViewDetails = () => {
+    if (tipoUser === "Gestor") {
+      navigate(`/gestor/cursodetalhes/${curso.curso_id}`, {
+        state: { id: curso.curso_id }
+      });
+    } else if (tipoUser === "Formando") {
+      const cursoId = curso.curso_id || curso.id;
+      navigate(`/utilizadores/curso/${cursoId}`);
+    } else if (tipoUser === "Formador") {
+      navigate(`/formador/curso/${curso.curso_id}`);
+    } else {
+      navigate(`/curso/${curso.curso_id}`, {
+        state: { id: curso.curso_id }
+      });
+    }
+  };
+
   const formatDate = (date) => {
     const data = new Date(date);
     return data.toISOString().split('T')[0];
   };
 
+  const getBadgeVariant = (tipo) => {
+    switch (tipo) {
+      case "S": return "primary";
+      case "A": return "success";
+      default: return "secondary";
+    }
+  };
+
+  const getTipoLabel = (tipo) => {
+    switch (tipo) {
+      case "S": return "Síncrono";
+      case "A": return "Assíncrono";
+      default: return "Desconhecido";
+    }
+  };
+
   return (
-    <Container className="mt-5">
-      <h2>Cursos Em Destaque</h2>
-      <Row>
-        {cursos.map((curso, index) => (
-          <Col key={index} md={4}>
-            <Card className="mb-4 shadow-lg border-0" style={{ borderRadius: "10px" }}>
-              <div
-                style={{
-                  height: "150px",
-                  background: "linear-gradient(to bottom, #9E7FCE, #5A4EAE)",
-                  borderTopLeftRadius: "10px",
-                  borderTopRightRadius: "10px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <img src={ReactGif} alt="Ícone" style={{ width: "150px", opacity: 0.8 }} />
-              </div>
+    <Card className="course-card h-100">
+      <div className="course-header" style={{ cursor: 'pointer' }} onClick={handleViewDetails}>
+        <img src={ReactGif} alt="Curso" className="course-image" />
+        <Badge
+          className="course-type-badge"
+          bg={getBadgeVariant(curso.tipo)}
+        >
+          {getTipoLabel(curso.tipo)}
+        </Badge>
+      </div>
 
-              <Card.Body>
-                <Card.Subtitle className="text-muted">Professor: {curso.formador.formador_credenciais.credenciais_colaborador.nome}</Card.Subtitle>
-                <Card.Title className="text-primary fw-bold mt-2">{curso.sincrono_curso.descricao}</Card.Title>
+      <Card.Body className="d-flex flex-column">
+        <Card.Title
+          className="course-title"
+          style={{ cursor: 'pointer' }}
+          onClick={handleViewDetails}
+        >
+          {curso.titulo}
+        </Card.Title>
 
-                <div className="d-flex align-items-center mt-2">
-                  <Clock size={16} className="me-2 text-secondary" />
-                  <span>{curso.limite_vagas} Horas</span>
-                </div>  
-                <div className="d-flex align-items-center mt-1">
-                  <Users size={16} className="me-2 text-secondary" />
-                  <span>{curso.sincrono_curso.total_horas} Vagas</span>
-                </div>
+        {curso.curso_sincrono?.formador?.colaborador?.nome && (
+          <div className="course-instructor">
+            <Award size={16} className="icon" />
+            <span>{curso.curso_sincrono.formador.colaborador.nome}</span>
+          </div>
+        )}
 
-                <div className="mt-3 text-muted">Início: {formatDate(curso.data_inicio)}</div>
-                <Button variant="link" className="p-0 mt-2 text-dark fw-bold">
-                  Ver Mais
-                </Button>
-              </Card.Body>
-            </Card>
-          </Col>
-        ))}
-      </Row>
-    </Container>
+        <div className="course-description">
+          <p>{curso.descricao}</p>
+        </div>
+
+        <div className="course-meta">
+          {curso.total_horas && (
+            <div className="meta-item">
+              <Clock size={16} className="icon" />
+              <span>{curso.total_horas} horas</span>
+            </div>
+          )}
+
+          {curso.curso_sincrono?.vagas && (
+            <div className="meta-item">
+              <Users size={16} className="icon" />
+              <span>{curso.curso_sincrono.vagas} vagas</span>
+            </div>
+          )}
+
+          {(curso.curso_sincrono?.data_inicio && (mostrarInicioEFim || curso.curso_sincrono?.estado !== true)) && (
+            <div className="meta-item">
+              <Calendar size={16} className="icon" />
+              <span>Início: {formatDate(curso.curso_sincrono.data_inicio)}</span>
+            </div>
+          )}
+
+          {(curso.curso_sincrono?.data_fim && (mostrarInicioEFim || curso.curso_sincrono?.estado === true)) && (
+            <div className="meta-item">
+              <Calendar size={16} className="icon" />
+              <span>Fim: {formatDate(curso.curso_sincrono.data_fim)}</span>
+            </div>
+          )}
+
+          {curso.curso_sincrono?.data_limite_inscricao && !curso.curso_sincrono.estado && new Date(curso.curso_sincrono.data_limite_inscricao) > new Date() && (
+            <div className="meta-item">
+              <Calendar size={16} className="icon" />
+              <span>Inscrição até: {formatDate(curso.curso_sincrono.data_limite_inscricao)}</span>
+            </div>
+          )}
+
+          {(inscricao?.estado !== undefined || curso?.curso_sincrono?.estado !== undefined) && (
+            <div className="meta-item">
+              <RefreshCcw size={16} className="icon" />
+              <span>Estado: {(() => {
+                const estado = inscricao?.estado ?? curso?.curso_sincrono?.estado;
+                const dataInicio = curso?.curso_sincrono?.data_limite_inscricao;
+
+                if (estado) return 'Concluído';
+                if (dataInicio && new Date(dataInicio) > new Date()) return 'Por começar';
+                return 'Em curso';
+              })()}</span>
+            </div>
+          )}
+
+          {inscricao && inscricao?.estado && inscricao.nota !== 0 && (
+            <div className="meta-item">
+              <CheckCircle size={16} className="icon" />
+              <span>Nota: {inscricao.nota}</span>
+            </div>
+          )}
+
+          {inscricao?.data_certificado && inscricao?.estado && (
+            <div className="meta-item">
+              <Award size={16} className="icon" />
+              <span>Certificado: {formatDate(inscricao.data_certificado)}</span>
+            </div>
+          )}
+        </div>
+
+        {mostrarBotao && (
+          <Button
+            variant="primary"
+            className="course-button mt-auto"
+            onClick={handleViewDetails}
+          >
+            Ver Detalhes
+          </Button>
+        )}
+      </Card.Body>
+    </Card>
   );
 }
 
-export default cardCourses;
+export default CardCourses;

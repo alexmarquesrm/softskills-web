@@ -16,9 +16,18 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: false,
       unique: "colaborador_email_key"
     },
-    idade: {
-      type: DataTypes.INTEGER,
+    username: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+      unique: "colaborador_username_key"
+    },
+    pssword: {
+      type: DataTypes.TEXT,
       allowNull: false
+    },
+    data_nasc: {
+      type: DataTypes.DATEONLY,
+      allowNull: true
     },
     cargo: {
       type: DataTypes.TEXT,
@@ -33,10 +42,19 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: false,
       unique: "colaborador_telefone_key"
     },
+    sobre_mim: {
+      type: DataTypes.TEXT,
+      allowNull: true
+    },
     score: {
       type: DataTypes.INTEGER,
       allowNull: true,
       defaultValue: 0
+    },
+    inativo: {
+      type: DataTypes.BOOLEAN,
+      allowNull: true,
+      defaultValue: false
     }
   }, {
     sequelize,
@@ -56,6 +74,13 @@ module.exports = function(sequelize, DataTypes) {
         unique: true,
         fields: [
           { name: "telefone" },
+        ]
+      },
+      {
+        name: "colaborador_username_key",
+        unique: true,
+        fields: [
+          { name: "username" },
         ]
       },
       {

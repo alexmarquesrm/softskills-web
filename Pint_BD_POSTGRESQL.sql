@@ -1,3 +1,4 @@
+-- First drop all tables in reverse order of dependencies
 DROP TABLE IF EXISTS AVALIACAO_QUIZZ;
 DROP TABLE IF EXISTS RESPOSTAS_QUIZZ;
 DROP TABLE IF EXISTS QUESTOES_QUIZZ;
@@ -8,11 +9,13 @@ DROP TABLE IF EXISTS PREFERENCIAS_CATEGORIA;
 DROP TABLE IF EXISTS NOTIFICACAO;
 DROP TABLE IF EXISTS TRABALHOS_FORMANDO;
 DROP TABLE IF EXISTS TRABALHO;
+DROP TABLE IF EXISTS MATERIAL;
 DROP TABLE IF EXISTS INSCRICAO;
 DROP TABLE IF EXISTS PRESENCA_FORM_SINC;
 DROP TABLE IF EXISTS AULA;
-DROP TABLE IF EXISTS ANEXO;
+DROP TABLE IF EXISTS FICHEIRO;
 DROP TABLE IF EXISTS ALBUM;
+DROP TABLE IF EXISTS ANEXO;
 DROP TABLE IF EXISTS OBJETO;
 DROP TABLE IF EXISTS SINCRONO;
 DROP TABLE IF EXISTS ASSINCRONO;
@@ -26,7 +29,6 @@ DROP TABLE IF EXISTS THREADS;
 DROP TABLE IF EXISTS FORMANDO;
 DROP TABLE IF EXISTS FORMADOR;
 DROP TABLE IF EXISTS GESTOR;
-DROP TABLE IF EXISTS CREDENCIAIS;
 DROP TABLE IF EXISTS COLABORADOR;
 DROP TABLE IF EXISTS FORUM;
 DROP TABLE IF EXISTS TOPICO;
@@ -46,9 +48,9 @@ CREATE TABLE CATEGORIA (
 /* Table: AREA                                                  */
 /*==============================================================*/
 CREATE TABLE AREA (
-   AREA_ID               SERIAL NOT NULL UNIQUE,
-   CATEGORIA_ID          INTEGER NOT NULL,
-   DESCRICAO             TEXT NOT NULL,
+   AREA_ID              SERIAL NOT NULL UNIQUE,
+   CATEGORIA_ID         INTEGER NOT NULL,
+   DESCRICAO            TEXT NOT NULL,
    CONSTRAINT PK_AREA PRIMARY KEY (AREA_ID),
    CONSTRAINT FK_CATEGORIA FOREIGN KEY (CATEGORIA_ID)
       REFERENCES CATEGORIA (CATEGORIA_ID)
@@ -58,9 +60,9 @@ CREATE TABLE AREA (
 /* Table: TOPICO                                                */
 /*==============================================================*/
 CREATE TABLE TOPICO (
-   TOPICO_ID             SERIAL NOT NULL UNIQUE,
-   AREA_ID               INTEGER NOT NULL,
-   DESCRICAO             TEXT NOT NULL,
+   TOPICO_ID            SERIAL NOT NULL UNIQUE,
+   AREA_ID              INTEGER NOT NULL,
+   DESCRICAO            TEXT NOT NULL,
    CONSTRAINT PK_TOPICO PRIMARY KEY (TOPICO_ID),
    CONSTRAINT FK_TOPICO_AREA FOREIGN KEY (AREA_ID)
       REFERENCES AREA (AREA_ID)
@@ -84,35 +86,26 @@ CREATE TABLE COLABORADOR (
    COLABORADOR_ID       SERIAL NOT NULL UNIQUE,
    NOME                 TEXT NOT NULL,
    EMAIL                TEXT NOT NULL UNIQUE,
-   IDADE                INTEGER NOT NULL,
+   USERNAME             TEXT NOT NULL UNIQUE,
+   PSSWORD              TEXT NOT NULL,
+   DATA_NASC            DATE NULL,
    CARGO                TEXT NOT NULL,
    DEPARTAMENTO         TEXT NOT NULL,
    TELEFONE             NUMERIC(9) NOT NULL UNIQUE,
+   SOBRE_MIM            TEXT NULL,
    SCORE                INTEGER DEFAULT 0,
+   INATIVO              BOOLEAN DEFAULT FALSE,
    CONSTRAINT PK_COLAB PRIMARY KEY (COLABORADOR_ID)
-);
-
-/*==============================================================*/
-/* Table: CREDENCIAIS                                            */
-/*==============================================================*/
-CREATE TABLE CREDENCIAIS (
-   CREDENCIAL_ID        SERIAL NOT NULL UNIQUE,
-   COLABORADOR_ID       INTEGER NOT NULL,
-   LOGIN                TEXT NOT NULL UNIQUE,
-   PASSWORD             TEXT NOT NULL,
-   CONSTRAINT PK_CREDENCIAIS PRIMARY KEY (CREDENCIAL_ID),
-   CONSTRAINT FK_USER_COLAB FOREIGN KEY (COLABORADOR_ID)
-      REFERENCES COLABORADOR (COLABORADOR_ID)
 );
 
 /*==============================================================*/
 /* Table: GESTOR                                                */
 /*==============================================================*/
 CREATE TABLE GESTOR (
-   GESTOR_ID             SERIAL NOT NULL UNIQUE,
+   GESTOR_ID            SERIAL NOT NULL UNIQUE,
    CONSTRAINT PK_GESTOR PRIMARY KEY (GESTOR_ID),
-   CONSTRAINT FK_GESTOR_LOGIN_USER FOREIGN KEY (GESTOR_ID)
-      REFERENCES CREDENCIAIS (CREDENCIAL_ID)
+   CONSTRAINT FK_GESTOR_COLAB FOREIGN KEY (GESTOR_ID)
+      REFERENCES COLABORADOR (COLABORADOR_ID)
 );
 
 /*==============================================================*/
@@ -122,8 +115,8 @@ CREATE TABLE FORMADOR (
    FORMADOR_ID          SERIAL NOT NULL UNIQUE,
    ESPECIALIDADE        TEXT NULL,
    CONSTRAINT PK_FORMADOR PRIMARY KEY (FORMADOR_ID),
-   CONSTRAINT FK_FORMADOR_LOGIN_USER FOREIGN KEY (FORMADOR_ID)
-      REFERENCES CREDENCIAIS (CREDENCIAL_ID)
+   CONSTRAINT FK_FORMADOR_COLAB FOREIGN KEY (FORMADOR_ID)
+      REFERENCES COLABORADOR (COLABORADOR_ID)
 );
 
 /*==============================================================*/
@@ -132,8 +125,8 @@ CREATE TABLE FORMADOR (
 CREATE TABLE FORMANDO (
    FORMANDO_ID          SERIAL NOT NULL UNIQUE,
    CONSTRAINT PK_FORMANDO PRIMARY KEY (FORMANDO_ID),
-   CONSTRAINT FK_FORMANDO_LOGIN_USER FOREIGN KEY (FORMANDO_ID)
-      REFERENCES CREDENCIAIS (CREDENCIAL_ID)
+   CONSTRAINT FK_FORMANDO_COLAB FOREIGN KEY (FORMANDO_ID)
+      REFERENCES COLABORADOR (COLABORADOR_ID)
 );
 
 /*==============================================================*/
@@ -142,13 +135,13 @@ CREATE TABLE FORMANDO (
 CREATE TABLE THREADS (
    THREAD_ID            SERIAL PRIMARY KEY,
    FORUM_ID             INTEGER NOT NULL,
-   USER_ID              INTEGER NOT NULL,
+   COLABORADOR_ID       INTEGER NOT NULL,
    TITULO               TEXT NOT NULL,
    DESCRICAO            TEXT NOT NULL,
    CONSTRAINT FK_THREAD_FORUM FOREIGN KEY (FORUM_ID)
       REFERENCES FORUM (FORUM_ID),
-   CONSTRAINT FK_THREAD_USER FOREIGN KEY (USER_ID)
-      REFERENCES CREDENCIAIS (CREDENCIAL_ID)
+   CONSTRAINT FK_THREAD_USER FOREIGN KEY (COLABORADOR_ID)
+      REFERENCES COLABORADOR (COLABORADOR_ID)
 );
 
 /* Apenas formandos podem dar vote/nota, porque ser for USER_ID a mesma pessoa(formando/formador) com contas diferentes vota duas vezes */
@@ -167,13 +160,15 @@ CREATE TABLE THREADS_AVALIACAO (
 );
 
 /*==============================================================*/
-/* Table: THREADS_DENUNCIAS                                     */
+/* Table: THREADS_DENUNCIAS (CHECK S - SPAWM, I - INAPROPRIADO, O - OUTRO */
 /*==============================================================*/
 CREATE TABLE DENUNCIAS (
    DENUNCIA_ID          SERIAL NOT NULL UNIQUE,
    THREAD_ID            INTEGER NOT NULL,
    FORMANDO_ID          INTEGER NOT NULL,
+   MOTIVO				   TEXT NOT NULL CHECK (MOTIVO IN ('S', 'I', 'O')),
    DESCRICAO            TEXT NOT NULL,
+   DATA                 TIMESTAMPTZ NOT NULL,
    CONSTRAINT PK_THREAD_DENUNCIAS PRIMARY KEY (DENUNCIA_ID),
    CONSTRAINT FK_THREAD_DENUNCIAS FOREIGN KEY (THREAD_ID)
       REFERENCES THREADS (THREAD_ID),
@@ -187,12 +182,12 @@ CREATE TABLE DENUNCIAS (
 CREATE TABLE COMENTARIOS (
    COMENTARIO_ID        SERIAL PRIMARY KEY,
    THREAD_ID            INTEGER NOT NULL,
-   USER_ID              INTEGER NOT NULL,
+   COLABORADOR_ID       INTEGER NOT NULL,
    DESCRICAO            TEXT NOT NULL,
    CONSTRAINT FK_COMENTARIO_THREAD FOREIGN KEY (THREAD_ID)
       REFERENCES THREADS (THREAD_ID),
-   CONSTRAINT FK_COMENTARIO_USER FOREIGN KEY (USER_ID)
-      REFERENCES CREDENCIAIS (CREDENCIAL_ID)
+   CONSTRAINT FK_COMENTARIO_COLAB FOREIGN KEY (COLABORADOR_ID)
+      REFERENCES COLABORADOR (COLABORADOR_ID)
 );
 
 /*==============================================================*/
@@ -218,8 +213,10 @@ CREATE TABLE CURSO (
    TOPICO_ID            INTEGER NOT NULL,
    TIPO                 TEXT NOT NULL CHECK (TIPO IN ('S', 'A')),
    TOTAL_HORAS          INTEGER NOT NULL,
+   TITULO               TEXT NOT NULL,
    DESCRICAO            TEXT NOT NULL,
    PENDENTE             BOOLEAN NOT NULL,
+   CERTIFICADO          BOOLEAN NOT NULL,
    NIVEL                INTEGER NOT NULL CHECK (NIVEL IN (1, 2, 3, 4)),
    CONSTRAINT FK_CURSO_GESTOR FOREIGN KEY (GESTOR_ID)
       REFERENCES GESTOR (GESTOR_ID),
@@ -228,16 +225,26 @@ CREATE TABLE CURSO (
 );
 
 /*==============================================================*/
+/* Table: CURSO_COPIA                                           */
+/*==============================================================*/
+CREATE TABLE CURSO_COPIA (
+   CURSO_COPIA_ID       INTEGER NOT NULL,
+   PARENT_CURSO_ID      INTEGER NOT NULL,
+   PRIMARY KEY (CURSO_COPIA_ID, PARENT_CURSO_ID),
+   CONSTRAINT FK_CURSO_COPIA_CURSO FOREIGN KEY (CURSO_COPIA_ID)
+      REFERENCES CURSO (CURSO_ID),
+   CONSTRAINT FK_PARENT_CURSO_CURSO FOREIGN KEY (PARENT_CURSO_ID)
+      REFERENCES CURSO (CURSO_ID)
+);
+
+/*==============================================================*/
 /* Table: ASSINCRONO                                            */
 /*==============================================================*/
 CREATE TABLE ASSINCRONO (
    CURSO_ID             INTEGER NOT NULL UNIQUE,
-   GESTOR_ID            INTEGER NOT NULL,
    CONSTRAINT PK_ASSINCRONO PRIMARY KEY (CURSO_ID),
    CONSTRAINT FK_ASSINCRONO_CURSO FOREIGN KEY (CURSO_ID)
-      REFERENCES CURSO (CURSO_ID),
-   CONSTRAINT FK_ASSINCRONO_GESTOR FOREIGN KEY (GESTOR_ID)
-      REFERENCES GESTOR (GESTOR_ID)
+      REFERENCES CURSO (CURSO_ID)
 );
 
 /*==============================================================*/
@@ -259,20 +266,6 @@ CREATE TABLE SINCRONO (
 );
 
 /*==============================================================*/
-/* Table: CURSO_COPIA                                           */
-/*==============================================================*/
-CREATE TABLE CURSO_COPIA (
-   CURSO_COPIA_ID       INTEGER NOT NULL,
-   PARENT_CURSO_ID      INTEGER NOT NULL,
-   PRIMARY KEY (CURSO_COPIA_ID, PARENT_CURSO_ID),
-   CONSTRAINT FK_CURSO_COPIA_CURSO FOREIGN KEY (CURSO_COPIA_ID)
-      REFERENCES CURSO (CURSO_ID),
-   CONSTRAINT FK_PARENT_CURSO_CURSO FOREIGN KEY (PARENT_CURSO_ID)
-      REFERENCES CURSO (CURSO_ID)
-);
-
-/*ATENTION*/
-/*==============================================================*/
 /* Table: OBJETO (THREADS, COLABORADORES, CURSOS)               */
 /*==============================================================*/
 CREATE TABLE OBJETO (
@@ -284,26 +277,19 @@ CREATE TABLE OBJETO (
 );
 
 /*==============================================================*/
-/* Table: ALBUM                                                 */
+/* Table: FICHEIRO                                              */
 /*==============================================================*/
-CREATE TABLE ALBUM (
-   ALBUM_ID              SERIAL NOT NULL UNIQUE,
-   OBJETO_ID             INTEGER NOT NULL,
-   CONSTRAINT PK_ALBUM PRIMARY KEY (ALBUM_ID),
-   CONSTRAINT FK_ALBUM_OBJETO FOREIGN KEY (OBJETO_ID)
+CREATE TABLE FICHEIRO (
+   FICHEIRO_ID          SERIAL NOT NULL UNIQUE,
+   OBJETO_ID            INTEGER NOT NULL,
+   NOME                 TEXT NOT NULL,
+   EXTENSAO             TEXT NOT NULL,
+   TAMANHO              INTEGER NOT NULL,
+   DATA_CRIACAO         TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+   DATA_ALTERACAO       TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+   CONSTRAINT PK_FICHEIRO PRIMARY KEY (FICHEIRO_ID),
+   CONSTRAINT FK_FICHEIRO_OBJETO FOREIGN KEY (OBJETO_ID)
       REFERENCES OBJETO (OBJETO_ID)
-);
-
-/*==============================================================*/
-/* Table: ANEXO                                                 */
-/*==============================================================*/
-CREATE TABLE ANEXO (
-   ANEXO_ID             SERIAL NOT NULL UNIQUE,
-   ALBUM_ID             INTEGER NOT NULL,
-   DESCRICAO            TEXT NULL,
-   CONSTRAINT PK_ANEXO PRIMARY KEY (ANEXO_ID),
-   CONSTRAINT FK_ANEXO_ALBUM FOREIGN KEY (ALBUM_ID)
-      REFERENCES ALBUM (ALBUM_ID)
 );
 
 /*==============================================================*/
@@ -324,7 +310,7 @@ CREATE TABLE AULA (
 );
 
 /*==============================================================*/
-/* Table: PRESENCA_FORM_SINC                                               */
+/* Table: PRESENCA_FORM_SINC                                    */
 /*==============================================================*/
 CREATE TABLE PRESENCA_FORM_SINC (
    FORMANDO_ID           INTEGER NOT NULL,
@@ -344,8 +330,9 @@ CREATE TABLE INSCRICAO (
    FORMANDO_ID          INTEGER NOT NULL,
    CURSO_ID             INTEGER NOT NULL,
    TIPO_AVALIACAO       TEXT NULL,
-   NOTA                 FLOAT NOT NULL,
+   NOTA                 FLOAT NULL DEFAULT 0,
    DATA_CERTIFICADO     TIMESTAMPTZ NULL,
+   DATA_INSCRICAO       TIMESTAMPTZ NOT NULL,
    ESTADO               BOOLEAN NOT NULL,
    CONSTRAINT PK_INSCRICAO PRIMARY KEY (INSCRICAO_ID),
    CONSTRAINT FK_INSCRICA_FORMANDO FOREIGN KEY (FORMANDO_ID)
@@ -355,14 +342,30 @@ CREATE TABLE INSCRICAO (
 );
 
 /*==============================================================*/
+/* Table: MATERIAL                                              */
+/*==============================================================*/
+CREATE TABLE MATERIAL (
+   MATERIAL_ID          SERIAL NOT NULL UNIQUE,
+   CURSO_ID             INTEGER NOT NULL,
+   TITULO               TEXT NOT NULL,
+   DESCRICAO            TEXT NULL,
+   TIPO                 TEXT NOT NULL,
+   DATA_ENTREGA         TIMESTAMPTZ NULL,
+   DATA_CRIACAO         TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+   CONSTRAINT PK_MATERIAL PRIMARY KEY (MATERIAL_ID),
+   CONSTRAINT FK_MATERIAL_CURSO FOREIGN KEY (CURSO_ID)
+      REFERENCES CURSO (CURSO_ID)
+);
+
+/*==============================================================*/
 /* Table: TRABALHO                                              */
 /*==============================================================*/
 CREATE TABLE TRABALHO (
-   TRABALHO_ID           SERIAL NOT NULL UNIQUE,
-   SINCRONO_ID             INTEGER NOT NULL,
-   DESCRICAO             TEXT NULL,
-   NOTA                  FLOAT NOT NULL,
-   DATA                  TIMESTAMPTZ NULL,
+   TRABALHO_ID          SERIAL NOT NULL UNIQUE,
+   SINCRONO_ID          INTEGER NOT NULL,
+   DESCRICAO            TEXT NULL,
+   NOTA                 FLOAT NOT NULL,
+   DATA                 TIMESTAMPTZ NULL,
    CONSTRAINT PK_TRABALHO PRIMARY KEY (TRABALHO_ID),
    CONSTRAINT FK_SINCRONO_TRABALHO FOREIGN KEY (SINCRONO_ID)
       REFERENCES SINCRONO (CURSO_ID)
@@ -372,8 +375,8 @@ CREATE TABLE TRABALHO (
 /* Table: TRABALHOS_FORMANDO                                    */
 /*==============================================================*/
 CREATE TABLE TRABALHOS_FORMANDO (
-   FORMANDO_ID           INTEGER NOT NULL,
-   TRABALHO_ID           INTEGER NOT NULL,
+   FORMANDO_ID          INTEGER NOT NULL,
+   TRABALHO_ID          INTEGER NOT NULL,
    CONSTRAINT PK_FORM_TRAB PRIMARY KEY (FORMANDO_ID, TRABALHO_ID),
    CONSTRAINT FK_FORMANDO_TRABALHO_FORM FOREIGN KEY (FORMANDO_ID)
       REFERENCES FORMANDO (FORMANDO_ID),
@@ -385,9 +388,9 @@ CREATE TABLE TRABALHOS_FORMANDO (
 /* Table: NOTIFICACAO                                           */
 /*==============================================================*/
 CREATE TABLE NOTIFICACAO (
-   NOTIFICACAO_ID         SERIAL NOT NULL UNIQUE,
-   CURSO_ID               INTEGER NOT NULL,
-   DESCRICAO              TEXT NOT NULL,
+   NOTIFICACAO_ID       SERIAL NOT NULL UNIQUE,
+   CURSO_ID             INTEGER NOT NULL,
+   DESCRICAO            TEXT NOT NULL,
    CONSTRAINT PK_NOTIFICACAO PRIMARY KEY (NOTIFICACAO_ID),
    CONSTRAINT FK_NOTIFICACAO_CURSO FOREIGN KEY (CURSO_ID)
       REFERENCES CURSO (CURSO_ID)
@@ -397,9 +400,9 @@ CREATE TABLE NOTIFICACAO (
 /* Table: PREFERENCIAS                                          */
 /*==============================================================*/
 CREATE TABLE PREFERENCIAS_CATEGORIA (
-   PREFERENCIA_ID         SERIAL NOT NULL UNIQUE,
-   FORMANDO_ID            INTEGER NOT NULL,
-   DESIGNACAO             TEXT NOT NULL,
+   PREFERENCIA_ID       SERIAL NOT NULL UNIQUE,
+   FORMANDO_ID          INTEGER NOT NULL,
+   DESIGNACAO           TEXT NOT NULL,
    CONSTRAINT PK_PREFERENCIAS PRIMARY KEY (PREFERENCIA_ID),
    CONSTRAINT FK_PREFERENCIAS_FORMANDO FOREIGN KEY (FORMANDO_ID)
       REFERENCES FORMANDO (FORMANDO_ID)
@@ -409,8 +412,9 @@ CREATE TABLE PREFERENCIAS_CATEGORIA (
 /* Table: PEDIDO_CURSO                                          */
 /*==============================================================*/
 CREATE TABLE PEDIDO_CURSO (
-   FORMADOR_ID           INTEGER NOT NULL,
-   CURSO_ID              INTEGER NOT NULL,
+   FORMADOR_ID          INTEGER NOT NULL,
+   CURSO_ID             INTEGER NOT NULL,
+   DATA                 TIMESTAMPTZ NOT NULL,
    CONSTRAINT PK_PEDECURSO PRIMARY KEY (FORMADOR_ID, CURSO_ID),
    CONSTRAINT FK_PEDECURSO_FORMADOR FOREIGN KEY (FORMADOR_ID)
       REFERENCES FORMADOR (FORMADOR_ID),
@@ -422,8 +426,8 @@ CREATE TABLE PEDIDO_CURSO (
 /* Table: NOTIFICACOES_FORMANDO                                 */
 /*==============================================================*/
 CREATE TABLE NOTIFICACOES_FORMANDO (
-   FORMANDO_ID            INTEGER NOT NULL,
-   NOTIFICACAO_ID         INTEGER NOT NULL,
+   FORMANDO_ID          INTEGER NOT NULL,
+   NOTIFICACAO_ID       INTEGER NOT NULL,
    CONSTRAINT PK_NOTIFICACOES_FORMANDO PRIMARY KEY (FORMANDO_ID, NOTIFICACAO_ID),
    CONSTRAINT FK_NOTIFICACOES_FORMANDO FOREIGN KEY (FORMANDO_ID)
       REFERENCES FORMANDO (FORMANDO_ID),
@@ -464,9 +468,9 @@ CREATE TABLE QUESTOES_QUIZZ (
 /* Table: RESPOSTAS_QUIZZ                                       */
 /*==============================================================*/
 CREATE TABLE RESPOSTAS_QUIZZ (
-   FORMANDO_ID           INTEGER NOT NULL,
-   QUESTAO_ID            INTEGER NOT NULL,
-   RESPOSTA              TEXT NOT NULL,
+   FORMANDO_ID          INTEGER NOT NULL,
+   QUESTAO_ID           INTEGER NOT NULL,
+   RESPOSTA             TEXT NOT NULL,
    CONSTRAINT PK_RESPOSTAS_QUIZZ PRIMARY KEY (FORMANDO_ID, QUESTAO_ID),
    CONSTRAINT FK_RESPOSTAS_FORMANDO FOREIGN KEY (FORMANDO_ID)
       REFERENCES FORMANDO (FORMANDO_ID),

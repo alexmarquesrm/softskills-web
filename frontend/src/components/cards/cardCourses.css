@@ -1,0 +1,143 @@
+/* cardCourses.css */
+.course-card {
+  border: none;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+  height: 100%;
+  width: 100%;
+  max-width: 370px;
+  margin: 0 auto;
+}
+
+.course-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.course-header {
+  height: 180px;
+  background: linear-gradient(135deg, #416699, #3b96d3);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.course-image {
+  width: 140px;
+  height: auto;
+  opacity: 0.85;
+  transition: transform 0.5s ease;
+}
+
+.course-card:hover .course-image {
+  transform: scale(1.1);
+}
+
+.course-type-badge {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.35em 0.65em;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.course-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 0.75rem;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 0.75rem;
+}
+
+.course-instructor {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+  color: #555;
+  font-size: 0.9rem;
+}
+
+.course-description {
+  margin-bottom: 1.25rem;
+  height: 42px; /* Fixed height for 2 lines (adjust if needed) */
+}
+
+.course-description p {
+  color: #666;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  display: -webkit-box;
+  line-clamp: 2; /* Changed from 3 to 2 lines */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 0;
+}
+
+.course-meta {
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  font-size: 0.85rem;
+  color: #555;
+}
+
+.meta-item:last-child {
+  margin-bottom: 0;
+}
+
+.icon {
+  margin-right: 8px;
+  color: #416699;
+}
+
+.course-button {
+  background: linear-gradient(135deg, #416699, #3b96d3);
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(97, 87, 255, 0.2);
+  width: 100%; /* Make button full width */
+}
+
+.course-button:hover {
+  background: linear-gradient(135deg, #39639C, #3478b3);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(97, 87, 255, 0.3);
+}
+
+.course-button:active {
+  transform: translateY(0);
+}
+
+/* For mobile responsiveness */
+@media (max-width: 576px) {
+  .course-header {
+    height: 150px;
+  }
+  
+  .course-image {
+    width: 120px;
+  }
+  
+  .course-title {
+    font-size: 1.1rem;
+  }
+}

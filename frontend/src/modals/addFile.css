@@ -1,0 +1,159 @@
+/* Estilos para o Modal de Adicionar Ficheiro */
+
+.ficheiro-modal .content-container {
+    border-radius: 12px;
+  }
+  
+  /* Estilos dos cards de seleção de tipo */
+  .ficheiro-modal .type-card {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex: 1;
+    min-width: 200px;
+    max-width: 300px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .ficheiro-modal .type-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+  }
+  
+  .ficheiro-modal .type-card.selected {
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  }
+  
+  .ficheiro-modal .card-icon {
+    margin-right: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .ficheiro-modal .card-content {
+    flex: 1;
+  }
+  
+  /* Área de dropzone */
+  .ficheiro-modal .dropzone-container {
+    border: 2px dashed #4a6baf;
+    padding: 30px;
+    text-align: center;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+  
+  .ficheiro-modal .dropzone-container:hover,
+  .ficheiro-modal .dropzone-container.active {
+    background-color: #eef2ff;
+    border-color: #0d6efd;
+  }
+  
+  .ficheiro-modal .upload-icon {
+    color: #4a6baf;
+    margin-bottom: 10px;
+    opacity: 0.8;
+  }
+  
+  .ficheiro-modal .dropzone-container:hover .upload-icon,
+  .ficheiro-modal .dropzone-container.active .upload-icon {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+  
+  /* Lista de arquivos */
+  .ficheiro-modal .files-container {
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+  }
+  
+  .ficheiro-modal .file-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .ficheiro-modal .file-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    border-bottom: 1px solid #e9ecef;
+    background-color: white;
+    margin-bottom: 8px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+  }
+  
+  .ficheiro-modal .file-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+  }
+  
+  .ficheiro-modal .file-item:hover {
+    background-color: #f0f4ff;
+    transform: translateX(5px);
+  }
+  
+  .ficheiro-modal .file-badge {
+    font-size: 11px;
+    padding: 6px 8px;
+    border-radius: 4px;
+  }
+  
+  .ficheiro-modal .file-info {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .ficheiro-modal .file-name {
+    font-weight: 500;
+    word-break: break-word;
+  }
+  
+  .ficheiro-modal .file-size {
+    font-size: 12px;
+  }
+  
+  .ficheiro-modal .remove-btn {
+    padding: 4px 8px;
+    border-radius: 4px;
+  }
+  
+  .ficheiro-modal .remove-btn:hover {
+    background-color: #dc3545;
+    color: white;
+  }
+  
+  /* Alerta de feedback */
+  .ficheiro-modal .alert {
+    border-radius: 8px;
+    padding: 12px 16px;
+    border-left-width: 4px;
+  }
+  
+  /* Responsividade */
+  @media (max-width: 768px) {
+    .ficheiro-modal .type-card {
+      min-width: 100%;
+    }
+    
+    .ficheiro-modal .file-item {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    
+    .ficheiro-modal .remove-btn {
+      margin-top: 10px;
+      margin-left: auto;
+    }
+  }
