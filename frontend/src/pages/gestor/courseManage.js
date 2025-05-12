@@ -2,23 +2,27 @@ import React, { useState, useEffect, useMemo } from "react";
 import { Container, Row, Col, Spinner } from "react-bootstrap";
 import { Book, AlertCircle} from 'react-feather';
 import axios from "../../config/configAxios";
+import { FaRegSave } from "react-icons/fa";
+import { useNavigate } from 'react-router-dom';
 /* COMPONENTES */
 import FeaturedCourses from "../../components/cards/cardCourses";
 import SearchBar from '../../components/textFields/search';
 import Filtros from '../../components/filters/filtros';
+import Adicionar from "../../components/buttons/saveButton";
 /* CSS */
 import './percursoFormativo.css';
 
 export default function CourseManage() {
+    const navigate = useNavigate();
     const [curso, setCurso] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
-    // Modificando o estado inicial para false (não selecionado)
+    const tipoUser = sessionStorage.getItem('tipo');
     const [tipoSelecionado, setTipoSelecionado] = useState({ S: false, A: false });
     const [estadoSelecionado, setEstadoSelecionado] = useState({ emCurso: false, terminado: false });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isFiltersVisible, setIsFiltersVisible] = useState(true);
-
+    
     const fetchData = async () => {
         try {
             const token = sessionStorage.getItem('token');
@@ -109,6 +113,13 @@ export default function CourseManage() {
         setSearchTerm('');
     };
 
+    // Função para tratar a navegação do botão "Adicionar Curso"
+    const handleAddCourse = () => {
+        if (tipoUser === "Gestor") {
+            navigate('/gestor/cursos/add');
+        }
+    };
+
     if (loading) {
         return (
             <div className="loading-container">
@@ -186,7 +197,14 @@ export default function CourseManage() {
                                 )}
                             </div>
 
-                            <div className="search-container">
+                            <div className="search-container" style={{display: "flex", alignItems: "center", gap: "0.5rem"}}>
+                                {tipoUser === "Gestor" && (
+                                    <Adicionar
+                                        text={"Novo Curso"}
+                                        onClick={handleAddCourse}
+                                        Icon={FaRegSave}
+                                    />
+                                )}
                                 <SearchBar
                                     searchTerm={searchTerm}
                                     handleSearchChange={handleSearchChange}
