@@ -46,6 +46,19 @@ export default function EditColab() {
 
   const fileInputRef = React.createRef();
 
+  // Verificar token ao carregar o componente
+  useEffect(() => {
+    const token = sessionStorage.getItem("token");
+    if (!token) {
+      toast.error("Sessão expirada. Por favor, faça login novamente.");
+      setTimeout(() => navigate('/login'), 2000);
+      return;
+    }
+    
+    // Se o token existe, buscar os dados do usuário
+    fetchData();
+  }, [navigate]);
+  
   useEffect(() => {
     if (formData.fotoPerfilUrl) {
       setPreviewFoto(formData.fotoPerfilUrl);
@@ -111,14 +124,17 @@ export default function EditColab() {
   const fetchData = async () => {
     try {
       setIsLoading(true);
-      const token = sessionStorage.getItem("token");
-      const id = sessionStorage.getItem("colaboradorid");
 
-      const response = await axios.get(`/colaborador/${id}`, {
-        headers: { Authorization: `${token}` },
-      });
-
+      // Problema: o backend espera o ID no formato 'colaborador_id' 
+      // mas possivelmente está enviando 'utilizadorid' ou 'colaboradorid'
+      // Solução: usar a rota /colaborador/me para buscar o perfil do próprio usuário
+      const response = await axios.get('/colaborador/me');
       const utilizador = response.data;
+      
+      // Armazenar o ID no sessionStorage se ainda não estiver armazenado
+      if (!sessionStorage.getItem("colaboradorid") && utilizador.colaborador_id) {
+        sessionStorage.setItem("colaboradorid", utilizador.colaborador_id);
+      }
       
       const primeiroNome = utilizador.nome ? utilizador.nome.split(" ")[0] : "";
       const ultimoNome = utilizador.nome ? utilizador.nome.split(" ").slice(1).join(" ") : "";
@@ -175,7 +191,14 @@ export default function EditColab() {
       }
     } catch (error) {
       console.error("Erro ao buscar dados do colaborador", error);
-      toast.error("Erro ao carregar dados do perfil");
+      
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        toast.error("Sessão expirada. Por favor, faça login novamente.");
+        sessionStorage.clear();
+        setTimeout(() => navigate('/login'), 2000);
+      } else {
+        toast.error("Erro ao carregar dados do perfil");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -183,9 +206,15 @@ export default function EditColab() {
 
   const handleGuardar = async () => {
     try {
-      const token = sessionStorage.getItem("token");
+      // Obter o ID do colaborador
       const id = sessionStorage.getItem("colaboradorid");
-
+      
+      if (!id) {
+        toast.error("ID do usuário não encontrado. Por favor, faça login novamente.");
+        setTimeout(() => navigate('/login'), 2000);
+        return;
+      }
+      
       // Validação das senhas
       if (formData.novaPassword || formData.confirmarPassword) {
         if (formData.novaPassword !== formData.confirmarPassword) {
@@ -212,7 +241,7 @@ export default function EditColab() {
 
       // Se nova senha foi fornecida, adiciona ao payload
       if (formData.novaPassword) {
-        payload.password = formData.novaPassword;
+        payload.novaPassword = formData.novaPassword;
       }
 
       // Removendo campos desnecessários do payload
@@ -221,9 +250,7 @@ export default function EditColab() {
       delete payload.ultimoNome;
 
       // Enviar atualização ao servidor
-      const response = await axios.put(`/colaborador/atualizar/${id}`, payload, {
-        headers: { Authorization: `${token}` },
-      });
+      await axios.put(`/colaborador/atualizar/${id}`, payload);
 
       // Update display name after successful save
       setDisplayName({
@@ -240,13 +267,16 @@ export default function EditColab() {
       
     } catch (error) {
       console.error("Erro ao atualizar perfil", error);
-      toast.error("Erro ao atualizar perfil.");
+      
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        toast.error("Sessão expirada ou sem permissão. Por favor, faça login novamente.");
+        sessionStorage.clear();
+        setTimeout(() => navigate('/login'), 2000);
+      } else {
+        toast.error("Erro ao atualizar perfil.");
+      }
     }
   };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;

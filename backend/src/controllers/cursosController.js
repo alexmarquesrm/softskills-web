@@ -12,11 +12,12 @@ const controladorCursos = {
       const {
         gestor_id,
         topico_id,
-        tipo,
+        tipo,  
         total_horas,
         titulo,
         descricao,
         pendente,
+        certificado,
         nivel,
         sincrono
       } = req.body;
@@ -30,7 +31,8 @@ const controladorCursos = {
         titulo,
         descricao,
         pendente,
-        nivel,
+        certificado,
+        nivel
       }, { transaction: t });
 
       // Se for do tipo S (Sincrono), criar entrada na tabela sincrono
@@ -52,6 +54,16 @@ const controladorCursos = {
     }
   },
 
+  getCountCursos: async (req, res) => {
+    try {
+      const totalCursos = await models.curso.count();
+      res.status(200).json({ total: totalCursos });
+    } catch (error) {
+      console.error("Erro ao contar cursos:", error);
+      res.status(500).json({ message: "Erro interno ao contar cursos" });
+    }
+  },
+
   getAllCursos: async (req, res) => {
     try {
       const cursos = await models.curso.findAll({
@@ -59,7 +71,7 @@ const controladorCursos = {
           {
             model: models.sincrono,
             as: "curso_sincrono",
-            attributes: ["curso_id", "formador_id", "limite_vagas", "data_inicio", "data_fim", "estado"],
+            attributes: ["curso_id", "formador_id", "limite_vagas", "data_limite_inscricao", "data_inicio", "data_fim", "estado"],
             include: [
               {
                 model: models.formador,
@@ -110,9 +122,10 @@ const controladorCursos = {
             nome: curso.gestor?.gestor_colab?.nome || null,
             email: curso.gestor?.gestor_colab?.email || null,
           },
-          sincrono: curso.curso_sincrono ? {
+          curso_sincrono: curso.curso_sincrono ? {
             inicio: curso.curso_sincrono.data_inicio,
             fim: curso.curso_sincrono.data_fim,
+            data_limite_inscricao: curso.curso_sincrono.data_limite_inscricao,
             vagas: curso.curso_sincrono.limite_vagas,
             estado: curso.curso_sincrono.estado,
             formador: curso.curso_sincrono.sincrono_formador ? {
@@ -128,7 +141,7 @@ const controladorCursos = {
         };
       });
 
-      res.json(cursosResumidos);
+      res.json(cursos);
     } catch (error) {
       console.error("Erro ao obter cursos:", error);
       res.status(500).json({ message: "Erro interno ao obter cursos" });
@@ -412,7 +425,7 @@ const controladorCursos = {
             model: models.sincrono,
             as: "curso_sincrono",
             where: { formador_id: id },
-            attributes: ["curso_id", "formador_id", "limite_vagas", "data_inicio", "data_fim", "estado"],
+            attributes: ["curso_id", "formador_id", "limite_vagas", "data_limite_inscricao", "data_inicio", "data_fim", "estado"],
             include: [
               {
                 model: models.formador,
@@ -453,6 +466,55 @@ const controladorCursos = {
     } catch (error) {
       console.error("Erro ao obter cursos do formador:", error);
       res.status(500).json({ message: "Erro interno ao obter cursos do formador" });
+    }
+  },
+
+  // Obter alunos inscritos em um curso
+  getAlunosInscritos: async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      const inscricoes = await models.inscricao.findAll({
+        where: { curso_id: id },
+        include: [
+          {
+            model: models.formando,
+            as: "inscricao_formando",
+            include: [
+              {
+                model: models.colaborador,
+                as: "formando_colab",
+                attributes: ["nome", "email"]
+              }
+            ]
+          }
+        ],
+        attributes: ["inscricao_id", "tipo_avaliacao", "nota", "data_certificado", "data_inscricao", "estado"]
+      });
+
+      // Transformar os dados para o formato desejado
+      const alunos = inscricoes.map(inscricao => ({
+        id: inscricao.inscricao_formando.formando_id,
+        nome: inscricao.inscricao_formando.formando_colab.nome,
+        email: inscricao.inscricao_formando.formando_colab.email,
+        tipo_avaliacao: inscricao.tipo_avaliacao,
+        nota: inscricao.nota,
+        data_certificado: inscricao.data_certificado,
+        data_inscricao: inscricao.data_inscricao,
+        estado: inscricao.estado ? 'Concluído' : 'Em curso'
+      }));
+
+      res.json({
+        success: true,
+        data: alunos,
+        total: alunos.length
+      });
+    } catch (error) {
+      console.error("Erro ao obter alunos inscritos:", error);
+      res.status(500).json({ 
+        success: false, 
+        message: "Erro interno ao obter alunos inscritos" 
+      });
     }
   },
 

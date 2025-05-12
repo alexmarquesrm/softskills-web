@@ -5,13 +5,25 @@ import { useNavigate } from "react-router-dom";
 import ReactGif from "./../../images/react.gif";
 import "./cardCourses.css";
 
-function CardCourses({ curso, inscricao, mostrarBotao = true }) {
+function CardCourses({ curso, inscricao, mostrarBotao = true, mostrarInicioEFim = false }) {
   const navigate = useNavigate();
+  const tipoUser = sessionStorage.getItem('tipo');
 
   const handleViewDetails = () => {
-    navigate(`/curso/${curso.curso_id}`, { 
-      state: { id: curso.curso_id } 
-    });
+    if (tipoUser === "Gestor") {
+      navigate(`/gestor/cursodetalhes/${curso.curso_id}`, {
+        state: { id: curso.curso_id }
+      });
+    } else if (tipoUser === "Formando") {
+      const cursoId = curso.curso_id || curso.id;
+      navigate(`/utilizadores/curso/${cursoId}`);
+    } else if (tipoUser === "Formador") {
+      navigate(`/formador/curso/${curso.curso_id}`);
+    } else {
+      navigate(`/curso/${curso.curso_id}`, {
+        state: { id: curso.curso_id }
+      });
+    }
   };
 
   const formatDate = (date) => {
@@ -48,18 +60,18 @@ function CardCourses({ curso, inscricao, mostrarBotao = true }) {
       </div>
 
       <Card.Body className="d-flex flex-column">
-        <Card.Title 
-          className="course-title" 
+        <Card.Title
+          className="course-title"
           style={{ cursor: 'pointer' }}
           onClick={handleViewDetails}
         >
           {curso.titulo}
         </Card.Title>
 
-        {curso.sincrono?.formador?.colaborador?.nome && (
+        {curso.curso_sincrono?.formador?.colaborador?.nome && (
           <div className="course-instructor">
             <Award size={16} className="icon" />
-            <span>{curso.sincrono.formador.colaborador.nome}</span>
+            <span>{curso.curso_sincrono.formador.colaborador.nome}</span>
           </div>
         )}
 
@@ -75,35 +87,56 @@ function CardCourses({ curso, inscricao, mostrarBotao = true }) {
             </div>
           )}
 
-          {curso.sincrono?.vagas && (
+          {curso.curso_sincrono?.vagas && (
             <div className="meta-item">
               <Users size={16} className="icon" />
-              <span>{curso.sincrono.vagas} vagas</span>
+              <span>{curso.curso_sincrono.vagas} vagas</span>
             </div>
           )}
 
-          {curso.sincrono?.inicio && (
+          {(curso.curso_sincrono?.data_inicio && (mostrarInicioEFim || curso.curso_sincrono?.estado !== true)) && (
             <div className="meta-item">
               <Calendar size={16} className="icon" />
-              <span>Inicío: {formatDate(curso.sincrono.inicio)}</span>
+              <span>Início: {formatDate(curso.curso_sincrono.data_inicio)}</span>
             </div>
           )}
 
-          {(inscricao?.estado !== undefined || curso?.sincrono?.estado !== undefined) && (
+          {(curso.curso_sincrono?.data_fim && (mostrarInicioEFim || curso.curso_sincrono?.estado === true)) && (
+            <div className="meta-item">
+              <Calendar size={16} className="icon" />
+              <span>Fim: {formatDate(curso.curso_sincrono.data_fim)}</span>
+            </div>
+          )}
+
+          {curso.curso_sincrono?.data_limite_inscricao && !curso.curso_sincrono.estado && new Date(curso.curso_sincrono.data_limite_inscricao) > new Date() && (
+            <div className="meta-item">
+              <Calendar size={16} className="icon" />
+              <span>Inscrição até: {formatDate(curso.curso_sincrono.data_limite_inscricao)}</span>
+            </div>
+          )}
+
+          {(inscricao?.estado !== undefined || curso?.curso_sincrono?.estado !== undefined) && (
             <div className="meta-item">
               <RefreshCcw size={16} className="icon" />
-              <span>Estado: {(inscricao?.estado ?? curso?.sincrono?.estado) ? 'Concluído' : 'Em curso'}</span>
+              <span>Estado: {(() => {
+                const estado = inscricao?.estado ?? curso?.curso_sincrono?.estado;
+                const dataInicio = curso?.curso_sincrono?.data_limite_inscricao;
+
+                if (estado) return 'Concluído';
+                if (dataInicio && new Date(dataInicio) > new Date()) return 'Por começar';
+                return 'Em curso';
+              })()}</span>
             </div>
           )}
 
-          {inscricao && inscricao.nota !== 0 && (
+          {inscricao && inscricao?.estado && inscricao.nota !== 0 && (
             <div className="meta-item">
               <CheckCircle size={16} className="icon" />
               <span>Nota: {inscricao.nota}</span>
             </div>
           )}
 
-          {inscricao?.data_certificado && (
+          {inscricao?.data_certificado && inscricao?.estado && (
             <div className="meta-item">
               <Award size={16} className="icon" />
               <span>Certificado: {formatDate(inscricao.data_certificado)}</span>
@@ -112,8 +145,8 @@ function CardCourses({ curso, inscricao, mostrarBotao = true }) {
         </div>
 
         {mostrarBotao && (
-          <Button 
-            variant="primary" 
+          <Button
+            variant="primary"
             className="course-button mt-auto"
             onClick={handleViewDetails}
           >

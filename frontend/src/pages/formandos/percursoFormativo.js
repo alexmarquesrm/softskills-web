@@ -1,98 +1,146 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Container, Row, Col, Spinner } from "react-bootstrap";
+import { useNavigate } from 'react-router-dom';
 import { Book, AlertCircle} from 'react-feather';
 import axios from "../../config/configAxios";
-import { FaRegSave } from "react-icons/fa";
-import { useNavigate } from 'react-router-dom';
 /* COMPONENTES */
 import FeaturedCourses from "../../components/cards/cardCourses";
 import SearchBar from '../../components/textFields/search';
 import Filtros from '../../components/filters/filtros';
-import Adicionar from "../../components/buttons/saveButton";
 /* CSS */
-import './percursoFormativo.css';
 
-export default function CourseManage() {
+export default function PercursoFormativoFormando() {
     const navigate = useNavigate();
-    const [curso, setCurso] = useState([]);
+    const [nome, setNome] = useState('');
+    const [inscricao, setInscricao] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
-    const tipoUser = sessionStorage.getItem('tipo');
     const [tipoSelecionado, setTipoSelecionado] = useState({ S: false, A: false });
     const [estadoSelecionado, setEstadoSelecionado] = useState({ emCurso: false, terminado: false });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isFiltersVisible, setIsFiltersVisible] = useState(true);
     
-    const fetchData = async () => {
-        try {
-            const token = sessionStorage.getItem('token');
-            const response = await axios.get(`/curso`, {
-                headers: { Authorization: `${token}` }
-            });
+    // Verificar autenticação no carregamento inicial
+    useEffect(() => {
+        const token = sessionStorage.getItem("token");
+        if (!token) {
+            setError("Sessão expirada. Por favor, faça login novamente.");
+            setTimeout(() => navigate('/login'), 2000);
+            return;
+        }
+        
+        // Carregar dados se autenticado
+        fetchDataColab();
+        fetchDataInscricao();
+    }, [navigate]);
 
-            const cursos = response.data;
-            setCurso(cursos);
+    // Carregar dados do colaborador autenticado
+    const fetchDataColab = async () => {
+        try {
+            // Usar a rota segura que obtém dados do próprio perfil
+            // baseada no token JWT, não no ID do sessionStorage
+            const response = await axios.get('/colaborador/me');
+            const utilizador = response.data;
+            // Armazenar o ID do usuário no sessionStorage apenas para interface
+            if (utilizador.colaborador_id) {
+                sessionStorage.setItem("colaboradorid", utilizador.colaborador_id);
+            }
+            
+            setNome(utilizador.nome);
         } catch (error) {
-            console.error("Erro ao buscar inscrições", error);
-            setError("Não foi possível carregar as inscrições");
+            handleApiError(error, "Erro ao procurar dados do colaborador");
+        }
+    };
+
+    // Buscar inscrições do usuário autenticado
+    const fetchDataInscricao = async () => {
+        try {
+            // Usar a rota segura que retorna apenas as inscrições 
+            // do usuário autenticado com base no token JWT
+            const response = await axios.get('/inscricao/minhas');
+            
+            // Não é mais necessário filtrar as inscrições, pois a API já retorna
+            // apenas as inscrições do usuário autenticado
+            setInscricao(response.data);
+        } catch (error) {
+            handleApiError(error, "Erro ao procurar inscrições");
         } finally {
             setLoading(false);
         }
     };
 
-    useEffect(() => {
-        fetchData();
-    }, []);
+    // Função para tratar erros de API de forma consistente
+    const handleApiError = (error, defaultMessage) => {
+        console.error(defaultMessage, error);
+        
+        // Verificar se é erro de autenticação
+        if (error.response?.status === 401 || error.response?.status === 403) {
+            setError("Sessão expirada ou sem permissão. Por favor, faça login novamente.");
+            sessionStorage.clear();
+            setTimeout(() => navigate('/login'), 2000);
+        } else {
+            setError(defaultMessage);
+        }
+    };
 
-    // Memoizar inscrições filtradas para melhorar desempenho
+    // Memoizar inscrições filtradas para melhorar desempenho (permanece igual)
     const filteredInscricoes = useMemo(() => {
-        if (curso.length === 0) return [];
+        if (inscricao.length === 0) return [];
 
         // Verificar se algum filtro está ativo
         const anyTipoSelected = tipoSelecionado.S || tipoSelecionado.A;
         const anyEstadoSelected = estadoSelecionado.emCurso || estadoSelecionado.terminado;
 
-        return curso.filter(item => {
+        return inscricao.filter(item => {
             // Filtrar por tipo de curso - só aplica se algum tipo estiver selecionado
             if (anyTipoSelected) {
-                if (item?.tipo === 'S' && !tipoSelecionado.S) return false;
-                if (item?.tipo === 'A' && !tipoSelecionado.A) return false;
+                if (item.inscricao_curso?.tipo === 'S' && !tipoSelecionado.S) return false;
+                if (item.inscricao_curso?.tipo === 'A' && !tipoSelecionado.A) return false;
             }
 
             // Filtrar por estado - só aplica se algum estado estiver selecionado
-             if (anyEstadoSelected) {
-                if (!item.curso_sincrono?.estado && !estadoSelecionado.emCurso) return false;
-                if (item.curso_sincrono?.estado && !estadoSelecionado.terminado) return false;
-            } 
+            if (anyEstadoSelected) {
+                if (!item.estado && !estadoSelecionado.emCurso) return false;
+                if (item.estado && !estadoSelecionado.terminado) return false;
+            }
 
             // Filtrar por termo de pesquisa
             if (searchTerm.trim() !== '') {
                 const searchLower = searchTerm.toLowerCase();
                 return (
-                    item?.titulo?.toLowerCase().includes(searchLower) ||
-                    item.descricao?.toLowerCase().includes(searchLower) ||
-                    (item?.curso_sincrono?.formador?.colaborador?.nome?.toLowerCase().includes(searchLower))
+                    item.inscricao_curso?.titulo?.toLowerCase().includes(searchLower) ||
+                    item.inscricao_curso?.descricao?.toLowerCase().includes(searchLower) ||
+                    (item.inscricao_curso?.sincrono?.formador?.colaborador?.nome?.toLowerCase().includes(searchLower))
                 );
             }
 
             return true;
         });
-    }, [curso, tipoSelecionado, estadoSelecionado, searchTerm]);
+    }, [inscricao, tipoSelecionado, estadoSelecionado, searchTerm]);
 
-    // Stats
+    // Stats (permanece igual)
     const stats = useMemo(() => {
-        if (curso.length === 0) return { total: 0, emCurso: 0, terminados: 0 };
+        if (inscricao.length === 0) return { total: 0, emCurso: 0, terminados: 0 };
 
-        const total = curso.length;
-        const terminados = curso.filter(item => item.curso_sincrono?.estado).length;
+        const total = inscricao.length;
+        const terminados = inscricao.filter(item => item.estado).length;
         const emCurso = total - terminados;
 
-        return { total, emCurso };
-    }, [curso]);
+        return { total, emCurso, terminados };
+    }, [inscricao]);
 
-    const renderCourseCard = (curso, index) => (
-        <FeaturedCourses key={curso.curso_id || index} curso={curso} mostrarBotao={true} />
-    );
+    const renderCourseCard = (inscricao, index) => {
+        // Verifica se o curso está em andamento
+        const isEmCurso = !inscricao.estado;
+        return (
+            <FeaturedCourses 
+                key={inscricao.inscricao_id || index} 
+                curso={inscricao.inscricao_curso} 
+                inscricao={inscricao} 
+                mostrarBotao={isEmCurso}
+            />
+        );
+    };
 
     const handleSearchChange = (event) => {
         setSearchTerm(event.target.value);
@@ -106,18 +154,11 @@ export default function CourseManage() {
         setIsFiltersVisible(!isFiltersVisible);
     };
 
-    // Função para limpar filtros modificada
+    // Função para limpar filtros
     const clearFilters = () => {
         setTipoSelecionado({ S: false, A: false });
         setEstadoSelecionado({ emCurso: false, terminado: false });
         setSearchTerm('');
-    };
-
-    // Função para tratar a navegação do botão "Adicionar Curso"
-    const handleAddCourse = () => {
-        if (tipoUser === "Gestor") {
-            navigate('/gestor/cursos/add');
-        }
     };
 
     if (loading) {
@@ -151,7 +192,8 @@ export default function CourseManage() {
                             <Book size={32} />
                         </div>
                         <div className="percurso-header-info">
-                            <h1 className="percurso-title">Gestão de Cursos</h1>
+                            <h1 className="percurso-title">Percurso Formativo</h1>
+                            <h2 className="percurso-user-name">{nome}</h2>
                         </div>
                     </div>
 
@@ -163,6 +205,10 @@ export default function CourseManage() {
                         <div className="percurso-stat-item em-curso">
                             <span className="stat-value">{stats.emCurso}</span>
                             <span className="stat-label">Em Curso</span>
+                        </div>
+                        <div className="percurso-stat-item concluido">
+                            <span className="stat-value">{stats.terminados}</span>
+                            <span className="stat-label">Concluídos</span>
                         </div>
                     </div>
                 </div>
@@ -197,14 +243,7 @@ export default function CourseManage() {
                                 )}
                             </div>
 
-                            <div className="search-container" style={{display: "flex", alignItems: "center", gap: "0.5rem"}}>
-                                {tipoUser === "Gestor" && (
-                                    <Adicionar
-                                        text={"Novo Curso"}
-                                        onClick={handleAddCourse}
-                                        Icon={FaRegSave}
-                                    />
-                                )}
+                            <div className="search-container">
                                 <SearchBar
                                     searchTerm={searchTerm}
                                     handleSearchChange={handleSearchChange}

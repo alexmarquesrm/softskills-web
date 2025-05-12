@@ -126,130 +126,152 @@
   flex: 1;
 }
 
-.chevron-icon {
+.toggle-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin-left: auto;
   opacity: 0.7;
+  cursor: pointer;
+  padding: 5px;
   transition: transform 0.2s ease;
 }
 
-.sidebar-item:hover .chevron-icon {
-  transform: translateX(2px);
-}
-
-/* Sidebar category item */
-.sidebar-category-item {
-  position: relative;
-}
-
-/* Dropdown menus */
-.dropdown-menu {
-  position: fixed;
-  top: 0;
-  width: var(--menu-width);
-  background: white;
-  border-radius: 4px;
-  box-shadow: 0 5px 15px var(--shadow-medium);
-  z-index: 1500;
-  border: 1px solid var(--border-light);
-  overflow: hidden;
-  max-height: 90vh;
-  display: flex;
-  flex-direction: column;
+.sidebar-item:hover .toggle-icon {
   opacity: 1;
-  transition: opacity 0.2s ease-in, visibility 0.2s ease-in;
 }
 
-/* Estilos específicos para cada nível de menu */
-.category-menu {
-  /* Posicionamento feito dinamicamente via JS */
-  z-index: 1500;
-  padding-right: 20px;
+/* Submenu principal de categorias */
+.sidebar-submenu {
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+  padding-left: 0.5rem;
+  overflow: hidden;
+  animation: slideDown 0.3s ease-out;
 }
 
-.topics-menu {
-  /* Posicionamento feito dinamicamente via JS */
-  z-index: 1600; /* Mais alto que o category-menu */
-  padding-left: 10px;
+/* Categories menu */
+.categories-menu {
+  background-color: #f9fafb;
+  border-radius: 8px;
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
 }
 
-.menu-header {
-  padding: 16px;
-  border-bottom: 1px solid var(--border-light);
+.categoria-section {
+  margin-bottom: 1rem;
 }
 
-.menu-header h4 {
-  margin: 0;
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: var(--accent-color);
+.categoria-section:last-child {
+  margin-bottom: 0;
 }
 
-.menu-content {
-  padding: 8px 0;
-  overflow-y: auto;
-  flex: 1;
-  max-height: calc(90vh - 53px); /* 53px é a altura do header */
+.categoria-header {
+  margin-bottom: 0.5rem;
 }
 
-.menu-item {
-  position: relative;
-}
-
-.menu-link {
+.categoria-title-container {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 16px;
+  padding: 0.4rem 0.5rem;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.categoria-title-container:hover {
+  background-color: var(--accent-light);
+}
+
+.categoria-title-container:hover .categoria-title {
+  color: var(--accent-color);
+}
+
+.categoria-title-container.expanded {
+  background-color: var(--accent-light);
+}
+
+.categoria-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--text-dark);
+  text-decoration: none;
+  transition: all 0.2s ease;
+  flex: 1;
+}
+
+.categoria-title:hover {
+  color: var(--accent-color);
+}
+
+/* Areas container */
+.areas-container {
+  padding-left: 1rem;
+}
+
+.area-item {
+  margin-bottom: 0.75rem;
+}
+
+.area-item:last-child {
+  margin-bottom: 0;
+}
+
+.area-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.area-title {
+  display: block;
+  font-weight: 500;
+  font-size: 0.9rem;
   color: var(--text-medium);
   text-decoration: none;
-  font-size: 0.9rem;
-  transition: background-color 0.2s ease, color 0.2s ease;
-  width: 100%;
-  position: relative;
+  padding: 0.4rem 0.5rem;
+  border-radius: 4px;
+  flex: 1;
+  transition: all 0.2s ease;
 }
 
-.menu-link:hover {
-  background-color: #f7f9fa;
-  color: var(--accent-color);
-}
-
-.menu-chevron {
-  position: absolute;
-  right: 16px;
-  top: 50%;
-  transform: translateY(-50%);
-  opacity: 0.7;
-}
-
-/* Adicionar uma área de sobreposição para evitar a perda de hover */
-.menu-bridge {
-  position: absolute;
-  background: transparent;
-  z-index: 1550;
-}
-
-/* Animação de aparecimento e desaparecimento */
-.dropdown-menu.entering {
-  opacity: 0;
-  visibility: visible;
-}
-.dropdown-menu.entered {
-  opacity: 1;
-  visibility: visible;
-}
-.dropdown-menu.exiting {
-  opacity: 0;
-  visibility: visible;
-}
-.dropdown-menu.exited {
-  opacity: 0;
-  visibility: hidden;
-}
-
-/* Estilo para área com submenu ativo */
-.menu-item.active .menu-link {
+.area-title:hover {
   background-color: var(--accent-light);
   color: var(--accent-color);
+}
+
+/* Topics container */
+.topics-container {
+  padding-left: 1.5rem;
+  margin-top: 0.4rem;
+  animation: slideDown 0.25s ease-out;
+}
+
+.topic-item {
+  display: block;
+  padding: 0.35rem 0.5rem;
+  font-size: 0.85rem;
+  color: var(--text-light);
+  text-decoration: none;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.topic-item:hover {
+  background-color: var(--accent-light);
+  color: var(--accent-color);
+}
+
+@keyframes slideDown {
+  from {
+    max-height: 0;
+    opacity: 0;
+  }
+  to {
+    max-height: 1000px;
+    opacity: 1;
+  }
 }
 
 /* Loading and error states */
@@ -285,7 +307,19 @@
     padding: 0 1rem;
   }
   
-  .dropdown-menu {
-    width: 280px;
+  .sidebar-submenu {
+    padding-left: 0.25rem;
+  }
+  
+  .categories-menu {
+    padding: 0.5rem;
+  }
+  
+  .areas-container {
+    padding-left: 0.75rem;
+  }
+  
+  .topics-container {
+    padding-left: 1rem;
   }
 }

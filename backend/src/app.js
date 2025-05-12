@@ -16,6 +16,7 @@ const cursosRoutes = require("./routes/cursosRoutes");
 const sincronosRoutes = require("./routes/sincronosRoutes");
 const pedidosRoutes = require("./routes/pedidosRoutes");
 const inscricoesRoutes = require("./routes/inscricoesRoutes");
+const materiaisRoutes = require("./routes/materialsRoutes");
 
 // Use CORS middleware
 app.use(cors({
@@ -28,8 +29,8 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 app.use("/colaborador", colaboradorRoutes);
-app.use("/formando", authenticate, formandoRoutes);
-app.use("/formador", authenticate, formadoresRoutes);
+app.use("/formando", formandoRoutes);
+app.use("/formador", formadoresRoutes);
 app.use("/categoria", categoriasRoutes);
 app.use("/area", authenticate, areasRoutes);
 app.use("/topico", authenticate, topicosRoutes);
@@ -40,7 +41,8 @@ app.use("/denuncia", authenticate, threadsDenRoutes);
 app.use("/curso", cursosRoutes);
 app.use("/sincrono", authenticate, sincronosRoutes);
 app.use("/pedido", authenticate, pedidosRoutes);
-app.use("/inscricao", inscricoesRoutes);
+app.use("/inscricao", authenticate, inscricoesRoutes);
+app.use("/material", materiaisRoutes);
 
 app.listen(8000, () => {
   console.log("Servidor na porta 8000");

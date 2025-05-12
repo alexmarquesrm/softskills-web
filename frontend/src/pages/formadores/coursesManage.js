@@ -8,7 +8,7 @@ import FeaturedCourses from "../../components/cards/cardCourses";
 import SearchBar from '../../components/textFields/search';
 import Filtros from '../../components/filters/filtros';
 
-export default function PercursoFormativo() {
+export default function CoursesManage() {
     const navigate = useNavigate();
     const [cursos, setCursos] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
@@ -36,7 +36,6 @@ export default function PercursoFormativo() {
                 setFormadorNome(response.data[0].curso_sincrono[0].sincrono_formador.formador_colab.nome);
             }
             
-            console.log("Cursos carregados:", response.data);
         } catch (error) {
             console.error("Erro ao carregar cursos:", error);
             setError("Não foi possível carregar os cursos");
@@ -53,23 +52,16 @@ export default function PercursoFormativo() {
     const filteredCursos = useMemo(() => {
         if (cursos.length === 0) return [];
 
-        // Check if any filter is active
-        const anyTipoSelected = tipoSelecionado.S || tipoSelecionado.A;
         const anyEstadoSelected = estadoSelecionado.emCurso || estadoSelecionado.terminado;
 
         return cursos.filter(curso => {
-            // Filter by course type - only if a type is selected
-            if (anyTipoSelected) {
-                if (curso.tipo === 'S' && !tipoSelecionado.S) return false;
-                if (curso.tipo === 'A' && !tipoSelecionado.A) return false;
-            }
 
             // Filter by state - only if a state is selected
             if (anyEstadoSelected) {
                 // Check if any of the curso_sincrono entries have the matching state
-                const cursoState = curso.curso_sincrono?.[0]?.estado;
+                const cursoState = curso.curso_sincrono?.estado;
                 const isTerminado = cursoState === true;
-                
+
                 if (isTerminado && !estadoSelecionado.terminado) return false;
                 if (!isTerminado && !estadoSelecionado.emCurso) return false;
             }
@@ -87,7 +79,7 @@ export default function PercursoFormativo() {
 
             return true;
         });
-    }, [cursos, tipoSelecionado, estadoSelecionado, searchTerm]);
+    }, [cursos, estadoSelecionado, searchTerm]);
 
     // Stats calculation
     const stats = useMemo(() => {
@@ -124,7 +116,7 @@ export default function PercursoFormativo() {
         
         return (
             <div key={curso.curso_id || index} className="course-card-wrapper" onClick={() => handleCourseSelect(curso)}>
-                <FeaturedCourses curso={cursoData} mostrarBotao={true} />
+                <FeaturedCourses curso={cursoData} mostrarBotao={true} mostrarInicioEFim={true}/>
             </div>
         );
     };
@@ -216,6 +208,8 @@ export default function PercursoFormativo() {
                             setTipoSelecionado={setTipoSelecionado}
                             estadoSelecionado={estadoSelecionado}
                             setEstadoSelecionado={setEstadoSelecionado}
+                            mostrarTipo={false}
+                            mostrarEstado={true}
                         />
                     </Col>
 

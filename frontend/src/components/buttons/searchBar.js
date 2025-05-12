@@ -11,7 +11,7 @@ function SearchBar() {
   };
 
   const handleSearch = () => {
-    console.log("Searching for:", searchTerm);
+    //console.log("Searching for:", searchTerm);
   };
 
   return (

@@ -38,6 +38,16 @@ const controladorFormadores = {
     }
   },
 
+  getCountFormadores: async (req, res) => {
+      try {
+        const totalFormadores = await models.formador.count();
+        res.status(200).json({ total: totalFormadores });
+      } catch (error) {
+        console.error("Erro ao contar formadores:", error);
+        res.status(500).json({ message: "Erro interno ao contar formadores" });
+      }
+    },
+
   getFormadorById: async (req, res) => {
     const { id } = req.params;
     try {

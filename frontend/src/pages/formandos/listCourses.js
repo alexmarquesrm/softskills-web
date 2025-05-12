@@ -2,27 +2,23 @@ import React, { useState, useEffect, useMemo } from "react";
 import { Container, Row, Col, Spinner } from "react-bootstrap";
 import { Book, AlertCircle} from 'react-feather';
 import axios from "../../config/configAxios";
-import { FaRegSave } from "react-icons/fa";
-import { useNavigate } from 'react-router-dom';
 /* COMPONENTES */
 import FeaturedCourses from "../../components/cards/cardCourses";
 import SearchBar from '../../components/textFields/search';
 import Filtros from '../../components/filters/filtros';
-import Adicionar from "../../components/buttons/saveButton";
 /* CSS */
-import './percursoFormativo.css';
 
-export default function CourseManage() {
-    const navigate = useNavigate();
+
+export default function Courses() {
     const [curso, setCurso] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
-    const tipoUser = sessionStorage.getItem('tipo');
+    // Modificando o estado inicial para false (não selecionado)
     const [tipoSelecionado, setTipoSelecionado] = useState({ S: false, A: false });
     const [estadoSelecionado, setEstadoSelecionado] = useState({ emCurso: false, terminado: false });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isFiltersVisible, setIsFiltersVisible] = useState(true);
-    
+
     const fetchData = async () => {
         try {
             const token = sessionStorage.getItem('token');
@@ -50,20 +46,28 @@ export default function CourseManage() {
 
         // Verificar se algum filtro está ativo
         const anyTipoSelected = tipoSelecionado.S || tipoSelecionado.A;
-        const anyEstadoSelected = estadoSelecionado.emCurso || estadoSelecionado.terminado;
 
         return curso.filter(item => {
+
+            // Ignora cursos pendentes
+            if (item.pendente) return false;
+            
+            const isEmCurso =
+                item.tipo === 'A' ||
+                (item.tipo === 'S' && item.curso_sincrono && !item.curso_sincrono.estado);
+            if (!isEmCurso) return false;
+
+            // Filtrar por começar
+            if (item.tipo === 'S') {
+                const dataLimite = item.curso_sincrono?.data_limite_inscricao;
+                if (!dataLimite || new Date(dataLimite) <= new Date()) return false;
+            }
+
             // Filtrar por tipo de curso - só aplica se algum tipo estiver selecionado
             if (anyTipoSelected) {
                 if (item?.tipo === 'S' && !tipoSelecionado.S) return false;
                 if (item?.tipo === 'A' && !tipoSelecionado.A) return false;
             }
-
-            // Filtrar por estado - só aplica se algum estado estiver selecionado
-             if (anyEstadoSelected) {
-                if (!item.curso_sincrono?.estado && !estadoSelecionado.emCurso) return false;
-                if (item.curso_sincrono?.estado && !estadoSelecionado.terminado) return false;
-            } 
 
             // Filtrar por termo de pesquisa
             if (searchTerm.trim() !== '') {
@@ -113,13 +117,6 @@ export default function CourseManage() {
         setSearchTerm('');
     };
 
-    // Função para tratar a navegação do botão "Adicionar Curso"
-    const handleAddCourse = () => {
-        if (tipoUser === "Gestor") {
-            navigate('/gestor/cursos/add');
-        }
-    };
-
     if (loading) {
         return (
             <div className="loading-container">
@@ -151,18 +148,14 @@ export default function CourseManage() {
                             <Book size={32} />
                         </div>
                         <div className="percurso-header-info">
-                            <h1 className="percurso-title">Gestão de Cursos</h1>
+                            <h1 className="percurso-title">Cursos Disponiveis</h1>
                         </div>
                     </div>
 
                     <div className="percurso-stats">
                         <div className="percurso-stat-item">
-                            <span className="stat-value">{stats.total}</span>
+                            <span className="stat-value">{filteredInscricoes.length}</span>
                             <span className="stat-label">Total de Cursos</span>
-                        </div>
-                        <div className="percurso-stat-item em-curso">
-                            <span className="stat-value">{stats.emCurso}</span>
-                            <span className="stat-label">Em Curso</span>
                         </div>
                     </div>
                 </div>
@@ -183,6 +176,8 @@ export default function CourseManage() {
                             setTipoSelecionado={setTipoSelecionado}
                             estadoSelecionado={estadoSelecionado}
                             setEstadoSelecionado={setEstadoSelecionado}
+                            mostrarTipo={true}
+                            mostrarEstado={false}
                         />
                     </Col>
 
@@ -197,14 +192,7 @@ export default function CourseManage() {
                                 )}
                             </div>
 
-                            <div className="search-container" style={{display: "flex", alignItems: "center", gap: "0.5rem"}}>
-                                {tipoUser === "Gestor" && (
-                                    <Adicionar
-                                        text={"Novo Curso"}
-                                        onClick={handleAddCourse}
-                                        Icon={FaRegSave}
-                                    />
-                                )}
+                            <div className="search-container">
                                 <SearchBar
                                     searchTerm={searchTerm}
                                     handleSearchChange={handleSearchChange}

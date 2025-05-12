@@ -6,3 +6,7 @@ node_modules
 
 # .txt
 *.txt
+
+# dockerfiles
+Dockerfile
+docker-compose.yml

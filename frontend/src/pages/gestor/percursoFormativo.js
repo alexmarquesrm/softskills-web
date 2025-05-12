@@ -6,7 +6,6 @@ import axios from "../../config/configAxios";
 /* COMPONENTES */
 import FeaturedCourses from "../../components/cards/cardCourses";
 import SearchBar from '../../components/textFields/search';
-import CardRow from '../../components/cards/cardRow';
 import Filtros from '../../components/filters/filtros';
 /* CSS */
 import './percursoFormativo.css';
@@ -36,7 +35,7 @@ export default function PercursoFormativo() {
             const utilizador = response.data;
             setNome(utilizador.nome);
         } catch (error) {
-            console.error("Erro ao buscar dados do colaborador", error);
+            console.error("Erro ao procurar dados do colaborador", error);
             setError("Não foi possível carregar os dados do colaborador");
         }
     };
@@ -52,7 +51,7 @@ export default function PercursoFormativo() {
             const inscricoesFiltradas = response.data.filter(item => item.formando_id === parseInt(id));
             setInscricao(inscricoesFiltradas);
         } catch (error) {
-            console.error("Erro ao buscar inscrições", error);
+            console.error("Erro ao procurar inscrições", error);
             setError("Não foi possível carregar as inscrições");
         } finally {
             setLoading(false);

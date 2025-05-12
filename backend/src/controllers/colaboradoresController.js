@@ -6,8 +6,45 @@ const ficheirosController = require('./ficheiros');
 const bcrypt = require('bcrypt');
 
 const controladorUtilizadores = {
+  // Função para obter o próprio perfil do usuário autenticado
+  getMe: async (req, res) => {
+    try {
+      // Obter ID do usuário a partir do token JWT
+      const userId = req.user.id;
+
+      const colaborador = await models.colaborador.findByPk(userId, {
+        attributes: {
+          exclude: ['pssword'],
+        },
+      });
+
+      if (!colaborador) {
+        return res.status(404).json({ message: "Usuário não encontrado" });
+      }
+
+      const files = await ficheirosController.getFilesFromBucketOnly(userId, 'colaborador');
+
+      const colaboradorData = colaborador.toJSON();
+      if (files.length > 0) {
+        colaboradorData.fotoPerfilUrl = files[0].url;
+      }
+
+      res.json(colaboradorData);
+    } catch (error) {
+      console.error('Erro ao obter perfil do usuário:', error);
+      res.status(500).json({ message: "Erro ao obter perfil do usuário" });
+    }
+  },
+
   getAllColaboradores: async (req, res) => {
     try {
+      const userRoles = req.user.allUserTypes?.split(',') || [];
+      if (req.user.tipo !== 'Gestor' && !userRoles.includes('Gestor')) {
+        return res.status(403).json({
+          message: "Não autorizado a listar todos os colaboradores"
+        });
+      }
+
       const colaboradores = await models.colaborador.findAll({
         attributes: {
           exclude: ['pssword']
@@ -23,6 +60,18 @@ const controladorUtilizadores = {
   getColaboradorById: async (req, res) => {
     const id = req.params.id;
     try {
+      // Verificar se o usuário está tentando acessar seu próprio perfil
+      // ou se tem permissão administrativa
+      const isOwnProfile = parseInt(id) === req.user.id;
+      const userRoles = req.user.allUserTypes?.split(',') || [];
+      const isAdmin = req.user.tipo === 'Gestor' || userRoles.includes('Gestor');
+
+      if (!isOwnProfile && !isAdmin) {
+        return res.status(403).json({
+          message: "Não autorizado a acessar perfil de outro usuário"
+        });
+      }
+
       const colaborador = await models.colaborador.findByPk(id, {
         attributes: {
           exclude: ['pssword'],
@@ -34,11 +83,7 @@ const controladorUtilizadores = {
       }
 
       const files = await ficheirosController.getFilesFromBucketOnly(id, 'colaborador');
-      console.log("Ficheiros do colaborador:", files);
 
-      if (files.length > 0) {
-        colaborador.fotoPerfilUrl = files[0].url;
-      }
       const colaboradorData = colaborador.toJSON();
       if (files.length > 0) {
         colaboradorData.fotoPerfilUrl = files[0].url;
@@ -53,14 +98,22 @@ const controladorUtilizadores = {
   getUserByLogin: async (req, res) => {
     const username = req.params.username;
     try {
+      // Esta rota é usada para verificação na tela de login
+      // Não retornar dados sensíveis
       const user = await models.colaborador.findOne({
         where: { username: username },
+        attributes: ['colaborador_id', 'username']
       });
 
       if (!user) {
         return res.status(404).json({ message: "Utilizador não encontrado" });
       }
-      res.json(user);
+
+      // Retornar apenas informação mínima necessária
+      res.json({
+        exists: true,
+        username: user.username
+      });
 
     } catch (error) {
       console.error(error);
@@ -116,35 +169,83 @@ const controladorUtilizadores = {
         allUserTypes: userTypes     // All available user types
       };
 
-      res.status(200).json({ user: userData });
+      // Atualizar último login
+      await user.update({
+        ultimologin: new Date()
+      });
 
+      // Gerar token JWT com os dados do usuário
+      const token = generateToken({
+        utilizadorid: user.colaborador_id,
+        email: user.email,
+        tipo: activeType,
+        allUserTypes: userTypes.join(',')
+      });
+
+      // Determinar saudação com base na hora do dia
+      const hour = new Date().getHours();
+      let saudacao = "Olá";
+
+      if (hour < 12) {
+        saudacao = "Bom dia";
+      } else if (hour < 18) {
+        saudacao = "Boa tarde";
+      } else {
+        saudacao = "Boa noite";
+      }
+
+      // Retornar dados do usuário e token na mesma resposta
+      res.status(200).json({
+        user: userData,
+        token: token,
+        saudacao: saudacao
+      });
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: "Erro no login" });
     }
   },
 
+  // Este método pode ser removido, já que o token é gerado durante o login
+  // Mantido para compatibilidade temporária, mas com verificação de segurança
   novoToken: async (req, res) => {
     const { id } = req.params;
     try {
+      // Verificar se o ID é do próprio usuário autenticado
+      if (parseInt(id) !== req.user.id) {
+        return res.status(403).json({
+          message: "Não autorizado a gerar token para outro usuário"
+        });
+      }
+
       const colaborador = await models.colaborador.findByPk(id);
 
-      const token = generateToken(colaborador);
+      if (!colaborador) {
+        return res.status(404).json({ message: "Utilizador não encontrado" });
+      }
 
-      // await models.colaborador.update(
-      //   {
-      //     ultimologin: Sequelize.literal("CURRENT_TIMESTAMP"),
-      //   },
-      //   {
-      //     where: {
-      //       utilizadorid: id,
-      //     },
-      //   }
-      // );
+      const token = generateToken({
+        utilizadorid: colaborador.colaborador_id,
+        email: colaborador.email,
+        tipo: req.user.tipo // Manter o tipo atual
+      });
 
-      // const saudacao = await sequelizeConn.query(`SELECT ObterSaudacao(${id})`);
+      // Determinar saudação com base na hora do dia
+      const hour = new Date().getHours();
+      let saudacao = "Olá";
 
-      res.status(200).json({ token: token });
+      if (hour < 12) {
+        saudacao = "Bom dia";
+      } else if (hour < 18) {
+        saudacao = "Boa tarde";
+      } else {
+        saudacao = "Boa noite";
+      }
+
+      res.status(200).json({
+        token: token,
+        saudacao: saudacao
+      });
     } catch (error) {
       res.status(500).json({ error: "Erro ao consultar utilizadores", details: error.message, });
     }
@@ -153,6 +254,15 @@ const controladorUtilizadores = {
   registarNovoColaborador: async (req, res) => {
     try {
       const { nome, email, data_nasc, cargo, departamento, telefone, score, sobre_mim, username, password } = req.body;
+
+      // Verificar se username já existe
+      const existingUser = await models.colaborador.findOne({
+        where: { username }
+      });
+
+      if (existingUser) {
+        return res.status(400).json({ message: "Username já está em uso" });
+      }
 
       const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -197,7 +307,25 @@ const controladorUtilizadores = {
 
   criarColaborador: async (req, res) => {
     try {
+      // Verificar se o usuário tem permissão de Gestor
+      const userRoles = req.user.allUserTypes?.split(',') || [];
+      if (req.user.tipo !== 'Gestor' && !userRoles.includes('Gestor')) {
+        return res.status(403).json({
+          message: "Não autorizado a criar colaboradores"
+        });
+      }
+
       const { nome, email, data_nasc, cargo, departamento, telefone, sobre_mim = null, score = 0, username, tipo, especialidade, inativo } = req.body;
+
+      // Verificar se username já existe
+      const existingUser = await models.colaborador.findOne({
+        where: { username }
+      });
+
+      if (existingUser) {
+        return res.status(400).json({ message: "Username já está em uso" });
+      }
+
       const hashedPassword = await bcrypt.hash("123", 10);
 
       if (tipo === "Formando") {
@@ -261,9 +389,21 @@ const controladorUtilizadores = {
   },
 
   updateColaborador: async (req, res) => {
-    console.log("Atualizando colaborador:", req.body);
     const id = req.params.id;
+
     try {
+      // Verificar se o usuário está atualizando seu próprio perfil
+      // ou se tem permissão administrativa
+      const isOwnProfile = parseInt(id) === req.user.id;
+      const userRoles = req.user.allUserTypes?.split(',') || [];
+      const isAdmin = req.user.tipo === 'Gestor' || userRoles.includes('Gestor');
+
+      if (!isOwnProfile && !isAdmin) {
+        return res.status(403).json({
+          message: "Não autorizado a atualizar perfil de outro usuário"
+        });
+      }
+
       const dadosAtualizados = { ...req.body };
 
       // Se vier uma nova password, fazer o hash
@@ -284,7 +424,6 @@ const controladorUtilizadores = {
       if (updated[0]) {
         // Se vier uma nova foto de perfil, chamamos o ficheirosController
         if (dadosAtualizados.fotoPerfil) {
-          console.log("Adicionando nova foto de perfil:", dadosAtualizados.fotoPerfil);
           await ficheirosController.adicionar(id, 'colaborador', [dadosAtualizados.fotoPerfil], req.user.id || null);
         }
 
@@ -302,7 +441,18 @@ const controladorUtilizadores = {
 
   deleteColaborador: async (req, res) => {
     const id = req.params.id;
+
     try {
+      // Verificar se o usuário tem permissão administrativa
+      const userRoles = req.user.allUserTypes?.split(',') || [];
+      const isAdmin = req.user.tipo === 'Gestor' || userRoles.includes('Gestor');
+
+      if (!isAdmin) {
+        return res.status(403).json({
+          message: "Não autorizado a excluir colaboradores"
+        });
+      }
+
       const deleted = await models.colaborador.destroy({
         where: { colaborador_id: id },
       });

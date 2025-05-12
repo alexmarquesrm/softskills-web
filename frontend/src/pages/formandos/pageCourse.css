@@ -4,9 +4,6 @@
 .curso-content {
   font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
   color: #333;
-  padding: 0 50px;
-  max-width: 1650px;
-  margin: 0 auto;
 }
 
 /* Banner do curso */
@@ -76,6 +73,19 @@
   border: 2px solid #dee2e6;
 }
 
+.progress-custom {
+  height: 10px;
+  border-radius: 5px;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.progress-custom .progress-bar {
+  border-radius: 5px;
+  background-image: linear-gradient(45deg, rgba(255,255,255,.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,.15) 50%, rgba(255,255,255,.15) 75%, transparent 75%, transparent);
+  background-size: 1rem 1rem;
+  animation: progress-bar-stripes 1s linear infinite;
+}
+
 /* Navegação do curso */
 .course-navigation .btn {
   border-radius: 20px;
@@ -101,6 +111,17 @@
   border-color: #dee2e6;
 }
 
+.faq-accordion .accordion-button:not(.collapsed) {
+  background-color: #f0f4ff;
+  color: #0d6efd;
+  box-shadow: none;
+}
+
+.faq-accordion .accordion-button:focus {
+  box-shadow: none;
+  border-color: #dee2e6;
+}
+
 /* Seção de objetivos */
 .objectives-container {
   border-left: 4px solid #0d6efd;
@@ -112,35 +133,21 @@
   font-weight: bold;
 }
 
-/* Botões de ação */
-.btn-action {
-  background: #fff;
-  color: #0d6efd;
-  border: 1px solid #0d6efd;
-  border-radius: 20px;
-  padding: 8px 16px;
-  font-weight: 500;
-  transition: all 0.3s ease;
-}
-
-.btn-action:hover {
-  background: #0d6efd;
-  color: #fff;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(13, 110, 253, 0.2);
-}
-
-.btn-edit-small {
-  background: transparent;
-  color: #0d6efd;
-  border: none;
-  padding: 5px;
+.skill-item .progress {
+  height: 8px;
   border-radius: 4px;
-  transition: all 0.2s ease;
+  overflow: hidden;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
 }
 
-.btn-edit-small:hover {
-  background: rgba(13, 110, 253, 0.1);
+/* Elementos de alerta e notificação */
+.alert {
+  border-radius: 8px;
+  border-left: 4px solid;
+}
+
+.alert-warning {
+  border-left-color: #ffc107;
 }
 
 /* Área do formador */
@@ -153,33 +160,14 @@
   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
-/* Diferenciação de tipos de materiais */
-.material-documento {
-  border-left: 3px solid #ffc107;
+/* Animações */
+@keyframes progress-bar-stripes {
+  from { background-position: 1rem 0; }
+  to { background-position: 0 0; }
 }
 
-.material-video {
-  border-left: 3px solid #dc3545;
-}
-
-.material-aula {
-  border-left: 3px solid #28a745;
-}
-
-.material-trabalho, .material-quiz {
-  border-left: 3px solid #17a2b8;
-}
-
-.material-entrega {
-  border-left: 3px solid #6610f2;
-}
-
-/* Adaptações para mobile */
+/* Responsividade para dispositivos móveis */
 @media (max-width: 768px) {
-  .curso-content {
-    padding: 0 15px;
-  }
-  
   .curso-banner h1 {
     font-size: 1.5rem;
   }
@@ -189,41 +177,45 @@
     padding: 6px 12px;
   }
   
-  .curso-actions {
-    margin-top: 15px;
-    width: 100%;
-  }
-  
   .material-item {
     flex-direction: column;
     align-items: flex-start !important;
   }
   
-  .material-item .btn-edit-small {
+  .material-item .btn {
     margin-top: 10px;
     margin-left: 30px;
   }
 }
 
-/* Estilos dos estados hover */
+/* Estados hover para elementos interativos */
+.btn-outline-primary:hover {
+  background-color: #0d6efd;
+  color: white;
+}
+
 .btn-primary:hover {
   background-color: #0b5ed7;
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(13, 110, 253, 0.3);
 }
 
-.btn-outline-primary:hover {
-  background-color: #0d6efd;
-  color: white;
-  transform: translateY(-2px);
+/* Estilo para elementos destacados */
+.certification-info, .additional-help {
+  transition: all 0.3s ease;
 }
 
-/* Loading e erro */
+.certification-info:hover, .additional-help:hover {
+  box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+}
+
+/* Estilos para indicadores de loadingLista de materiais vazia */
 .loading-container .spinner-border {
   width: 3rem;
   height: 3rem;
 }
 
+/* Animação para os badges */
 .badge {
   transition: all 0.2s ease;
 }
@@ -231,3 +223,4 @@
 .badge:hover {
   transform: scale(1.05);
 }
+

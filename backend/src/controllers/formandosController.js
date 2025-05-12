@@ -25,6 +25,16 @@ const controladorFormandos = {
     }
   },
 
+  getCountFormandos: async (req, res) => {
+    try {
+      const totalformandos = await models.formando.count();
+      res.status(200).json({ total: totalformandos});
+    } catch (error) {
+      console.error("Erro ao contar formandos:", error);
+      res.status(500).json({ message: "Erro interno ao contar formandos" });
+    }
+  },
+
   getFormandoById: async (req, res) => {
     const { id } = req.params;
     try {

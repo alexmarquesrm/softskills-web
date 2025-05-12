@@ -1,0 +1,141 @@
+.lista-pedidos-container {
+    padding: 24px;
+    max-width: 1600px;
+    margin: 0 auto;
+  }
+  
+  .page-header {
+    margin-bottom: 24px;
+  }
+  
+  .page-title {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: #333;
+  }
+  
+  .filtro-container {
+    margin-bottom: 24px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 16px;
+  }
+  
+  .estado-filtro h6 {
+    font-size: 1rem;
+    margin-bottom: 12px;
+    color: #6c757d;
+  }
+  
+  .filtro-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .filtro-button {
+    background: none;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    padding: 8px 16px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .filtro-button:hover {
+    background-color: #e9ecef;
+  }
+  
+  .filtro-button.active {
+    background-color: #0d6efd;
+    color: #fff;
+    border-color: #0d6efd;
+  }
+  
+  .pedidos-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .pedido-card {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    padding: 16px;
+    border: 1px solid #e9ecef;
+  }
+  
+  .pedido-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #f1f1f1;
+  }
+  
+  .pedido-header h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0;
+    color: #333;
+  }
+  
+  .delete-button {
+    background: none;
+    border: none;
+    color: #dc3545;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+  }
+  
+  .delete-button:hover {
+    background-color: #ffebee;
+  }
+  
+  .pedido-content {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .pedido-info p {
+    margin: 0;
+    margin-bottom: 8px;
+    font-size: 0.95rem;
+    color: #495057;
+  }
+  
+  .loading-container,
+  .error-container,
+  .empty-container {
+    padding: 32px;
+    text-align: center;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  }
+  
+  .loading-spinner {
+    display: inline-block;
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(0, 123, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #0d6efd;
+    animation: spin 1s ease-in-out infinite;
+    margin-bottom: 16px;
+  }
+  
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }

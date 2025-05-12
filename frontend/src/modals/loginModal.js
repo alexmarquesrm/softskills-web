@@ -19,10 +19,8 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
 
     const verificarLogin = async (login) => {
         try {
-            const token = sessionStorage.getItem('token');
-            const response = await axios.get(`/colaborador/username/${login}`, {
-                headers: { Authorization: `${token}` }
-            });
+            // Rota pública para verificar se o usuário existe
+            const response = await axios.get(`/colaborador/username/${login}`);
             return response.status === 200;
         } catch (error) {
             if (error.response?.status === 404) {
@@ -73,34 +71,36 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
         }
 
         try {
+            // Login único que retorna token e dados do usuário
             const response = await axios.post('/colaborador/login', {
                 username: login,
                 password: password
             });
 
             const utilizador = response.data.user;
+            const token = response.data.token;
+            const saudacao = response.data.saudacao;
 
-            // Store basic user information
+            // Armazenar token - principal fonte de autenticação
+            sessionStorage.setItem('token', token);
+            
+            // Armazenar dados para UI (estes não são usados para autorização)
             sessionStorage.setItem('colaboradorid', utilizador.colaboradorid);
             sessionStorage.setItem('nome', utilizador.nome);
             sessionStorage.setItem('email', utilizador.email);
             sessionStorage.setItem('primeirologin', utilizador.ultimologin === null ? "true" : "false");
-            
-            // Store the default active type
             sessionStorage.setItem('tipo', utilizador.tipo);
+            sessionStorage.setItem('saudacao', saudacao);
             
-            // Store all user types if available
+            // Armazenar todos os tipos de usuário se disponíveis
             if (utilizador.allUserTypes && utilizador.allUserTypes.length > 0) {
                 sessionStorage.setItem('allUserTypes', utilizador.allUserTypes.join(','));
             } else {
-                // Fallback to single type if allUserTypes is not available
                 sessionStorage.setItem('allUserTypes', utilizador.tipo);
             }
 
-            const tokenResponse = await axios.get(`/colaborador/token/${utilizador.colaboradorid}`);
-
-            sessionStorage.setItem('token', tokenResponse.data.token);
-            sessionStorage.setItem('saudacao', tokenResponse.data.saudacao);
+            // Configurar o token para todas as requisições futuras
+            axios.defaults.headers.common['Authorization'] = token;
 
             handleClose();
             if (onLoginSuccess) onLoginSuccess();
