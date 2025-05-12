@@ -60,10 +60,10 @@ export default function PaginaGestor() {
     return curso.filter(item => {
       console.log(curso);
       // Verifica se já começou
-      const dataLimite = item.curso_sincrono?.data_inicio;
+      const dataLimite = item.inscricao_curso?.curso_sincrono?.data_inicio;
       if (!dataLimite || new Date(dataLimite) > new Date()) return false;
 
-      if (item.curso_sincrono?.estado === true) return false;
+      if (item.inscricao_curso?.curso_sincrono?.estado === true) return false;
 
       return true;
     });
@@ -73,8 +73,8 @@ export default function PaginaGestor() {
     <CardPedido index={index} curso={curso} />
   );
 
-  const renderCoursesInscCard = (curso, index) => (
-    <FeaturedCourses key={curso.curso_id || index} curso={curso} mostrarBotao={true} mostrarInicioEFim={true} />
+  const renderCoursesInscCard = (inscricao, index) => (
+    <FeaturedCourses key={inscricao.inscricao_id || index} curso={inscricao.inscricao_curso} inscricao={inscricao} mostrarBotao={true} mostrarInicioEFim={true} />
   );
 
   const renderCoursesCard = (curso, index) => (
