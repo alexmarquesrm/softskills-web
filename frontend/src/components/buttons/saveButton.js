@@ -15,7 +15,7 @@ function guardar({ text, onClick, Icon, inline = false }) {
   );
 
   return inline ? button : (
-    <div className="d-flex justify-content-center">
+    <div className="d-flex justify-content-center" style={{ whiteSpace: 'nowrap' }}>
       {button}
     </div>
   );
