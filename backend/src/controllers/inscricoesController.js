@@ -74,6 +74,11 @@ const controladorInscricoes = {
               {
                 model: models.topico,
                 as: "curso_topico"
+              },
+              {
+                model: models.sincrono,
+                as: "curso_sincrono",
+                attributes: ["curso_id", "formador_id", "limite_vagas", "data_limite_inscricao", "data_inicio", "data_fim", "estado"],
               }
             ]
           },
