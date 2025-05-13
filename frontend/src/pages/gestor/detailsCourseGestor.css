@@ -234,10 +234,11 @@
 
 
 
-
+/*Botao editar curso*/
 .course-card-edit-wrapper {
                     position: relative;
                     transition: all 0.3s ease;
+                    
                 }
                 
                 .course-card-edit-wrapper:hover {
@@ -248,13 +249,13 @@
                 .course-edit-options {
                     position: absolute;
                     top: 10px;
-                    right: 10px;
+                    left: 10px;
                     display: flex;
                     gap: 5px;
                     z-index: 10;
                 }
                 
-                .edit-course-btn, .delete-course-btn {
+                .edit-course-btn {
                     width: 36px;
                     height: 36px;
                     border-radius: 50%;
@@ -271,19 +272,8 @@
                     color: white;
                 }
                 
-                .delete-course-btn {
-                    background-color: #dc3545;
-                    color: white;
-                }
-                
-                .edit-course-btn:hover, .delete-course-btn:hover {
-                    transform: scale(1.1);
-                }
-                
-                .edit-mode-btn.active {
-                    background-color: #b30000;
-                }
-                
+             
+                   
                 .courses-grid.edit-mode .course-card-edit-wrapper {
                     cursor: default;
                 }
