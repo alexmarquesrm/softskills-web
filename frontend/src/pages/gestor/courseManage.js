@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Container, Row, Col, Spinner } from "react-bootstrap";
-import { Book, AlertCircle} from 'react-feather';
+import { Book, AlertCircle, Edit, Trash2 } from 'react-feather';
 import axios from "../../config/configAxios";
-import { FaRegSave } from "react-icons/fa";
+import { IoMdAdd } from "react-icons/io";
 import { useNavigate } from 'react-router-dom';
 /* COMPONENTES */
 import FeaturedCourses from "../../components/cards/cardCourses";
@@ -22,6 +22,7 @@ export default function CourseManage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isFiltersVisible, setIsFiltersVisible] = useState(true);
+    const [editMode, setEditMode] = useState(false); // Novo estado para controlar o modo de edição
     
     const fetchData = async () => {
         try {
@@ -90,9 +91,55 @@ export default function CourseManage() {
         return { total, emCurso };
     }, [curso]);
 
-    const renderCourseCard = (curso, index) => (
-        <FeaturedCourses key={curso.curso_id || index} curso={curso} mostrarBotao={true} />
-    );
+    // Função para eliminar um curso
+    const handleDeleteCourse = async (courseId) => {
+        if (window.confirm("Tem certeza que deseja eliminar este curso?")) {
+            try {
+                const token = sessionStorage.getItem('token');
+                await axios.delete(`/curso/apagar/${courseId}`, {
+                    headers: { Authorization: `${token}` }
+                });
+                // Atualizar a lista de cursos após eliminar
+                fetchData();
+                alert("Curso eliminado com sucesso!");
+            } catch (error) {
+                console.error("Erro ao eliminar curso", error);
+                alert("Não foi possível eliminar o curso. Tente novamente.");
+            }
+        }
+    };
+
+    // Função para editar um curso
+    const handleEditCourse = (courseId) => {
+        navigate(`/gestor/cursos/edit/${courseId}`);
+    };
+
+    const renderCourseCard = (curso, index) => {
+        if (editMode) {
+            // Versão do card com opções de edição
+            return (
+                <div key={curso.curso_id || index} className="course-card-edit-wrapper">
+                    <FeaturedCourses curso={curso} mostrarBotao={false} />
+                    <div className="course-edit-options">
+                        <button 
+                            className="edit-course-btn"
+                            onClick={() => handleEditCourse(curso.curso_id)}
+                        >
+                            <Edit size={18} />
+                        </button>
+                        <button 
+                            className="delete-course-btn"
+                            onClick={() => handleDeleteCourse(curso.curso_id)}
+                        >
+                            <Trash2 size={18} />
+                        </button>
+                    </div>
+                </div>
+            );
+        }
+        // Versão normal do card
+        return <FeaturedCourses key={curso.curso_id || index} curso={curso} mostrarBotao={true} />;
+    };
 
     const handleSearchChange = (event) => {
         setSearchTerm(event.target.value);
@@ -104,6 +151,11 @@ export default function CourseManage() {
 
     const toggleFilters = () => {
         setIsFiltersVisible(!isFiltersVisible);
+    };
+
+    // Função para alternar o modo de edição
+    const toggleEditMode = () => {
+        setEditMode(!editMode);
     };
 
     // Função para limpar filtros modificada
@@ -199,11 +251,34 @@ export default function CourseManage() {
 
                             <div className="search-container" style={{display: "flex", alignItems: "center", gap: "0.5rem"}}>
                                 {tipoUser === "Gestor" && (
-                                    <Adicionar
-                                        text={"Novo Curso"}
-                                        onClick={handleAddCourse}
-                                        Icon={FaRegSave}
-                                    />
+                                    <>
+                                        {/* Botão vermelho de editar */}
+                                        <button 
+                                            className={`edit-mode-btn ${editMode ? 'active' : ''}`}
+                                            onClick={toggleEditMode}
+                                            style={{
+                                                background: editMode ? "#b30000" : "#ff0000",
+                                                color: "white",
+                                                border: "none",
+                                                borderRadius: "4px",
+                                                padding: "8px 16px",
+                                                display: "flex",
+                                                alignItems: "center",
+                                                gap: "5px",
+                                                fontWeight: "bold",
+                                                cursor: "pointer"
+                                            }}
+                                        >
+                                            <Edit size={16} />
+                                            {editMode ? "Cancelar Edição" : "Editar"}
+                                        </button>
+                                        
+                                        <Adicionar
+                                            text={"Novo Curso"}
+                                            onClick={handleAddCourse}
+                                            Icon={IoMdAdd}
+                                        />
+                                    </>
                                 )}
                                 <SearchBar
                                     searchTerm={searchTerm}
@@ -216,7 +291,7 @@ export default function CourseManage() {
 
                         <div className="courses-container">
                             {filteredInscricoes.length > 0 ? (
-                                <div className="courses-grid">
+                                <div className={`courses-grid ${editMode ? 'edit-mode' : ''}`}>
                                     {filteredInscricoes.map((item, index) =>
                                         renderCourseCard(item, index)
                                     )}
@@ -234,6 +309,8 @@ export default function CourseManage() {
                     </Col>
                 </Row>
             </Container>
+            
+
         </div>
     );
 }
