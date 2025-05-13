@@ -214,7 +214,7 @@ const controladorCursos = {
           formador_colab.telefone
         ORDER BY 
           numero_inscricoes DESC
-        LIMIT 3;
+        LIMIT 4;
       `, { type: QueryTypes.SELECT });
 
       // Query for top 3 asynchronous courses
@@ -275,7 +275,7 @@ const controladorCursos = {
           formador_colab.telefone
         ORDER BY 
           numero_inscricoes DESC
-        LIMIT 3;
+        LIMIT 4;
       `, { type: QueryTypes.SELECT });
 
       // Process synchronous courses

@@ -17,8 +17,8 @@ function AppContent() {
       
       // If the response is structured by type
       if (response.data.sincronos && response.data.assincronos) {
-        setCursosSincronos(response.data.sincronos);
-        setCursosAssincronos(response.data.assincronos);
+        setCursosSincronos(response.data.sincronos.slice(0, 3));
+        setCursosAssincronos(response.data.assincronos.slice(0, 3));
       } 
       // If the API still returns the old format (flat array)
       else if (Array.isArray(response.data)) {

@@ -43,7 +43,7 @@ function AppContent() {
                         <Route path="/utilizadores/curso/:id" element={<CursoFormando />} />
                         <Route path="/utilizadores/lista/cursos" element={<CursosFormando />} />
                         <Route path="/utilizadores/percursoFormativo" element={<PercursoFormativoFormando />} />
-                        <Route path="/formando/dashboard" element={<PagFormando />} /> {/* Mudar o nome para /utilizadores/dashboard, porem falta mudar depois o caminho no perfil */}
+                        <Route path="/utilizadores/dashboard" element={<PagFormando />} />
                         {/* Formador Routes */}
                         <Route path="/formador/cursos" element={<ManageCourses />} />
                         <Route path="/formador/curso/:id" element={<FormadorCurso />} />
