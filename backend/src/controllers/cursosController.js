@@ -42,6 +42,12 @@ const controladorCursos = {
           curso_id: novoCurso.curso_id
         }, { transaction: t });
       }
+      // Se for do tipo A (Assincrono), criar entrada na tabela assincrono
+      else if (tipo === "A") {
+        await models.assincrono.create({
+          curso_id: novoCurso.curso_id
+        }, { transaction: t });
+      }
 
       await t.commit();
 
@@ -520,6 +526,7 @@ const controladorCursos = {
 
   // Atualizar um curso pelo ID
   updateCurso: async (req, res) => {
+    console.log("Atualizar curso", req.body);
     const t = await sequelizeConn.transaction();
     try {
       const { id } = req.params;
@@ -572,12 +579,18 @@ const controladorCursos = {
         } else {
           await models.sincrono.create(sincronoData, { transaction: t });
         }
-      } else if (tipo === "A") {
-        // Se mudou de sincrono para assíncrono, remover dados sincronos
-        await models.sincrono.destroy({
-          where: { curso_id: id },
-          transaction: t
+      } 
+      // Se for do tipo A (Assincrono), atualizar ou criar entrada na tabela assincrono
+      else if (tipo === "A") {
+        const cursoAssincrono = await models.assincrono.findOne({
+          where: { curso_id: id }
         });
+
+        if (!cursoAssincrono) {
+          await models.assincrono.create({
+            curso_id: id
+          }, { transaction: t });
+        }
       }
 
       await t.commit();
@@ -601,6 +614,10 @@ const controladorCursos = {
                 ]
               }
             ]
+          },
+          {
+            model: models.assincrono,
+            as: "curso_assincrono"
           }
         ]
       });
