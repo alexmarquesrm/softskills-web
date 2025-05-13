@@ -86,10 +86,8 @@ export default function CourseManage() {
     }, [curso]);
 
     const renderCourseCard = (curso, index) => {
-        return (
-            <div key={curso.curso_id || index} className="course-card-edit-wrapper">
-                <FeaturedCourses curso={curso} mostrarBotao={false} mostrarBotaoEdit={true}/>
-            </div>
+        return(
+        <FeaturedCourses key={curso.curso_id || index} curso={curso} mostrarBotao={false} mostrarBotaoEdit={true}/>
         );
     };
 
