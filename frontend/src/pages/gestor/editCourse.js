@@ -144,6 +144,7 @@ export default function EditCourse() {
                 };
             }
 
+            console.log("Dados do curso a serem atualizados:", cursoData);
             await axios.put(`/curso/atualizar/${id}`, cursoData, {
                 headers: { Authorization: `${token}` }
             });

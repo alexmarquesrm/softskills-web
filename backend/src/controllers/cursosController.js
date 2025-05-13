@@ -520,35 +520,94 @@ const controladorCursos = {
 
   // Atualizar um curso pelo ID
   updateCurso: async (req, res) => {
+    const t = await sequelizeConn.transaction();
     try {
       const { id } = req.params;
       const {
-        gestor_id,
         topico_id,
         tipo,
         total_horas,
+        titulo,
         descricao,
-        pendente,
+        certificado,
         nivel,
+        sincrono
       } = req.body;
 
       const curso = await models.curso.findByPk(id);
       if (!curso) {
+        await t.rollback();
         return res.status(404).json({ message: "Curso não encontrado" });
       }
 
+      // Atualizar dados básicos do curso
       await curso.update({
-        gestor_id,
         topico_id,
         tipo,
         total_horas,
+        titulo,
         descricao,
-        pendente,
-        nivel,
+        certificado,
+        nivel
+      }, { transaction: t });
+
+      // Se for do tipo S (Sincrono), atualizar ou criar entrada na tabela sincrono
+      if (tipo === "S" && sincrono) {
+        const cursoSincrono = await models.sincrono.findOne({
+          where: { curso_id: id }
+        });
+
+        const sincronoData = {
+          formador_id: sincrono.formador_id,
+          limite_vagas: sincrono.limite_vagas,
+          data_limite_inscricao: sincrono.data_limite_inscricao,
+          data_inicio: sincrono.data_inicio,
+          data_fim: sincrono.data_fim,
+          estado: sincrono.estado || false,
+          curso_id: id
+        };
+
+        if (cursoSincrono) {
+          await cursoSincrono.update(sincronoData, { transaction: t });
+        } else {
+          await models.sincrono.create(sincronoData, { transaction: t });
+        }
+      } else if (tipo === "A") {
+        // Se mudou de sincrono para assíncrono, remover dados sincronos
+        await models.sincrono.destroy({
+          where: { curso_id: id },
+          transaction: t
+        });
+      }
+
+      await t.commit();
+      
+      // Buscar curso atualizado com todos os relacionamentos
+      const cursoAtualizado = await models.curso.findByPk(id, {
+        include: [
+          {
+            model: models.sincrono,
+            as: "curso_sincrono",
+            include: [
+              {
+                model: models.formador,
+                as: "sincrono_formador",
+                include: [
+                  {
+                    model: models.colaborador,
+                    as: "formador_colab",
+                    attributes: ["nome", "email", "telefone"]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
       });
 
-      res.json({ message: "Curso atualizado com sucesso", curso });
+      res.json({ message: "Curso atualizado com sucesso", curso: cursoAtualizado });
     } catch (error) {
+      await t.rollback();
       console.error("Erro ao atualizar curso:", error);
       res.status(500).json({ message: "Erro interno ao atualizar curso" });
     }
