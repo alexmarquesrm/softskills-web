@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Container, Row, Col, Spinner } from "react-bootstrap";
-import { Book, AlertCircle, Edit } from 'react-feather';
+import { Book, AlertCircle } from 'react-feather';
 import axios from "../../config/configAxios";
 import { IoMdAdd } from "react-icons/io";
 import { useNavigate } from 'react-router-dom';
@@ -16,13 +16,13 @@ export default function CourseManage() {
     const navigate = useNavigate();
     const [curso, setCurso] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
-    const tipoUser  = sessionStorage.getItem('tipo');
+    const tipoUser = sessionStorage.getItem('tipo');
     const [tipoSelecionado, setTipoSelecionado] = useState({ S: false, A: false });
     const [estadoSelecionado, setEstadoSelecionado] = useState({ emCurso: false, terminado: false });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isFiltersVisible, setIsFiltersVisible] = useState(true);
-    
+
     const fetchData = async () => {
         try {
             const token = sessionStorage.getItem('token');
@@ -60,7 +60,7 @@ export default function CourseManage() {
             if (anyEstadoSelected) {
                 if (!item.curso_sincrono?.estado && !estadoSelecionado.emCurso) return false;
                 if (item.curso_sincrono?.estado && !estadoSelecionado.terminado) return false;
-            } 
+            }
 
             if (searchTerm.trim() !== '') {
                 const searchLower = searchTerm.toLowerCase();
@@ -85,35 +85,13 @@ export default function CourseManage() {
         return { total, emCurso };
     }, [curso]);
 
-    
-
-    const handleEditCourse = (courseId) => {
-        navigate(`/gestor/cursos/edit/${courseId}`);
-    };
-
-
-
     const renderCourseCard = (curso, index) => {
-   
         return (
             <div key={curso.curso_id || index} className="course-card-edit-wrapper">
-                <FeaturedCourses curso={curso} mostrarBotao={false} />
-                {tipoUser === "Gestor" && (
-                    <div className="course-edit-options">
-                        <button 
-                            className="edit-course-btn"
-                            onClick={() => handleEditCourse(curso.curso_id)}
-                        >
-                            <Edit size={18} />
-                        </button>
-                      
-                    </div>
-                )}
+                <FeaturedCourses curso={curso} mostrarBotao={false} mostrarBotaoEdit={true}/>
             </div>
         );
-    
     };
-    
 
     const handleSearchChange = (event) => {
         setSearchTerm(event.target.value);
@@ -216,7 +194,7 @@ export default function CourseManage() {
                                 )}
                             </div>
 
-                            <div className="search-container" style={{display: "flex", alignItems: "center", gap: "0.5rem"}}>
+                            <div className="search-container" style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                                 {tipoUser === "Gestor" && (
                                     <>
                                         <Adicionar
