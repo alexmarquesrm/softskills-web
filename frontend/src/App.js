@@ -22,6 +22,7 @@ import ListaPedidos from "./pages/gestor/pedidos";
 import AdicionarCurso from "./pages/gestor/addCourse";
 import PercursoFormativoGestor from "./pages/gestor/percursoFormativo";
 import GestaoCursos from "./pages/gestor/courseManage";
+import EditarCurso from "./pages/gestor/editCourse";
 
 // Components
 import CustomNavbar from "./components/navbar/customNavbar";
@@ -56,6 +57,7 @@ function AppContent() {
                         <Route path="/gestor/cursodetalhes/:id" element={<CursoDetalhesGestor />} />
                         <Route path="/gestor/lista/pedidos" element={<ListaPedidos />} />
                         <Route path="/gestor/cursos/add" element={<AdicionarCurso />} />
+                        <Route path="/gestor/cursos/edit/:id" element={<EditarCurso />} />
 
                     </Route>
                     <Route path="*" element={<Navigate to="/" />} />

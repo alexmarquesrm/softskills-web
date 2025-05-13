@@ -231,3 +231,59 @@
 .badge:hover {
   transform: scale(1.05);
 }
+
+
+
+
+.course-card-edit-wrapper {
+                    position: relative;
+                    transition: all 0.3s ease;
+                }
+                
+                .course-card-edit-wrapper:hover {
+                    transform: translateY(-5px);
+                    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+                }
+                
+                .course-edit-options {
+                    position: absolute;
+                    top: 10px;
+                    right: 10px;
+                    display: flex;
+                    gap: 5px;
+                    z-index: 10;
+                }
+                
+                .edit-course-btn, .delete-course-btn {
+                    width: 36px;
+                    height: 36px;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    cursor: pointer;
+                    border: none;
+                    transition: all 0.2s ease;
+                }
+                
+                .edit-course-btn {
+                    background-color: #007bff;
+                    color: white;
+                }
+                
+                .delete-course-btn {
+                    background-color: #dc3545;
+                    color: white;
+                }
+                
+                .edit-course-btn:hover, .delete-course-btn:hover {
+                    transform: scale(1.1);
+                }
+                
+                .edit-mode-btn.active {
+                    background-color: #b30000;
+                }
+                
+                .courses-grid.edit-mode .course-card-edit-wrapper {
+                    cursor: default;
+                }
