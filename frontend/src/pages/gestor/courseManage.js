@@ -192,16 +192,7 @@ export default function CourseManage() {
                                 )}
                             </div>
 
-                            <div className="search-container" style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                                {tipoUser === "Gestor" && (
-                                    <>
-                                        <Adicionar
-                                            text={"Novo Curso"}
-                                            onClick={handleAddCourse}
-                                            Icon={IoMdAdd}
-                                        />
-                                    </>
-                                )}
+                            <div className="search-container">
                                 <SearchBar
                                     searchTerm={searchTerm}
                                     handleSearchChange={handleSearchChange}
@@ -231,6 +222,13 @@ export default function CourseManage() {
                     </Col>
                 </Row>
             </Container>
+            
+            {/* Botão flutuante para adicionar novo curso */}
+            {tipoUser === "Gestor" && (
+                <button className="floating-add-button" onClick={handleAddCourse} title="Adicionar Curso">
+                    <IoMdAdd size={24} />
+                </button>
+            )}
         </div>
     );
 }
