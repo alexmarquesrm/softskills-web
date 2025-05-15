@@ -13,7 +13,7 @@ export default function CoursesManage() {
     const [cursos, setCursos] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [tipoSelecionado, setTipoSelecionado] = useState({ S: false, A: false });
-    const [estadoSelecionado, setEstadoSelecionado] = useState({ emCurso: false, terminado: false });
+    const [estadoSelecionado, setEstadoSelecionado] = useState({ porComecar: false, emCurso: false, terminado: false });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isFiltersVisible, setIsFiltersVisible] = useState(true);
@@ -52,18 +52,31 @@ export default function CoursesManage() {
     const filteredCursos = useMemo(() => {
         if (cursos.length === 0) return [];
 
-        const anyEstadoSelected = estadoSelecionado.emCurso || estadoSelecionado.terminado;
+        const now = new Date();
+        const anyEstadoSelected = estadoSelecionado.emCurso || estadoSelecionado.terminado || estadoSelecionado.porComecar;
 
         return cursos.filter(curso => {
+            const dataInicio = curso?.curso_sincrono?.data_inicio ? new Date(curso.curso_sincrono.data_inicio) : null;
+            const isConcluido = curso.estado;
+            const isPorComecar = dataInicio && dataInicio > now;
+            const isEmCurso = !isConcluido && (!isPorComecar || !dataInicio);
 
-            // Filter by state - only if a state is selected
+            // Filtro por estado
             if (anyEstadoSelected) {
-                // Check if any of the curso_sincrono entries have the matching state
-                const cursoState = curso.curso_sincrono?.estado;
-                const isTerminado = cursoState === true;
+                if (estadoSelecionado.porComecar && !isPorComecar) return false;
+                if (estadoSelecionado.emCurso && !isEmCurso) return false;
+                if (estadoSelecionado.terminado && !isConcluido) return false;
 
-                if (isTerminado && !estadoSelecionado.terminado) return false;
-                if (!isTerminado && !estadoSelecionado.emCurso) return false;
+                // Garantir que só passa se um dos estados está de acordo
+                if (
+                    (!estadoSelecionado.porComecar || isPorComecar) &&
+                    (!estadoSelecionado.emCurso || isEmCurso) &&
+                    (!estadoSelecionado.terminado || isConcluido)
+                ) {
+                    // ok
+                } else {
+                    return false;
+                }
             }
 
             // Filter by search term

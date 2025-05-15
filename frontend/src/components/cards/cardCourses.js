@@ -132,7 +132,7 @@ function CardCourses({ curso, inscricao, mostrarBotao = true, mostrarInicioEFim 
               <RefreshCcw size={16} className="icon" />
               <span>Estado: {(() => {
                 const estado = inscricao?.estado ?? curso?.curso_sincrono?.estado;
-                const dataInicio = curso?.curso_sincrono?.data_limite_inscricao;
+                const dataInicio = curso?.curso_sincrono?.data_inicio;
 
                 if (estado) return 'Concluído';
                 if (dataInicio && new Date(dataInicio) > new Date()) return 'Por começar';

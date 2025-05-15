@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState} from "react";
 import { ChevronDown, ChevronUp, Filter, X } from "react-bootstrap-icons";
 import "./filtros.css";
 
@@ -26,15 +26,13 @@ function FiltrosCursos({
     // Reset all filters
     const resetFilters = () => {
         setTipoSelecionado({ S: false, A: false });
-        setEstadoSelecionado({ emCurso: false, terminado: false });
+        setEstadoSelecionado({ porComecar: false, emCurso: false, terminado: false });
     };
 
     // Count active filters
     const getActiveFiltersCount = () => {
-        // Contamos apenas os filtros que estão selecionados (true)
         const selectedTipos = Object.values(tipoSelecionado).filter(value => value).length;
         const selectedEstados = Object.values(estadoSelecionado).filter(value => value).length;
-
         return selectedTipos + selectedEstados;
     };
 
@@ -111,6 +109,17 @@ function FiltrosCursos({
                         {estadoAberto ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                     </div>
                     <div className={`filtro-opcoes ${estadoAberto ? 'visible' : ''}`}>
+                        <div className="checkbox-option">
+                            <div className="checkbox-wrapper-13">
+                                <input
+                                    id="estado-por-comecar"
+                                    type="checkbox"
+                                    checked={estadoSelecionado.porComecar}
+                                    onChange={() => toggleEstado("porComecar")}
+                                />
+                                <label htmlFor="estado-por-comecar">Por Começar</label>
+                            </div>
+                        </div>
                         <div className="checkbox-option">
                             <div className="checkbox-wrapper-13">
                                 <input
