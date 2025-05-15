@@ -8,7 +8,6 @@ import { useNavigate } from 'react-router-dom';
 import FeaturedCourses from "../../components/cards/cardCourses";
 import SearchBar from '../../components/textFields/search';
 import Filtros from '../../components/filters/filtros';
-import Adicionar from "../../components/buttons/saveButton";
 /* CSS */
 import './percursoFormativo.css';
 
@@ -18,7 +17,7 @@ export default function CourseManage() {
     const [searchTerm, setSearchTerm] = useState('');
     const tipoUser = sessionStorage.getItem('tipo');
     const [tipoSelecionado, setTipoSelecionado] = useState({ S: false, A: false });
-    const [estadoSelecionado, setEstadoSelecionado] = useState({ emCurso: false, terminado: false });
+    const [estadoSelecionado, setEstadoSelecionado] = useState({ porComecar: false, emCurso: false, terminado: false });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isFiltersVisible, setIsFiltersVisible] = useState(true);
@@ -49,17 +48,35 @@ export default function CourseManage() {
         if (curso.length === 0) return [];
 
         const anyTipoSelected = tipoSelecionado.S || tipoSelecionado.A;
-        const anyEstadoSelected = estadoSelecionado.emCurso || estadoSelecionado.terminado;
+        const now = new Date();
+        const anyEstadoSelected = estadoSelecionado.emCurso || estadoSelecionado.terminado || estadoSelecionado.porComecar;
 
         return curso.filter(item => {
+            const dataInicio = item?.curso_sincrono?.data_inicio ? new Date(item.curso_sincrono.data_inicio) : null;
+            const isConcluido = item.estado;
+            const isPorComecar = dataInicio && dataInicio > now;
+            const isEmCurso = !isConcluido && (!isPorComecar || !dataInicio);
+
             if (anyTipoSelected) {
                 if (item?.tipo === 'S' && !tipoSelecionado.S) return false;
                 if (item?.tipo === 'A' && !tipoSelecionado.A) return false;
             }
 
+            // Filtro por estado
             if (anyEstadoSelected) {
-                if (!item.curso_sincrono?.estado && !estadoSelecionado.emCurso) return false;
-                if (item.curso_sincrono?.estado && !estadoSelecionado.terminado) return false;
+                if (estadoSelecionado.porComecar && !isPorComecar) return false;
+                if (estadoSelecionado.emCurso && !isEmCurso) return false;
+                if (estadoSelecionado.terminado && !isConcluido) return false;
+
+                // Garantir que só passa se um dos estados está de acordo
+                if (
+                    (!estadoSelecionado.porComecar || isPorComecar) &&
+                    (!estadoSelecionado.emCurso || isEmCurso) &&
+                    (!estadoSelecionado.terminado || isConcluido)
+                ) {
+                } else {
+                    return false;
+                }
             }
 
             if (searchTerm.trim() !== '') {

@@ -73,7 +73,6 @@ export default function CoursesManage() {
                     (!estadoSelecionado.emCurso || isEmCurso) &&
                     (!estadoSelecionado.terminado || isConcluido)
                 ) {
-                    // ok
                 } else {
                     return false;
                 }

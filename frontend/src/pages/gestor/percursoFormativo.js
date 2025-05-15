@@ -97,7 +97,6 @@ export default function PercursoFormativo() {
                     (!estadoSelecionado.emCurso || isEmCurso) &&
                     (!estadoSelecionado.terminado || isConcluido)
                 ) {
-                    // ok
                 } else {
                     return false;
                 }
