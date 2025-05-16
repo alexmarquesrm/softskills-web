@@ -97,7 +97,7 @@ function ProfileDropdown({ onLogout }) {
         navigate("/gestor/dashboard");
         break;
       case "Formando":
-        navigate("/formando/dashboard");
+        navigate("/utilizadores/dashboard");
         break;
       default:
         navigate("/");

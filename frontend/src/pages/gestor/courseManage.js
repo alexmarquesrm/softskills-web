@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Container, Row, Col, Spinner } from "react-bootstrap";
-import { Book, AlertCircle, Edit, Trash2 } from 'react-feather';
+import { Book, AlertCircle } from 'react-feather';
 import axios from "../../config/configAxios";
 import { IoMdAdd } from "react-icons/io";
 import { useNavigate } from 'react-router-dom';
@@ -8,7 +8,6 @@ import { useNavigate } from 'react-router-dom';
 import FeaturedCourses from "../../components/cards/cardCourses";
 import SearchBar from '../../components/textFields/search';
 import Filtros from '../../components/filters/filtros';
-import Adicionar from "../../components/buttons/saveButton";
 /* CSS */
 import './percursoFormativo.css';
 
@@ -18,12 +17,11 @@ export default function CourseManage() {
     const [searchTerm, setSearchTerm] = useState('');
     const tipoUser = sessionStorage.getItem('tipo');
     const [tipoSelecionado, setTipoSelecionado] = useState({ S: false, A: false });
-    const [estadoSelecionado, setEstadoSelecionado] = useState({ emCurso: false, terminado: false });
+    const [estadoSelecionado, setEstadoSelecionado] = useState({ porComecar: false, emCurso: false, terminado: false });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isFiltersVisible, setIsFiltersVisible] = useState(true);
-    const [editMode, setEditMode] = useState(false); // Novo estado para controlar o modo de edição
-    
+
     const fetchData = async () => {
         try {
             const token = sessionStorage.getItem('token');
@@ -49,24 +47,38 @@ export default function CourseManage() {
     const filteredInscricoes = useMemo(() => {
         if (curso.length === 0) return [];
 
-        // Verificar se algum filtro está ativo
         const anyTipoSelected = tipoSelecionado.S || tipoSelecionado.A;
-        const anyEstadoSelected = estadoSelecionado.emCurso || estadoSelecionado.terminado;
+        const now = new Date();
+        const anyEstadoSelected = estadoSelecionado.emCurso || estadoSelecionado.terminado || estadoSelecionado.porComecar;
 
         return curso.filter(item => {
-            // Filtrar por tipo de curso - só aplica se algum tipo estiver selecionado
+            const dataInicio = item?.curso_sincrono?.data_inicio ? new Date(item.curso_sincrono.data_inicio) : null;
+            const isConcluido = item.estado;
+            const isPorComecar = dataInicio && dataInicio > now;
+            const isEmCurso = !isConcluido && (!isPorComecar || !dataInicio);
+
             if (anyTipoSelected) {
                 if (item?.tipo === 'S' && !tipoSelecionado.S) return false;
                 if (item?.tipo === 'A' && !tipoSelecionado.A) return false;
             }
 
-            // Filtrar por estado - só aplica se algum estado estiver selecionado
-             if (anyEstadoSelected) {
-                if (!item.curso_sincrono?.estado && !estadoSelecionado.emCurso) return false;
-                if (item.curso_sincrono?.estado && !estadoSelecionado.terminado) return false;
-            } 
+            // Filtro por estado
+            if (anyEstadoSelected) {
+                if (estadoSelecionado.porComecar && !isPorComecar) return false;
+                if (estadoSelecionado.emCurso && !isEmCurso) return false;
+                if (estadoSelecionado.terminado && !isConcluido) return false;
 
-            // Filtrar por termo de pesquisa
+                // Garantir que só passa se um dos estados está de acordo
+                if (
+                    (!estadoSelecionado.porComecar || isPorComecar) &&
+                    (!estadoSelecionado.emCurso || isEmCurso) &&
+                    (!estadoSelecionado.terminado || isConcluido)
+                ) {
+                } else {
+                    return false;
+                }
+            }
+
             if (searchTerm.trim() !== '') {
                 const searchLower = searchTerm.toLowerCase();
                 return (
@@ -80,7 +92,6 @@ export default function CourseManage() {
         });
     }, [curso, tipoSelecionado, estadoSelecionado, searchTerm]);
 
-    // Stats
     const stats = useMemo(() => {
         if (curso.length === 0) return { total: 0, emCurso: 0, terminados: 0 };
 
@@ -91,54 +102,10 @@ export default function CourseManage() {
         return { total, emCurso };
     }, [curso]);
 
-    // Função para eliminar um curso
-    const handleDeleteCourse = async (courseId) => {
-        if (window.confirm("Tem certeza que deseja eliminar este curso?")) {
-            try {
-                const token = sessionStorage.getItem('token');
-                await axios.delete(`/curso/apagar/${courseId}`, {
-                    headers: { Authorization: `${token}` }
-                });
-                // Atualizar a lista de cursos após eliminar
-                fetchData();
-                alert("Curso eliminado com sucesso!");
-            } catch (error) {
-                console.error("Erro ao eliminar curso", error);
-                alert("Não foi possível eliminar o curso. Tente novamente.");
-            }
-        }
-    };
-
-    // Função para editar um curso
-    const handleEditCourse = (courseId) => {
-        navigate(`/gestor/cursos/edit/${courseId}`);
-    };
-
     const renderCourseCard = (curso, index) => {
-        if (editMode) {
-            // Versão do card com opções de edição
-            return (
-                <div key={curso.curso_id || index} className="course-card-edit-wrapper">
-                    <FeaturedCourses curso={curso} mostrarBotao={false} />
-                    <div className="course-edit-options">
-                        <button 
-                            className="edit-course-btn"
-                            onClick={() => handleEditCourse(curso.curso_id)}
-                        >
-                            <Edit size={18} />
-                        </button>
-                        <button 
-                            className="delete-course-btn"
-                            onClick={() => handleDeleteCourse(curso.curso_id)}
-                        >
-                            <Trash2 size={18} />
-                        </button>
-                    </div>
-                </div>
-            );
-        }
-        // Versão normal do card
-        return <FeaturedCourses key={curso.curso_id || index} curso={curso} mostrarBotao={true} />;
+        return(
+        <FeaturedCourses key={curso.curso_id || index} curso={curso} mostrarBotao={false} mostrarBotaoEdit={true}/>
+        );
     };
 
     const handleSearchChange = (event) => {
@@ -153,19 +120,12 @@ export default function CourseManage() {
         setIsFiltersVisible(!isFiltersVisible);
     };
 
-    // Função para alternar o modo de edição
-    const toggleEditMode = () => {
-        setEditMode(!editMode);
-    };
-
-    // Função para limpar filtros modificada
     const clearFilters = () => {
         setTipoSelecionado({ S: false, A: false });
         setEstadoSelecionado({ emCurso: false, terminado: false });
         setSearchTerm('');
     };
 
-    // Função para tratar a navegação do botão "Adicionar Curso"
     const handleAddCourse = () => {
         if (tipoUser === "Gestor") {
             navigate('/gestor/cursos/add');
@@ -249,37 +209,7 @@ export default function CourseManage() {
                                 )}
                             </div>
 
-                            <div className="search-container" style={{display: "flex", alignItems: "center", gap: "0.5rem"}}>
-                                {tipoUser === "Gestor" && (
-                                    <>
-                                        {/* Botão vermelho de editar */}
-                                        <button 
-                                            className={`edit-mode-btn ${editMode ? 'active' : ''}`}
-                                            onClick={toggleEditMode}
-                                            style={{
-                                                background: editMode ? "#b30000" : "#ff0000",
-                                                color: "white",
-                                                border: "none",
-                                                borderRadius: "4px",
-                                                padding: "8px 16px",
-                                                display: "flex",
-                                                alignItems: "center",
-                                                gap: "5px",
-                                                fontWeight: "bold",
-                                                cursor: "pointer"
-                                            }}
-                                        >
-                                            <Edit size={16} />
-                                            {editMode ? "Cancelar Edição" : "Editar"}
-                                        </button>
-                                        
-                                        <Adicionar
-                                            text={"Novo Curso"}
-                                            onClick={handleAddCourse}
-                                            Icon={IoMdAdd}
-                                        />
-                                    </>
-                                )}
+                            <div className="search-container">
                                 <SearchBar
                                     searchTerm={searchTerm}
                                     handleSearchChange={handleSearchChange}
@@ -291,7 +221,7 @@ export default function CourseManage() {
 
                         <div className="courses-container">
                             {filteredInscricoes.length > 0 ? (
-                                <div className={`courses-grid ${editMode ? 'edit-mode' : ''}`}>
+                                <div className="courses-grid">
                                     {filteredInscricoes.map((item, index) =>
                                         renderCourseCard(item, index)
                                     )}
@@ -310,7 +240,12 @@ export default function CourseManage() {
                 </Row>
             </Container>
             
-
+            {/* Botão flutuante para adicionar novo curso */}
+            {tipoUser === "Gestor" && (
+                <button className="floating-add-button" onClick={handleAddCourse} title="Adicionar Curso">
+                    <IoMdAdd size={24} />
+                </button>
+            )}
         </div>
     );
 }

@@ -10,7 +10,8 @@ import CardRow from '../../components/cards/cardRow';
 import FeaturedCourses from "../../components/cards/cardCourses";
 
 export default function PaginaGestor() {
-  const [curso, setCurso] = useState([]);
+  const [inscricao, setInscricao] = useState([]);
+  const [cursos, setCursos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const nome = sessionStorage.getItem('nome');
@@ -28,7 +29,7 @@ export default function PaginaGestor() {
       });
 
       // apenas as inscrições do utilizador autenticado
-      setCurso(response.data);
+      setInscricao(response.data);
     } catch (error) {
       console.error("Erro ao carregar inscrições:", error);
       setError("Não foi possível carregar as inscrições");
@@ -37,14 +38,46 @@ export default function PaginaGestor() {
     }
   };
 
+  const fetchCurso = async () => {
+  try {
+    const response = await axios.get("/curso/landing");
+
+    let todosCursos = [];
+
+    // Se já vierem separados por tipo
+    if (response.data.sincronos && response.data.assincronos) {
+      const sincronos = response.data.sincronos.slice(0, 4);
+      const assincronos = response.data.assincronos.slice(0, 4);
+      todosCursos = [...sincronos, ...assincronos];
+    } 
+    // Se vier num array plano
+    else if (Array.isArray(response.data)) {
+      const sincronos = response.data
+        .filter(curso => curso.tipo === "S")
+        .slice(0, 4);
+
+      const assincronos = response.data
+        .filter(curso => curso.tipo === "A")
+        .slice(0, 4);
+
+      todosCursos = [...sincronos, ...assincronos];
+    }
+
+    setCursos(todosCursos);
+  } catch (error) {
+    console.error("Erro ao encontrar cursos:", error);
+  }
+};
+
   useEffect(() => {
     fetchInscricao();
+    fetchCurso();
   }, []);
 
-  const filteredCurso = useMemo(() => {
-    if (curso.length === 0) return [];
+  const filteredInscricao = useMemo(() => {
+    if (inscricao.length === 0) return [];
 
-    return curso.filter(item => {
+    return inscricao.filter(item => {
 
       // Verifica se ainda está em período de inicio
       const dataLimite = item.curso_sincrono?.data_inicio;
@@ -52,13 +85,12 @@ export default function PaginaGestor() {
 
       return true;
     });
-  }, [curso]);
+  }, [inscricao]);
 
-  const filteredCursoAtivo = useMemo(() => {
-    if (curso.length === 0) return [];
+  const filteredInscricaoAtivo = useMemo(() => {
+    if (inscricao.length === 0) return [];
 
-    return curso.filter(item => {
-      console.log(curso);
+    return inscricao.filter(item => {
       // Verifica se já começou
       const dataLimite = item.inscricao_curso?.curso_sincrono?.data_inicio;
       if (!dataLimite || new Date(dataLimite) > new Date()) return false;
@@ -67,7 +99,7 @@ export default function PaginaGestor() {
 
       return true;
     });
-  }, [curso]);
+  }, [inscricao]);
 
   const renderPedidoCard = (curso, index) => (
     <CardPedido index={index} curso={curso} />
@@ -77,8 +109,8 @@ export default function PaginaGestor() {
     <FeaturedCourses key={inscricao.inscricao_id || index} curso={inscricao.inscricao_curso} inscricao={inscricao} mostrarBotao={true} mostrarInicioEFim={true} />
   );
 
-  const renderCoursesCard = (curso, index) => (
-    <FeaturedCourses key={curso.curso_id || index} curso={curso} mostrarBotao={true} mostrarInicioEFim={true} />
+  const renderCourseCard = (curso, index) => (
+    <FeaturedCourses key={curso.id || index} curso={curso} />
   );
 
   if (error) {
@@ -111,7 +143,7 @@ export default function PaginaGestor() {
         <div className="section-header">
           <h2 className="section-title">
             <FileEarmarkText className="section-icon" />
-            Avisos
+            Alertas
           </h2>
           <div className="section-actions">
             <button className="btn btn-link section-link">
@@ -126,12 +158,12 @@ export default function PaginaGestor() {
               <div className="loading-spinner"></div>
               <p>A carregar cursos...</p>
             </div>
-          ) : filteredCurso.length > 0 ? (
-            <CardRow dados={[...filteredCurso].sort((a, b) => new Date(a.curso_sincrono?.data_inicio) - new Date(b.curso_sincrono?.data_inicio))} renderCard={renderPedidoCard} scrollable={true} />
+          ) : filteredInscricao.length > 0 ? (
+            <CardRow dados={[...filteredInscricao].sort((a, b) => new Date(a.curso_sincrono?.data_inicio) - new Date(b.curso_sincrono?.data_inicio))} renderCard={renderPedidoCard} scrollable={true} />
           ) : (
             <div className="empty-state text-center">
               <FileEarmarkText size={40} className="empty-icon mb-3" />
-              <p>Não há avisos neste momento.</p>
+              <p>Não há alertas neste momento.</p>
             </div>
           )}
         </div>
@@ -156,9 +188,9 @@ export default function PaginaGestor() {
               <div className="loading-spinner"></div>
               <p>A carregar cursos...</p>
             </div>
-          ) : filteredCursoAtivo.length > 0 ? (
+          ) : filteredInscricaoAtivo.length > 0 ? (
             <div className="courses-grid">
-              {filteredCursoAtivo.slice(0, 8).map((item, index) =>
+              {filteredInscricaoAtivo.slice(0, 8).map((item, index) =>
                 renderCoursesInscCard(item, index)
               )}
             </div>
@@ -190,12 +222,14 @@ export default function PaginaGestor() {
               <div className="loading-spinner"></div>
               <p>A carregar cursos...</p>
             </div>
-          ) : filteredCursoAtivo.length > 0 ? (
-            <div className="courses-grid">
-              {filteredCursoAtivo.slice(0, 8).map((item, index) =>
-                renderCoursesInscCard(item, index)
-              )}
-            </div>
+          ) : cursos.length > 0 ? (
+            <>
+              <div className="courses-grid">
+                {cursos.slice(0, 8).map((item, index) =>
+                  renderCourseCard(item, index)
+                )}
+              </div>
+            </>
           ) : (
             <div className="empty-state text-center">
               <FileEarmarkText size={40} className="empty-icon mb-3" />

@@ -1,13 +1,17 @@
 import React from "react";
 import { Card, Badge, Button } from "react-bootstrap";
-import { Clock, Users, Calendar, Award, CheckCircle, RefreshCcw } from "react-feather";
+import { Clock, Users, Calendar, Award, CheckCircle, RefreshCcw, Edit } from "react-feather";
 import { useNavigate } from "react-router-dom";
 import ReactGif from "./../../images/react.gif";
 import "./cardCourses.css";
 
-function CardCourses({ curso, inscricao, mostrarBotao = true, mostrarInicioEFim = false }) {
+function CardCourses({ curso, inscricao, mostrarBotao = true, mostrarInicioEFim = false, mostrarBotaoEdit = false }) {
   const navigate = useNavigate();
   const tipoUser = sessionStorage.getItem('tipo');
+
+  const handleEditCourse = (courseId) => {
+    navigate(`/gestor/cursos/edit/${courseId}`);
+  };
 
   const handleViewDetails = () => {
     if (tipoUser === "Gestor") {
@@ -49,6 +53,14 @@ function CardCourses({ curso, inscricao, mostrarBotao = true, mostrarInicioEFim 
 
   return (
     <Card className="course-card h-100">
+      {(mostrarBotaoEdit && tipoUser === "Gestor") && (
+      <div className="course-edit-options">
+        <button className="edit-course-btn" onClick={() => handleEditCourse(curso.curso_id)}>
+          <Edit size={18} />
+        </button>
+      </div>
+      )}
+
       <div className="course-header" style={{ cursor: 'pointer' }} onClick={handleViewDetails}>
         <img src={ReactGif} alt="Curso" className="course-image" />
         <Badge
@@ -120,7 +132,7 @@ function CardCourses({ curso, inscricao, mostrarBotao = true, mostrarInicioEFim 
               <RefreshCcw size={16} className="icon" />
               <span>Estado: {(() => {
                 const estado = inscricao?.estado ?? curso?.curso_sincrono?.estado;
-                const dataInicio = curso?.curso_sincrono?.data_limite_inscricao;
+                const dataInicio = curso?.curso_sincrono?.data_inicio;
 
                 if (estado) return 'Concluído';
                 if (dataInicio && new Date(dataInicio) > new Date()) return 'Por começar';
