@@ -34,7 +34,8 @@ export default function AddCourse() {
         grau_dificuldade: "",
         data_limite_inscricao: "",
         data_inicio: "",
-        data_fim: ""
+        data_fim: "",
+        certificado: "" 
     });
 
     useEffect(() => {
@@ -130,7 +131,7 @@ export default function AddCourse() {
                 titulo: formData.titulo,
                 descricao: formData.descricao,
                 pendente: false,
-                certificado: false,
+                certificado: formData.certificado,
                 nivel: formData.grau_dificuldade,
                 sincrono:{
                 formador_id: formData.formador_id,
@@ -264,6 +265,8 @@ export default function AddCourse() {
                                 </Form.Select>
                             </Form.Group>
                         </Col>
+                        
+                       
                         {formData.tipo === 'S' && (
                             <Col md={6}>
                                 <Form.Group className="mb-3">
@@ -311,9 +314,21 @@ export default function AddCourse() {
                                     </Form.Group>
                                 </Col>
                             </Row>
+                            
                         </>
                     )}
-
+                    <Row>
+                    <Col md={6}>
+                            <Form.Group className="mb-3">
+                                <Form.Label>Certificado</Form.Label>
+                                <Form.Select name="certificado" value={formData.certificado} onChange={handleChange} required>
+                                    <option value="">Selecione uma opção</option>
+                                    <option value="true">Sim</option>
+                                    <option value="false">Não</option>
+                                </Form.Select>
+                            </Form.Group>
+                        </Col>
+                    </Row>
                     <Form.Group className="mb-3">
                         <Form.Label>Descrição</Form.Label>
                         <Form.Control as="textarea" rows={5} name="descricao" value={formData.descricao} onChange={handleChange} required />
