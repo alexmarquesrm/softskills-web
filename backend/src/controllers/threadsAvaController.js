@@ -10,15 +10,66 @@ const controladorThreadsAva = {
     const { thread_id, formando_id, vote } = req.body;
 
     try {
+      // Check if thread exists
+      const thread = await models.threads.findByPk(thread_id);
+      if (!thread) {
+        return res.status(404).json({ message: "Thread não encontrada" });
+      }
+
+      // Check if formando exists
+      const formando = await models.formando.findByPk(formando_id);
+      if (!formando) {
+        return res.status(404).json({ message: "Formando não encontrado" });
+      }
+
+      // Check if vote is valid (1 for upvote, -1 for downvote)
+      if (vote !== 1 && vote !== -1) {
+        return res.status(400).json({ message: "Voto inválido. Use 1 para upvote ou -1 para downvote" });
+      }
+
+      // Check if user already voted
+      const existingVote = await models.threads_avaliacao.findOne({
+        where: {
+          thread_id,
+          formando_id
+        }
+      });
+
+      if (existingVote) {
+        // If the user is voting the same way, remove the vote (toggle)
+        if (existingVote.vote === vote) {
+          await existingVote.destroy();
+          return res.status(200).json({ 
+            message: "Voto removido com sucesso",
+            avaliacao: null
+          });
+        }
+        
+        // If the user is changing their vote, update it
+        await existingVote.update({ vote });
+        return res.status(200).json({ 
+          message: "Voto atualizado com sucesso",
+          avaliacao: existingVote
+        });
+      }
+
+      // Create new vote
       const novaAvaliacao = await models.threads_avaliacao.create({
         thread_id,
         formando_id,
         vote,
       });
-      res.status(201).json(novaAvaliacao);
+
+      res.status(201).json({
+        message: "Voto registrado com sucesso",
+        avaliacao: novaAvaliacao
+      });
     } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: "Erro ao criar a avaliação da thread" });
+      console.error("Erro ao criar avaliação:", error);
+      res.status(500).json({ 
+        message: "Erro ao processar voto",
+        error: error.message 
+      });
     }
   },
 

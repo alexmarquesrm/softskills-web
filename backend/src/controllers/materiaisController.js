@@ -28,7 +28,7 @@ const cursoMaterialController = {
                 return res.status(404).json({ success: false, message: 'Curso não encontrado' });
             }
 
-            // Buscar todos os materiais do curso
+            // procurar todos os materiais do curso
             const materiais = await models.material.findAll({
                 where: { curso_id: cursoId },
                 order: [['data_criacao', 'DESC']]
@@ -38,9 +38,9 @@ const cursoMaterialController = {
                 return res.json({ success: true, data: [] });
             }
 
-            // Para cada material, buscar seus ficheiros
+            // Para cada material, procurar seus ficheiros
             const materiaisResultados = await Promise.all(materiais.map(async (material) => {
-                // Buscar ficheiros para este material
+                // procurar ficheiros para este material
                 const ficheiros = await ficheirosController.getAllFilesByAlbum(
                     material.material_id,
                     `curso_${cursoId}_material`
@@ -60,8 +60,8 @@ const cursoMaterialController = {
 
             res.json({ success: true, data: materiaisResultados });
         } catch (error) {
-            console.error('Erro ao buscar materiais do curso:', error);
-            res.status(500).json({ success: false, message: 'Erro ao buscar materiais do curso' });
+            console.error('Erro ao procurar materiais do curso:', error);
+            res.status(500).json({ success: false, message: 'Erro ao procurar materiais do curso' });
         }
     },
 
@@ -152,7 +152,7 @@ const cursoMaterialController = {
                 return res.status(400).json({ success: false, message: 'ID do curso é obrigatório' });
             }
 
-            // Buscar o material a ser atualizado
+            // procurar o material a ser atualizado
             const material = await models.material.findOne({
                 where: {
                     material_id: materialId,
@@ -199,7 +199,7 @@ const cursoMaterialController = {
                 );
             }
 
-            // Buscar material atualizado com seus arquivos
+            // procurar material atualizado com seus arquivos
             const ficheiros = await ficheirosController.getAllFilesByAlbum(
                 material.material_id,
                 `curso_${cursoId}_material`
@@ -235,7 +235,7 @@ const cursoMaterialController = {
                 return res.status(400).json({ success: false, message: 'ID do curso é obrigatório' });
             }
 
-            // Buscar o material a ser excluído
+            // procurar o material a ser excluído
             const material = await models.material.findOne({
                 where: {
                     material_id: materialId,
@@ -263,19 +263,19 @@ const cursoMaterialController = {
         }
     },
 
-    // Buscar um material específico pelo ID
+    // procurar um material específico pelo ID
     getMaterialById: async (req, res) => {
         try {
             const materialId = req.params.id;
 
-            // Buscar material pelo ID
+            // procurar material pelo ID
             const material = await models.material.findByPk(materialId);
 
             if (!material) {
                 return res.status(404).json({ message: "Material não encontrado" });
             }
 
-            // Buscar ficheiros associados, se existirem
+            // procurar ficheiros associados, se existirem
             const files = await ficheirosController.getAllFilesByAlbum(materialId, 'material');
 
             const materialData = material.toJSON();

@@ -98,7 +98,7 @@ const controladorInscricoes = {
 
       res.json(inscricoes);
     } catch (error) {
-      res.status(500).json({ erro: "Erro ao buscar inscrições", detalhes: error.message });
+      res.status(500).json({ erro: "Erro ao procurar inscrições", detalhes: error.message });
     }
   },
 
@@ -148,7 +148,7 @@ const controladorInscricoes = {
 
       res.json(inscricoes);
     } catch (error) {
-      res.status(500).json({ erro: "Erro ao buscar inscrições", detalhes: error.message });
+      res.status(500).json({ erro: "Erro ao procurar inscrições", detalhes: error.message });
     }
   },
 
@@ -179,7 +179,7 @@ const controladorInscricoes = {
 
       res.json(inscricao);
     } catch (error) {
-      res.status(500).json({ erro: "Erro ao buscar inscrição", detalhes: error.message });
+      res.status(500).json({ erro: "Erro ao procurar inscrição", detalhes: error.message });
     }
   },
 

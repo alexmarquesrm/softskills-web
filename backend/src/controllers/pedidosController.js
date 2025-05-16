@@ -61,7 +61,7 @@ const controladorPedidos = {
       res.status(200).json(pedido);
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: "Erro ao buscar pedido_curso" });
+      res.status(500).json({ message: "Erro ao procurar pedido_curso" });
     }
   },
 

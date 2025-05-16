@@ -14,7 +14,7 @@ const ListaPedidos = () => {
   const [filtro, setFiltro] = useState("all");
   const [tableRows, setTableRows] = useState([]);
 
-  // Buscar pedidos
+  // procurar pedidos
   const fetchPedidos = async () => {
     try {
       const token = sessionStorage.getItem("token");
@@ -42,7 +42,7 @@ const ListaPedidos = () => {
       setFormadores(formadoresRes.data);
       setCursos(cursosRes.data);
     } catch (err) {
-      console.error("Erro ao buscar formadores ou cursos:", err);
+      console.error("Erro ao procurar formadores ou cursos:", err);
     }
   };
 

@@ -62,7 +62,7 @@ export default function EditProfile ({ show, onClose, onSave, initialData = {} }
         setPreviewFoto(utilizador.fotoPerfilUrl);
       }
     } catch (error) {
-      console.error("Erro ao buscar dados do colaborador", error);
+      console.error("Erro ao procurar dados do colaborador", error);
     }
   };
 

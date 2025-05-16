@@ -17,6 +17,7 @@ const sincronosRoutes = require("./routes/sincronosRoutes");
 const pedidosRoutes = require("./routes/pedidosRoutes");
 const inscricoesRoutes = require("./routes/inscricoesRoutes");
 const materiaisRoutes = require("./routes/materialsRoutes");
+const comentariosRoutes = require("./routes/comentariosRoutes");
 
 // Use CORS middleware
 app.use(cors({
@@ -38,6 +39,7 @@ app.use("/forum", authenticate, forumRoutes);
 app.use("/thread", authenticate, threadsRoutes);
 app.use("/threadsAva", authenticate, threadsAvaRoutes);
 app.use("/denuncia", authenticate, threadsDenRoutes);
+app.use("/comentario", authenticate, comentariosRoutes);
 app.use("/curso", cursosRoutes);
 app.use("/sincrono", authenticate, sincronosRoutes);
 app.use("/pedido", authenticate, pedidosRoutes);

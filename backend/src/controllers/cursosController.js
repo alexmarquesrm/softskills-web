@@ -595,7 +595,7 @@ const controladorCursos = {
 
       await t.commit();
       
-      // Buscar curso atualizado com todos os relacionamentos
+      // procurar curso atualizado com todos os relacionamentos
       const cursoAtualizado = await models.curso.findByPk(id, {
         include: [
           {

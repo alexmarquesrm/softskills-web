@@ -32,7 +32,7 @@ const ModalEditarFicheiro = ({
   const [uploading, setUploading] = useState(false);
   const [feedbackMsg, setFeedbackMsg] = useState({ show: false, message: '', type: '' });
 
-  // Buscar dados do material ao abrir o modal
+  // procurar dados do material ao abrir o modal
   useEffect(() => {
     const fetchMaterialData = async () => {
       if (!fileId || !show) return;

@@ -24,11 +24,16 @@ import PercursoFormativoGestor from "./pages/gestor/percursoFormativo";
 import GestaoCursos from "./pages/gestor/courseManage";
 import EditarCurso from "./pages/gestor/editCourse";
 
+// Forum Pages
+import ForumList from "./pages/forum/forumList";
+import ForumDetail from "./pages/forum/forumDetail";
+import CreateThread from "./pages/forum/createThread";
+import ThreadDetail from "./pages/forum/threadDetail";
+
 // Components
 import CustomNavbar from "./components/navbar/customNavbar";
 import Footer from "./components/footer/footer";
 import ProtectedRoute from "./components/ProtectedRoute";
-
 
 function AppContent() {
     return (
@@ -43,12 +48,14 @@ function AppContent() {
                         <Route path="/utilizadores/curso/:id" element={<CursoFormando />} />
                         <Route path="/utilizadores/lista/cursos" element={<CursosFormando />} />
                         <Route path="/utilizadores/percursoFormativo" element={<PercursoFormativoFormando />} />
-                        <Route path="/formando/dashboard" element={<PagFormando />} /> {/* Mudar o nome para /utilizadores/dashboard, porem falta mudar depois o caminho no perfil */}
+                        <Route path="/formando/dashboard" element={<PagFormando />} />
+                        
                         {/* Formador Routes */}
                         <Route path="/formador/cursos" element={<ManageCourses />} />
                         <Route path="/formador/curso/:id" element={<FormadorCurso />} />
                         <Route path="/formador/curso/avaliar" element={<AvaliarFormando />} />
                         <Route path="/formador/dashboard" element={<PagFormador />} />
+                        
                         {/* Gestor Routes */}
                         <Route path="/gestor/dashboard" element={<PagGestor />} />
                         <Route path="/gestor/lista/colaboradores" element={<ListaUtilizadores />} />
@@ -59,6 +66,11 @@ function AppContent() {
                         <Route path="/gestor/cursos/add" element={<AdicionarCurso />} />
                         <Route path="/gestor/cursos/edit/:id" element={<EditarCurso />} />
 
+                        {/* Forum Routes */}
+                        <Route path="/forum" element={<ForumList />} />
+                        <Route path="/forum/:id" element={<ForumDetail />} />
+                        <Route path="/forum/:id/create-thread" element={<CreateThread />} />
+                        <Route path="/forum/:id/thread/:threadId" element={<ThreadDetail />} />
                     </Route>
                     <Route path="*" element={<Navigate to="/" />} />
                 </Routes>

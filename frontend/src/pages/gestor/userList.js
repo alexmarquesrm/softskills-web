@@ -199,7 +199,7 @@ export default function UsersTable() {
 
     } catch (error) {
       setError(error);
-      console.error("Erro ao buscar dados:", error);
+      console.error("Erro ao procurar dados:", error);
     }
   };
 

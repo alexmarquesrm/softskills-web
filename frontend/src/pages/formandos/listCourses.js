@@ -29,7 +29,7 @@ export default function Courses() {
             const cursos = response.data;
             setCurso(cursos);
         } catch (error) {
-            console.error("Erro ao buscar inscrições", error);
+            console.error("Erro ao procurar inscrições", error);
             setError("Não foi possível carregar as inscrições");
         } finally {
             setLoading(false);

@@ -55,7 +55,7 @@ export default function EditColab() {
       return;
     }
     
-    // Se o token existe, buscar os dados do usuário
+    // Se o token existe, procurar os dados do usuário
     fetchData();
   }, [navigate]);
   
@@ -127,7 +127,7 @@ export default function EditColab() {
 
       // Problema: o backend espera o ID no formato 'colaborador_id' 
       // mas possivelmente está enviando 'utilizadorid' ou 'colaboradorid'
-      // Solução: usar a rota /colaborador/me para buscar o perfil do próprio usuário
+      // Solução: usar a rota /colaborador/me para procurar o perfil do próprio usuário
       const response = await axios.get('/colaborador/me');
       const utilizador = response.data;
       
@@ -190,7 +190,7 @@ export default function EditColab() {
         }
       }
     } catch (error) {
-      console.error("Erro ao buscar dados do colaborador", error);
+      console.error("Erro ao procurar dados do colaborador", error);
       
       if (error.response?.status === 401 || error.response?.status === 403) {
         toast.error("Sessão expirada. Por favor, faça login novamente.");

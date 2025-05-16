@@ -153,7 +153,7 @@ const controladorFicheiros = {
             }
             return files;
         } catch (error) {
-            console.error('Erro ao buscar ficheiros no bucket:', error);
+            console.error('Erro ao procurar ficheiros no bucket:', error);
             return [];
         }
     },
@@ -174,7 +174,7 @@ const controladorFicheiros = {
         try {
             const standardEntidade = entidade.toLowerCase();
             
-            // Buscar o objeto
+            // procurar o objeto
             const objeto = await models.objeto.findOne({
                 where: {
                     registo_id: id,
@@ -187,7 +187,7 @@ const controladorFicheiros = {
                 return false;
             }
             
-            // Buscar o ficheiro
+            // procurar o ficheiro
             const ficheiro = await models.ficheiro.findOne({
                 where: {
                     objeto_id: objeto.objeto_id,

@@ -54,7 +54,7 @@ export default function AddCourse() {
                 setTopicos(top.data);
                 setFormadores(form.data);
             } catch (error) {
-                console.error("Erro ao buscar dados para os dropdowns", error);
+                console.error("Erro ao procurar dados para os dropdowns", error);
                 setError("Falha ao carregar os dados necessários. Por favor, tente novamente.");
             }
         };

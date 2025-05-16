@@ -52,7 +52,7 @@ export default function PercursoFormativoFormando() {
         }
     };
 
-    // Buscar inscrições do usuário autenticado
+    // procurar inscrições do usuário autenticado
     const fetchDataInscricao = async () => {
         try {
             // Usar a rota segura que retorna apenas as inscrições 

@@ -40,7 +40,7 @@ export default function PercursoFormativo() {
         }
     };
 
-    // Buscar dados de inscrição
+    // procurar dados de inscrição
     const fetchDataInscricao = async () => {
         try {
             const token = sessionStorage.getItem('token');

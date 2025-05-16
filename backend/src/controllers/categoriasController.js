@@ -66,7 +66,7 @@ const controladorCategorias = {
       res.json(categoria);
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: "Erro ao buscar categoria" });
+      res.status(500).json({ message: "Erro ao procurar categoria" });
     }
   },
 

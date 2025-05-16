@@ -1,0 +1,298 @@
+.thread-detail-container {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.thread-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.thread-header h1 {
+  color: #333;
+  margin: 0;
+}
+
+.back-btn {
+  padding: 8px 16px;
+  background-color: #f0f0f0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.back-btn:hover {
+  background-color: #e0e0e0;
+}
+
+.thread-content {
+  background-color: white;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.thread-info {
+  margin-bottom: 20px;
+}
+
+.author-info {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 10px;
+  color: #666;
+  font-size: 0.9em;
+}
+
+.thread-description {
+  line-height: 1.6;
+  color: #333;
+}
+
+.thread-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+}
+
+.vote-section {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.vote-btn {
+  background: none;
+  border: none;
+  font-size: 1.2em;
+  cursor: pointer;
+  padding: 5px;
+  transition: transform 0.2s;
+}
+
+.vote-btn:hover {
+  transform: scale(1.1);
+}
+
+.vote-btn.voted {
+  color: #007bff;
+}
+
+.vote-count {
+  font-weight: bold;
+  color: #333;
+}
+
+.report-btn {
+  padding: 8px 16px;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.report-btn:hover {
+  background-color: #c82333;
+}
+
+/* Estilos para a seção de comentários */
+.comments-section {
+  background-color: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.comments-section h2 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.comment-form {
+  margin-bottom: 30px;
+}
+
+.comment-form textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  resize: vertical;
+  margin-bottom: 10px;
+  font-family: inherit;
+}
+
+.comment-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.submit-comment-btn,
+.cancel-reply-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.submit-comment-btn {
+  background-color: #007bff;
+  color: white;
+}
+
+.submit-comment-btn:hover {
+  background-color: #0056b3;
+}
+
+.cancel-reply-btn {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+.cancel-reply-btn:hover {
+  background-color: #e0e0e0;
+}
+
+.comments-list {
+  margin-top: 20px;
+}
+
+.comment {
+  margin-bottom: 20px;
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+}
+
+.comment-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.comment-author {
+  font-weight: bold;
+  color: #333;
+}
+
+.comment-role {
+  color: #666;
+  font-size: 0.9em;
+}
+
+.comment-content {
+  margin-bottom: 10px;
+  line-height: 1.5;
+  color: #333;
+}
+
+.comment-actions {
+  margin-top: 10px;
+}
+
+.reply-btn {
+  background: none;
+  border: none;
+  color: #007bff;
+  cursor: pointer;
+  padding: 0;
+  font-size: 0.9em;
+}
+
+.reply-btn:hover {
+  text-decoration: underline;
+}
+
+.replies {
+  margin-left: 30px;
+  margin-top: 15px;
+  padding-left: 15px;
+  border-left: 2px solid #e9ecef;
+}
+
+.no-comments {
+  text-align: center;
+  color: #666;
+  font-style: italic;
+  margin: 20px 0;
+}
+
+.loading {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+}
+
+.error {
+  text-align: center;
+  padding: 20px;
+  color: #dc3545;
+  background-color: #f8d7da;
+  border-radius: 4px;
+  margin: 20px 0;
+}
+
+.reply-form {
+  margin-top: 10px;
+  margin-left: 20px;
+  padding: 10px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+}
+
+.reply-form textarea {
+  width: 100%;
+  min-height: 60px;
+  padding: 8px;
+  margin-bottom: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  resize: vertical;
+}
+
+.reply-form-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.cancel-reply-btn {
+  padding: 6px 12px;
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.cancel-reply-btn:hover {
+  background-color: #5a6268;
+}
+
+.submit-reply-btn {
+  padding: 6px 12px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.submit-reply-btn:hover {
+  background-color: #0056b3;
+} 
