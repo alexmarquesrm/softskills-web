@@ -8,6 +8,8 @@ import { useNavigate } from 'react-router-dom';
 import FeaturedCourses from "../../components/cards/cardCourses";
 import SearchBar from '../../components/textFields/search';
 import Filtros from '../../components/filters/filtros';
+import { filtrarCursosOuInscricoes } from '../../utils/filtrarCursos';
+
 /* CSS */
 import './percursoFormativo.css';
 
@@ -18,6 +20,7 @@ export default function CourseManage() {
     const tipoUser = sessionStorage.getItem('tipo');
     const [tipoSelecionado, setTipoSelecionado] = useState({ S: false, A: false });
     const [estadoSelecionado, setEstadoSelecionado] = useState({ porComecar: false, emCurso: false, terminado: false });
+    const [dataSelecionada, setDataSelecionada] = useState({ inicio: '', fim: '' });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isFiltersVisible, setIsFiltersVisible] = useState(true);
@@ -43,54 +46,17 @@ export default function CourseManage() {
         fetchData();
     }, []);
 
-    // Memoizar inscrições filtradas para melhorar desempenho
+    // Memorizar inscrições filtradas para melhorar desempenho
     const filteredInscricoes = useMemo(() => {
-        if (curso.length === 0) return [];
-
-        const anyTipoSelected = tipoSelecionado.S || tipoSelecionado.A;
-        const now = new Date();
-        const anyEstadoSelected = estadoSelecionado.emCurso || estadoSelecionado.terminado || estadoSelecionado.porComecar;
-
-        return curso.filter(item => {
-            const dataInicio = item?.curso_sincrono?.data_inicio ? new Date(item.curso_sincrono.data_inicio) : null;
-            const isConcluido = item.estado;
-            const isPorComecar = dataInicio && dataInicio > now;
-            const isEmCurso = !isConcluido && (!isPorComecar || !dataInicio);
-
-            if (anyTipoSelected) {
-                if (item?.tipo === 'S' && !tipoSelecionado.S) return false;
-                if (item?.tipo === 'A' && !tipoSelecionado.A) return false;
-            }
-
-            // Filtro por estado
-            if (anyEstadoSelected) {
-                if (estadoSelecionado.porComecar && !isPorComecar) return false;
-                if (estadoSelecionado.emCurso && !isEmCurso) return false;
-                if (estadoSelecionado.terminado && !isConcluido) return false;
-
-                // Garantir que só passa se um dos estados está de acordo
-                if (
-                    (!estadoSelecionado.porComecar || isPorComecar) &&
-                    (!estadoSelecionado.emCurso || isEmCurso) &&
-                    (!estadoSelecionado.terminado || isConcluido)
-                ) {
-                } else {
-                    return false;
-                }
-            }
-
-            if (searchTerm.trim() !== '') {
-                const searchLower = searchTerm.toLowerCase();
-                return (
-                    item?.titulo?.toLowerCase().includes(searchLower) ||
-                    item.descricao?.toLowerCase().includes(searchLower) ||
-                    (item?.curso_sincrono?.formador?.colaborador?.nome?.toLowerCase().includes(searchLower))
-                );
-            }
-
-            return true;
+        return filtrarCursosOuInscricoes({
+            dados: curso,
+            tipoSelecionado,
+            estadoSelecionado,
+            dataSelecionada,
+            searchTerm,
+            modo: 'curso'
         });
-    }, [curso, tipoSelecionado, estadoSelecionado, searchTerm]);
+    }, [curso, tipoSelecionado, estadoSelecionado, dataSelecionada, searchTerm]);
 
     const stats = useMemo(() => {
         if (curso.length === 0) return { total: 0, emCurso: 0, terminados: 0 };
@@ -103,8 +69,8 @@ export default function CourseManage() {
     }, [curso]);
 
     const renderCourseCard = (curso, index) => {
-        return(
-        <FeaturedCourses key={curso.curso_id || index} curso={curso} mostrarBotao={false} mostrarBotaoEdit={true}/>
+        return (
+            <FeaturedCourses key={curso.curso_id || index} curso={curso} mostrarBotao={false} mostrarBotaoEdit={true} />
         );
     };
 
@@ -122,7 +88,8 @@ export default function CourseManage() {
 
     const clearFilters = () => {
         setTipoSelecionado({ S: false, A: false });
-        setEstadoSelecionado({ emCurso: false, terminado: false });
+        setEstadoSelecionado({ porComecar: false, emCurso: false, terminado: false });
+        setDataSelecionada({ inicio: '', fim: '' });
         setSearchTerm('');
     };
 
@@ -195,6 +162,11 @@ export default function CourseManage() {
                             setTipoSelecionado={setTipoSelecionado}
                             estadoSelecionado={estadoSelecionado}
                             setEstadoSelecionado={setEstadoSelecionado}
+                            dataSelecionada={dataSelecionada}
+                            setDataSelecionada={setDataSelecionada}
+                            mostrarTipo={true}
+                            mostrarEstado={true}
+                            mostrarData={true}
                         />
                     </Col>
 
@@ -239,7 +211,7 @@ export default function CourseManage() {
                     </Col>
                 </Row>
             </Container>
-            
+
             {/* Botão flutuante para adicionar novo curso */}
             {tipoUser === "Gestor" && (
                 <button className="floating-add-button" onClick={handleAddCourse} title="Adicionar Curso">

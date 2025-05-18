@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Container, Row, Col, Spinner } from "react-bootstrap";
-import { Book, AlertCircle} from 'react-feather';
+import { Book, AlertCircle } from 'react-feather';
 import axios from "../../config/configAxios";
 /* COMPONENTES */
 import FeaturedCourses from "../../components/cards/cardCourses";
 import SearchBar from '../../components/textFields/search';
 import Filtros from '../../components/filters/filtros';
+import { filtrarCursosOuInscricoes } from '../../utils/filtrarCursos';
 /* CSS */
 
 
@@ -15,6 +16,7 @@ export default function Courses() {
     // Modificando o estado inicial para false (não selecionado)
     const [tipoSelecionado, setTipoSelecionado] = useState({ S: false, A: false });
     const [estadoSelecionado, setEstadoSelecionado] = useState({ emCurso: false, terminado: false });
+    const [dataSelecionada, setDataSelecionada] = useState({ inicio: '', fim: '' });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isFiltersVisible, setIsFiltersVisible] = useState(true);
@@ -42,46 +44,24 @@ export default function Courses() {
 
     // Memoizar inscrições filtradas para melhorar desempenho
     const filteredInscricoes = useMemo(() => {
-        if (curso.length === 0) return [];
-
-        // Verificar se algum filtro está ativo
-        const anyTipoSelected = tipoSelecionado.S || tipoSelecionado.A;
-
-        return curso.filter(item => {
-
-            // Ignora cursos pendentes
-            if (item.pendente) return false;
-            
-            const isEmCurso =
-                item.tipo === 'A' ||
-                (item.tipo === 'S' && item.curso_sincrono && !item.curso_sincrono.estado);
-            if (!isEmCurso) return false;
-
-            // Filtrar por começar
+        const cursosValidos = curso.filter(item => {
             if (item.tipo === 'S') {
                 const dataLimite = item.curso_sincrono?.data_limite_inscricao;
-                if (!dataLimite || new Date(dataLimite) <= new Date()) return false;
+                return dataLimite && new Date(dataLimite) > new Date();
             }
-
-            // Filtrar por tipo de curso - só aplica se algum tipo estiver selecionado
-            if (anyTipoSelected) {
-                if (item?.tipo === 'S' && !tipoSelecionado.S) return false;
-                if (item?.tipo === 'A' && !tipoSelecionado.A) return false;
-            }
-
-            // Filtrar por termo de pesquisa
-            if (searchTerm.trim() !== '') {
-                const searchLower = searchTerm.toLowerCase();
-                return (
-                    item?.titulo?.toLowerCase().includes(searchLower) ||
-                    item.descricao?.toLowerCase().includes(searchLower) ||
-                    (item?.curso_sincrono?.formador?.colaborador?.nome?.toLowerCase().includes(searchLower))
-                );
-            }
-
             return true;
         });
-    }, [curso, tipoSelecionado, estadoSelecionado, searchTerm]);
+
+        return filtrarCursosOuInscricoes({
+            dados: cursosValidos,
+            tipoSelecionado,
+            estadoSelecionado,
+            dataSelecionada,
+            searchTerm,
+            modo: 'curso'
+        });
+    }, [curso, tipoSelecionado, estadoSelecionado, dataSelecionada, searchTerm]);
+
 
     // Stats
     const stats = useMemo(() => {
@@ -114,6 +94,7 @@ export default function Courses() {
     const clearFilters = () => {
         setTipoSelecionado({ S: false, A: false });
         setEstadoSelecionado({ emCurso: false, terminado: false });
+        setDataSelecionada({ inicio: '', fim: '' });
         setSearchTerm('');
     };
 
@@ -176,8 +157,11 @@ export default function Courses() {
                             setTipoSelecionado={setTipoSelecionado}
                             estadoSelecionado={estadoSelecionado}
                             setEstadoSelecionado={setEstadoSelecionado}
+                            dataSelecionada={dataSelecionada}
+                            setDataSelecionada={setDataSelecionada}
                             mostrarTipo={true}
                             mostrarEstado={false}
+                            mostrarData={true}
                         />
                     </Col>
 
