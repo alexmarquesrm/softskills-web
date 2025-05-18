@@ -225,7 +225,7 @@ INSERT INTO INSCRICAO (FORMANDO_ID, CURSO_ID, TIPO_AVALIACAO, NOTA, DATA_CERTIFI
 -- Inscrições do Formando 3 (5 inscrições com estados diferentes)
 (3, 1, 'Quiz', 85.0, '2024-02-28 10:00:00+00', '2024-01-10 10:00:00+00', TRUE),  -- Curso concluído
 (3, 3, 'Trabalho', 91.0, '2024-03-15 15:00:00+00', '2024-02-01 09:15:00+00', TRUE),  -- Curso concluído
-(3, 17, 'Quiz', 70, NULL, '2025-05-01 14:30:00+00', TRUE),  -- Curso ativo
+(3, 17, 'Quiz', NULL, NULL, '2025-05-01 14:30:00+00', FALSE),  -- Curso ativo
 (3, 19, 'Trabalho', NULL, NULL, '2025-06-01 11:20:00+00', FALSE),  -- Curso pendente
 (3, 21, 'Quiz', NULL, NULL, '2025-07-01 16:45:00+00', FALSE),  -- Curso pendente
 
