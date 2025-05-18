@@ -45,7 +45,10 @@
   gap: 1rem;
   transition: max-height 0.3s ease, opacity 0.3s ease;
   position: relative;
-  padding-top: 2.5rem; /* Espaço para o botão reset */
+}
+
+.filtros-content.with-padding-top {
+    padding-top: 2.5rem; /* só quando o botão aparece */
 }
 
 .filtros-mobile-toggle {

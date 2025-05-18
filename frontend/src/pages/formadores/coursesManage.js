@@ -3,6 +3,7 @@ import { Container, Row, Col, Spinner } from "react-bootstrap";
 import { useNavigate } from 'react-router-dom';
 import { Book, AlertCircle } from 'react-feather';
 import axios from "../../config/configAxios";
+import { filtrarCursosOuInscricoes } from '../../utils/filtrarCursos';
 /* COMPONENTES */
 import FeaturedCourses from "../../components/cards/cardCourses";
 import SearchBar from '../../components/textFields/search';
@@ -14,6 +15,7 @@ export default function CoursesManage() {
     const [searchTerm, setSearchTerm] = useState('');
     const [tipoSelecionado, setTipoSelecionado] = useState({ S: false, A: false });
     const [estadoSelecionado, setEstadoSelecionado] = useState({ porComecar: false, emCurso: false, terminado: false });
+    const [dataSelecionada, setDataSelecionada] = useState({ inicio: '', fim: '' });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isFiltersVisible, setIsFiltersVisible] = useState(true);
@@ -23,19 +25,19 @@ export default function CoursesManage() {
         try {
             const token = sessionStorage.getItem('token');
             const formadorId = sessionStorage.getItem('colaboradorid');
-            
+
             const response = await axios.get(`/curso/formador/${formadorId}`, {
                 headers: { Authorization: `${token}` }
             });
-            
+
             setCursos(response.data);
-            
+
             // Get formador name if available from first course
-            if (response.data.length > 0 && 
+            if (response.data.length > 0 &&
                 response.data[0].curso_sincrono?.[0]?.sincrono_formador?.formador_colab?.nome) {
                 setFormadorNome(response.data[0].curso_sincrono[0].sincrono_formador.formador_colab.nome);
             }
-            
+
         } catch (error) {
             console.error("Erro ao carregar cursos:", error);
             setError("Não foi possível carregar os cursos");
@@ -50,55 +52,22 @@ export default function CoursesManage() {
 
     // Memoized filtered courses for better performance
     const filteredCursos = useMemo(() => {
-        if (cursos.length === 0) return [];
-
-        const now = new Date();
-        const anyEstadoSelected = estadoSelecionado.emCurso || estadoSelecionado.terminado || estadoSelecionado.porComecar;
-
-        return cursos.filter(curso => {
-            const dataInicio = curso?.curso_sincrono?.data_inicio ? new Date(curso.curso_sincrono.data_inicio) : null;
-            const isConcluido = curso.estado;
-            const isPorComecar = dataInicio && dataInicio > now;
-            const isEmCurso = !isConcluido && (!isPorComecar || !dataInicio);
-
-            // Filtro por estado
-            if (anyEstadoSelected) {
-                if (estadoSelecionado.porComecar && !isPorComecar) return false;
-                if (estadoSelecionado.emCurso && !isEmCurso) return false;
-                if (estadoSelecionado.terminado && !isConcluido) return false;
-
-                // Garantir que só passa se um dos estados está de acordo
-                if (
-                    (!estadoSelecionado.porComecar || isPorComecar) &&
-                    (!estadoSelecionado.emCurso || isEmCurso) &&
-                    (!estadoSelecionado.terminado || isConcluido)
-                ) {
-                } else {
-                    return false;
-                }
-            }
-
-            // Filter by search term
-            if (searchTerm.trim() !== '') {
-                const searchLower = searchTerm.toLowerCase();
-                return (
-                    curso.titulo?.toLowerCase().includes(searchLower) ||
-                    curso.descricao?.toLowerCase().includes(searchLower) ||
-                    curso.curso_sincrono?.[0]?.sincrono_formador?.formador_colab?.nome?.toLowerCase().includes(searchLower) ||
-                    curso.curso_topico?.[0]?.descricao?.toLowerCase().includes(searchLower)
-                );
-            }
-
-            return true;
+        return filtrarCursosOuInscricoes({
+            dados: cursos,
+            tipoSelecionado,
+            estadoSelecionado,
+            dataSelecionada,
+            searchTerm,
+            modo: 'curso'
         });
-    }, [cursos, estadoSelecionado, searchTerm]);
+    }, [cursos, tipoSelecionado, estadoSelecionado, dataSelecionada, searchTerm]);
 
     // Stats calculation
     const stats = useMemo(() => {
         if (cursos.length === 0) return { total: 0, emCurso: 0, terminados: 0 };
 
         const total = cursos.length;
-        const terminados = cursos.filter(curso => 
+        const terminados = cursos.filter(curso =>
             curso.curso_sincrono?.[0]?.estado === true
         ).length;
         const emCurso = total - terminados;
@@ -108,8 +77,8 @@ export default function CoursesManage() {
 
     // Handler for course selection
     const handleCourseSelect = (selectedCourse) => {
-        navigate(`/formador/curso/${selectedCourse.curso_id}`, { 
-            state: { id: selectedCourse.curso_id } 
+        navigate(`/formador/curso/${selectedCourse.curso_id}`, {
+            state: { id: selectedCourse.curso_id }
         });
     };
 
@@ -125,10 +94,10 @@ export default function CoursesManage() {
                 vagas: curso.curso_sincrono[0].limite_vagas
             } : null
         };
-        
+
         return (
             <div key={curso.curso_id || index} className="course-card-wrapper" onClick={() => handleCourseSelect(curso)}>
-                <FeaturedCourses curso={cursoData} mostrarBotao={true} mostrarInicioEFim={true}/>
+                <FeaturedCourses curso={cursoData} mostrarBotao={true} mostrarInicioEFim={true} />
             </div>
         );
     };
@@ -148,7 +117,8 @@ export default function CoursesManage() {
     // Function to clear filters
     const clearFilters = () => {
         setTipoSelecionado({ S: false, A: false });
-        setEstadoSelecionado({ emCurso: false, terminado: false });
+        setEstadoSelecionado({ porComecar: false, emCurso: false, terminado: false });
+        setDataSelecionada({ inicio: '', fim: '' });
         setSearchTerm('');
     };
 
@@ -220,8 +190,11 @@ export default function CoursesManage() {
                             setTipoSelecionado={setTipoSelecionado}
                             estadoSelecionado={estadoSelecionado}
                             setEstadoSelecionado={setEstadoSelecionado}
+                            dataSelecionada={dataSelecionada}
+                            setDataSelecionada={setDataSelecionada}
                             mostrarTipo={false}
                             mostrarEstado={true}
+                            mostrarData={true}
                         />
                     </Col>
 

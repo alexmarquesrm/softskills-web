@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { Container, Row, Col, Spinner } from "react-bootstrap";
 import { useLocation } from 'react-router-dom';
-import { Book, AlertCircle} from 'react-feather';
+import { Book, AlertCircle } from 'react-feather';
 import axios from "../../config/configAxios";
 /* COMPONENTES */
 import FeaturedCourses from "../../components/cards/cardCourses";
 import SearchBar from '../../components/textFields/search';
 import Filtros from '../../components/filters/filtros';
+import { filtrarCursosOuInscricoes } from '../../utils/filtrarCursos';
 /* CSS */
 import './percursoFormativo.css';
 
@@ -19,6 +20,7 @@ export default function PercursoFormativo() {
     // Modificando o estado inicial para false (não selecionado)
     const [tipoSelecionado, setTipoSelecionado] = useState({ S: false, A: false });
     const [estadoSelecionado, setEstadoSelecionado] = useState({ porComecar: false, emCurso: false, terminado: false });
+    const [dataSelecionada, setDataSelecionada] = useState({ inicio: '', fim: '' });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isFiltersVisible, setIsFiltersVisible] = useState(true);
@@ -65,56 +67,15 @@ export default function PercursoFormativo() {
 
     // Memoizar inscrições filtradas para melhorar desempenho
     const filteredInscricoes = useMemo(() => {
-        if (inscricao.length === 0) return [];
-
-        // Verificar se algum filtro está ativo
-        const anyTipoSelected = tipoSelecionado.S || tipoSelecionado.A;
-        const now = new Date();
-        const anyEstadoSelected = estadoSelecionado.emCurso || estadoSelecionado.terminado || estadoSelecionado.porComecar;
-
-        return inscricao.filter(item => {
-            const curso = item.inscricao_curso;
-            const dataInicio = curso?.curso_sincrono?.data_inicio ? new Date(curso.curso_sincrono.data_inicio) : null;
-            const isConcluido = item.estado;
-            const isPorComecar = dataInicio && dataInicio > now;
-            const isEmCurso = !isConcluido && (!isPorComecar || !dataInicio);
-
-            // Filtrar por tipo de curso - só aplica se algum tipo estiver selecionado
-            if (anyTipoSelected) {
-                if (item.inscricao_curso?.tipo === 'S' && !tipoSelecionado.S) return false;
-                if (item.inscricao_curso?.tipo === 'A' && !tipoSelecionado.A) return false;
-            }
-
-            // Filtro por estado
-            if (anyEstadoSelected) {
-                if (estadoSelecionado.porComecar && !isPorComecar) return false;
-                if (estadoSelecionado.emCurso && !isEmCurso) return false;
-                if (estadoSelecionado.terminado && !isConcluido) return false;
-
-                // Garantir que só passa se um dos estados está de acordo
-                if (
-                    (!estadoSelecionado.porComecar || isPorComecar) &&
-                    (!estadoSelecionado.emCurso || isEmCurso) &&
-                    (!estadoSelecionado.terminado || isConcluido)
-                ) {
-                } else {
-                    return false;
-                }
-            }
-
-            // Filtrar por termo de pesquisa
-            if (searchTerm.trim() !== '') {
-                const searchLower = searchTerm.toLowerCase();
-                return (
-                    item.inscricao_curso?.titulo?.toLowerCase().includes(searchLower) ||
-                    item.inscricao_curso?.descricao?.toLowerCase().includes(searchLower) ||
-                    (item.inscricao_curso?.sincrono?.formador?.colaborador?.nome?.toLowerCase().includes(searchLower))
-                );
-            }
-
-            return true;
+        return filtrarCursosOuInscricoes({
+            dados: inscricao,
+            tipoSelecionado,
+            estadoSelecionado,
+            dataSelecionada,
+            searchTerm,
+            modo: 'inscricao'
         });
-    }, [inscricao, tipoSelecionado, estadoSelecionado, searchTerm]);
+    }, [inscricao, tipoSelecionado, estadoSelecionado, dataSelecionada, searchTerm]);
 
     // Stats
     const stats = useMemo(() => {
@@ -146,7 +107,7 @@ export default function PercursoFormativo() {
     // Função para limpar filtros modificada
     const clearFilters = () => {
         setTipoSelecionado({ S: false, A: false });
-        setEstadoSelecionado({ emCurso: false, terminado: false });
+        setEstadoSelecionado({ porComecar: false, emCurso: false, terminado: false });
         setSearchTerm('');
     };
 
@@ -218,6 +179,11 @@ export default function PercursoFormativo() {
                             setTipoSelecionado={setTipoSelecionado}
                             estadoSelecionado={estadoSelecionado}
                             setEstadoSelecionado={setEstadoSelecionado}
+                            dataSelecionada={dataSelecionada}
+                            setDataSelecionada={setDataSelecionada}
+                            mostrarTipo={true}
+                            mostrarEstado={true}
+                            mostrarData={true}
                         />
                     </Col>
 

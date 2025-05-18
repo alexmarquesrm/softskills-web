@@ -7,6 +7,7 @@ import axios from "../../config/configAxios";
 import FeaturedCourses from "../../components/cards/cardCourses";
 import SearchBar from '../../components/textFields/search';
 import Filtros from '../../components/filters/filtros';
+import { filtrarCursosOuInscricoes } from '../../utils/filtrarCursos';
 /* CSS */
 
 export default function PercursoFormativoFormando() {
@@ -16,6 +17,7 @@ export default function PercursoFormativoFormando() {
     const [searchTerm, setSearchTerm] = useState('');
     const [tipoSelecionado, setTipoSelecionado] = useState({ S: false, A: false });
     const [estadoSelecionado, setEstadoSelecionado] = useState({ porComecar: false, emCurso: false, terminado: false });
+    const [dataSelecionada, setDataSelecionada] = useState({ inicio: '', fim: '' });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isFiltersVisible, setIsFiltersVisible] = useState(true);
@@ -85,55 +87,15 @@ export default function PercursoFormativoFormando() {
 
     // Memoizar inscrições filtradas para melhorar desempenho (permanece igual)
     const filteredInscricoes = useMemo(() => {
-        if (inscricao.length === 0) return [];
-
-        const now = new Date();
-        const anyTipoSelected = tipoSelecionado.S || tipoSelecionado.A;
-        const anyEstadoSelected = estadoSelecionado.emCurso || estadoSelecionado.terminado || estadoSelecionado.porComecar;
-
-        return inscricao.filter(item => {
-            const curso = item.inscricao_curso;
-            const dataInicio = curso?.curso_sincrono?.data_inicio ? new Date(curso?.curso_sincrono?.data_inicio) : null;
-            const isConcluido = item.estado;
-            const isPorComecar = dataInicio && dataInicio > now;
-            const isEmCurso = !isConcluido && (!isPorComecar || !dataInicio); // em curso se não terminou nem está por começar
-
-            // Filtro por tipo
-            if (anyTipoSelected) {
-                if (curso.tipo === 'S' && !tipoSelecionado.S) return false;
-                if (curso.tipo === 'A' && !tipoSelecionado.A) return false;
-            }
-
-            // Filtro por estado
-            if (anyEstadoSelected) {
-                if (estadoSelecionado.porComecar && !isPorComecar) return false;
-                if (estadoSelecionado.emCurso && !isEmCurso) return false;
-                if (estadoSelecionado.terminado && !isConcluido) return false;
-
-                // Se algum filtro de estado foi ativado, mas o item não corresponde a nenhum, descarta
-                if (
-                    (!estadoSelecionado.porComecar || isPorComecar) &&
-                    (!estadoSelecionado.emCurso || isEmCurso) &&
-                    (!estadoSelecionado.terminado || isConcluido)
-                ) {
-                } else {
-                    return false;
-                }
-            }
-
-            // Filtro de pesquisa
-            if (searchTerm.trim() !== '') {
-                const searchLower = searchTerm.toLowerCase();
-                return (
-                    curso?.titulo?.toLowerCase().includes(searchLower) ||
-                    curso?.descricao?.toLowerCase().includes(searchLower) ||
-                    curso?.sincrono?.formador?.colaborador?.nome?.toLowerCase().includes(searchLower)
-                );
-            }
-
-            return true;
+        return filtrarCursosOuInscricoes({
+            dados: inscricao,
+            tipoSelecionado,
+            estadoSelecionado,
+            dataSelecionada,
+            searchTerm,
+            modo: 'inscricao'
         });
-    }, [inscricao, tipoSelecionado, estadoSelecionado, searchTerm]);
+    }, [inscricao, tipoSelecionado, estadoSelecionado, dataSelecionada, searchTerm]);
 
     // Stats (permanece igual)
     const stats = useMemo(() => {
@@ -174,7 +136,8 @@ export default function PercursoFormativoFormando() {
     // Função para limpar filtros
     const clearFilters = () => {
         setTipoSelecionado({ S: false, A: false });
-        setEstadoSelecionado({ emCurso: false, terminado: false });
+        setEstadoSelecionado({ porComecar: false, emCurso: false, terminado: false });
+        setDataSelecionada({ inicio: '', fim: '' });
         setSearchTerm('');
     };
 
@@ -246,6 +209,11 @@ export default function PercursoFormativoFormando() {
                             setTipoSelecionado={setTipoSelecionado}
                             estadoSelecionado={estadoSelecionado}
                             setEstadoSelecionado={setEstadoSelecionado}
+                            dataSelecionada={dataSelecionada}
+                            setDataSelecionada={setDataSelecionada}
+                            mostrarTipo={true}
+                            mostrarEstado={true}
+                            mostrarData={true}
                         />
                     </Col>
 
