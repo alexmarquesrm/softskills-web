@@ -182,23 +182,17 @@ const controladorUtilizadores = {
         allUserTypes: userTypes.join(',')
       });
 
-      // Determinar saudação com base na hora do dia
-      const hour = new Date().getHours();
-      let saudacao = "Olá";
-
-      if (hour < 12) {
-        saudacao = "Bom dia";
-      } else if (hour < 18) {
-        saudacao = "Boa tarde";
-      } else {
-        saudacao = "Boa noite";
-      }
+      // Obter saudação do banco de dados
+      const [saudacaoResult] = await sequelizeConn.query(
+        'SELECT obter_saudacao() as saudacao',
+        { type: sequelizeConn.QueryTypes.SELECT }
+      );
 
       // Retornar dados do usuário e token na mesma resposta
       res.status(200).json({
         user: userData,
         token: token,
-        saudacao: saudacao
+        saudacao: saudacaoResult.saudacao
       });
     } catch (error) {
       console.error(error);
@@ -463,6 +457,23 @@ const controladorUtilizadores = {
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: "Erro ao remover colaborador" });
+    }
+  },
+
+  getSaudacao: async (req, res) => {
+    try {
+      const sql = `
+        SELECT obter_saudacao() as saudacao
+      `;
+
+      const [result] = await sequelizeConn.query(sql, {
+        type: sequelizeConn.QueryTypes.SELECT
+      });
+
+      res.json({ saudacao: result.saudacao });
+    } catch (error) {
+      console.error('Erro ao obter saudação:', error);
+      res.status(500).json({ message: "Erro ao obter saudação" });
     }
   },
 };
