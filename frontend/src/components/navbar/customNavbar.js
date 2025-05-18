@@ -9,6 +9,7 @@ import Sidebar from "../sidebar/sidebar";
 import { LuMenu, LuSearch } from "react-icons/lu";
 import { BsQuestionCircle } from "react-icons/bs";
 import { FaGraduationCap } from "react-icons/fa";
+import NotificationDropdown from '../notifications/NotificationDropdown';
 
 function CustomNavbar() {
   const [showSidebar, setShowSidebar] = useState(false);
@@ -99,11 +100,14 @@ function CustomNavbar() {
                 <LoginModal open={open} handleClose={handleClose} onLoginSuccess={handleLoginSuccess} />
               </>
             ) : (
-              <ProfileDropdown onLogout={() => {
-                sessionStorage.clear();
-                setIsLoggedIn(false);
-                navigate('/');
-              }} />
+              <>
+                <NotificationDropdown />
+                <ProfileDropdown onLogout={() => {
+                  sessionStorage.clear();
+                  setIsLoggedIn(false);
+                  navigate('/');
+                }} />
+              </>
             )}
           </div>
         </Container>
