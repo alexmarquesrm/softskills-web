@@ -14,11 +14,24 @@ export default function PaginaGestor() {
   const [cursos, setCursos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [saudacao, setSaudacao] = useState('');
   const nome = sessionStorage.getItem('nome');
   const navigate = useNavigate();
   const navToPage = (url) => {
     navigate(url)
   }
+
+  const fetchSaudacao = async () => {
+    try {
+      const token = sessionStorage.getItem('token');
+      const response = await axios.get('/colaborador/saudacao', {
+        headers: { Authorization: `${token}` }
+      });
+      setSaudacao(response.data.saudacao);
+    } catch (error) {
+      console.error('Erro ao obter saudação:', error);
+    }
+  };
 
   const fetchInscricao = async () => {
     try {
@@ -72,6 +85,7 @@ export default function PaginaGestor() {
   useEffect(() => {
     fetchInscricao();
     fetchCurso();
+    fetchSaudacao();
   }, []);
 
   const filteredInscricao = useMemo(() => {
@@ -133,7 +147,7 @@ export default function PaginaGestor() {
       <div className="page-header">
         <div className="page-header-content">
           <h1 className="page-title">Visão Geral</h1>
-          <p className="page-subtitle">Bem-vindo, <span className="user-name">{nome}</span></p>
+          <p className="page-subtitle">{saudacao}, <span className="user-name">{nome}</span></p>
         </div>
       </div>
 

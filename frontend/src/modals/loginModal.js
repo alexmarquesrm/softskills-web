@@ -3,6 +3,8 @@ import axios from '../config/configAxios';
 import { Modal, Button, Form, InputGroup, Container, Row, Col } from 'react-bootstrap';
 import { EyeFill, EyeSlashFill, PersonFill, KeyFill } from 'react-bootstrap-icons';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import './loginModal.css';
 
 const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
@@ -57,7 +59,8 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
         setShowPassword(!showPassword);
     };
 
-    const handleLogin = async () => {
+    const handleSubmit = async (e) => {
+        e.preventDefault();
         setIsLoading(true);
         const errors = await validateForm();
         setLoginError(errors.loginError || false);
@@ -102,16 +105,35 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
             // Configurar o token para todas as requisições futuras
             axios.defaults.headers.common['Authorization'] = token;
 
-            handleClose();
-            if (onLoginSuccess) onLoginSuccess();
-            navigate('/');
+            // Mostrar mensagem de boas-vindas usando Toastify
+            toast.success(`${saudacao}, ${utilizador.nome}! Bem-vindo(a) à plataforma de cursos.`, {
+                position: "top-right",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+            });
+
+            // Fechar o modal após 2 segundos
+            setTimeout(() => {
+                handleClose();
+                onLoginSuccess();
+            }, 2000);
+
         } catch (error) {
-            if (error.response?.status === 404 || error.response?.status === 401) {
+            console.error('Erro no login:', error);
+            if (error.response?.status === 404) {
+                setLoginError(true);
+                setLoginErrorMessage("Utilizador não encontrado");
+            } else if (error.response?.status === 401) {
                 setPassError(true);
-                setPassErrorMessage("Credenciais inválidas. Por favor, verifique os seus dados.");
+                setPassErrorMessage("Password incorreta");
             } else {
-                console.error('Erro ao fazer login:', error);
+                setLoginError(true);
+                setLoginErrorMessage("Erro ao fazer login. Tente novamente.");
             }
+        } finally {
             setIsLoading(false);
         }
     };
@@ -137,7 +159,7 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
 
     const handleKeyPress = (e) => {
         if (e.key === 'Enter') {
-            handleLogin();
+            handleSubmit(e);
         }
     };
 
@@ -160,7 +182,7 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
                                 <p className="welcome-subtitle">Introduza os seus dados para continuar</p>
                             </div>
 
-                            <Form>
+                            <Form onSubmit={handleSubmit}>
                                 <Form.Group className="mb-4">
                                     <InputGroup className="input-group-custom">
                                         <InputGroup.Text>
@@ -173,7 +195,7 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
                                             onChange={(e) => setLogin(e.target.value)}
                                             isInvalid={loginError}
                                             autoFocus
-                                            onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
+                                            onKeyDown={handleKeyPress}
                                         />
                                     </InputGroup>
                                     {loginError && (
@@ -190,7 +212,7 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
                                         </InputGroup.Text>
                                         <Form.Control type={showPassword ? "text" : "password"} placeholder="Password"
                                             value={password} onChange={(e) => setPassword(e.target.value)}
-                                            isInvalid={passError} onKeyDown={(e) => e.key === 'Enter' && handleLogin()} />
+                                            isInvalid={passError} onKeyDown={handleKeyPress} />
                                         <InputGroup.Text onClick={handleClickShowPassword} className="password-toggle">
                                             {showPassword ? <EyeSlashFill /> : <EyeFill />}
                                         </InputGroup.Text>
@@ -211,7 +233,7 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
                                 <Button
                                     variant="primary"
                                     className="login-button w-100"
-                                    onClick={handleLogin}
+                                    type="submit"
                                     disabled={isLoading}
                                 >
                                     {isLoading ? 'A processar...' : 'Entrar'}

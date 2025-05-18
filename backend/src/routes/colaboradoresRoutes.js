@@ -6,6 +6,9 @@ const colaboradorController = require("../controllers/colaboradoresController");
 // Rota para obter o próprio perfil - usa o ID do token JWT
 router.get("/me", authenticate, colaboradorController.getMe);
 
+// Rota para obter saudação baseada na hora do dia
+router.get("/saudacao", colaboradorController.getSaudacao);
+
 // Rotas públicas (sem autenticação) - para login/registro
 router.get("/username/:username", colaboradorController.getUserByLogin);
 router.post("/registo", colaboradorController.registarNovoColaborador);
