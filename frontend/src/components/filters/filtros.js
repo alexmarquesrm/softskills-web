@@ -1,4 +1,4 @@
-import React, { useState} from "react";
+import React, { useState } from "react";
 import { ChevronDown, ChevronUp, Filter, X } from "react-bootstrap-icons";
 import "./filtros.css";
 
@@ -7,12 +7,16 @@ function FiltrosCursos({
     setTipoSelecionado,
     estadoSelecionado,
     setEstadoSelecionado,
+    dataSelecionada,
+    setDataSelecionada,
     mostrarTipo = true,
-    mostrarEstado = true
+    mostrarEstado = true,
+    mostrarData = false
 }) {
     const [tipoAberto, setTipoAberto] = useState(true);
     const [estadoAberto, setEstadoAberto] = useState(true);
     const [filtersExpanded, setFiltersExpanded] = useState(true);
+    const [dataAberto, setDataAberto] = useState(true);
 
     // Toggle individual filter value
     const toggleTipo = (tipo) => {
@@ -27,13 +31,15 @@ function FiltrosCursos({
     const resetFilters = () => {
         setTipoSelecionado({ S: false, A: false });
         setEstadoSelecionado({ porComecar: false, emCurso: false, terminado: false });
-    };
+        setDataSelecionada({ inicio: '', fim: '' });
+    }
 
     // Count active filters
     const getActiveFiltersCount = () => {
-        const selectedTipos = Object.values(tipoSelecionado).filter(value => value).length;
-        const selectedEstados = Object.values(estadoSelecionado).filter(value => value).length;
-        return selectedTipos + selectedEstados;
+        const selectedTipos = Object.values(tipoSelecionado).filter(Boolean).length;
+        const selectedEstados = Object.values(estadoSelecionado).filter(Boolean).length;
+        const dataAtiva = (dataSelecionada.inicio || dataSelecionada.fim) ? 1 : 0;
+        return selectedTipos + selectedEstados + dataAtiva;
     };
 
     const activeCount = getActiveFiltersCount();
@@ -54,15 +60,19 @@ function FiltrosCursos({
                 {filtersExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
             </div>
 
-            <div className={`filtros-content ${filtersExpanded ? 'expanded' : ''}`}>
+            <div className={`filtros-content ${filtersExpanded ? 'expanded' : ''} ${activeCount > 0 ? 'with-padding-top' : ''}`}>
                 {/* Botão agora sempre presente, mas com classe visible controlando a visibilidade */}
-                <button
-                    className={`reset-filters-btn ${activeCount > 0 ? 'visible' : ''}`}
-                    onClick={resetFilters}
-                >
-                    <X size={14} />
-                    <span>Limpar filtros</span>
-                </button>
+                {activeCount > 0 && (
+                    <button
+                        className={`reset-filters-btn ${activeCount > 0 ? 'visible' : ''}`}
+                        onClick={resetFilters}
+                    >
+                        <X size={14} />
+                        <span>Limpar filtros</span>
+                    </button>
+                )}
+
+                <h4 className="filtros-section-title">Filtros</h4>
 
                 {/* Tipo Curso */}
                 {mostrarTipo && (<div className="filtro-box">
@@ -144,6 +154,47 @@ function FiltrosCursos({
                         </div>
                     </div>
                 </div>)}
+
+                {/* Data de inicio */}
+                {mostrarData && (
+                    <div className="filtro-box">
+                        <div
+                            className={`filtro-header ${dataAberto ? 'active' : ''}`}
+                            onClick={() => setDataAberto(!dataAberto)}
+                        >
+                            <span className="filtro-title">Data de Início</span>
+                            {dataAberto ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                        </div>
+                        <div className={`filtro-opcoes ${dataAberto ? 'visible' : ''}`}>
+                            <div className="date-input-wrapper">
+                                <div className="date-range-inputs">
+                                    <label>De:</label>
+                                    <input
+                                        type="date"
+                                        value={dataSelecionada.inicio}
+                                        max={dataSelecionada.fim || undefined}
+                                        onChange={(e) =>
+                                            setDataSelecionada(prev => ({ ...prev, inicio: e.target.value }))
+                                        }
+                                        className="form-control"
+                                    />
+
+                                    <label>Até:</label>
+                                    <input
+                                        type="date"
+                                        value={dataSelecionada.fim}
+                                        min={dataSelecionada.inicio || undefined}
+                                        onChange={(e) =>
+                                            setDataSelecionada(prev => ({ ...prev, fim: e.target.value }))
+                                        }
+                                        className="form-control"
+                                    />
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );
