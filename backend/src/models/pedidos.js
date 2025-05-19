@@ -36,4 +36,4 @@ module.exports = function(sequelize, DataTypes) {
     schema: 'public',
     timestamps: false
   });
-}; 
+};

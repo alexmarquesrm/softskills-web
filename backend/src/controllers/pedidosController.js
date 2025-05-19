@@ -24,15 +24,7 @@ const controladorPedidos = {
   // Obter todos os pedidos
   getAllPedidos: async (req, res) => {
     try {
-      const pedidos = await models.pedidos.findAll({
-        include: [
-          {
-            model: models.colaborador,
-            as: "ped_colaborador",
-            attributes: ["nome"]
-          }
-        ]
-      });
+      const pedidos = await models.pedidos.findAll();
       res.status(200).json(pedidos);
     } catch (error) {
       console.error(error);
