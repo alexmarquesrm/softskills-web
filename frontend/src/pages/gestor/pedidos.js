@@ -50,21 +50,24 @@ const ListaPedidos = () => {
     fetchFormadoresECursos();
   }, []);
 
- 
-
+  // Prepare table data with all needed fields for searchability
   useEffect(() => {
-    if (pedidos.length > 0 && formadores.length > 0 && cursos.length > 0) {
+    if (pedidos.length > 0 && colaboradores.length > 0 && cursos.length > 0 && topicos.length > 0) {
+      // Create enhanced rows with all searchable data
       const enhancedRows = pedidos
-       .filter((pedido) => {
-  if (filtro === "all") return true;
-  if (filtro === "topico") return pedido.tipo === "Tópico Forum";
-  if (filtro === "curso") return pedido.tipo === "Curso";
-  return true;
-})
+        .filter((pedido) => {
+          if (filtro === "all") return true;
+          if (filtro === "forum") return pedido.tipo === "FORUM";
+          if (filtro === "curso") return pedido.tipo === "CURSO";
+          return true;
+        })
         .map((pedido) => {
-          const formador = formadores.find((f) => f.id === pedido.formador_id);
-          const curso = cursos.find((c) => c.curso_id === pedido.curso_id);
-
+          // Find related data
+          const colaborador = colaboradores.find((c) => c.colaborador_id === pedido.colaborador_id);
+          const curso = pedido.tipo === "CURSO" ? cursos.find((c) => c.curso_id === pedido.referencia_id) : null;
+          const topico = pedido.tipo === "FORUM" ? topicos.find((t) => t.topico_id === pedido.referencia_id) : null;
+          
+          // Create row with all searchable data
           return {
             id: pedido.pedido_id,
             pedido_id: pedido.pedido_id,
@@ -72,8 +75,11 @@ const ListaPedidos = () => {
             formador_id: pedido.formador_id,
             curso_id: pedido.curso_id,
             data: pedido.data,
-            formadorNome: formador ? formador.colaborador.nome : `Formador ${pedido.formador_id}`,
-            cursoTitulo: curso ? curso.titulo : `Curso ${pedido.curso_id}`,
+            // Add text fields for search
+            colaboradorNome: colaborador ? colaborador.nome : `Colaborador ${pedido.colaborador_id}`,
+            referenciaNome: pedido.tipo === "CURSO" 
+              ? (curso ? curso.titulo : `Curso ${pedido.referencia_id}`)
+              : (topico ? topico.descricao : `Tópico ${pedido.referencia_id}`),
             dataFormatada: new Date(pedido.data).toLocaleString()
           };
         });
@@ -84,14 +90,21 @@ const ListaPedidos = () => {
 
   const columns = [
     {
-      field: "formadorNome",
-      headerName: "Curso Pedido Por",
+      field: "colaboradorNome",
+      headerName: "Colaborador",
       sortable: true,
       searchable: true
     },
     {
-      field: "cursoTitulo",
-      headerName: "Nome do Curso",
+      field: "tipo",
+      headerName: "Tipo",
+      sortable: true,
+      searchable: true,
+      renderCell: ({ row }) => row.tipo === "CURSO" ? "Curso" : "Fórum"
+    },
+    {
+      field: "referenciaNome",
+      headerName: "Referência",
       sortable: true,
       searchable: true
     },
