@@ -68,27 +68,27 @@ INSERT INTO TOPICO (AREA_ID, DESCRICAO) VALUES
 (13, 'Exercícios Físicos em Casa');
 
 -- Inserção na Tabela FORUM
-INSERT INTO FORUM (TOPICO_ID, DESCRICAO) VALUES
-(1, 'Fundamentos do JavaScript'),
-(2, 'Introdução ao HTML e CSS'),
-(3, 'React para Iniciantes'),
-(4, 'Node.js e Express'),
-(5, 'Python para Iniciantes'),
-(6, 'Desenvolvimento com Java'),
-(7, 'Desenvolvimento de Jogos com Unity'),
-(8, 'Fundamentos de IA'),
-(9, 'Edição de Imagens no Photoshop'),
-(10, 'Figma: Design de Interface'),
-(11, 'SEO: Como otimizar seu site'),
-(12, 'Segurança em Redes de Computadores'),
-(13, 'Técnicas de Fotografia Profissional'),
-(14, 'Edição de Vídeos Profissionais'),
-(15, 'Liderança e Gestão de Equipes'),
-(16, 'Produtividade Pessoal'),
-(17, 'Gestão de Projetos com Scrum'),
-(18, 'Estratégias para Aumentar suas Vendas no Instagram'),
-(19, 'Como Criar Música no FL Studio'),
-(20, 'Mindfulness e Meditação');
+INSERT INTO FORUM (TOPICO_ID, DESCRICAO, PENDENTE) VALUES
+(1, 'Fundamentos do JavaScript', TRUE),
+(2, 'Introdução ao HTML e CSS', FALSE),
+(3, 'React para Iniciantes', FALSE),
+(4, 'Node.js e Express', FALSE),
+(5, 'Python para Iniciantes', TRUE),
+(6, 'Desenvolvimento com Java', FALSE),
+(7, 'Desenvolvimento de Jogos com Unity', TRUE),
+(8, 'Fundamentos de IA', FALSE),
+(9, 'Edição de Imagens no Photoshop', FALSE),
+(10, 'Figma: Design de Interface', TRUE),
+(11, 'SEO: Como otimizar seu site', FALSE),
+(12, 'Segurança em Redes de Computadores', FALSE),
+(13, 'Técnicas de Fotografia Profissional', TRUE),
+(14, 'Edição de Vídeos Profissionais', FALSE),
+(15, 'Liderança e Gestão de Equipes', FALSE),
+(16, 'Produtividade Pessoal', FALSE),
+(17, 'Gestão de Projetos com Scrum', FALSE),
+(18, 'Estratégias para Aumentar suas Vendas no Instagram', FALSE),
+(19, 'Como Criar Música no FL Studio', FALSE),
+(20, 'Mindfulness e Meditação', FALSE);
    
 -- Inserção na Tabela COLABORADOR (pass= 123)
 INSERT INTO COLABORADOR (NOME, EMAIL, USERNAME, PSSWORD, DATA_NASC, CARGO, DEPARTAMENTO, TELEFONE, SCORE) VALUES
@@ -196,13 +196,21 @@ INSERT INTO CURSO_COPIA (CURSO_COPIA_ID, PARENT_CURSO_ID) VALUES
 (2, 1),  -- Copia do curso 1 para o curso 2
 (3, 2);  -- Copia do curso 2 para o curso 3
 
--- Inserção na Tabela PEDIDO_CURSO - Corrigido para incluir todos os cursos com PENDENTE = TRUE
-INSERT INTO PEDIDO_CURSO (FORMADOR_ID, CURSO_ID, DATA) VALUES
-(2, 22, CURRENT_TIMESTAMP),  -- Introdução ao Node.js (PENDENTE = TRUE)
-(3, 23, CURRENT_TIMESTAMP),  -- Introdução ao C# (PENDENTE = TRUE)
-(2, 24, CURRENT_TIMESTAMP),  -- Desenvolvimento de Jogos com Unity (PENDENTE = TRUE)
-(3, 25, CURRENT_TIMESTAMP),  -- Desenvolvimento de Jogos com Unreal Engine (PENDENTE = TRUE) 
-(2, 26, CURRENT_TIMESTAMP);  -- Fotografia Digital Avançada (PENDENTE = TRUE)
+-- Inserção na Tabela PEDIDOS (substituindo PEDIDO_CURSO e PEDIDO_FORUM)
+INSERT INTO PEDIDOS (COLABORADOR_ID, TIPO, REFERENCIA_ID, DATA) VALUES
+-- Pedidos de Cursos (antigos PEDIDO_CURSO)
+(2, 'CURSO', 22, CURRENT_TIMESTAMP),  -- Introdução ao Node.js (PENDENTE = TRUE)
+(3, 'CURSO', 23, CURRENT_TIMESTAMP),  -- Introdução ao C# (PENDENTE = TRUE)
+(2, 'CURSO', 24, CURRENT_TIMESTAMP),  -- Desenvolvimento de Jogos com Unity (PENDENTE = TRUE)
+(3, 'CURSO', 25, CURRENT_TIMESTAMP),  -- Desenvolvimento de Jogos com Unreal Engine (PENDENTE = TRUE) 
+(2, 'CURSO', 26, CURRENT_TIMESTAMP),  -- Fotografia Digital Avançada (PENDENTE = TRUE),
+
+-- Pedidos de Fóruns (antigos PEDIDO_FORUM)
+(2, 'FORUM', 1, CURRENT_TIMESTAMP),   -- Pedido de fórum para JavaScript
+(3, 'FORUM', 5, CURRENT_TIMESTAMP),   -- Pedido de fórum para Photoshop
+(4, 'FORUM', 7, CURRENT_TIMESTAMP),   -- Pedido de fórum para Marketing no Instagram
+(5, 'FORUM', 10, CURRENT_TIMESTAMP),  -- Pedido de fórum para Gestão de Projetos
+(6, 'FORUM', 13, CURRENT_TIMESTAMP);  -- Pedido de fórum para Fotografia
 
 -- Inserção na Tabela AULA (Ajustando datas para dentro do período do curso)
 INSERT INTO AULA (FORMADOR_ID, SINCRONO_ID, DESCRICAO, HORA_INICIO, HORA_FIM) VALUES

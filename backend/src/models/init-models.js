@@ -20,7 +20,7 @@ var _material = require("./material");
 var _notificacao = require("./notificacao");
 var _notificacoes_formando = require("./notificacoes_formando");
 var _objeto = require("./objeto");
-var _pedido_curso = require("./pedido_curso");
+var _pedidos = require("./pedidos");
 var _preferencias_categoria = require("./preferencias_categoria");
 var _presenca_form_sinc = require("./presenca_form_sinc");
 var _questoes_quizz = require("./questoes_quizz");
@@ -55,7 +55,7 @@ function initModels(sequelize) {
   var notificacao = _notificacao(sequelize, DataTypes);
   var notificacoes_formando = _notificacoes_formando(sequelize, DataTypes);
   var objeto = _objeto(sequelize, DataTypes);
-  var pedido_curso = _pedido_curso(sequelize, DataTypes);
+  var pedidos = _pedidos(sequelize, DataTypes);
   var preferencias_categoria = _preferencias_categoria(sequelize, DataTypes);
   var presenca_form_sinc = _presenca_form_sinc(sequelize, DataTypes);
   var questoes_quizz = _questoes_quizz(sequelize, DataTypes);
@@ -73,8 +73,8 @@ function initModels(sequelize) {
   comentarios.belongsToMany(comentarios, { as: 'comentariopai_id_comentarios', through: comentario_resposta, foreignKey: "resposta_id", otherKey: "comentariopai_id" });
   curso.belongsToMany(curso, { as: 'parent_curso_id_cursos', through: curso_copia, foreignKey: "curso_copia_id", otherKey: "parent_curso_id" });
   curso.belongsToMany(curso, { as: 'curso_copia_id_cursos', through: curso_copia, foreignKey: "parent_curso_id", otherKey: "curso_copia_id" });
-  curso.belongsToMany(formador, { as: 'formador_id_formadors', through: pedido_curso, foreignKey: "curso_id", otherKey: "formador_id" });
-  formador.belongsToMany(curso, { as: 'curso_id_cursos', through: pedido_curso, foreignKey: "formador_id", otherKey: "curso_id" });
+  curso.belongsToMany(formador, { as: 'formador_id_formadors', through: pedidos, foreignKey: "curso_id", otherKey: "formador_id" });
+  formador.belongsToMany(curso, { as: 'curso_id_cursos', through: pedidos, foreignKey: "formador_id", otherKey: "curso_id" });
   formando.belongsToMany(aula, { as: 'aula_id_aulas', through: presenca_form_sinc, foreignKey: "formando_id", otherKey: "aula_id" });
   formando.belongsToMany(notificacao, { as: 'notificacao_id_notificacaos', through: notificacoes_formando, foreignKey: "formando_id", otherKey: "notificacao_id" });
   formando.belongsToMany(questoes_quizz, { as: 'questao_id_questoes_quizzs', through: respostas_quizz, foreignKey: "formando_id", otherKey: "questao_id" });
@@ -118,16 +118,48 @@ function initModels(sequelize) {
   curso.hasMany(notificacao, { as: "notificacaos", foreignKey: "curso_id"});
   material.belongsTo(curso, { as: "curso", foreignKey: "curso_id"});
   curso.hasMany(material, { as: "materials", foreignKey: "curso_id"});
-  pedido_curso.belongsTo(curso, { as: "ped_curso", foreignKey: "curso_id"});
-  curso.hasMany(pedido_curso, { as: "curso_ped", foreignKey: "curso_id"});
+  pedidos.belongsTo(colaborador, { as: "ped_colaborador", foreignKey: "colaborador_id"});
+  colaborador.hasMany(pedidos, { as: "colaborador_ped", foreignKey: "colaborador_id"});
+  pedidos.belongsTo(curso, { 
+    as: "ped_curso", 
+    foreignKey: "referencia_id",
+    constraints: false,
+    scope: {
+      tipo: 'CURSO'
+    }
+  });
+  curso.hasMany(pedidos, { 
+    as: "curso_ped", 
+    foreignKey: "referencia_id",
+    constraints: false,
+    scope: {
+      tipo: 'CURSO'
+    }
+  });
+  pedidos.belongsTo(topico, { 
+    as: "ped_topico", 
+    foreignKey: "referencia_id",
+    constraints: false,
+    scope: {
+      tipo: 'FORUM'
+    }
+  });
+  topico.hasMany(pedidos, { 
+    as: "topico_ped", 
+    foreignKey: "referencia_id",
+    constraints: false,
+    scope: {
+      tipo: 'FORUM'
+    }
+  });
   quizz.belongsTo(curso, { as: "curso", foreignKey: "curso_id"});
   curso.hasMany(quizz, { as: "quizzs", foreignKey: "curso_id"});
   sincrono.belongsTo(curso, { as: "sincrono_curso", foreignKey: "curso_id"});
   curso.hasOne(sincrono, { as: "curso_sincrono", foreignKey: "curso_id"});
   aula.belongsTo(formador, { as: "formador", foreignKey: "formador_id"});
   formador.hasMany(aula, { as: "aulas", foreignKey: "formador_id"});
-  pedido_curso.belongsTo(formador, { as: "ped_formador", foreignKey: "formador_id"});
-  formador.hasMany(pedido_curso, { as: "formador_ped", foreignKey: "formador_id"});
+  pedidos.belongsTo(formador, { as: "ped_formador", foreignKey: "formador_id"});
+  formador.hasMany(pedidos, { as: "formador_ped", foreignKey: "formador_id"});
   sincrono.belongsTo(formador, { as: "sincrono_formador", foreignKey: "formador_id"});
   formador.hasMany(sincrono, { as: "formador_sincronos", foreignKey: "formador_id"});
   avaliacao_quizz.belongsTo(formando, { as: "formando", foreignKey: "formando_id"});
@@ -203,7 +235,7 @@ function initModels(sequelize) {
     notificacao,
     notificacoes_formando,
     objeto,
-    pedido_curso,
+    pedidos,
     preferencias_categoria,
     presenca_form_sinc,
     questoes_quizz,
