@@ -14,7 +14,6 @@ const ListaPedidos = () => {
   const [filtro, setFiltro] = useState("all");
   const [tableRows, setTableRows] = useState([]);
 
-  // procurar pedidos
   const fetchPedidos = async () => {
     try {
       const token = sessionStorage.getItem("token");
@@ -65,51 +64,46 @@ const ListaPedidos = () => {
     }
   };
 
-  // Prepare table data with all needed fields for searchability
   useEffect(() => {
     if (pedidos.length > 0 && formadores.length > 0 && cursos.length > 0) {
-      // Create enhanced rows with all searchable data
       const enhancedRows = pedidos
-        .filter((pedido) => {
-          if (filtro === "all") return true;
-          if (filtro === "topico") return pedido.tipo === "Tópico Forum";
-          if (filtro === "curso") return pedido.tipo === "Curso";
-          return true;
-        })
+       .filter((pedido) => {
+  if (filtro === "all") return true;
+  if (filtro === "topico") return pedido.tipo === "Tópico Forum";
+  if (filtro === "curso") return pedido.tipo === "Curso";
+  return true;
+})
         .map((pedido) => {
-          // Find related formador and curso
           const formador = formadores.find((f) => f.id === pedido.formador_id);
-          const curso = cursos.find((c) => c.id === pedido.curso_id);
-          
-          // Create row with all searchable data
+          const curso = cursos.find((c) => c.curso_id === pedido.curso_id);
+
           return {
-            id: pedido.pedido_id, // Used for unique key
+            id: pedido.pedido_id,
             pedido_id: pedido.pedido_id,
             tipo: pedido.tipo,
             formador_id: pedido.formador_id,
             curso_id: pedido.curso_id,
             data: pedido.data,
-            // Add text fields for search
             formadorNome: formador ? formador.colaborador.nome : `Formador ${pedido.formador_id}`,
             cursoTitulo: curso ? curso.titulo : `Curso ${pedido.curso_id}`,
             dataFormatada: new Date(pedido.data).toLocaleString()
           };
         });
-      
+
       setTableRows(enhancedRows);
     }
   }, [pedidos, formadores, cursos, filtro]);
 
   const columns = [
     {
-      field: "formadorNome", // Use text field for searching
-      headerName: "Formador",
+      field: "formadorNome",
+      headerName: "Curso Pedido Por",
       sortable: true,
       searchable: true
     },
     {
-      field: "cursoTitulo", 
-      headerName: "Curso",
+      field: "cursoTitulo",
+      headerName: "Nome do Curso",
       sortable: true,
       searchable: true
     },
@@ -166,7 +160,6 @@ const ListaPedidos = () => {
             >
               Tópico de Fórum
             </button>
-            
             <button
               className={filtro === "Tipo de Curso" ? "filtro-button active" : "filtro-button"}
               onClick={() => setFiltro("Tipo de Curso")}
@@ -191,7 +184,7 @@ const ListaPedidos = () => {
         </div>
       ) : (
         <DataTable 
-          columns={columns} 
+          columns={columns}
           rows={tableRows || []}
           pageSize={10}
           title="Lista de Pedidos"
