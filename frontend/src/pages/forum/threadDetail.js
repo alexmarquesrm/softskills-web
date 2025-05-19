@@ -246,61 +246,61 @@ const ThreadDetail = () => {
           </button>
         </div>
         <Row className="thread-content">
-            <div className="thread-card">
-                <div className="thread-card-body">
-                  <p className="thread-description">{thread.descricao}</p>
-                  <div className="thread-actions" style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    marginTop: '1rem',
-                  }}>
-                    <div className="vote-section" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <button
-                        onClick={() => handleVote(1)}
-                        className={`vote-btn ${voteStatus === 1 ? 'voted' : ''}`}
-                        title="Upvote"
-                      >
-                        <ThumbsUp size={16} />
-                      </button>
-                      <span className="vote-count">{thread.voto_count || 0}</span>
-                      <button
-                        onClick={() => handleVote(-1)}
-                        className={`vote-btn ${voteStatus === -1 ? 'voted' : ''}`}
-                        title="Downvote"
-                      >
-                        <ThumbsDown size={16} />
-                      </button>
-                    </div>
-                    <button onClick={handleReport} className="report-btn">
-                      <Flag size={16} />
-                      Denunciar
-                    </button>
-                  </div>
+          <div className="thread-card">
+            <div className="thread-card-body">
+              <p className="thread-description">{thread.descricao}</p>
+              <div className="thread-actions" style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                marginTop: '1rem',
+              }}>
+                <div className="vote-section" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <button
+                    onClick={() => handleVote(1)}
+                    className={`vote-btn ${voteStatus === 1 ? 'voted' : ''}`}
+                    title="Upvote"
+                  >
+                    <ThumbsUp size={16} />
+                  </button>
+                  <span className="vote-count">{thread.voto_count || 0}</span>
+                  <button
+                    onClick={() => handleVote(-1)}
+                    className={`vote-btn ${voteStatus === -1 ? 'voted' : ''}`}
+                    title="Downvote"
+                  >
+                    <ThumbsDown size={16} />
+                  </button>
                 </div>
               </div>
-            <div className="comments-section">
-              <h2>Comentários</h2>
-              <div className="new-comment-form">
-                <textarea
-                  value={newComment}
-                  onChange={(e) => setNewComment(e.target.value)}
-                  placeholder="Escreva seu comentário..."
-                  required
-                />
-                <button onClick={(e) => handleCommentSubmit(e)} className="submit-comment-btn">
-                  <Send size={16} />
-                  Enviar Comentário
-                </button>
-              </div>
-              <div className="comments-list">
-                {comments.length === 0 ? (
-                  <p className="no-comments">Nenhum comentário ainda. Seja o primeiro a comentar!</p>
-                ) : (
-                  comments.map(comment => renderComment(comment))
-                )}
-              </div>
             </div>
+            <button onClick={handleReport} className="report-btn">
+              <Flag size={16} />
+              Denunciar
+            </button>
+          </div>
+          <div className="comments-section">
+            <h2>Comentários</h2>
+            <div className="new-comment-form">
+              <textarea
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                placeholder="Escreva seu comentário..."
+                required
+              />
+              <button onClick={(e) => handleCommentSubmit(e)} className="submit-comment-btn">
+                <Send size={16} />
+                Enviar Comentário
+              </button>
+            </div>
+            <div className="comments-list">
+              {comments.length === 0 ? (
+                <p className="no-comments">Nenhum comentário ainda. Seja o primeiro a comentar!</p>
+              ) : (
+                comments.map(comment => renderComment(comment))
+              )}
+            </div>
+          </div>
         </Row>
       </Container>
     </div>
