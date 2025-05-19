@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from "../../config/configAxios";
 import { useParams, Link } from 'react-router-dom';
-import { MessageSquare, Users, ArrowLeft, Plus, User } from 'react-feather';
+import { MessageSquare, Users, ArrowLeft, ArrowRight, Plus } from 'react-feather';
 import { Container, Row, Col } from 'react-bootstrap';
 import './forumDetail.css';
 
@@ -96,11 +96,11 @@ const ForumDetail = () => {
               <div className="threads-header">
                 <div className="threads-header-content">
                   <h2>Threads</h2>
-                  <Link to={`/forum/${id}/create-thread`} className="create-thread-btn">
+                </div>
+                <Link to={`/forum/${id}/create-thread`} className="create-thread-btn">
                     <Plus size={16} />
                     Criar Nova Thread
                   </Link>
-                </div>
               </div>
 
               <div className="threads-grid">
@@ -144,7 +144,7 @@ const ForumDetail = () => {
                       <div className="thread-card-footer">
                         <Link to={`/forum/${id}/thread/${thread.thread_id}`} className="view-thread-btn">
                           Ver Thread
-                          <ArrowLeft size={16} />
+                          <ArrowRight size={16} />
                         </Link>
                       </div>
                     </div>
