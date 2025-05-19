@@ -2,6 +2,7 @@ const Sequelize = require("sequelize");
 const initModels = require("../models/init-models");
 const sequelizeConn = require("../bdConexao");
 const models = initModels(sequelizeConn);
+const { Op } = Sequelize;
 
 const controladorPedidos = {
   // Criar novo pedido
@@ -33,6 +34,7 @@ const controladorPedidos = {
           }
         ]
       });
+
       res.status(200).json(pedidos);
     } catch (error) {
       console.error(error);
@@ -51,6 +53,38 @@ const controladorPedidos = {
             model: models.colaborador,
             as: "ped_colaborador",
             attributes: ["nome"]
+          },
+          {
+            model: models.curso,
+            as: "ped_curso",
+            attributes: ["titulo"],
+            required: false,
+            where: {
+              curso_id: {
+                [Op.col]: 'pedidos.referencia_id'
+              }
+            },
+            on: {
+              [Op.and]: [
+                Sequelize.where(Sequelize.col('pedidos.tipo'), 'CURSO')
+              ]
+            }
+          },
+          {
+            model: models.topico,
+            as: "ped_topico",
+            attributes: ["descricao"],
+            required: false,
+            where: {
+              topico_id: {
+                [Op.col]: 'pedidos.referencia_id'
+              }
+            },
+            on: {
+              [Op.and]: [
+                Sequelize.where(Sequelize.col('pedidos.tipo'), 'FORUM')
+              ]
+            }
           }
         ]
       });
@@ -72,6 +106,38 @@ const controladorPedidos = {
             model: models.colaborador,
             as: "ped_colaborador",
             attributes: ["nome"]
+          },
+          {
+            model: models.curso,
+            as: "ped_curso",
+            attributes: ["titulo"],
+            required: false,
+            where: {
+              curso_id: {
+                [Op.col]: 'pedidos.referencia_id'
+              }
+            },
+            on: {
+              [Op.and]: [
+                Sequelize.where(Sequelize.col('pedidos.tipo'), 'CURSO')
+              ]
+            }
+          },
+          {
+            model: models.topico,
+            as: "ped_topico",
+            attributes: ["descricao"],
+            required: false,
+            where: {
+              topico_id: {
+                [Op.col]: 'pedidos.referencia_id'
+              }
+            },
+            on: {
+              [Op.and]: [
+                Sequelize.where(Sequelize.col('pedidos.tipo'), 'FORUM')
+              ]
+            }
           }
         ]
       });
