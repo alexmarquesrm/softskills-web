@@ -3,12 +3,13 @@ import Card from 'react-bootstrap/Card';
 import { Calendar2, Person, Bookmark, Clock } from 'react-bootstrap-icons';
 import "./cardPedido.css";
 
-function CardPedido({ pedido = null, curso = null, index }) {
+function CardPedido({ pedido = null, index }) {
   const formatDate = (date) => {
-    if (!date || date === 'Indefenido') return 'Indefinido';
+    if (!date) return 'Indefinido';
     const data = new Date(date);
+    if (isNaN(data.getTime())) return 'Indefinido';
     const dia = String(data.getDate()).padStart(2, '0');
-    const mes = String(data.getMonth() + 1).padStart(2, '0'); // Janeiro é 0
+    const mes = String(data.getMonth() + 1).padStart(2, '0');
     const ano = data.getFullYear();
     return `${dia}/${mes}/${ano}`;
   };
@@ -22,8 +23,9 @@ function CardPedido({ pedido = null, curso = null, index }) {
   const currentVariant = variants[index % variants.length];
 
   const getDaysAgo = (date) => {
-    if (!date || date === 'Indefenido') return null;
+    if (!date) return null;
     const pedidoDate = new Date(date);
+    if (isNaN(pedidoDate.getTime())) return null;
     const today = new Date();
     const diffTime = Math.abs(today - pedidoDate);
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -32,34 +34,13 @@ function CardPedido({ pedido = null, curso = null, index }) {
     return `${diffDays} dias atrás`;
   };
 
-  const getDaysUntil = (date) => {
-    if (!date || date === 'Indefenido') return null;
-    const targetDate = new Date(date);
-    const today = new Date();
+  if (!pedido) return null;
 
-    targetDate.setHours(0, 0, 0, 0);
-    today.setHours(0, 0, 0, 0);
-
-    const diffTime = targetDate - today;
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-    if (diffDays < 0) return 'Já começou';
-    if (diffDays === 0) return 'Começa hoje';
-    if (diffDays === 1) return 'Começa amanhã';
-    return `Começa em ${diffDays} dias`;
-  };
-
-  // Detectar se é um pedido ou curso
-  const isPedido = !!pedido;
-  const titulo = isPedido
-    ? pedido?.ped_curso?.titulo ?? 'N/A'
-    : curso?.titulo ?? 'N/A';
-  const formador = isPedido
-    ? pedido?.ped_formador?.formador_colab?.nome ?? 'N/A'
-    : curso?.curso_sincrono?.[0]?.sincrono_formador?.formador_colab?.nome ?? 'N/A';
-  const dataRaw = isPedido ? pedido?.data : curso?.curso_sincrono?.data_inicio;
-  const data = formatDate(dataRaw);
-  const daysAgo = isPedido ? getDaysAgo(dataRaw) : getDaysUntil(dataRaw);
+  const titulo = pedido.titulo || 'N/A';
+  const formador = pedido.formador || 'N/A';
+  const data = formatDate(pedido.data);
+  const daysAgo = getDaysAgo(pedido.data);
+  const tipoLabel = pedido.tipoLabel || 'N/A';
 
   return (
     <Card className="card-pedido">
@@ -69,20 +50,26 @@ function CardPedido({ pedido = null, curso = null, index }) {
           <div className="card-icon" style={{ backgroundColor: currentVariant.light, color: currentVariant.bg }}>
             <Bookmark />
           </div>
-          <h5 className="card-title descricao-limitada" title={titulo}>
-            {titulo}
-          </h5>
+          <div className="card-title-container">
+            <h5 className="card-title descricao-limitada" title={titulo}>
+              {titulo}
+            </h5>
+            <span className="tipo-badge" style={{ 
+              backgroundColor: pedido.tipo === 'CURSO' ? '#10B981' : '#6366F1',
+              color: 'white'
+            }}>
+              {tipoLabel}
+            </span>
+          </div>
         </div>
 
         <div className="card-info">
-          {isPedido && (
-            <div className="info-item">
-              <Person className="info-icon" />
-              <span className="descricao-limitada" title={formador}>
-                {formador}
-              </span>
-            </div>
-          )}
+          <div className="info-item">
+            <Person className="info-icon" />
+            <span className="descricao-limitada" title={formador}>
+              {formador}
+            </span>
+          </div>
           <div className="info-item">
             <Calendar2 className="info-icon" />
             <span>{data}</span>
@@ -98,6 +85,5 @@ function CardPedido({ pedido = null, curso = null, index }) {
     </Card>
   );
 }
-
 
 export default CardPedido;
