@@ -5,10 +5,11 @@
 }
 
 .page-container {
-  max-width: 1200px;
+  padding: 1.5rem;
+  max-width: 1600px;
   margin: 0 auto;
-  padding: 0 1rem;
 }
+
 
 .thread-header {
   background: linear-gradient(135deg, #ffffff, #f0f7ff);
