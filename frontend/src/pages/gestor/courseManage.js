@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { Container, Row, Col, Spinner } from "react-bootstrap";
+import { Container, Row, Col, Spinner, Pagination } from "react-bootstrap";
 import { Book, AlertCircle } from 'react-feather';
 import axios from "../../config/configAxios";
 import { IoMdAdd } from "react-icons/io";
@@ -25,6 +25,8 @@ export default function CourseManage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isFiltersVisible, setIsFiltersVisible] = useState(true);
+    const [currentPage, setCurrentPage] = useState(1);
+    const coursesPerPage = 10;
 
     const fetchData = async () => {
         try {
@@ -106,6 +108,17 @@ export default function CourseManage() {
         if (tipoUser === "Gestor") {
             navigate('/gestor/cursos/add');
         }
+    };
+
+    // Pagination logic
+    const indexOfLastCourse = currentPage * coursesPerPage;
+    const indexOfFirstCourse = indexOfLastCourse - coursesPerPage;
+    const currentCourses = filteredInscricoes.slice(indexOfFirstCourse, indexOfLastCourse);
+    const totalPages = Math.ceil(filteredInscricoes.length / coursesPerPage);
+
+    const handlePageChange = (pageNumber) => {
+        setCurrentPage(pageNumber);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     if (loading) {
@@ -204,11 +217,62 @@ export default function CourseManage() {
 
                         <div className="courses-container">
                             {filteredInscricoes.length > 0 ? (
-                                <div className="courses-grid">
-                                    {filteredInscricoes.map((item, index) =>
-                                        renderCourseCard(item, index)
+                                <>
+                                    <div className="courses-grid">
+                                        {currentCourses.map((item, index) =>
+                                            renderCourseCard(item, index)
+                                        )}
+                                    </div>
+                                    {totalPages > 1 && (
+                                        <div className="pagination-container">
+                                            <Pagination>
+                                                <Pagination.First 
+                                                    onClick={() => handlePageChange(1)} 
+                                                    disabled={currentPage === 1}
+                                                />
+                                                <Pagination.Prev 
+                                                    onClick={() => handlePageChange(currentPage - 1)} 
+                                                    disabled={currentPage === 1}
+                                                />
+                                                
+                                                {[...Array(totalPages)].map((_, index) => {
+                                                    const pageNumber = index + 1;
+                                                    // Show first page, last page, current page, and pages around current page
+                                                    if (
+                                                        pageNumber === 1 ||
+                                                        pageNumber === totalPages ||
+                                                        (pageNumber >= currentPage - 1 && pageNumber <= currentPage + 1)
+                                                    ) {
+                                                        return (
+                                                            <Pagination.Item
+                                                                key={pageNumber}
+                                                                active={pageNumber === currentPage}
+                                                                onClick={() => handlePageChange(pageNumber)}
+                                                            >
+                                                                {pageNumber}
+                                                            </Pagination.Item>
+                                                        );
+                                                    } else if (
+                                                        pageNumber === currentPage - 2 ||
+                                                        pageNumber === currentPage + 2
+                                                    ) {
+                                                        return <Pagination.Ellipsis key={pageNumber} disabled />;
+                                                    }
+                                                    return null;
+                                                })}
+
+                                                <Pagination.Next 
+                                                    onClick={() => handlePageChange(currentPage + 1)} 
+                                                    disabled={currentPage === totalPages}
+                                                />
+                                                <Pagination.Last 
+                                                    onClick={() => handlePageChange(totalPages)} 
+                                                    disabled={currentPage === totalPages}
+                                                />
+                                            </Pagination>
+                                        </div>
                                     )}
-                                </div>
+                                </>
                             ) : (
                                 <div className="no-courses">
                                     <AlertCircle size={36} className="mb-3" />
