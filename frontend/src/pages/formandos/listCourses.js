@@ -17,6 +17,7 @@ export default function Courses() {
     const [tipoSelecionado, setTipoSelecionado] = useState({ S: false, A: false });
     const [estadoSelecionado, setEstadoSelecionado] = useState({ emCurso: false, terminado: false });
     const [dataSelecionada, setDataSelecionada] = useState({ inicio: '', fim: '' });
+    const [nivelSelecionado, setNivelSelecionado] = useState({ 1: false, 2: false, 3: false, 4: false });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isFiltersVisible, setIsFiltersVisible] = useState(true);
@@ -57,23 +58,28 @@ export default function Courses() {
             tipoSelecionado,
             estadoSelecionado,
             dataSelecionada,
+            nivelSelecionado,
             searchTerm,
             modo: 'curso'
         });
-    }, [curso, tipoSelecionado, estadoSelecionado, dataSelecionada, searchTerm]);
+    }, [curso, tipoSelecionado, estadoSelecionado, dataSelecionada, nivelSelecionado, searchTerm]);
 
-
-    // Stats
     const stats = useMemo(() => {
-        if (curso.length === 0) return { total: 0, emCurso: 0, terminados: 0 };
+            if (curso.length === 0) return { total: 0, emCurso: 0, terminados: 0 };
 
-        const total = curso.length;
-        const terminados = curso.filter(item => item.curso_sincrono?.estado).length;
-        const emCurso = total - terminados;
+            const porComecar = curso.filter(item => {
+                const estado = item.curso_sincrono?.estado === false;
+                const dataInicio = new Date(item.curso_sincrono?.data_inicio);
+                const dataAtual = new Date();
+                return estado && dataInicio > dataAtual;
+            }).length;
+            const assincrono = curso.filter(curso => curso.tipo === 'A' && curso.pendente === false).length;
+            
+            const total = porComecar + assincrono;
 
-        return { total, emCurso };
-    }, [curso]);
-
+            return { total };
+        }, [curso]);
+    
     const renderCourseCard = (curso, index) => (
         <FeaturedCourses key={curso.curso_id || index} curso={curso} mostrarBotao={true} />
     );
@@ -135,7 +141,7 @@ export default function Courses() {
 
                     <div className="percurso-stats">
                         <div className="percurso-stat-item">
-                            <span className="stat-value">{filteredInscricoes.length}</span>
+                            <span className="stat-value">{stats.total}</span>
                             <span className="stat-label">Total de Cursos</span>
                         </div>
                     </div>
@@ -159,6 +165,8 @@ export default function Courses() {
                             setEstadoSelecionado={setEstadoSelecionado}
                             dataSelecionada={dataSelecionada}
                             setDataSelecionada={setDataSelecionada}
+                            nivelSelecionado={nivelSelecionado}
+                            setNivelSelecionado={setNivelSelecionado}
                             mostrarTipo={true}
                             mostrarEstado={false}
                             mostrarData={true}
