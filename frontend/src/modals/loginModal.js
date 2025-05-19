@@ -87,12 +87,20 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
             // Armazenar token - principal fonte de autenticação
             sessionStorage.setItem('token', token);
             
+            // Determinar o tipo atual do usuário
+            const userType = utilizador.tipo;
+            const allUserTypes = utilizador.allUserTypes || [userType];
+            const isGestor = userType === 'Gestor' || allUserTypes.includes('Gestor');
+            
+            // Se for gestor, definir o tipo atual como Gestor
+            const currentType = isGestor ? 'Gestor' : userType;
+            
             // Armazenar dados para UI (estes não são usados para autorização)
             sessionStorage.setItem('colaboradorid', utilizador.colaboradorid);
             sessionStorage.setItem('nome', utilizador.nome);
             sessionStorage.setItem('email', utilizador.email);
             sessionStorage.setItem('primeirologin', utilizador.ultimologin === null ? "true" : "false");
-            sessionStorage.setItem('tipo', utilizador.tipo);
+            sessionStorage.setItem('tipo', currentType);
             sessionStorage.setItem('saudacao', saudacao);
             
             // Armazenar todos os tipos de usuário se disponíveis
@@ -105,22 +113,24 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
             // Configurar o token para todas as requisições futuras
             axios.defaults.headers.common['Authorization'] = token;
 
-            // Mostrar mensagem de boas-vindas usando Toastify
-            toast.success(`${saudacao}, ${utilizador.nome}! Bem-vindo(a) à plataforma de cursos.`, {
-                position: "top-right",
-                autoClose: 3000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
+            // Determinar a rota de redirecionamento baseada nas roles
+            let redirectPath = '/';
+            if (isGestor) {
+                redirectPath = '/gestor/dashboard';
+            } else if (userType === 'Formando' || allUserTypes.includes('Formando')) {
+                redirectPath = '/utilizadores/dashboard';
+            } else if (userType === 'Formador' || allUserTypes.includes('Formador')) {
+                redirectPath = '/formador/dashboard';
+            }
+
+            // Fechar o modal e redirecionar com a mensagem de boas-vindas
+            handleClose();
+            navigate(redirectPath, { 
+                state: { 
+                    welcomeMessage: `${saudacao}, ${utilizador.nome}! Bem-vindo(a) à plataforma de cursos.`
+                }
             });
-
-            // Fechar o modal após 2 segundos
-            setTimeout(() => {
-                handleClose();
-                onLoginSuccess();
-            }, 2000);
-
+            onLoginSuccess();
         } catch (error) {
             console.error('Erro no login:', error);
             if (error.response?.status === 404) {

@@ -14,6 +14,8 @@ import {
   Clock
 } from 'react-bootstrap-icons';
 import "./pageGestor.css";
+import { useNavigate } from 'react-router-dom';
+import WelcomeNotification from "../../components/notifications/WelcomeNotification";
 
 export default function PaginaGestor() {
   const [tableRows, setTableRows] = useState([]);
@@ -200,6 +202,7 @@ export default function PaginaGestor() {
 
   return (
     <Container fluid className="gestor-container">
+      <WelcomeNotification />
       <div className="page-header">
         <div className="page-header-content">
           <h1 className="page-title">Visão Geral</h1>

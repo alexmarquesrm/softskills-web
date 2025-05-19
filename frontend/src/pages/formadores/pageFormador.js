@@ -8,6 +8,7 @@ import CardInfo from "../../components/cards/cardDestaque";
 import CardPedido from '../../components/cards/cardPedido';
 import CardRow from '../../components/cards/cardRow';
 import FeaturedCourses from "../../components/cards/cardCourses";
+import WelcomeNotification from "../../components/notifications/WelcomeNotification";
 
 export default function PaginaGestor() {
   const [curso, setCurso] = useState([]);
@@ -108,6 +109,7 @@ export default function PaginaGestor() {
 
   return (
     <Container fluid className="gestor-container">
+      <WelcomeNotification />
       <div className="page-header">
         <div className="page-header-content">
           <h1 className="page-title">Visão Geral</h1>
