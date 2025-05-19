@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Container } from "react-bootstrap";
-import { Trash, Eye } from "react-bootstrap-icons";
+import {Eye} from "react-bootstrap-icons";
 import axios from "../../config/configAxios";
 import DataTable from "../../components/tables/dataTable";
 import "./pedidos.css";
@@ -15,7 +15,6 @@ const ListaPedidos = () => {
   const [filtro, setFiltro] = useState("all");
   const [tableRows, setTableRows] = useState([]);
 
-  // procurar pedidos
   const fetchPedidos = async () => {
     try {
       const token = sessionStorage.getItem("token");
@@ -101,7 +100,7 @@ const ListaPedidos = () => {
             dataFormatada: new Date(pedido.data).toLocaleString()
           };
         });
-      
+
       setTableRows(enhancedRows);
     }
   }, [pedidos, colaboradores, cursos, topicos, filtro]);
@@ -146,12 +145,7 @@ const ListaPedidos = () => {
           >
             <Eye size={18} />
           </button>
-          <button
-            className="btn btn-sm btn-outline-danger"
-            onClick={() => handleDelete(row.pedido_id)}
-          >
-            <Trash size={18} />
-          </button>
+          
         </>
       ),
     },
@@ -203,7 +197,7 @@ const ListaPedidos = () => {
         </div>
       ) : (
         <DataTable 
-          columns={columns} 
+          columns={columns}
           rows={tableRows || []}
           pageSize={10}
           title="Lista de Pedidos"
