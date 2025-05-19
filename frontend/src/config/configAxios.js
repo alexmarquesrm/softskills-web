@@ -40,16 +40,14 @@ instance.interceptors.response.use(
             
             // Clear session storage
             sessionStorage.clear();
+            localStorage.setItem('isLoggedOut', 'true');
+            
+            // Dispatch event that all tabs can listen to
+            window.dispatchEvent(new CustomEvent('auth:sessionExpired'));
             
             // Only redirect if not already on login page
             if (!window.location.pathname.includes('/login')) {
-                // Use a custom event instead of hard redirect
-                window.dispatchEvent(new CustomEvent('auth:sessionExpired'));
-                
-                // Optionally, use a soft redirect that doesn't lose component state
-                // setTimeout(() => {
-                //   window.location.href = '/login';
-                // }, 2000);
+                window.location.href = '/login';
             }
         }
         
