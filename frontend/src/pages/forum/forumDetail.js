@@ -33,7 +33,30 @@ const ForumDetail = () => {
           axios.get(`/thread`)
         ]);
         setForum(forumResponse.data);
-        setThreads(threadsResponse.data.filter(thread => thread.forum_id === parseInt(id)));
+        
+        // Filter threads for this forum and fetch comments for each thread
+        const forumThreads = threadsResponse.data.filter(thread => thread.forum_id === parseInt(id));
+        
+        // Fetch comments for each thread
+        const threadsWithComments = await Promise.all(
+          forumThreads.map(async (thread) => {
+            try {
+              const commentsResponse = await axios.get(`/comentario/thread/${thread.thread_id}`);
+              return {
+                ...thread,
+                comment_count: commentsResponse.data.length
+              };
+            } catch (err) {
+              console.error(`Error fetching comments for thread ${thread.thread_id}:`, err);
+              return {
+                ...thread,
+                comment_count: 0
+              };
+            }
+          })
+        );
+        
+        setThreads(threadsWithComments);
         setLoading(false);
       } catch (err) {
         setError('Erro ao carregar fórum e threads');
