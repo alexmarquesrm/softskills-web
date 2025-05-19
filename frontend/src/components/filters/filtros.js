@@ -3,13 +3,13 @@ import { ChevronDown, ChevronUp, Filter, X } from "react-bootstrap-icons";
 import "./filtros.css";
 
 function FiltrosCursos({
-    tipoSelecionado,
+    tipoSelecionado = { S: false, A: false },
     setTipoSelecionado,
-    estadoSelecionado,
+    estadoSelecionado = { porComecar: false, emCurso: false, terminado: false },
     setEstadoSelecionado,
-    dataSelecionada,
+    dataSelecionada = { inicio: '', fim: '' },
     setDataSelecionada,
-    nivelSelecionado,
+    nivelSelecionado = { 1: false, 2: false, 3: false, 4: false },
     setNivelSelecionado,
     mostrarTipo = true,
     mostrarEstado = true,
@@ -50,10 +50,10 @@ function FiltrosCursos({
 
     // Count active filters
     const getActiveFiltersCount = () => {
-        const selectedTipos = Object.values(tipoSelecionado).filter(Boolean).length;
-        const selectedEstados = Object.values(estadoSelecionado).filter(Boolean).length;
-        const dataAtiva = (dataSelecionada.inicio || dataSelecionada.fim) ? 1 : 0;
-        const selectedNiveis = Object.values(nivelSelecionado).filter(Boolean).length;
+        const selectedTipos = tipoSelecionado ? Object.values(tipoSelecionado).filter(Boolean).length : 0;
+        const selectedEstados = estadoSelecionado ? Object.values(estadoSelecionado).filter(Boolean).length : 0;
+        const dataAtiva = (dataSelecionada?.inicio || dataSelecionada?.fim) ? 1 : 0;
+        const selectedNiveis = nivelSelecionado ? Object.values(nivelSelecionado).filter(Boolean).length : 0;
         return selectedTipos + selectedEstados + selectedNiveis + dataAtiva;
     };
 
