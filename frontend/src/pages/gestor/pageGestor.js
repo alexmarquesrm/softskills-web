@@ -125,6 +125,7 @@ export default function PaginaGestor() {
       const response = await axios.get(`/pedido`, {
         headers: { Authorization: `${token}` }
       });
+      console.log(response.data);
       setPedidos(response.data);
     } catch (error) {
       setError(error);
@@ -154,13 +155,33 @@ export default function PaginaGestor() {
   const filteredPedido = useMemo(() => {
     if (pedidos.length === 0) return [];
     
-    return pedidos.filter(pedido => pedido.ped_curso.pendente === true);
-
+    return pedidos.filter(pedido => {
+      if (pedido.tipo === 'CURSO') {
+        return pedido.ped_curso?.pendente === true;
+      } else if (pedido.tipo === 'FORUM') {
+        return pedido.ped_forum?.pendente === true;
+      }
+      return false;
+    }).sort((a, b) => new Date(b.data) - new Date(a.data));
   }, [pedidos]);
   
-  const renderPedidoCard = (pedido, index) => (
-    <CardPedido index={index} pedido={pedido} />
-  );
+  const renderPedidoCard = (pedido, index) => {
+    return (
+      <CardPedido 
+        key={index} 
+        pedido={{
+          ...pedido,
+          titulo: pedido.tipo === 'CURSO' 
+            ? pedido.ped_curso?.titulo 
+            : pedido.ped_forum?.descricao,
+          formador: pedido.ped_colaborador?.nome,
+          tipo: pedido.tipo,
+          tipoLabel: pedido.tipo === 'CURSO' ? 'Curso' : 'Fórum'
+        }} 
+        index={index} 
+      />
+    );
+  };
 
   if (error) {
     return (
@@ -286,7 +307,7 @@ export default function PaginaGestor() {
               <p>Carregando pedidos...</p>
             </div>
           ) : filteredPedido.length > 0 ? (
-            <CardRow dados={[...filteredPedido].sort((a, b) => new Date(b.data) - new Date(a.data))} renderCard={renderPedidoCard} scrollable={true} />
+            <CardRow dados={filteredPedido} renderCard={renderPedidoCard} scrollable={true} />
           ) : (
             <div className="empty-state">
               <FileEarmarkText size={40} className="empty-icon" />

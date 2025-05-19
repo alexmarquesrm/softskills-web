@@ -118,38 +118,10 @@ function initModels(sequelize) {
   curso.hasMany(material, { as: "materials", foreignKey: "curso_id"});
   pedidos.belongsTo(colaborador, { as: "ped_colaborador", foreignKey: "colaborador_id"});
   colaborador.hasMany(pedidos, { as: "colaborador_ped", foreignKey: "colaborador_id"});
-  pedidos.belongsTo(curso, { 
-    as: "ped_curso", 
-    foreignKey: "referencia_id",
-    constraints: false,
-    scope: {
-      tipo: 'CURSO'
-    }
-  });
-  curso.hasMany(pedidos, { 
-    as: "curso_ped", 
-    foreignKey: "referencia_id",
-    constraints: false,
-    scope: {
-      tipo: 'CURSO'
-    }
-  });
-  pedidos.belongsTo(topico, { 
-    as: "ped_topico", 
-    foreignKey: "referencia_id",
-    constraints: false,
-    scope: {
-      tipo: 'FORUM'
-    }
-  });
-  topico.hasMany(pedidos, { 
-    as: "topico_ped", 
-    foreignKey: "referencia_id",
-    constraints: false,
-    scope: {
-      tipo: 'FORUM'
-    }
-  });
+  pedidos.belongsTo(curso, { as: "ped_curso", foreignKey: "referencia_id"});
+  curso.hasMany(pedidos, { as: "curso_ped", foreignKey: "referencia_id"});
+  pedidos.belongsTo(forum, { as: "ped_forum", foreignKey: "referencia_id"});
+  forum.hasMany(pedidos, { as: "forum_ped", foreignKey: "referencia_id"});
   quizz.belongsTo(curso, { as: "curso", foreignKey: "curso_id"});
   curso.hasMany(quizz, { as: "quizzs", foreignKey: "curso_id"});
   sincrono.belongsTo(curso, { as: "sincrono_curso", foreignKey: "curso_id"});

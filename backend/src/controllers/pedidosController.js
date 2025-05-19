@@ -2,6 +2,7 @@ const Sequelize = require("sequelize");
 const initModels = require("../models/init-models");
 const sequelizeConn = require("../bdConexao");
 const models = initModels(sequelizeConn);
+const { Op } = Sequelize;
 
 const controladorPedidos = {
   // Criar novo pedido
@@ -24,7 +25,47 @@ const controladorPedidos = {
   // Obter todos os pedidos
   getAllPedidos: async (req, res) => {
     try {
-      const pedidos = await models.pedidos.findAll();
+      const pedidos = await models.pedidos.findAll({
+        include: [
+          {
+            model: models.colaborador,
+            as: "ped_colaborador",
+            attributes: ["nome"]
+          },
+          {
+            model: models.curso,
+            as: "ped_curso",
+            attributes: ["titulo", "pendente"],
+            required: false,
+            where: {
+              curso_id: {
+                [Op.col]: 'pedidos.referencia_id'
+              }
+            },
+            on: {
+              [Op.and]: [
+                Sequelize.where(Sequelize.col('pedidos.tipo'), 'CURSO')
+              ]
+            }
+          },
+          {
+            model: models.forum,
+            as: "ped_forum",
+            attributes: ["descricao", "pendente"],
+            required: false,
+            where: {
+              forum_id: {
+                [Op.col]: 'pedidos.referencia_id'
+              }
+            },
+            on: {
+              [Op.and]: [
+                Sequelize.where(Sequelize.col('pedidos.tipo'), 'FORUM')
+              ]
+            }
+          }
+        ]
+      });
       res.status(200).json(pedidos);
     } catch (error) {
       console.error(error);
@@ -36,15 +77,44 @@ const controladorPedidos = {
   getPedidosByTipo: async (req, res) => {
     const { tipo } = req.params;
     try {
+      const includes = [
+        {
+          model: models.colaborador,
+          as: "ped_colaborador",
+          attributes: ["nome"]
+        }
+      ];
+
+      // Add curso or forum based on tipo
+      if (tipo === 'CURSO') {
+        includes.push({
+          model: models.curso,
+          as: "ped_curso",
+          attributes: ["titulo", "pendente"],
+          required: false,
+          where: {
+            curso_id: {
+              [Op.col]: 'pedidos.referencia_id'
+            }
+          }
+        });
+      } else if (tipo === 'FORUM') {
+        includes.push({
+          model: models.forum,
+          as: "ped_forum",
+          attributes: ["descricao", "pendente"],
+          required: false,
+          where: {
+            forum_id: {
+              [Op.col]: 'pedidos.referencia_id'
+            }
+          }
+        });
+      }
+
       const pedidos = await models.pedidos.findAll({
         where: { tipo },
-        include: [
-          {
-            model: models.colaborador,
-            as: "ped_colaborador",
-            attributes: ["nome"]
-          }
-        ]
+        include: includes
       });
       res.status(200).json(pedidos);
     } catch (error) {
@@ -64,6 +134,38 @@ const controladorPedidos = {
             model: models.colaborador,
             as: "ped_colaborador",
             attributes: ["nome"]
+          },
+          {
+            model: models.curso,
+            as: "ped_curso",
+            attributes: ["titulo", "pendente"],
+            required: false,
+            where: {
+              curso_id: {
+                [Op.col]: 'pedidos.referencia_id'
+              }
+            },
+            on: {
+              [Op.and]: [
+                Sequelize.where(Sequelize.col('pedidos.tipo'), 'CURSO')
+              ]
+            }
+          },
+          {
+            model: models.forum,
+            as: "ped_forum",
+            attributes: ["descricao", "pendente"],
+            required: false,
+            where: {
+              forum_id: {
+                [Op.col]: 'pedidos.referencia_id'
+              }
+            },
+            on: {
+              [Op.and]: [
+                Sequelize.where(Sequelize.col('pedidos.tipo'), 'FORUM')
+              ]
+            }
           }
         ]
       });
