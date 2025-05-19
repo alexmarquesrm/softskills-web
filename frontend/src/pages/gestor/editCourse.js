@@ -34,7 +34,8 @@ export default function EditCourse() {
         grau_dificuldade: "",
         data_limite_inscricao: "",
         data_inicio: "",
-        data_fim: ""
+        data_fim: "",
+        certificado: ""
     });
 
    
@@ -80,7 +81,8 @@ export default function EditCourse() {
                 grau_dificuldade: cursoData.nivel || "",
                 data_limite_inscricao: cursoSincrono.data_limite_inscricao?.substring(0, 10) || "",
                 data_inicio: cursoSincrono.data_inicio?.substring(0, 10) || "",
-                data_fim: cursoSincrono.data_fim?.substring(0, 10) || ""
+                data_fim: cursoSincrono.data_fim?.substring(0, 10) || "",
+                certificado: cursoData.certificado?.toString() || ""
             });
 
         } catch (error) {
@@ -129,7 +131,7 @@ export default function EditCourse() {
                 total_horas: parseInt(formData.horas),
                 titulo: formData.titulo,
                 descricao: formData.descricao,
-                certificado: false,
+                certificado: formData.certificado,
                 nivel: formData.grau_dificuldade
             };
 
@@ -311,6 +313,19 @@ export default function EditCourse() {
                             </Row>
                         </>
                     )}
+
+                    <Row>
+                        <Col md={6}>
+                            <Form.Group className="mb-3">
+                                <Form.Label>Certificado</Form.Label>
+                                <Form.Select name="certificado" value={formData.certificado} onChange={handleChange} required>
+                                    <option value="">Selecione uma opção</option>
+                                    <option value="true">Sim</option>
+                                    <option value="false">Não</option>
+                                </Form.Select>
+                            </Form.Group>
+                        </Col>
+                    </Row>
 
                     <Form.Group className="mb-3">
                         <Form.Label>Descrição</Form.Label>
