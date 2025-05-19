@@ -290,7 +290,7 @@ const ThreadDetail = () => {
               />
               <button onClick={(e) => handleCommentSubmit(e)} className="submit-comment-btn">
                 <Send size={16} />
-                Enviar Comentário
+                Comentar
               </button>
             </div>
             <div className="comments-list">

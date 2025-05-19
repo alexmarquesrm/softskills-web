@@ -152,6 +152,9 @@
   border: 1px solid #f0f0f0;
   width: 100%;
   margin-bottom: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
 }
 
 .thread-card-header {
@@ -181,14 +184,15 @@
 }
 
 .thread-card-body {
-  margin-bottom: 1.5rem;
+  flex: 1;
+  margin-bottom: 0;
 }
 
 .thread-description {
   color: #333;
   font-size: 1.1rem;
   line-height: 1.6;
-  margin: 0;
+  margin: 0 0 1rem 0;
 }
 
 .thread-card-footer {
@@ -201,6 +205,7 @@
   justify-content: space-between;
   align-items: center;
   width: 100%;
+  margin-top: 0;
 }
 
 .vote-section {
@@ -277,11 +282,11 @@
 
 .new-comment-form textarea {
   width: 100%;
-  min-height: 120px;
+  height: 120px;
   padding: 1rem;
   border: 1px solid #f0f0f0;
   border-radius: 0.5rem;
-  resize: vertical;
+  resize: none;
   margin-bottom: 1rem;
   font-family: inherit;
   font-size: 1rem;
@@ -306,6 +311,7 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  margin-left: auto;
 }
 
 .submit-comment-btn:hover {
