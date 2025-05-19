@@ -9,6 +9,8 @@ function FiltrosCursos({
     setEstadoSelecionado,
     dataSelecionada,
     setDataSelecionada,
+    nivelSelecionado,
+    setNivelSelecionado,
     mostrarTipo = true,
     mostrarEstado = true,
     mostrarData = false
@@ -17,6 +19,7 @@ function FiltrosCursos({
     const [estadoAberto, setEstadoAberto] = useState(true);
     const [filtersExpanded, setFiltersExpanded] = useState(true);
     const [dataAberto, setDataAberto] = useState(true);
+    const [nivelAberto, setNivelAberto] = useState(true);
 
     // Toggle individual filter value
     const toggleTipo = (tipo) => {
@@ -27,11 +30,22 @@ function FiltrosCursos({
         setEstadoSelecionado((prev) => ({ ...prev, [estado]: !prev[estado] }));
     };
 
+    const toggleNivel = (nivel) => {
+        setNivelSelecionado((prev) => ({ ...prev, [nivel]: !prev[nivel] }));
+    };
+    const niveisTexto = {
+        1: "Iniciante",
+        2: "Intermédio",
+        3: "Avançado",
+        4: "Expert",
+    };
+
     // Reset all filters
     const resetFilters = () => {
         setTipoSelecionado({ S: false, A: false });
         setEstadoSelecionado({ porComecar: false, emCurso: false, terminado: false });
         setDataSelecionada({ inicio: '', fim: '' });
+        setNivelSelecionado({ 1: false, 2: false, 3: false, 4: false });
     }
 
     // Count active filters
@@ -39,7 +53,8 @@ function FiltrosCursos({
         const selectedTipos = Object.values(tipoSelecionado).filter(Boolean).length;
         const selectedEstados = Object.values(estadoSelecionado).filter(Boolean).length;
         const dataAtiva = (dataSelecionada.inicio || dataSelecionada.fim) ? 1 : 0;
-        return selectedTipos + selectedEstados + dataAtiva;
+        const selectedNiveis = Object.values(nivelSelecionado).filter(Boolean).length;
+        return selectedTipos + selectedEstados + selectedNiveis + dataAtiva;
     };
 
     const activeCount = getActiveFiltersCount();
@@ -154,6 +169,31 @@ function FiltrosCursos({
                         </div>
                     </div>
                 </div>)}
+
+                <div className="filtro-box">
+                    <div
+                        className={`filtro-header ${nivelAberto ? 'active' : ''}`}
+                        onClick={() => setNivelAberto(!nivelAberto)}
+                    >
+                        <span className="filtro-title">Nível</span>
+                        {nivelAberto ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                    </div>
+                    <div className={`filtro-opcoes ${nivelAberto ? 'visible' : ''}`}>
+                        {[1, 2, 3, 4].map((nivel) => (
+                            <div key={nivel} className="checkbox-option">
+                                <div className="checkbox-wrapper-13">
+                                    <input
+                                        id={`nivel-${nivel}`}
+                                        type="checkbox"
+                                        checked={nivelSelecionado[nivel]}
+                                        onChange={() => toggleNivel(nivel)}
+                                    />
+                                    <label htmlFor={`nivel-${nivel}`}>Nível {nivel}- {niveisTexto[nivel]}</label>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
 
                 {/* Data de inicio */}
                 {mostrarData && (

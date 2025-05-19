@@ -3,6 +3,7 @@ export function filtrarCursosOuInscricoes({
   tipoSelecionado,
   estadoSelecionado,
   dataSelecionada,
+  nivelSelecionado,
   searchTerm,
   modo = 'curso' // ou 'inscricao'
 }) {
@@ -15,7 +16,7 @@ export function filtrarCursosOuInscricoes({
   return dados.filter(item => {
     const curso = modo === 'inscricao' ? item.inscricao_curso : item;
     const inscricao = modo === 'inscricao' ? item : null;
-    
+
     if (!curso) return false;
     if (curso.pendente) return false;
 
@@ -23,7 +24,7 @@ export function filtrarCursosOuInscricoes({
     const isConcluido = modo === 'inscricao' ? inscricao.estado === true : curso.curso_sincrono?.estado === true;
     const isPorComecar = curso.tipo === 'S' && dataInicio && dataInicio > now;
     const isEmCurso = curso.tipo === 'A' || (curso.tipo === 'S' && !isConcluido && (!isPorComecar || !dataInicio));
-    
+
     if (!isEmCurso && !isConcluido && !isPorComecar) return false;
 
     // Estado
@@ -40,6 +41,13 @@ export function filtrarCursosOuInscricoes({
     if (anyTipoSelected) {
       if (curso.tipo === 'S' && !tipoSelecionado.S) return false;
       if (curso.tipo === 'A' && !tipoSelecionado.A) return false;
+    }
+
+    const anyNivelSelected = Object.values(nivelSelecionado).some(Boolean);
+
+    if (anyNivelSelected) {
+      const cursoNivel = curso.nivel;
+      if (!nivelSelecionado[cursoNivel]) return false;
     }
 
     // Filtro por intervalo de datas de início

@@ -21,6 +21,7 @@ export default function PercursoFormativo() {
     const [tipoSelecionado, setTipoSelecionado] = useState({ S: false, A: false });
     const [estadoSelecionado, setEstadoSelecionado] = useState({ porComecar: false, emCurso: false, terminado: false });
     const [dataSelecionada, setDataSelecionada] = useState({ inicio: '', fim: '' });
+    const [nivelSelecionado, setNivelSelecionado] = useState({ 1: false, 2: false, 3: false, 4: false });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isFiltersVisible, setIsFiltersVisible] = useState(true);
@@ -72,10 +73,11 @@ export default function PercursoFormativo() {
             tipoSelecionado,
             estadoSelecionado,
             dataSelecionada,
+            nivelSelecionado,
             searchTerm,
             modo: 'inscricao'
         });
-    }, [inscricao, tipoSelecionado, estadoSelecionado, dataSelecionada, searchTerm]);
+    }, [inscricao, tipoSelecionado, estadoSelecionado, dataSelecionada, nivelSelecionado, searchTerm]);
 
     // Stats
     const stats = useMemo(() => {
@@ -83,7 +85,13 @@ export default function PercursoFormativo() {
 
         const total = inscricao.length;
         const terminados = inscricao.filter(item => item.estado).length;
-        const emCurso = total - terminados;
+        const porComecar = inscricao.filter(item => {
+                const estado = item.inscricao_curso?.curso_sincrono?.estado === false;
+                const dataInicio = new Date(item.inscricao_curso?.curso_sincrono?.data_inicio);
+                const dataAtual = new Date();
+                return estado && dataInicio > dataAtual;
+            }).length;
+        const emCurso = total - terminados - porComecar;
 
         return { total, emCurso, terminados };
     }, [inscricao]);
@@ -181,6 +189,8 @@ export default function PercursoFormativo() {
                             setEstadoSelecionado={setEstadoSelecionado}
                             dataSelecionada={dataSelecionada}
                             setDataSelecionada={setDataSelecionada}
+                            nivelSelecionado={nivelSelecionado}
+                            setNivelSelecionado={setNivelSelecionado}
                             mostrarTipo={true}
                             mostrarEstado={true}
                             mostrarData={true}
