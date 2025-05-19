@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { Container } from "react-bootstrap";
-import { Trash, Eye } from "react-bootstrap-icons";
+import {Eye} from "react-bootstrap-icons";
 import axios from "../../config/configAxios";
 import DataTable from "../../components/tables/dataTable";
 import "./pedidos.css";
 
 const ListaPedidos = () => {
   const [pedidos, setPedidos] = useState([]);
-  const [formadores, setFormadores] = useState([]);
+  const [colaboradores, setColaboradores] = useState([]);
   const [cursos, setCursos] = useState([]);
+  const [topicos, setTopicos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [filtro, setFiltro] = useState("all");
@@ -20,6 +21,7 @@ const ListaPedidos = () => {
       const response = await axios.get("/pedido", {
         headers: { Authorization: `${token}` },
       });
+      console.log(response.data);
       setPedidos(response.data);
       setError(null);
     } catch (err) {
@@ -30,80 +32,83 @@ const ListaPedidos = () => {
     }
   };
 
-  const fetchFormadoresECursos = async () => {
+  const fetchDadosRelacionados = async () => {
     try {
       const token = sessionStorage.getItem("token");
 
-      const [formadoresRes, cursosRes] = await Promise.all([
-        axios.get("/formador", { headers: { Authorization: `${token}` } }),
+      const [colaboradoresRes, cursosRes, topicosRes] = await Promise.all([
+        axios.get("/colaborador", { headers: { Authorization: `${token}` } }),
         axios.get("/curso", { headers: { Authorization: `${token}` } }),
+        axios.get("/topico", { headers: { Authorization: `${token}` } }),
       ]);
-      setFormadores(formadoresRes.data);
+      setColaboradores(colaboradoresRes.data);
       setCursos(cursosRes.data);
+      setTopicos(topicosRes.data);
     } catch (err) {
-      console.error("Erro ao procurar formadores ou cursos:", err);
+      console.error("Erro ao procurar dados relacionados:", err);
     }
   };
 
   useEffect(() => {
     fetchPedidos();
-    fetchFormadoresECursos();
+    fetchDadosRelacionados();
   }, []);
 
-  const handleDelete = async (pedidoId) => {
-    try {
-      const token = sessionStorage.getItem("token");
-      await axios.delete(`/pedido/${pedidoId}`, {
-        headers: { Authorization: `${token}` },
-      });
-
-      setPedidos(pedidos.filter((pedido) => pedido.pedido_id !== pedidoId));
-    } catch (err) {
-      console.error("Erro ao excluir pedido:", err);
-      alert("Erro ao excluir pedido. Tente novamente.");
-    }
-  };
-
+  // Prepare table data with all needed fields for searchability
   useEffect(() => {
-    if (pedidos.length > 0 && formadores.length > 0 && cursos.length > 0) {
+    if (pedidos.length > 0 && colaboradores.length > 0 && cursos.length > 0 && topicos.length > 0) {
+      // Create enhanced rows with all searchable data
       const enhancedRows = pedidos
-       .filter((pedido) => {
-  if (filtro === "all") return true;
-  if (filtro === "topico") return pedido.tipo === "Tópico Forum";
-  if (filtro === "curso") return pedido.tipo === "Curso";
-  return true;
-})
+        .filter((pedido) => {
+          if (filtro === "all") return true;
+          if (filtro === "forum") return pedido.tipo === "FORUM";
+          if (filtro === "curso") return pedido.tipo === "CURSO";
+          return true;
+        })
         .map((pedido) => {
-          const formador = formadores.find((f) => f.id === pedido.formador_id);
-          const curso = cursos.find((c) => c.curso_id === pedido.curso_id);
-
+          // Find related data
+          const colaborador = colaboradores.find((c) => c.colaborador_id === pedido.colaborador_id);
+          const curso = pedido.tipo === "CURSO" ? cursos.find((c) => c.curso_id === pedido.referencia_id) : null;
+          const topico = pedido.tipo === "FORUM" ? topicos.find((t) => t.topico_id === pedido.referencia_id) : null;
+          
+          // Create row with all searchable data
           return {
             id: pedido.pedido_id,
             pedido_id: pedido.pedido_id,
             tipo: pedido.tipo,
-            formador_id: pedido.formador_id,
-            curso_id: pedido.curso_id,
+            colaborador_id: pedido.colaborador_id,
+            referencia_id: pedido.referencia_id,
             data: pedido.data,
-            formadorNome: formador ? formador.colaborador.nome : `Formador ${pedido.formador_id}`,
-            cursoTitulo: curso ? curso.titulo : `Curso ${pedido.curso_id}`,
+            // Add text fields for search
+            colaboradorNome: colaborador ? colaborador.nome : `Colaborador ${pedido.colaborador_id}`,
+            referenciaNome: pedido.tipo === "CURSO" 
+              ? (curso ? curso.titulo : `Curso ${pedido.referencia_id}`)
+              : (topico ? topico.descricao : `Tópico ${pedido.referencia_id}`),
             dataFormatada: new Date(pedido.data).toLocaleString()
           };
         });
 
       setTableRows(enhancedRows);
     }
-  }, [pedidos, formadores, cursos, filtro]);
+  }, [pedidos, colaboradores, cursos, topicos, filtro]);
 
   const columns = [
     {
-      field: "formadorNome",
-      headerName: "Curso Pedido Por",
+      field: "colaboradorNome",
+      headerName: "Colaborador",
       sortable: true,
       searchable: true
     },
     {
-      field: "cursoTitulo",
-      headerName: "Nome do Curso",
+      field: "tipo",
+      headerName: "Tipo",
+      sortable: true,
+      searchable: true,
+      renderCell: ({ row }) => row.tipo === "CURSO" ? "Curso" : "Fórum"
+    },
+    {
+      field: "referenciaNome",
+      headerName: "Referência",
       sortable: true,
       searchable: true
     },
@@ -127,12 +132,7 @@ const ListaPedidos = () => {
           >
             <Eye size={18} />
           </button>
-          <button
-            className="btn btn-sm btn-outline-danger"
-            onClick={() => handleDelete(row.pedido_id)}
-          >
-            <Trash size={18} />
-          </button>
+          
         </>
       ),
     },
@@ -155,16 +155,16 @@ const ListaPedidos = () => {
               Todos
             </button>
             <button
-              className={filtro === "topico" ? "filtro-button active" : "filtro-button"}
-              onClick={() => setFiltro("topico")}
+              className={filtro === "forum" ? "filtro-button active" : "filtro-button"}
+              onClick={() => setFiltro("forum")}
             >
-              Tópico de Fórum
+              Fóruns
             </button>
             <button
-              className={filtro === "Tipo de Curso" ? "filtro-button active" : "filtro-button"}
-              onClick={() => setFiltro("Tipo de Curso")}
+              className={filtro === "curso" ? "filtro-button active" : "filtro-button"}
+              onClick={() => setFiltro("curso")}
             >
-              Tipo de Curso
+              Cursos
             </button>
           </div>
         </div>
