@@ -54,18 +54,7 @@ const ListaPedidos = () => {
     fetchDadosRelacionados();
   }, []);
 
-  const handleDelete = async (pedidoId) => {
-    try {
-      const token = sessionStorage.getItem("token");
-      await axios.delete(`/pedido/${pedidoId}`, {
-        headers: { Authorization: `${token}` },
-      });
-      setPedidos(pedidos.filter((pedido) => pedido.pedido_id !== pedidoId));
-    } catch (err) {
-      console.error("Erro ao excluir pedido:", err);
-      alert("Erro ao excluir pedido. Tente novamente.");
-    }
-  };
+ 
 
   // Prepare table data with all needed fields for searchability
   useEffect(() => {
