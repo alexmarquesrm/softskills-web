@@ -131,7 +131,7 @@ export default function EditCourse() {
                 total_horas: parseInt(formData.horas),
                 titulo: formData.titulo,
                 descricao: formData.descricao,
-                certificado: formData.certificado === "true",
+                certificado: formData.certificado,
                 nivel: formData.grau_dificuldade
             };
 
