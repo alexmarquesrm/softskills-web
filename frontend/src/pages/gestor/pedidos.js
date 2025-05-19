@@ -7,8 +7,9 @@ import "./pedidos.css";
 
 const ListaPedidos = () => {
   const [pedidos, setPedidos] = useState([]);
-  const [formadores, setFormadores] = useState([]);
+  const [colaboradores, setColaboradores] = useState([]);
   const [cursos, setCursos] = useState([]);
+  const [topicos, setTopicos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [filtro, setFiltro] = useState("all");
@@ -20,6 +21,7 @@ const ListaPedidos = () => {
       const response = await axios.get("/pedido", {
         headers: { Authorization: `${token}` },
       });
+      console.log(response.data);
       setPedidos(response.data);
       setError(null);
     } catch (err) {
@@ -30,24 +32,26 @@ const ListaPedidos = () => {
     }
   };
 
-  const fetchFormadoresECursos = async () => {
+  const fetchDadosRelacionados = async () => {
     try {
       const token = sessionStorage.getItem("token");
 
-      const [formadoresRes, cursosRes] = await Promise.all([
-        axios.get("/formador", { headers: { Authorization: `${token}` } }),
+      const [colaboradoresRes, cursosRes, topicosRes] = await Promise.all([
+        axios.get("/colaborador", { headers: { Authorization: `${token}` } }),
         axios.get("/curso", { headers: { Authorization: `${token}` } }),
+        axios.get("/topico", { headers: { Authorization: `${token}` } }),
       ]);
-      setFormadores(formadoresRes.data);
+      setColaboradores(colaboradoresRes.data);
       setCursos(cursosRes.data);
+      setTopicos(topicosRes.data);
     } catch (err) {
-      console.error("Erro ao procurar formadores ou cursos:", err);
+      console.error("Erro ao procurar dados relacionados:", err);
     }
   };
 
   useEffect(() => {
     fetchPedidos();
-    fetchFormadoresECursos();
+    fetchDadosRelacionados();
   }, []);
 
   // Prepare table data with all needed fields for searchability
@@ -72,8 +76,8 @@ const ListaPedidos = () => {
             id: pedido.pedido_id,
             pedido_id: pedido.pedido_id,
             tipo: pedido.tipo,
-            formador_id: pedido.formador_id,
-            curso_id: pedido.curso_id,
+            colaborador_id: pedido.colaborador_id,
+            referencia_id: pedido.referencia_id,
             data: pedido.data,
             // Add text fields for search
             colaboradorNome: colaborador ? colaborador.nome : `Colaborador ${pedido.colaborador_id}`,
@@ -86,7 +90,7 @@ const ListaPedidos = () => {
 
       setTableRows(enhancedRows);
     }
-  }, [pedidos, formadores, cursos, filtro]);
+  }, [pedidos, colaboradores, cursos, topicos, filtro]);
 
   const columns = [
     {
@@ -151,16 +155,16 @@ const ListaPedidos = () => {
               Todos
             </button>
             <button
-              className={filtro === "topico" ? "filtro-button active" : "filtro-button"}
-              onClick={() => setFiltro("topico")}
+              className={filtro === "forum" ? "filtro-button active" : "filtro-button"}
+              onClick={() => setFiltro("forum")}
             >
-              Tópico de Fórum
+              Fóruns
             </button>
             <button
-              className={filtro === "Tipo de Curso" ? "filtro-button active" : "filtro-button"}
-              onClick={() => setFiltro("Tipo de Curso")}
+              className={filtro === "curso" ? "filtro-button active" : "filtro-button"}
+              onClick={() => setFiltro("curso")}
             >
-              Tipo de Curso
+              Cursos
             </button>
           </div>
         </div>
