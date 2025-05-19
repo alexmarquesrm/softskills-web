@@ -26,7 +26,7 @@ export default function CourseManage() {
     const [error, setError] = useState(null);
     const [isFiltersVisible, setIsFiltersVisible] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
-    const coursesPerPage = 10;
+    const coursesPerPage = 8;
 
     const fetchData = async () => {
         try {
