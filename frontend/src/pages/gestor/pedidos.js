@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Container } from "react-bootstrap";
-import { Trash, Eye } from "react-bootstrap-icons";
+import {Eye} from "react-bootstrap-icons";
 import axios from "../../config/configAxios";
 import DataTable from "../../components/tables/dataTable";
 import "./pedidos.css";
@@ -50,19 +50,7 @@ const ListaPedidos = () => {
     fetchFormadoresECursos();
   }, []);
 
-  const handleDelete = async (pedidoId) => {
-    try {
-      const token = sessionStorage.getItem("token");
-      await axios.delete(`/pedido/${pedidoId}`, {
-        headers: { Authorization: `${token}` },
-      });
-
-      setPedidos(pedidos.filter((pedido) => pedido.pedido_id !== pedidoId));
-    } catch (err) {
-      console.error("Erro ao excluir pedido:", err);
-      alert("Erro ao excluir pedido. Tente novamente.");
-    }
-  };
+ 
 
   useEffect(() => {
     if (pedidos.length > 0 && formadores.length > 0 && cursos.length > 0) {
@@ -127,12 +115,7 @@ const ListaPedidos = () => {
           >
             <Eye size={18} />
           </button>
-          <button
-            className="btn btn-sm btn-outline-danger"
-            onClick={() => handleDelete(row.pedido_id)}
-          >
-            <Trash size={18} />
-          </button>
+          
         </>
       ),
     },
