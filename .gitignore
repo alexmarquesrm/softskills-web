@@ -10,3 +10,6 @@ node_modules
 # dockerfiles
 Dockerfile
 docker-compose.yml
+
+# random .txt
+random.txt
