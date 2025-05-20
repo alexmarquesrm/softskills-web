@@ -39,6 +39,10 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.TEXT,
       allowNull: false
     },
+    aprovado: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false
+    },
     pendente: {
       type: DataTypes.BOOLEAN,
       allowNull: false
