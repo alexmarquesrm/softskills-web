@@ -247,6 +247,17 @@ export default function CursoFormando() {
     return materials.filter(material => material.tipo === tipo);
   };
 
+  // Função para agrupar materiais por tipo e seção
+  const getMaterialsByTypeAndSection = (tipoArray) => {
+    const filtered = materials.filter(m => tipoArray.includes(m.tipo));
+    return filtered.reduce((acc, material) => {
+      const section = material.secao || 'Sem Seção';
+      if (!acc[section]) acc[section] = [];
+      acc[section].push(material);
+      return acc;
+    }, {});
+  };
+
   const getFormadorNome = () => {
     return curso?.curso_sincrono?.sincrono_formador?.formador_colab?.nome || "Não especificado";
   };
@@ -281,6 +292,17 @@ export default function CursoFormando() {
   const handleSubmitSuccess = (submissaoData) => {
     // Atualizar o estado do app para refletir a submissão
     setRefreshTrigger(prev => prev + 1);
+  };
+
+  // Função para agrupar trabalho e entrega juntos por seção
+  const getTrabalhoEntregaBySection = () => {
+    const filtered = materials.filter(m => m.tipo === 'trabalho' || m.tipo === 'entrega');
+    return filtered.reduce((acc, material) => {
+      const section = material.secao || 'Sem Seção';
+      if (!acc[section]) acc[section] = [];
+      acc[section].push(material);
+      return acc;
+    }, {});
   };
 
   if (loading) {
@@ -536,79 +558,84 @@ export default function CursoFormando() {
                         </div>
                       </Accordion.Header>
                       <Accordion.Body>
-                        {getMaterialsByType('video').length === 0 ? (
+                        {Object.keys(getMaterialsByTypeAndSection(['video'])).length === 0 ? (
                           <p className="text-muted text-center py-3">Nenhum vídeo disponível</p>
                         ) : (
-                          <ListGroup variant="flush" className="material-list">
-                            {getMaterialsByType('video').map((material) => (
-                              <ListGroup.Item key={material.id} className="material-item py-3">
-                                <div className="d-flex justify-content-between align-items-center">
-                                  <div className="d-flex align-items-start">
-                                    <div className="me-3 text-danger">
-                                      <BsPlayFill size={24} />
-                                    </div>
-                                    <div>
-                                      <div className="fw-bold">{material.titulo}</div>
-                                      {material.descricao && (
-                                        <small className="text-muted d-block mb-2">{material.descricao}</small>
-                                      )}
+                          Object.entries(getMaterialsByTypeAndSection(['video'])).map(([section, materials]) => (
+                            <div key={section} className="mb-4">
+                              <h6 className="fw-bold mb-3 text-danger">{section}</h6>
+                              <ListGroup variant="flush" className="material-list">
+                                {materials.map((material) => (
+                                  <ListGroup.Item key={material.id} className="material-item py-3">
+                                    <div className="d-flex justify-content-between align-items-center">
+                                      <div className="d-flex align-items-start">
+                                        <div className="me-3 text-danger">
+                                          <BsPlayFill size={24} />
+                                        </div>
+                                        <div>
+                                          <div className="fw-bold">{material.titulo}</div>
+                                          {material.descricao && (
+                                            <small className="text-muted d-block mb-2">{material.descricao}</small>
+                                          )}
+                                          <div>
+                                            {material.ficheiros.map((file, idx) => (
+                                              <Badge
+                                                key={idx}
+                                                bg="light"
+                                                text="danger"
+                                                onClick={() => handleFileAction(file)}
+                                                style={{ cursor: 'pointer' }}
+                                                className="me-2 mb-1 text-decoration-none d-inline-flex align-items-center"
+                                              >
+                                                <BsDownload className="me-1" /> {file.nome.split('.').pop().toUpperCase()} • {file.nome}
+                                              </Badge>
+                                            ))}
+                                          </div>
+                                        </div>
+                                      </div>
                                       <div>
-                                        {material.ficheiros.map((file, idx) => (
-                                          <Badge
-                                            key={idx}
-                                            bg="light"
-                                            text="danger"
-                                            onClick={() => handleFileAction(file)}
-                                            style={{ cursor: 'pointer' }}
-                                            className="me-2 mb-1 text-decoration-none d-inline-flex align-items-center"
-                                          >
-                                            <BsDownload className="me-1" /> {file.nome.split('.').pop().toUpperCase()} • {file.nome}
-                                          </Badge>
-                                        ))}
+                                        {/* Always render both buttons, just disable them when no files exist */}
+                                        <Button
+                                          variant="outline-primary"
+                                          size="sm"
+                                          className="me-2"
+                                          onClick={(e) => {
+                                            e.stopPropagation(); // Stop event propagation
+                                            if (material.ficheiros && material.ficheiros.length > 0) {
+                                              handleFileAction(material.ficheiros[0]);
+                                            }
+                                          }}
+                                          disabled={!material.ficheiros || material.ficheiros.length === 0 || loadingFileId === material.id}
+                                        >
+                                          {loadingFileId === material.id ? (
+                                            <Spinner animation="border" size="sm" />
+                                          ) : (
+                                            <>
+                                              <BsDownload className="me-1" /> Download
+                                            </>
+                                          )}
+                                        </Button>
+
+                                        <Button
+                                          variant="primary"
+                                          size="sm"
+                                          onClick={(e) => {
+                                            e.stopPropagation(); // Stop event propagation
+                                            if (material.ficheiros && material.ficheiros.length > 0) {
+                                              handleFileAction(material.ficheiros[0]);
+                                            }
+                                          }}
+                                          disabled={!material.ficheiros || material.ficheiros.length === 0}
+                                        >
+                                          Visualizar
+                                        </Button>
                                       </div>
                                     </div>
-                                  </div>
-                                  <div>
-                                    {/* Always render both buttons, just disable them when no files exist */}
-                                    <Button
-                                      variant="outline-primary"
-                                      size="sm"
-                                      className="me-2"
-                                      onClick={(e) => {
-                                        e.stopPropagation(); // Stop event propagation
-                                        if (material.ficheiros && material.ficheiros.length > 0) {
-                                          handleFileAction(material.ficheiros[0]);
-                                        }
-                                      }}
-                                      disabled={!material.ficheiros || material.ficheiros.length === 0 || loadingFileId === material.id}
-                                    >
-                                      {loadingFileId === material.id ? (
-                                        <Spinner animation="border" size="sm" />
-                                      ) : (
-                                        <>
-                                          <BsDownload className="me-1" /> Download
-                                        </>
-                                      )}
-                                    </Button>
-
-                                    <Button
-                                      variant="primary"
-                                      size="sm"
-                                      onClick={(e) => {
-                                        e.stopPropagation(); // Stop event propagation
-                                        if (material.ficheiros && material.ficheiros.length > 0) {
-                                          handleFileAction(material.ficheiros[0]);
-                                        }
-                                      }}
-                                      disabled={!material.ficheiros || material.ficheiros.length === 0}
-                                    >
-                                      Visualizar
-                                    </Button>
-                                  </div>
-                                </div>
-                              </ListGroup.Item>
-                            ))}
-                          </ListGroup>
+                                  </ListGroup.Item>
+                                ))}
+                              </ListGroup>
+                            </div>
+                          ))
                         )}
                       </Accordion.Body>
                     </Accordion.Item>
@@ -625,136 +652,73 @@ export default function CursoFormando() {
                         </div>
                       </Accordion.Header>
                       <Accordion.Body>
-                        {getMaterialsByType('documento').length === 0 && getMaterialsByType('aula').length === 0 ? (
+                        {Object.keys(getMaterialsByTypeAndSection(['documento', 'aula'])).length === 0 ? (
                           <p className="text-muted text-center py-3">Nenhum documento ou aula disponível</p>
                         ) : (
-                          <ListGroup variant="flush" className="material-list">
-                            {/* Listar documentos */}
-                            {getMaterialsByType('documento').map((material) => (
-                              <ListGroup.Item key={`doc-${material.id}`} className="material-item py-3">
-                                <div className="d-flex justify-content-between align-items-center">
-                                  <div className="d-flex align-items-start">
-                                    {/* Content section */}
-                                    <div className="me-3 text-primary">
-                                      <BsFileText size={24} />
-                                    </div>
-                                    <div>
-                                      <div className="fw-bold">{material.titulo}</div>
-                                      {material.descricao && (
-                                        <small className="text-muted d-block mb-2">{material.descricao}</small>
-                                      )}
+                          Object.entries(getMaterialsByTypeAndSection(['documento', 'aula'])).map(([section, materials]) => (
+                            <div key={section} className="mb-4">
+                              <h6 className="fw-bold mb-3 text-primary">{section}</h6>
+                              <ListGroup variant="flush" className="material-list">
+                                {materials.map((material) => (
+                                  <ListGroup.Item key={material.id} className="material-item py-3">
+                                    <div className="d-flex justify-content-between align-items-center">
+                                      <div className="d-flex align-items-start">
+                                        <div className={material.tipo === 'trabalho' ? 'me-3 text-info' : 'me-3 text-warning'}>
+                                          {material.tipo === 'trabalho' ? <BsTools size={24} /> : <BsUpload size={24} />}
+                                        </div>
+                                        <div>
+                                          <div className="fw-bold">{material.titulo}</div>
+                                          {material.descricao && (
+                                            <small className="text-muted d-block mb-2">{material.descricao}</small>
+                                          )}
+                                          {material.data_entrega && (
+                                            <Badge bg={material.tipo === 'trabalho' ? 'info' : 'warning'} text="dark" className="mb-2">
+                                              <BsClock className="me-1" /> Prazo: {formatDate(material.data_entrega)}
+                                            </Badge>
+                                          )}
+                                          <div>
+                                            {material.ficheiros && material.ficheiros.map((file, idx) => (
+                                              <Badge
+                                                key={idx}
+                                                bg="light"
+                                                text={material.tipo === 'trabalho' ? 'info' : 'warning'}
+                                                onClick={() => handleFileAction(file)}
+                                                style={{ cursor: 'pointer' }}
+                                                className="me-2 mb-1 text-decoration-none d-inline-flex align-items-center"
+                                              >
+                                                <BsDownload className="me-1" /> {file.nome.split('.').pop().toUpperCase()} • {file.nome}
+                                              </Badge>
+                                            ))}
+                                          </div>
+                                        </div>
+                                      </div>
                                       <div>
-                                        {material.ficheiros && material.ficheiros.map((file, idx) => (
-                                          <Badge
-                                            key={idx}
-                                            bg="light"
-                                            text="primary"
-                                            onClick={(e) => {
-                                              e.stopPropagation();
-                                              e.preventDefault();
-                                              handleFileAction(file);
-                                            }}
-                                            style={{ cursor: 'pointer' }}
-                                            className="me-2 mb-1 text-decoration-none d-inline-flex align-items-center"
+                                        {material.tipo === 'entrega' ? (
+                                          <Button
+                                            variant="warning"
+                                            size="sm"
+                                            onClick={() => handleOpenSubmeterModal(material)}
                                           >
-                                            <BsDownload className="me-1" />
-                                            {(file.nome || file.name || '').split('.').pop().toUpperCase() || 'FILE'} •
-                                            {file.nome || file.name || 'arquivo'}
-                                          </Badge>
-                                        ))}
+                                            <BsUpload className="me-1" /> Submeter
+                                          </Button>
+                                        ) : (
+                                          <Button
+                                            variant="outline-info"
+                                            size="sm"
+                                            className="me-2"
+                                            onClick={() => material.ficheiros.length > 0 && handleFileAction(material.ficheiros[0])}
+                                            disabled={material.ficheiros.length === 0}
+                                          >
+                                            <BsDownload className="me-1" /> Download
+                                          </Button>
+                                        )}
                                       </div>
                                     </div>
-                                  </div>
-                                  <div className="button-container" style={{ position: 'relative', zIndex: 10 }}>
-                                    <Button
-                                      variant="outline-primary"
-                                      size="sm"
-                                      className="me-2"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        e.preventDefault();
-                                        if (material.ficheiros && material.ficheiros.length > 0) {
-                                          handleFileAction(material.ficheiros[0]);
-                                        }
-                                      }}
-                                      disabled={!material.ficheiros || material.ficheiros.length === 0}
-                                    >
-                                      <BsDownload className="me-1" /> Download
-                                    </Button>
-
-                                    <Button
-                                      variant="primary"
-                                      size="sm"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        e.preventDefault();
-                                        if (material.ficheiros && material.ficheiros.length > 0) {
-                                          handleFileAction(material.ficheiros[0]);
-                                        }
-                                      }}
-                                      disabled={!material.ficheiros || material.ficheiros.length === 0}
-                                    >
-                                      Visualizar
-                                    </Button>
-                                  </div>
-                                </div>
-                              </ListGroup.Item>
-                            ))}
-
-
-                            {/* Listar aulas */}
-                            {getMaterialsByType('aula').map((material) => (
-                              <ListGroup.Item key={`aula-${material.id}`} className="material-item py-3">
-                                <div className="d-flex justify-content-between align-items-center">
-                                  <div className="d-flex align-items-start">
-                                    <div className="me-3 text-success">
-                                      <BsBook size={24} />
-                                    </div>
-                                    <div>
-                                      <div className="fw-bold">{material.titulo}</div>
-                                      {material.descricao && (
-                                        <small className="text-muted d-block mb-2">{material.descricao}</small>
-                                      )}
-                                      <div>
-                                        {material.ficheiros.map((file, idx) => (
-                                          <Badge
-                                            key={idx}
-                                            bg="light"
-                                            text="success"
-                                            onClick={() => handleFileAction(file)}
-                                            style={{ cursor: 'pointer' }}
-                                            className="me-2 mb-1 text-decoration-none d-inline-flex align-items-center"
-                                          >
-                                            <BsDownload className="me-1" /> {file.nome.split('.').pop().toUpperCase()} • {file.nome}
-                                          </Badge>
-                                        ))}
-                                      </div>
-                                    </div>
-                                  </div>
-                                  <div>
-                                    {/* Always show the Download button but disable it when no files are available */}
-                                    <Button
-                                      variant="outline-success"
-                                      size="sm"
-                                      className="me-2"
-                                      onClick={() => material.ficheiros.length > 0 && handleFileAction(material.ficheiros[0])}
-                                      disabled={material.ficheiros.length === 0}
-                                    >
-                                      <BsDownload className="me-1" /> Download
-                                    </Button>
-                                    <Button
-                                      variant="success"
-                                      size="sm"
-                                      onClick={() => material.ficheiros.length > 0 && handleFileAction(material.ficheiros[0])}
-                                      disabled={material.ficheiros.length === 0}
-                                    >
-                                      Visualizar
-                                    </Button>
-                                  </div>
-                                </div>
-                              </ListGroup.Item>
-                            ))}
-                          </ListGroup>
+                                  </ListGroup.Item>
+                                ))}
+                              </ListGroup>
+                            </div>
+                          ))
                         )}
                       </Accordion.Body>
                     </Accordion.Item>
@@ -766,125 +730,86 @@ export default function CursoFormando() {
                           <BsUpload className="me-2 text-warning" />
                           <span>Entregas e Avaliações</span>
                           <Badge bg="warning" text="dark" className="ms-2">
-                            {getMaterialsByType('entrega').length + getMaterialsByType('trabalho').length}
+                            {Object.values(getTrabalhoEntregaBySection()).reduce((acc, arr) => acc + arr.length, 0)}
                           </Badge>
                         </div>
                       </Accordion.Header>
                       <Accordion.Body>
-                        {getMaterialsByType('entrega').length === 0 && getMaterialsByType('trabalho').length === 0 ? (
+                        {Object.keys(getTrabalhoEntregaBySection()).length === 0 ? (
                           <p className="text-muted text-center py-3">Nenhuma entrega ou avaliação disponível</p>
                         ) : (
-                          <ListGroup variant="flush" className="material-list">
-                            {/* Listar trabalhos */}
-                            {getMaterialsByType('trabalho').map((material) => (
-                              <ListGroup.Item key={`trabalho-${material.id}`} className="material-item py-3">
-                                <div className="d-flex justify-content-between align-items-center">
-                                  <div className="d-flex align-items-start">
-                                    <div className="me-3 text-info">
-                                      <BsTools size={24} />
-                                    </div>
-                                    <div>
-                                      <div className="fw-bold">{material.titulo}</div>
-                                      {material.descricao && (
-                                        <small className="text-muted d-block mb-2">{material.descricao}</small>
-                                      )}
-                                      <div>
-                                        {material.ficheiros.map((file, idx) => (
-                                          <Badge
-                                            key={idx}
-                                            bg="light"
-                                            text="info"
-                                            onClick={() => handleFileAction(file)}
-                                            style={{ cursor: 'pointer' }}
-                                            className="me-2 mb-1 text-decoration-none d-inline-flex align-items-center"
-                                          >
-                                            <BsDownload className="me-1" /> {file.nome.split('.').pop().toUpperCase()} • {file.nome}
-                                          </Badge>
-                                        ))}
+                          Object.entries(getTrabalhoEntregaBySection()).map(([section, materials]) => (
+                            <div key={section} className="mb-4">
+                              <h6 className="fw-bold mb-3 text-info">{section}</h6>
+                              <ListGroup variant="flush" className="material-list">
+                                {materials
+                                  .slice()
+                                  .sort((a, b) => {
+                                    if (a.tipo === b.tipo) return 0;
+                                    if (a.tipo === 'trabalho') return -1;
+                                    if (b.tipo === 'trabalho') return 1;
+                                    return 0;
+                                  })
+                                  .map((material) => (
+                                    <ListGroup.Item key={material.id} className="material-item py-3">
+                                      <div className="d-flex justify-content-between align-items-center">
+                                        <div className="d-flex align-items-start">
+                                          <div className={material.tipo === 'trabalho' ? 'me-3 text-info' : 'me-3 text-warning'}>
+                                            {material.tipo === 'trabalho' ? <BsTools size={24} /> : <BsUpload size={24} />}
+                                          </div>
+                                          <div>
+                                            <div className="fw-bold">{material.titulo}</div>
+                                            {material.descricao && (
+                                              <small className="text-muted d-block mb-2">{material.descricao}</small>
+                                            )}
+                                            {material.data_entrega && (
+                                              <Badge bg={material.tipo === 'trabalho' ? 'info' : 'warning'} text="dark" className="mb-2">
+                                                <BsClock className="me-1" /> Prazo: {formatDate(material.data_entrega)}
+                                              </Badge>
+                                            )}
+                                            <div>
+                                              {material.ficheiros && material.ficheiros.map((file, idx) => (
+                                                <Badge
+                                                  key={idx}
+                                                  bg="light"
+                                                  text={material.tipo === 'trabalho' ? 'info' : 'warning'}
+                                                  onClick={() => handleFileAction(file)}
+                                                  style={{ cursor: 'pointer' }}
+                                                  className="me-2 mb-1 text-decoration-none d-inline-flex align-items-center"
+                                                >
+                                                  <BsDownload className="me-1" /> {file.nome.split('.').pop().toUpperCase()} • {file.nome}
+                                                </Badge>
+                                              ))}
+                                            </div>
+                                          </div>
+                                        </div>
+                                        <div>
+                                          {material.tipo === 'entrega' ? (
+                                            <Button
+                                              variant="warning"
+                                              size="sm"
+                                              onClick={() => handleOpenSubmeterModal(material)}
+                                            >
+                                              <BsUpload className="me-1" /> Submeter
+                                            </Button>
+                                          ) : (
+                                            <Button
+                                              variant="outline-info"
+                                              size="sm"
+                                              className="me-2"
+                                              onClick={() => material.ficheiros.length > 0 && handleFileAction(material.ficheiros[0])}
+                                              disabled={material.ficheiros.length === 0}
+                                            >
+                                              <BsDownload className="me-1" /> Download
+                                            </Button>
+                                          )}
+                                        </div>
                                       </div>
-                                    </div>
-                                  </div>
-                                  <div>
-                                    {/* Always show the Download button but disable it when no files are available */}
-                                    <Button
-                                      variant="outline-info"
-                                      size="sm"
-                                      className="me-2"
-                                      onClick={() => material.ficheiros.length > 0 && handleFileAction(material.ficheiros[0])}
-                                      disabled={material.ficheiros.length === 0}
-                                    >
-                                      <BsDownload className="me-1" /> Download
-                                    </Button>
-                                    <Button
-                                      variant="info"
-                                      size="sm"
-                                      onClick={() => material.ficheiros.length > 0 && handleFileAction(material.ficheiros[0])}
-                                      disabled={material.ficheiros.length === 0}
-                                    >
-                                      Visualizar
-                                    </Button>
-                                  </div>
-                                </div>
-                              </ListGroup.Item>
-                            ))}
-
-                            {/* Listar entregas */}
-                            {getMaterialsByType('entrega').map((material) => (
-                              <ListGroup.Item key={`entrega-${material.id}`} className="material-item py-3">
-                                <div className="d-flex justify-content-between align-items-center">
-                                  <div className="d-flex align-items-start">
-                                    {/* Content section remains the same */}
-                                    <div className="me-3 text-warning">
-                                      <BsUpload size={24} />
-                                    </div>
-                                    <div>
-                                      <div className="fw-bold">{material.titulo}</div>
-                                      {material.descricao && (
-                                        <small className="text-muted d-block mb-2">{material.descricao}</small>
-                                      )}
-                                      {material.data_entrega && (
-                                        <Badge bg="warning" text="dark" className="mb-2">
-                                          <BsClock className="me-1" /> Prazo: {formatDate(material.data_entrega)}
-                                        </Badge>
-                                      )}
-                                      <div>
-                                        {material.ficheiros.map((file, idx) => (
-                                          <Badge
-                                            key={idx}
-                                            bg="light"
-                                            text="warning"
-                                            onClick={() => handleFileAction(file)}
-                                            style={{ cursor: 'pointer' }}
-                                            className="me-2 mb-1 text-decoration-none d-inline-flex align-items-center"
-                                          >
-                                            <BsDownload className="me-1" /> {file.nome.split('.').pop().toUpperCase()} • {file.nome}
-                                          </Badge>
-                                        ))}
-                                      </div>
-                                    </div>
-                                  </div>
-                                  <div>
-                                    <Button
-                                      variant="outline-warning"
-                                      size="sm"
-                                      className="me-2"
-                                      onClick={() => material.ficheiros.length > 0 && handleFileAction(material.ficheiros[0])}
-                                      disabled={material.ficheiros.length === 0}
-                                    >
-                                      <BsDownload className="me-1" /> Download
-                                    </Button>
-                                    <Button
-                                      variant="warning"
-                                      size="sm"
-                                      onClick={() => handleOpenSubmeterModal(material)}
-                                    >
-                                      <BsUpload className="me-1" /> Submeter
-                                    </Button>
-                                  </div>
-                                </div>
-                              </ListGroup.Item>
-                            ))}
-                          </ListGroup>
+                                    </ListGroup.Item>
+                                  ))}
+                              </ListGroup>
+                            </div>
+                          ))
                         )}
                       </Accordion.Body>
                     </Accordion.Item>

@@ -710,7 +710,7 @@ export default function CursoDetalhes() {
                               <h6 className="fw-bold mb-3 text-info">{section}</h6>
                               <ListGroup variant="flush" className="material-list">
                                 {materials
-                                  .slice() // copiar array para não mutar o original
+                                  .slice()
                                   .sort((a, b) => {
                                     if (a.tipo === b.tipo) return 0;
                                     if (a.tipo === 'trabalho') return -1;
@@ -739,7 +739,7 @@ export default function CursoDetalhes() {
                                                 <Badge
                                                   key={idx}
                                                   bg="light"
-                                                  text="danger"
+                                                  text={material.tipo === 'trabalho' ? 'info' : 'warning'}
                                                   onClick={() => handleFileAction(file)}
                                                   style={{ cursor: 'pointer' }}
                                                   className="me-2 mb-1 text-decoration-none d-inline-flex align-items-center"
