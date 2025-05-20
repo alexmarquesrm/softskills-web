@@ -14,7 +14,6 @@ import {
   Clock
 } from 'react-bootstrap-icons';
 import "./pageGestor.css";
-import { useNavigate } from 'react-router-dom';
 import WelcomeNotification from "../../components/notifications/WelcomeNotification";
 
 export default function PaginaGestor() {
@@ -152,7 +151,7 @@ export default function PaginaGestor() {
     fetchDataDenun();
     fetchDataPedidos();
     fetchSaudacao();
-  }, []);
+  });
 
   const filteredPedido = useMemo(() => {
     if (pedidos.length === 0) return [];

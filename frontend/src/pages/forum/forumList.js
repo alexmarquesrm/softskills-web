@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from "../../config/configAxios";
 import { Link } from 'react-router-dom';
 import { MessageSquare, Users, ArrowRight } from 'react-feather';
@@ -37,9 +37,6 @@ const ForumList = () => {
   };
 
   const clearFilters = () => {
-    setTipoSelecionado({ S: false, A: false });
-    setEstadoSelecionado({ porComecar: false, emCurso: false, terminado: false });
-    setDataSelecionada({ inicio: '', fim: '' });
     setSearchTerm('');
   };
 

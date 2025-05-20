@@ -3,7 +3,6 @@ import axios from '../config/configAxios';
 import { Modal, Button, Form, InputGroup, Container, Row, Col } from 'react-bootstrap';
 import { EyeFill, EyeSlashFill, PersonFill, KeyFill } from 'react-bootstrap-icons';
 import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './loginModal.css';
 

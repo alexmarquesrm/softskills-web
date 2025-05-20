@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from "../../config/configAxios";
 import { useParams, useNavigate } from 'react-router-dom';
 import { MessageSquare, ArrowLeft, ThumbsUp, ThumbsDown, Flag, Send, User } from 'react-feather';
-import { Container, Row, Col } from 'react-bootstrap';
+import { Container, Row } from 'react-bootstrap';
 import './threadDetail.css';
 
 function getInitials(name) {

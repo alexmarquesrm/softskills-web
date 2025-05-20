@@ -6,8 +6,7 @@ import ProfileDropdown from "../dropdown/profileDropdown";
 import LoginModal from '../../modals/loginModal';
 import NavbarButton from "../buttons/navbarButton";
 import Sidebar from "../sidebar/sidebar";
-import { LuMenu, LuSearch } from "react-icons/lu";
-import { BsQuestionCircle } from "react-icons/bs";
+import { LuMenu} from "react-icons/lu";
 import { FaGraduationCap } from "react-icons/fa";
 import NotificationDropdown from '../notifications/NotificationDropdown';
 
