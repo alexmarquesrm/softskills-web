@@ -167,19 +167,22 @@ export default function PaginaGestor() {
   }, [pedidos]);
   
   const renderPedidoCard = (pedido, index) => {
+    if (!pedido) return null;
+    
     return (
       <CardPedido 
-        key={index} 
+        key={pedido.pedido_id || index}
         pedido={{
           ...pedido,
-          titulo: pedido.tipo === 'CURSO' 
-            ? pedido.ped_curso?.titulo 
-            : pedido.ped_forum?.descricao,
+          titulo: pedido.tipo === 'CURSO' ? pedido.ped_curso?.titulo : pedido.ped_forum?.descricao,
           formador: pedido.ped_colaborador?.nome,
           tipo: pedido.tipo,
-          tipoLabel: pedido.tipo === 'CURSO' ? 'Curso' : 'Fórum'
-        }} 
-        index={index} 
+          tipoLabel: pedido.tipo === 'CURSO' ? 'Curso' : 'Fórum',
+          data: pedido.data
+        }}
+        index={index}
+        showFormador={true}
+        showTimeAgo={true}
       />
     );
   };

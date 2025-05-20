@@ -64,8 +64,13 @@ export default function PaginaGestor() {
       const dataInicio = item.curso_sincrono?.data_inicio;
       if (!dataInicio) return false;
 
-      // Verifica se a data de início é futura
-      return new Date(dataInicio) > new Date();
+      // Verifica se a data de início é futura e está dentro dos próximos 15 dias
+      const hoje = new Date();
+      const dataInicioObj = new Date(dataInicio);
+      const diffTime = dataInicioObj - hoje;
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      
+      return diffDays >= 0 && diffDays <= 15;
     }).sort((a, b) => new Date(a.curso_sincrono?.data_inicio) - new Date(b.curso_sincrono?.data_inicio));
   }, [curso]);
 
@@ -100,6 +105,8 @@ export default function PaginaGestor() {
           data: curso.curso_sincrono?.data_inicio
         }}
         index={index}
+        showFormador={false}
+        showTimeAgo={false}
       />
     );
   };
