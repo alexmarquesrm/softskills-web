@@ -58,20 +58,28 @@ const ListaPedidos = () => {
 
   // Função para visualizar detalhes do pedido
   const handleVerPedido = (pedidoId) => {
-    navigate(`/pedidos/view/${pedidoId}`);
+    navigate(`/gestor/pedidos/view/${pedidoId}`);
   };
 
-  // Prepare table data with all needed fields for searchability
+  
   useEffect(() => {
     if (pedidos.length > 0 && colaboradores.length > 0 && cursos.length > 0 && topicos.length > 0) {
-      // Create enhanced rows with all searchable data
+    
       const enhancedRows = pedidos
-        .filter((pedido) => {
-          if (filtro === "all") return true;
-          if (filtro === "forum") return pedido.tipo === "FORUM";
-          if (filtro === "curso") return pedido.tipo === "CURSO";
-          return true;
-        })
+  .filter(pedido => {
+    if (pedido.tipo === "CURSO") {
+      return pedido.ped_curso?.pendente === true;
+    } else if (pedido.tipo === "FORUM") {
+      return pedido.ped_forum?.pendente === true;
+    }
+    return false; 
+  })
+  .filter((pedido) => {
+    if (filtro === "all") return true;
+    if (filtro === "forum") return pedido.tipo === "FORUM";
+    if (filtro === "curso") return pedido.tipo === "CURSO";
+    return true;
+  })
         .map((pedido) => {
           // Find related data
           const colaborador = colaboradores.find((c) => c.colaborador_id === pedido.colaborador_id);

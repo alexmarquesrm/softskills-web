@@ -36,7 +36,6 @@ export default function ViewPedido() {
                          headers: { Authorization: `${token}` }
                     });
                 setPedido(pedidoRes.data);
-                
                 // Buscar dados do colaborador
                 const colaboradorRes = await axios.get(`/colaborador/${pedidoRes.data.colaborador_id}`, {
                     headers: { Authorization: `${token}` }
@@ -74,7 +73,7 @@ export default function ViewPedido() {
                     setReferencia(forumRes.data);
                     setTopico(forumRes.data);
                 }
-                
+
                 setError(null);
             } catch (err) {
                 console.error("Erro ao carregar dados do pedido:", err);
@@ -84,7 +83,7 @@ export default function ViewPedido() {
             }
         };
         
-        fetchPedido();
+        fetchPedido();    
     }, [id]);
 
     const aprovarPedido = async () => {
@@ -169,8 +168,20 @@ export default function ViewPedido() {
                         <Col md={6}>
                             <p><strong>Solicitante:</strong> {colaborador?.nome || `Colaborador ID: ${pedido?.colaborador_id}`}</p>
                             <p><strong>Email:</strong> {colaborador?.email || "N/A"}</p>
-                            <p><strong>Status:</strong> <span className="badge bg-warning">Pendente</span></p>
-                        </Col>
+                            <p><strong>Estado:</strong> {
+                            pedido?.tipo === 'CURSO' && pedido?.ped_curso?.pendente ? (
+                                <span className="badge bg-warning">Pendente</span>
+                            ) : pedido?.tipo === 'CURSO' && pedido?.ped_curso?.pendente === false ? (
+                                <span className="badge bg-success">Aprovado</span>
+                            ) : pedido?.tipo === 'FORUM' && pedido?.ped_forum?.pendente ? (
+                                <span className="badge bg-warning">Pendente</span>
+                            ) : pedido?.tipo === 'FORUM' && pedido?.ped_forum?.pendente === false ? (
+                                <span className="badge bg-success">Aprovado</span>
+                            ) : (
+                                <span className="badge bg-secondary">Desconhecido</span>
+                            )
+                        }</p>                   
+                         </Col>
                     </Row>
                 </div>
 
