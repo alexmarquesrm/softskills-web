@@ -59,18 +59,19 @@ export default function PaginaGestor() {
   const filteredCurso = useMemo(() => {
     if (curso.length === 0) return [];
 
+    const hoje = new Date(); // Data e hora atual do sistema
+    const quinzeDiasDepois = new Date(hoje);
+    quinzeDiasDepois.setDate(hoje.getDate() + 15);
+
     return curso.filter(item => {
       // Verifica se tem data de início
       const dataInicio = item.curso_sincrono?.data_inicio;
       if (!dataInicio) return false;
 
-      // Verifica se a data de início é futura e está dentro dos próximos 15 dias
-      const hoje = new Date();
       const dataInicioObj = new Date(dataInicio);
-      const diffTime = dataInicioObj - hoje;
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
       
-      return diffDays >= 0 && diffDays <= 15;
+      // Verifica se a data está entre hoje e 15 dias depois
+      return dataInicioObj >= hoje && dataInicioObj <= quinzeDiasDepois;
     }).sort((a, b) => new Date(a.curso_sincrono?.data_inicio) - new Date(b.curso_sincrono?.data_inicio));
   }, [curso]);
 
@@ -166,12 +167,11 @@ export default function PaginaGestor() {
               dados={filteredCurso} 
               renderCard={renderPedidoCard} 
               scrollable={true}
-              emptyStateMessage="Não há cursos programados para começar neste momento."
             />
           ) : (
-            <div className="empty-state text-center">
+            <div className="empty-state text-center p-4">
               <FileEarmarkText size={40} className="empty-icon mb-3" />
-              <p>Não há cursos programados para começar neste momento.</p>
+              <p className="text-muted">Não há cursos programados para começar nos próximos 15 dias.</p>
             </div>
           )}
         </div>

@@ -11,7 +11,7 @@ function CardPedido({ pedido = null, index, showFormador = false, showTimeAgo = 
     const dia = String(data.getDate()).padStart(2, '0');
     const mes = String(data.getMonth() + 1).padStart(2, '0');
     const ano = data.getFullYear();
-    return `${dia}/${mes}/${ano}`;
+    return `${dia}-${mes}-${ano}`;
   };
 
   const variants = [
@@ -28,8 +28,13 @@ function CardPedido({ pedido = null, index, showFormador = false, showTimeAgo = 
     if (isNaN(dataInicio.getTime())) return null;
     
     const hoje = new Date();
+    
+    // Compara data e hora completa
+    if (dataInicio < hoje) return null; // Não mostra se já passou
+    
+    // Calcula diferença em dias
     const diffTime = dataInicio - hoje;
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
     
     if (showTimeAgo) {
       // Para o gestor: mostra há quanto tempo foi feito o pedido
@@ -39,8 +44,15 @@ function CardPedido({ pedido = null, index, showFormador = false, showTimeAgo = 
       return `${diffDays} dias atrás`;
     } else {
       // Para o formador: mostra quanto tempo falta para começar
-      if (diffDays < 0) return null;
-      if (diffDays === 0) return 'Começa hoje';
+      if (diffDays === 0) {
+        // Se for hoje, verifica a hora
+        const diffHoras = Math.floor((diffTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        if (diffHoras === 0) {
+          const diffMinutos = Math.floor((diffTime % (1000 * 60 * 60)) / (1000 * 60));
+          return `Começa em ${diffMinutos} minutos`;
+        }
+        return `Começa em ${diffHoras} horas`;
+      }
       if (diffDays === 1) return 'Começa amanhã';
       return `Faltam ${diffDays} dias`;
     }
@@ -54,7 +66,7 @@ function CardPedido({ pedido = null, index, showFormador = false, showTimeAgo = 
   const timeStatus = getTimeStatus(pedido.data);
   const tipoLabel = pedido.tipoLabel || 'N/A';
 
-  // Para o formador: não renderiza se o curso já começou
+  // Para o formador: não renderiza se o curso já começou ou se não tem status
   if (!showTimeAgo && !timeStatus) return null;
 
   return (
@@ -89,7 +101,7 @@ function CardPedido({ pedido = null, index, showFormador = false, showTimeAgo = 
           )}
           <div className="info-item">
             <Calendar2 className="info-icon" />
-            <span>{data}</span>
+            <span>Início: {data}</span>
           </div>
           {timeStatus && (
             <div className="days-ago" style={{ backgroundColor: currentVariant.light, color: currentVariant.accent }}>
