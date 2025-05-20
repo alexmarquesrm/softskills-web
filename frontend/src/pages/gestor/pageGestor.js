@@ -151,7 +151,7 @@ export default function PaginaGestor() {
     fetchDataDenun();
     fetchDataPedidos();
     fetchSaudacao();
-  });
+  }, []);
 
   const filteredPedido = useMemo(() => {
     if (pedidos.length === 0) return [];
