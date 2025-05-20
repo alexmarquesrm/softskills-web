@@ -118,45 +118,45 @@ INSERT INTO FORMADOR (FORMADOR_ID, ESPECIALIDADE) VALUES
 (5, 'Gestão de Projetos');
 
 -- Inserção na Tabela CURSO - Atualizando com mais cursos e estados corretos
-INSERT INTO CURSO (GESTOR_ID, TOPICO_ID, TIPO, TOTAL_HORAS, TITULO, DESCRICAO, PENDENTE, CERTIFICADO, NIVEL) VALUES
+INSERT INTO CURSO (GESTOR_ID, TOPICO_ID, TIPO, TOTAL_HORAS, TITULO, DESCRICAO, APROVADO, PENDENTE, CERTIFICADO, NIVEL) VALUES
 -- Cursos Síncronos (21)
-(1, 1, 'S', 40, 'Introdução ao JavaScript', 'Curso básico de JavaScript, para iniciantes.', FALSE, TRUE, 1),
-(1, 2, 'S', 50, 'Fundamentos de Python', 'Curso para iniciantes em Python, abordando conceitos básicos.', FALSE, TRUE, 1),
-(1, 3, 'S', 60, 'Desenvolvimento com React', 'Curso avançado de React para criar aplicações dinâmicas.', FALSE, TRUE, 3),
-(1, 5, 'S', 70, 'Design Gráfico com Illustrator', 'Curso avançado de design gráfico usando o Illustrator.', FALSE, FALSE, 3),
-(1, 10, 'S', 40, 'Gestão de Projetos com Scrum', 'Curso sobre gestão de projetos ágeis utilizando Scrum.', FALSE, TRUE, 2),
-(1, 11, 'S', 45, 'Desenvolvimento Web Full Stack', 'Curso completo de desenvolvimento web frontend e backend.', FALSE, TRUE, 3),
-(1, 12, 'S', 50, 'Python para Data Science', 'Introdução à análise de dados e machine learning com Python.', FALSE, TRUE, 2),
-(1, 13, 'S', 55, 'Desenvolvimento Mobile com Flutter', 'Criação de aplicativos multiplataforma com Flutter.', FALSE, TRUE, 3),
-(1, 14, 'S', 60, 'DevOps e CI/CD', 'Práticas modernas de desenvolvimento e entrega contínua.', FALSE, TRUE, 3),
-(1, 15, 'S', 45, 'Segurança da Informação', 'Fundamentos de segurança em desenvolvimento de software.', FALSE, TRUE, 2),
-(1, 16, 'S', 50, 'Cloud Computing com AWS', 'Introdução aos serviços cloud da Amazon Web Services.', FALSE, TRUE, 2),
-(1, 17, 'S', 55, 'Desenvolvimento de APIs REST', 'Criação de APIs RESTful com Node.js e Express.', FALSE, TRUE, 3),
-(1, 18, 'S', 60, 'Testes Automatizados', 'Implementação de testes unitários e de integração.', FALSE, TRUE, 3),
-(1, 19, 'S', 45, 'UI/UX Design', 'Princípios de design de interface e experiência do usuário.', FALSE, TRUE, 2),
-(1, 20, 'S', 50, 'Desenvolvimento de Jogos Unity', 'Criação de jogos 2D e 3D com Unity.', FALSE, TRUE, 3),
-(1, 21, 'S', 55, 'Blockchain e Smart Contracts', 'Introdução ao desenvolvimento de aplicações blockchain.', FALSE, TRUE, 3),
-(1, 22, 'S', 60, 'Machine Learning com Python', 'Implementação de algoritmos de machine learning.', FALSE, TRUE, 4),
-(1, 23, 'S', 45, 'Desenvolvimento Android', 'Criação de aplicativos nativos para Android.', FALSE, TRUE, 3),
-(1, 24, 'S', 50, 'Desenvolvimento iOS', 'Desenvolvimento de aplicativos para iOS com Swift.', FALSE, TRUE, 3),
-(1, 25, 'S', 55, 'Microserviços com Spring Boot', 'Arquitetura de microserviços com Java e Spring.', FALSE, TRUE, 4),
-(1, 26, 'S', 60, 'Desenvolvimento de Chatbots', 'Criação de chatbots com Python e NLP.', FALSE, TRUE, 3),
+(1, 1, 'S', 40, 'Introdução ao JavaScript', 'Curso básico de JavaScript, para iniciantes.', TRUE, FALSE, TRUE, 1),
+(1, 2, 'S', 50, 'Fundamentos de Python', 'Curso para iniciantes em Python, abordando conceitos básicos.', TRUE, FALSE, TRUE, 1),
+(1, 3, 'S', 60, 'Desenvolvimento com React', 'Curso avançado de React para criar aplicações dinâmicas.', TRUE, FALSE, TRUE, 3),
+(1, 5, 'S', 70, 'Design Gráfico com Illustrator', 'Curso avançado de design gráfico usando o Illustrator.', TRUE, FALSE, FALSE, 3),
+(1, 10, 'S', 40, 'Gestão de Projetos com Scrum', 'Curso sobre gestão de projetos ágeis utilizando Scrum.', TRUE, FALSE, TRUE, 2),
+(1, 11, 'S', 45, 'Desenvolvimento Web Full Stack', 'Curso completo de desenvolvimento web frontend e backend.', TRUE, FALSE, TRUE, 3),
+(1, 12, 'S', 50, 'Python para Data Science', 'Introdução à análise de dados e machine learning com Python.', TRUE, FALSE, TRUE, 2),
+(1, 13, 'S', 55, 'Desenvolvimento Mobile com Flutter', 'Criação de aplicativos multiplataforma com Flutter.', TRUE, FALSE, TRUE, 3),
+(1, 14, 'S', 60, 'DevOps e CI/CD', 'Práticas modernas de desenvolvimento e entrega contínua.', TRUE, FALSE, TRUE, 3),
+(1, 15, 'S', 45, 'Segurança da Informação', 'Fundamentos de segurança em desenvolvimento de software.', TRUE, FALSE, TRUE, 2),
+(1, 16, 'S', 50, 'Cloud Computing com AWS', 'Introdução aos serviços cloud da Amazon Web Services.', TRUE, FALSE, TRUE, 2),
+(1, 17, 'S', 55, 'Desenvolvimento de APIs REST', 'Criação de APIs RESTful com Node.js e Express.', TRUE, FALSE, TRUE, 3),
+(1, 18, 'S', 60, 'Testes Automatizados', 'Implementação de testes unitários e de integração.', TRUE, FALSE, TRUE, 3),
+(1, 19, 'S', 45, 'UI/UX Design', 'Princípios de design de interface e experiência do usuário.', TRUE, FALSE, TRUE, 2),
+(1, 20, 'S', 50, 'Desenvolvimento de Jogos Unity', 'Criação de jogos 2D e 3D com Unity.', TRUE, FALSE, TRUE, 3),
+(1, 21, 'S', 55, 'Blockchain e Smart Contracts', 'Introdução ao desenvolvimento de aplicações blockchain.', TRUE, FALSE, TRUE, 3),
+(1, 22, 'S', 60, 'Machine Learning com Python', 'Implementação de algoritmos de machine learning.', TRUE, FALSE, TRUE, 4),
+(1, 23, 'S', 45, 'Desenvolvimento Android', 'Criação de aplicativos nativos para Android.', TRUE, FALSE, TRUE, 3),
+(1, 24, 'S', 50, 'Desenvolvimento iOS', 'Desenvolvimento de aplicativos para iOS com Swift.', TRUE, FALSE, TRUE, 3),
+(1, 25, 'S', 55, 'Microserviços com Spring Boot', 'Arquitetura de microserviços com Java e Spring.', TRUE, FALSE, TRUE, 4),
+(1, 26, 'S', 60, 'Desenvolvimento de Chatbots', 'Criação de chatbots com Python e NLP.', TRUE, FALSE, TRUE, 3),
 
 -- Cursos Assíncronos (14)
-(1, 4, 'A', 45, 'Introdução ao Node.js', 'Curso básico sobre Node.js e como utilizá-lo no desenvolvimento web.', TRUE, FALSE, 1),
-(1, 6, 'A', 55, 'Introdução ao C#', 'Curso para iniciantes em C#, abordando sintaxe básica e estrutura de dados.', TRUE, TRUE, 1),
-(1, 7, 'A', 65, 'Desenvolvimento de Jogos com Unity', 'Curso avançado de Unity para criação de jogos.', TRUE, FALSE, 3),
-(1, 8, 'A', 80, 'Desenvolvimento de Jogos com Unreal Engine', 'Curso sobre o desenvolvimento de jogos usando Unreal Engine.', TRUE, TRUE, 2),
-(1, 9, 'A', 90, 'Fotografia Digital Avançada', 'Curso avançado de técnicas de fotografia digital e edição de imagens.', TRUE, FALSE, 4),
-(1, 1, 'A', 40, 'HTML5 e CSS3 Moderno', 'Aprenda as últimas features do HTML5 e CSS3.', FALSE, TRUE, 1),
-(1, 3, 'A', 45, 'JavaScript Avançado', 'Conceitos avançados de JavaScript e ES6+.', FALSE, TRUE, 3),
-(1, 5, 'A', 50, 'TypeScript para Desenvolvedores', 'Introdução ao TypeScript e suas vantagens.', FALSE, TRUE, 2),
-(1, 10, 'A', 55, 'React Native', 'Desenvolvimento de aplicativos móveis com React Native.', FALSE, TRUE, 3),
-(1, 11, 'A', 60, 'Vue.js Framework', 'Desenvolvimento de aplicações web com Vue.js.', FALSE, TRUE, 2),
-(1, 12, 'A', 45, 'MongoDB e NoSQL', 'Banco de dados NoSQL e MongoDB.', FALSE, TRUE, 2),
-(1, 13, 'A', 50, 'GraphQL', 'Desenvolvimento de APIs com GraphQL.', FALSE, TRUE, 3),
-(1, 14, 'A', 55, 'Docker e Containers', 'Containerização de aplicações com Docker.', FALSE, TRUE, 3),
-(1, 15, 'A', 60, 'Kubernetes', 'Orquestração de containers com Kubernetes.', FALSE, TRUE, 4);
+(1, 4, 'A', 45, 'Introdução ao Node.js', 'Curso básico sobre Node.js e como utilizá-lo no desenvolvimento web.', FALSE, TRUE, FALSE, 1),
+(1, 6, 'A', 55, 'Introdução ao C#', 'Curso para iniciantes em C#, abordando sintaxe básica e estrutura de dados.', FALSE, TRUE, TRUE, 1),
+(1, 7, 'A', 65, 'Desenvolvimento de Jogos com Unity', 'Curso avançado de Unity para criação de jogos.', FALSE, TRUE, FALSE, 3),
+(1, 8, 'A', 80, 'Desenvolvimento de Jogos com Unreal Engine', 'Curso sobre o desenvolvimento de jogos usando Unreal Engine.', FALSE, TRUE, TRUE, 2),
+(1, 9, 'A', 90, 'Fotografia Digital Avançada', 'Curso avançado de técnicas de fotografia digital e edição de imagens.', FALSE, TRUE, FALSE, 4),
+(1, 1, 'A', 40, 'HTML5 e CSS3 Moderno', 'Aprenda as últimas features do HTML5 e CSS3.', TRUE, FALSE, TRUE, 1),
+(1, 3, 'A', 45, 'JavaScript Avançado', 'Conceitos avançados de JavaScript e ES6+.', TRUE, FALSE, TRUE, 3),
+(1, 5, 'A', 50, 'TypeScript para Desenvolvedores', 'Introdução ao TypeScript e suas vantagens.', TRUE, FALSE, TRUE, 2),
+(1, 10, 'A', 55, 'React Native', 'Desenvolvimento de aplicativos móveis com React Native.', TRUE, FALSE, TRUE, 3),
+(1, 11, 'A', 60, 'Vue.js Framework', 'Desenvolvimento de aplicações web com Vue.js.', TRUE, FALSE, TRUE, 2),
+(1, 12, 'A', 45, 'MongoDB e NoSQL', 'Banco de dados NoSQL e MongoDB.', TRUE, FALSE, TRUE, 2),
+(1, 13, 'A', 50, 'GraphQL', 'Desenvolvimento de APIs com GraphQL.', TRUE, FALSE, TRUE, 3),
+(1, 14, 'A', 55, 'Docker e Containers', 'Containerização de aplicações com Docker.', TRUE, FALSE, TRUE, 3),
+(1, 15, 'A', 60, 'Kubernetes', 'Orquestração de containers com Kubernetes.', TRUE, FALSE, TRUE, 4);
 
 -- Inserção na Tabela ASSINCRONO (15 cursos)
 INSERT INTO ASSINCRONO (CURSO_ID) VALUES
@@ -406,3 +406,16 @@ INSERT INTO AVALIACAO_QUIZZ (QUIZZ_ID, FORMANDO_ID, NOTA) VALUES
 (2, 8, 89.0),
 (3, 9, 86.0),
 (4, 10, 93.0);
+
+-- Inserção na Tabela AVALIACAO_FORMADOR
+INSERT INTO AVALIACAO_FORMADOR (CURSO_ID, FORMADOR_ID, AVALIACAO) VALUES
+(1, 2, 5),  -- Avaliação do curso de JavaScript
+(2, 2, 4),  -- Avaliação do curso de Python
+(3, 2, 5),  -- Avaliação do curso de React
+(5, 3, 4),  -- Avaliação do curso de Design Gráfico
+(10, 5, 5), -- Avaliação do curso de Gestão de Projetos
+(11, 2, 4), -- Avaliação do curso de Desenvolvimento Web
+(12, 3, 5), -- Avaliação do curso de Python para Data Science
+(13, 2, 4), -- Avaliação do curso de Flutter
+(14, 3, 5), -- Avaliação do curso de DevOps
+(15, 2, 4); -- Avaliação do curso de Segurança

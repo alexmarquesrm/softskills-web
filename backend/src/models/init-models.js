@@ -2,6 +2,7 @@ var DataTypes = require("sequelize").DataTypes;
 var _area = require("./area");
 var _assincrono = require("./assincrono");
 var _aula = require("./aula");
+var _avaliacao_formador = require("./avaliacao_formador");
 var _avaliacao_quizz = require("./avaliacao_quizz");
 var _categoria = require("./categoria");
 var _colaborador = require("./colaborador");
@@ -37,6 +38,7 @@ function initModels(sequelize) {
   var area = _area(sequelize, DataTypes);
   var assincrono = _assincrono(sequelize, DataTypes);
   var aula = _aula(sequelize, DataTypes);
+  var avaliacao_formador = _avaliacao_formador(sequelize, DataTypes);
   var avaliacao_quizz = _avaliacao_quizz(sequelize, DataTypes);
   var categoria = _categoria(sequelize, DataTypes);
   var colaborador = _colaborador(sequelize, DataTypes);
@@ -180,12 +182,17 @@ function initModels(sequelize) {
   topico.hasMany(forum, { as: "topico_forums", foreignKey: "topico_id"});
   trabalhos_formando.belongsTo(trabalho, { as: "trabalho", foreignKey: "trabalho_id"});
   trabalho.hasMany(trabalhos_formando, { as: "trabalhos_formandos", foreignKey: "trabalho_id"});
+  avaliacao_formador.belongsTo(curso, { as: "avaformador_curso", foreignKey: "curso_id"});
+  curso.hasMany(avaliacao_formador, { as: "curso_avaformador", foreignKey: "curso_id"});
+  avaliacao_formador.belongsTo(formador, { as: "avaformador_formador", foreignKey: "formador_id"});
+  formador.hasMany(avaliacao_formador, { as: "formador_avaformador", foreignKey: "formador_id"});
 
   return {
     ficheiro,
     area,
     assincrono,
     aula,
+    avaliacao_formador,
     avaliacao_quizz,
     categoria,
     colaborador,
