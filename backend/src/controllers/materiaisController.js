@@ -51,6 +51,7 @@ const cursoMaterialController = {
                     titulo: material.titulo || 'Material sem título',
                     descricao: material.descricao || '',
                     tipo: material.tipo || 'documento',
+                    secao: material.secao || 'Sem Seção',
                     data_criacao: material.data_criacao,
                     data_alteracao: material.data_alteracao,
                     data_entrega: material.data_entrega,
@@ -69,7 +70,7 @@ const cursoMaterialController = {
     addMaterial: async (req, res) => {
         try {
             const { cursoId } = req.params;
-            const { titulo, descricao, tipo, dataEntrega } = req.body;
+            const { titulo, descricao, tipo, dataEntrega, secao } = req.body;
             const ficheiros = req.body.ficheiros || [];
 
             // Validar campos obrigatórios
@@ -94,6 +95,7 @@ const cursoMaterialController = {
                 titulo,
                 descricao,
                 tipo,
+                secao,
                 data_entrega: dataEntrega,
             });
 
@@ -128,6 +130,7 @@ const cursoMaterialController = {
                     titulo: novoMaterial.titulo,
                     descricao: novoMaterial.descricao,
                     tipo: novoMaterial.tipo,
+                    secao: novoMaterial.secao,
                     data_entrega: novoMaterial.data_entrega,
                     data_criacao: novoMaterial.data_criacao
                 }
@@ -145,7 +148,7 @@ const cursoMaterialController = {
     updateMaterial: async (req, res) => {
         try {
             const { materialId } = req.params;
-            const { titulo, descricao, dataEntrega, cursoId, tipo } = req.body;
+            const { titulo, descricao, dataEntrega, cursoId, tipo, secao } = req.body;
             const novosArquivos = req.body.ficheiros || [];
 
             if (!cursoId) {
@@ -170,6 +173,7 @@ const cursoMaterialController = {
             if (descricao !== undefined) dadosAtualizados.descricao = descricao;
             if (dataEntrega !== undefined) dadosAtualizados.data_entrega = dataEntrega;
             if (tipo && Object.values(materialTipos).includes(tipo)) dadosAtualizados.tipo = tipo;
+            if (secao !== undefined) dadosAtualizados.secao = secao;
             dadosAtualizados.data_alteracao = new Date();
 
             // Atualizar o material no banco de dados
@@ -213,6 +217,7 @@ const cursoMaterialController = {
                     titulo: material.titulo,
                     descricao: material.descricao,
                     tipo: material.tipo,
+                    secao: material.secao,
                     data_criacao: material.data_criacao,
                     data_alteracao: material.data_alteracao,
                     data_entrega: material.data_entrega,

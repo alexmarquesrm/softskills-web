@@ -28,6 +28,10 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.TEXT,
       allowNull: false
     },
+    secao: {
+      type: DataTypes.TEXT,
+      allowNull: true
+    },
     data_entrega: {
       type: DataTypes.DATE,
       allowNull: true
