@@ -131,6 +131,12 @@ const controladorInscricoes = {
                 model: models.topico,
                 as: "curso_topico"
               }
+            ],
+            include: [
+              {
+                model: models.sincrono,
+                as: "curso_sincrono"
+              }
             ]
           },
           {
