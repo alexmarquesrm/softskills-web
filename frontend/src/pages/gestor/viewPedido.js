@@ -93,13 +93,14 @@ export default function ViewPedido() {
 
         await axios.put(`/pedido/${id}`, {
             pendente: false,
-            status: 'APROVADO'
+            status: 'APROVADO',
+            aprovado: true    
         }, {
             headers: { Authorization: `${token}` }
         });
 
         setSuccess(true);
-        setTimeout(() => navigate('/pedidos'), 2000);
+        setTimeout(() => navigate('/gestor/lista/pedidos'), 2000);
     } catch (err) {
         console.error("Erro ao aprovar pedido:", err);
         setError("Não foi possível aprovar o pedido. Por favor, tente novamente.");
@@ -108,19 +109,21 @@ export default function ViewPedido() {
     }
 };
 
-   const recusarPedido = async () => {
+const recusarPedido = async () => {
     try {
         setProcessando(true);
         const token = sessionStorage.getItem('token');
 
         await axios.put(`/pedido/${id}`, {
-            status: 'RECUSADO'
+            pendente: false,
+            status: 'RECUSADO',
+            aprovado: false    
         }, {
             headers: { Authorization: `${token}` }
         });
 
         setSuccess(true);
-        setTimeout(() => navigate('/pedidos'), 2000);
+        setTimeout(() => navigate('/gestor/lista/pedidos'), 2000);
     } catch (err) {
         console.error("Erro ao recusar pedido:", err);
         setError("Não foi possível recusar o pedido. Por favor, tente novamente.");
@@ -128,7 +131,6 @@ export default function ViewPedido() {
         setProcessando(false);
     }
 };
-
     const goBack = () => navigate(-1);
 
     if (loading) {

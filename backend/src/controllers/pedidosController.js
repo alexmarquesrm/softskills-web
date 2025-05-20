@@ -184,8 +184,8 @@ const controladorPedidos = {
 
     updatePedido: async (req, res) => {
   const { pedido_id } = req.params;
-  const { tipo, referencia_id, pendente, status } = req.body;
-
+  const { tipo, referencia_id, pendente, status, aprovado } = req.body;
+ 
   try {
     const pedido = await models.pedidos.findOne({
       where: { pedido_id }
@@ -210,7 +210,8 @@ const controladorPedidos = {
 
         if (curso) {
           await curso.update({
-            pendente: typeof pendente !== 'undefined' ? pendente : curso.pendente,
+            aprovado: aprovado,
+            pendente: typeof pendente !== 'undefined' ? pendente : curso.pendente, 
             status: status ?? curso.status
           });
         }
@@ -221,6 +222,7 @@ const controladorPedidos = {
 
         if (forum) {
           await forum.update({
+            aprovado: aprovado,
             pendente: typeof pendente !== 'undefined' ? pendente : forum.pendente,
             status: status ?? forum.status
           });
