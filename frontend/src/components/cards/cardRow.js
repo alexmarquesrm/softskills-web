@@ -3,7 +3,7 @@ import { Row, Col, Button } from "react-bootstrap";
 import { ChevronLeft, ChevronRight } from "react-bootstrap-icons";
 import "./cardRow.css";
 
-function CardRow({ dados = [], renderCard, colSize = 3, scrollable = false, align = "center" }) {
+function CardRow({ dados = [], renderCard, colSize = 3, scrollable = false, align = "center", emptyStateMessage = "Nenhum item encontrado" }) {
     const scrollContainerRef = useRef(null);
     const [showLeftButton, setShowLeftButton] = useState(false);
     const [showRightButton, setShowRightButton] = useState(false);
@@ -14,13 +14,12 @@ function CardRow({ dados = [], renderCard, colSize = 3, scrollable = false, alig
         const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
         
         setShowLeftButton(scrollLeft > 0);
-        setShowRightButton(scrollLeft < scrollWidth - clientWidth - 10); // Adiciona uma pequena margem
+        setShowRightButton(scrollLeft < scrollWidth - clientWidth - 10);
     };
     
     useEffect(() => {
         if (scrollable && scrollContainerRef.current) {
             checkForButtons();
-            // Verificar inicialmente se tem scroll
             setShowRightButton(
                 scrollContainerRef.current.scrollWidth > scrollContainerRef.current.clientWidth
             );
@@ -42,6 +41,14 @@ function CardRow({ dados = [], renderCard, colSize = 3, scrollable = false, alig
         if (!scrollContainerRef.current) return;
         scrollContainerRef.current.scrollBy({ left: 300, behavior: 'smooth' });
     };
+
+    if (!dados || dados.length === 0) {
+        return (
+            <div className="empty-state text-center">
+                <p>{emptyStateMessage}</p>
+            </div>
+        );
+    }
 
     // Se scrollable for verdadeiro, usamos o layout horizontal
     if (scrollable) {
