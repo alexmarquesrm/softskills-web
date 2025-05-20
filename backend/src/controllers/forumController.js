@@ -27,40 +27,14 @@ createForum: async (req, res) => {
             include: [
               {
                 model: models.area,
-                as: 'topico_area',
-                include: [
-                  {
-                    model: models.categoria,
-                    as: 'area_categoria',
-                  }
-                ]
+                as: 'topico_area'
               }
             ]
-          },
-          {
-            model: models.threads,
-            as: 'forum_threads',
-            attributes: [],
           }
         ],
-        attributes: {
-          include: [
-            [
-              Sequelize.fn('COUNT', Sequelize.col('forum_threads.thread_id')),
-              'thread_count'
-            ],
-            [
-              Sequelize.fn('COUNT', Sequelize.fn('DISTINCT', Sequelize.col('forum_threads.colaborador_id'))),
-              'participant_count'
-            ]
-          ]
-        },
-        group: [
-          'forum.forum_id',
-          'forum_topico.topico_id',
-          'forum_topico.topico_area.area_id',
-          'forum_topico.topico_area.area_categoria.categoria_id'
-        ]
+        where: {
+          pendente: false
+        }
       });
 
       if (!forums || forums.length === 0) {
@@ -72,8 +46,8 @@ createForum: async (req, res) => {
         const forumJSON = forum.toJSON();
         
         // Ensure counts are numbers
-        forumJSON.thread_count = parseInt(forumJSON.thread_count) || 0;
-        forumJSON.participant_count = parseInt(forumJSON.participant_count) || 0;
+        forumJSON.thread_count = 0;
+        forumJSON.participant_count = 0;
 
         return forumJSON;
       });
