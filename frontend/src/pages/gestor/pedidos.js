@@ -23,7 +23,6 @@ const ListaPedidos = () => {
       const response = await axios.get("/pedido", {
         headers: { Authorization: `${token}` },
       });
-      console.log(response.data);
       setPedidos(response.data);
       setError(null);
     } catch (err) {
@@ -61,31 +60,31 @@ const ListaPedidos = () => {
     navigate(`/gestor/pedidos/view/${pedidoId}`);
   };
 
-  
+
   useEffect(() => {
     if (pedidos.length > 0 && colaboradores.length > 0 && cursos.length > 0 && topicos.length > 0) {
-    
+
       const enhancedRows = pedidos
-  .filter(pedido => {
-    if (pedido.tipo === "CURSO") {
-      return pedido.ped_curso?.pendente === true;
-    } else if (pedido.tipo === "FORUM") {
-      return pedido.ped_forum?.pendente === true;
-    }
-    return false; 
-  })
-  .filter((pedido) => {
-    if (filtro === "all") return true;
-    if (filtro === "forum") return pedido.tipo === "FORUM";
-    if (filtro === "curso") return pedido.tipo === "CURSO";
-    return true;
-  })
+        .filter(pedido => {
+          if (pedido.tipo === "CURSO") {
+            return pedido.ped_curso?.pendente === true;
+          } else if (pedido.tipo === "FORUM") {
+            return pedido.ped_forum?.pendente === true;
+          }
+          return false;
+        })
+        .filter((pedido) => {
+          if (filtro === "all") return true;
+          if (filtro === "forum") return pedido.tipo === "FORUM";
+          if (filtro === "curso") return pedido.tipo === "CURSO";
+          return true;
+        })
         .map((pedido) => {
           // Find related data
           const colaborador = colaboradores.find((c) => c.colaborador_id === pedido.colaborador_id);
           const curso = pedido.tipo === "CURSO" ? cursos.find((c) => c.curso_id === pedido.referencia_id) : null;
           const topico = pedido.tipo === "FORUM" ? topicos.find((t) => t.topico_id === pedido.referencia_id) : null;
-          
+
           // Create row with all searchable data
           return {
             id: pedido.pedido_id,
@@ -97,7 +96,7 @@ const ListaPedidos = () => {
             pendente: pedido.pendente,
             // Add text fields for search
             colaboradorNome: colaborador ? colaborador.nome : `Colaborador ${pedido.colaborador_id}`,
-            referenciaNome: pedido.tipo === "CURSO" 
+            referenciaNome: pedido.tipo === "CURSO"
               ? (curso ? curso.titulo : `Curso ${pedido.referencia_id}`)
               : (topico ? topico.descricao : `Tópico ${pedido.referencia_id}`),
             dataFormatada: new Date(pedido.data).toLocaleString()
@@ -200,7 +199,7 @@ const ListaPedidos = () => {
           </button>
         </div>
       ) : (
-        <DataTable 
+        <DataTable
           columns={columns}
           rows={tableRows || []}
           pageSize={10}

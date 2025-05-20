@@ -9,8 +9,8 @@ const controladorPedidos = {
   createPedido: async (req, res) => {
     const { colaborador_id, tipo, referencia_id } = req.body;
     try {
-      const novoPedido = await models.pedidos.create({ 
-        colaborador_id, 
+      const novoPedido = await models.pedidos.create({
+        colaborador_id,
         tipo,
         referencia_id,
         data: new Date()
@@ -181,62 +181,59 @@ const controladorPedidos = {
     }
   },
 
+  updatePedido: async (req, res) => {
+    const { pedido_id } = req.params;
+    const { tipo, referencia_id, pendente, status, aprovado } = req.body;
 
-    updatePedido: async (req, res) => {
-  const { pedido_id } = req.params;
-  const { tipo, referencia_id, pendente, status, aprovado } = req.body;
- 
-  try {
-    const pedido = await models.pedidos.findOne({
-      where: { pedido_id }
-    });
+    try {
+      const pedido = await models.pedidos.findOne({
+        where: { pedido_id }
+      });
 
-    if (!pedido) {
-      return res.status(404).json({ message: "Pedido não encontrado" });
-    }
+      if (!pedido) {
+        return res.status(404).json({ message: "Pedido não encontrado" });
+      }
 
-    
-    await pedido.update({
-      tipo: tipo ?? pedido.tipo,
-      referencia_id: referencia_id ?? pedido.referencia_id
-    });
+      await pedido.update({
+        tipo: tipo ?? pedido.tipo,
+        referencia_id: referencia_id ?? pedido.referencia_id
+      });
 
-    //  (curso ou fórum)
-    if (typeof pendente !== 'undefined' || status) {
-      if (pedido.tipo === "CURSO") {
-        const curso = await models.curso.findOne({
-          where: { curso_id: pedido.referencia_id }
-        });
-
-        if (curso) {
-          await curso.update({
-            aprovado: aprovado,
-            pendente: typeof pendente !== 'undefined' ? pendente : curso.pendente, 
-            status: status ?? curso.status
+      //  (curso ou fórum)
+      if (typeof pendente !== 'undefined' || status) {
+        if (pedido.tipo === "CURSO") {
+          const curso = await models.curso.findOne({
+            where: { curso_id: pedido.referencia_id }
           });
-        }
-      } else if (pedido.tipo === "FORUM") {
-        const forum = await models.forum.findOne({
-          where: { forum_id: pedido.referencia_id }
-        });
 
-        if (forum) {
-          await forum.update({
-            aprovado: aprovado,
-            pendente: typeof pendente !== 'undefined' ? pendente : forum.pendente,
-            status: status ?? forum.status
+          if (curso) {
+            await curso.update({
+              aprovado: aprovado,
+              pendente: typeof pendente !== 'undefined' ? pendente : curso.pendente,
+              status: status ?? curso.status
+            });
+          }
+        } else if (pedido.tipo === "FORUM") {
+          const forum = await models.forum.findOne({
+            where: { forum_id: pedido.referencia_id }
           });
+
+          if (forum) {
+            await forum.update({
+              aprovado: aprovado,
+              pendente: typeof pendente !== 'undefined' ? pendente : forum.pendente,
+              status: status ?? forum.status
+            });
+          }
         }
       }
+
+      res.status(200).json({ message: "Pedido atualizado com sucesso" });
+    } catch (error) {
+      console.error("Erro ao atualizar pedido:", error);
+      res.status(500).json({ message: "Erro ao atualizar o pedido" });
     }
-
-    res.status(200).json({ message: "Pedido atualizado com sucesso" });
-  } catch (error) {
-    console.error("Erro ao atualizar pedido:", error);
-    res.status(500).json({ message: "Erro ao atualizar o pedido" });
-  }
-},
-
+  },
 
   // Remover um pedido
   deletePedido: async (req, res) => {
