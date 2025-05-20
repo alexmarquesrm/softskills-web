@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import {
   Container, Row, Col, Card, ListGroup, Spinner,
-  ProgressBar, Badge, Accordion, Button, Alert
+  Badge, Accordion, Button, Alert
 } from "react-bootstrap";
 import { useParams, useNavigate } from "react-router-dom";
 import "./pageCourse.css";
@@ -20,13 +20,13 @@ export default function CursoFormando() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeSection, setActiveSection] = useState("sobre");
-  const [progressPercent] = useState(35); // Simulação de progresso, idealmente viria da API
+  const [inscricao, setInscricao] = useState(null);
   const [showSubmeterModal, setShowSubmeterModal] = useState(false);
   const [selectedAvaliacao, setSelectedAvaliacao] = useState(null);
   const [materials, setMaterials] = useState([]);
   const [materialLoading, setMaterialLoading] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
-  const [loadingFileId, setLoadingFileId] = useState(null);
+  const [loadingFileId] = useState(null);
 
   useEffect(() => {
     const fetchCursoData = async () => {
@@ -52,6 +52,32 @@ export default function CursoFormando() {
     };
 
     fetchCursoData();
+  }, [id]);
+
+  useEffect(() => {
+    const fetchDataInscricao = async () => {
+      try {
+        const response = await axios.get('/inscricao/minhas');
+        const cursoId = Number(id);
+
+        const inscricaoDoCurso = response.data.find(
+          (inscricao) => inscricao.curso_id === cursoId
+        );
+
+        if (inscricaoDoCurso !== undefined) {
+          setInscricao(inscricaoDoCurso);
+        } else {
+          setInscricao(null);
+        }
+
+      } catch (err) {
+        console.error("Erro ao carregar curso:", err);
+        setError("Erro ao carregar os dados do curso");
+        setLoading(false);
+      }
+    };
+
+    fetchDataInscricao();
   }, [id]);
 
   // 1. First, update your material fetching function in the course page component
@@ -234,34 +260,6 @@ export default function CursoFormando() {
     setActiveSection(section);
   };
 
-  // Função para determinar ícone com base na extensão do arquivo
-  const getFileIcon = (fileName) => {
-    const extension = fileName.split('.').pop().toLowerCase();
-
-    // Document types
-    if (['pdf', 'doc', 'docx', 'txt', 'rtf'].includes(extension)) {
-      return <BsFileText className="me-2" />;
-    }
-    // Video types
-    else if (['mp4', 'avi', 'mov', 'wmv', 'mkv', 'webm'].includes(extension)) {
-      return <BsCameraVideo className="me-2" />;
-    }
-    // Presentation types
-    else if (['ppt', 'pptx'].includes(extension)) {
-      return <BsBook className="me-2" />;
-    }
-    // Compressed files
-    else if (['zip', 'rar', '7z'].includes(extension)) {
-      return <BsTools className="me-2" />;
-    }
-    // Spreadsheets
-    else if (['xls', 'xlsx', 'csv'].includes(extension)) {
-      return <BsFileText className="me-2" />;
-    }
-    // Default
-    return <BsFileText className="me-2" />;
-  };
-
   // Função para abrir o modal de submissão de trabalho
   const handleOpenSubmeterModal = (material) => {
     const avaliacaoInfo = {
@@ -367,13 +365,12 @@ export default function CursoFormando() {
                 >
                   <BsInfoCircle className="me-1" /> Sobre
                 </Button>
-                <Button
-                  variant={activeSection === "materiais" ? "primary" : "light"}
-                  onClick={() => handleSectionChange("materiais")}
-                  className="me-2 mb-2"
-                >
-                  <BsBook className="me-1" /> Materiais
-                </Button>
+
+                {inscricao !== null && (
+                  <Button variant={activeSection === "materiais" ? "primary" : "light"} onClick={() => handleSectionChange("materiais")} className="me-2 mb-2">
+                    <BsBook className="me-1" /> Materiais
+                  </Button>
+                )}
                 <Button
                   variant={activeSection === "objetivos" ? "primary" : "light"}
                   onClick={() => handleSectionChange("objetivos")}
