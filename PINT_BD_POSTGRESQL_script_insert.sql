@@ -68,27 +68,27 @@ INSERT INTO TOPICO (AREA_ID, DESCRICAO) VALUES
 (13, 'Exercícios Físicos em Casa');
 
 -- Inserção na Tabela FORUM
-INSERT INTO FORUM (TOPICO_ID, DESCRICAO, PENDENTE) VALUES
-(1, 'Fundamentos do JavaScript', TRUE),
-(2, 'Introdução ao HTML e CSS', FALSE),
-(3, 'React para Iniciantes', FALSE),
-(4, 'Node.js e Express', FALSE),
-(5, 'Python para Iniciantes', TRUE),
-(6, 'Desenvolvimento com Java', FALSE),
-(7, 'Desenvolvimento de Jogos com Unity', TRUE),
-(8, 'Fundamentos de IA', FALSE),
-(9, 'Edição de Imagens no Photoshop', FALSE),
-(10, 'Figma: Design de Interface', TRUE),
-(11, 'SEO: Como otimizar seu site', FALSE),
-(12, 'Segurança em Redes de Computadores', FALSE),
-(13, 'Técnicas de Fotografia Profissional', TRUE),
-(14, 'Edição de Vídeos Profissionais', FALSE),
-(15, 'Liderança e Gestão de Equipes', FALSE),
-(16, 'Produtividade Pessoal', FALSE),
-(17, 'Gestão de Projetos com Scrum', FALSE),
-(18, 'Estratégias para Aumentar suas Vendas no Instagram', FALSE),
-(19, 'Como Criar Música no FL Studio', FALSE),
-(20, 'Mindfulness e Meditação', FALSE);
+INSERT INTO FORUM (TOPICO_ID, DESCRICAO, APROVADO, PENDENTE) VALUES
+(1, 'Fundamentos do JavaScript', FALSE, TRUE),
+(2, 'Introdução ao HTML e CSS', TRUE, FALSE),
+(3, 'React para Iniciantes', TRUE, FALSE),
+(4, 'Node.js e Express', TRUE, FALSE),
+(5, 'Python para Iniciantes', FALSE, TRUE),
+(6, 'Desenvolvimento com Java', TRUE, FALSE),
+(7, 'Desenvolvimento de Jogos com Unity', FALSE, TRUE),
+(8, 'Fundamentos de IA', TRUE, FALSE),
+(9, 'Edição de Imagens no Photoshop', TRUE, FALSE),
+(10, 'Figma: Design de Interface', FALSE, TRUE),
+(11, 'SEO: Como otimizar seu site', TRUE, FALSE),
+(12, 'Segurança em Redes de Computadores', TRUE, FALSE),
+(13, 'Técnicas de Fotografia Profissional', FALSE, TRUE),
+(14, 'Edição de Vídeos Profissionais', TRUE, FALSE),
+(15, 'Liderança e Gestão de Equipes', TRUE, FALSE),
+(16, 'Produtividade Pessoal', TRUE, FALSE),
+(17, 'Gestão de Projetos com Scrum', TRUE, FALSE),
+(18, 'Estratégias para Aumentar suas Vendas no Instagram', TRUE, FALSE),
+(19, 'Como Criar Música no FL Studio', TRUE, FALSE),
+(20, 'Mindfulness e Meditação', TRUE, FALSE);
    
 -- Inserção na Tabela COLABORADOR (pass= 123)
 INSERT INTO COLABORADOR (NOME, EMAIL, USERNAME, PSSWORD, DATA_NASC, CARGO, DEPARTAMENTO, TELEFONE, SCORE) VALUES
