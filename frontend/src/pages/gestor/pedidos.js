@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Container } from "react-bootstrap";
-import {Eye} from "react-bootstrap-icons";
+import { Eye } from "react-bootstrap-icons";
+import { useNavigate } from "react-router-dom";
 import axios from "../../config/configAxios";
 import DataTable from "../../components/tables/dataTable";
 import "./pedidos.css";
 
 const ListaPedidos = () => {
+  const navigate = useNavigate();
   const [pedidos, setPedidos] = useState([]);
   const [colaboradores, setColaboradores] = useState([]);
   const [cursos, setCursos] = useState([]);
@@ -54,7 +56,10 @@ const ListaPedidos = () => {
     fetchDadosRelacionados();
   }, []);
 
- 
+  // Função para visualizar detalhes do pedido
+  const handleVerPedido = (pedidoId) => {
+    navigate(`/pedidos/view/${pedidoId}`);
+  };
 
   // Prepare table data with all needed fields for searchability
   useEffect(() => {
@@ -81,6 +86,7 @@ const ListaPedidos = () => {
             colaborador_id: pedido.colaborador_id,
             referencia_id: pedido.referencia_id,
             data: pedido.data,
+            pendente: pedido.pendente,
             // Add text fields for search
             colaboradorNome: colaborador ? colaborador.nome : `Colaborador ${pedido.colaborador_id}`,
             referenciaNome: pedido.tipo === "CURSO" 
@@ -121,6 +127,7 @@ const ListaPedidos = () => {
       type: "date",
       renderCell: ({ row }) => new Date(row.data).toLocaleString(),
     },
+
     {
       field: "actions",
       headerName: "Ações",
@@ -130,11 +137,11 @@ const ListaPedidos = () => {
         <>
           <button
             className="btn btn-sm btn-outline-primary me-2"
-            onClick={() => console.log(`Ver pedido ${row.pedido_id}`)}
+            onClick={() => handleVerPedido(row.pedido_id)}
+            title="Ver detalhes do pedido"
           >
             <Eye size={18} />
           </button>
-          
         </>
       ),
     },
