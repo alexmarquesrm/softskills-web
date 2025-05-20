@@ -3,16 +3,18 @@ import { Container, Row, Col, Spinner, Pagination } from "react-bootstrap";
 import { useNavigate } from 'react-router-dom';
 import { Book, AlertCircle } from 'react-feather';
 import axios from "../../config/configAxios";
+import { IoMdAdd } from "react-icons/io";
 import { filtrarCursosOuInscricoes } from '../../utils/filtrarCursos';
 /* COMPONENTES */
 import FeaturedCourses from "../../components/cards/cardCourses";
 import SearchBar from '../../components/textFields/search';
 import Filtros from '../../components/filters/filtros';
 
-export default function CoursesManage() {
+export default function CoursesManage() { 
     const navigate = useNavigate();
     const [cursos, setCursos] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
+        const tipoUser = sessionStorage.getItem('tipo');
     const [tipoSelecionado, setTipoSelecionado] = useState({ S: false, A: false });
     const [estadoSelecionado, setEstadoSelecionado] = useState({ porComecar: false, emCurso: false, terminado: false });
     const [dataSelecionada, setDataSelecionada] = useState({ inicio: '', fim: '' });
@@ -314,6 +316,12 @@ export default function CoursesManage() {
                     </Col>
                 </Row>
             </Container>
+             {/* Botão flutuante para adicionar novo curso */}
+                        {tipoUser === "Formador" && ( 
+                            <button className="floating-add-button" onClick={'curso'} title="Pedir Curso">
+                                <IoMdAdd size={24} />
+                            </button>
+                        )}
         </div>
     );
 }
