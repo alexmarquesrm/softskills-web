@@ -5,13 +5,6 @@ import { MessageSquare, Users, ArrowLeft, ArrowRight, Plus } from 'react-feather
 import { Container, Row, Col } from 'react-bootstrap';
 import './forumDetail.css';
 
-function getInitials(name) {
-  if (!name) return '?';
-  const parts = name.trim().split(' ');
-  if (parts.length === 1) return parts[0][0].toUpperCase();
-  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-}
-
 function formatDate(dateStr) {
   if (!dateStr) return '';
   const date = new Date(dateStr);

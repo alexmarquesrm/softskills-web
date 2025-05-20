@@ -53,22 +53,27 @@ function AppContent() {
                         <Route path="/utilizadores/lista/cursos" element={<CursosFormando />} />
                         <Route path="/utilizadores/percursoFormativo" element={<PercursoFormativoFormando />} />
                         <Route path="/utilizadores/dashboard" element={<PagFormando />} />
-                        {/* Formador Routes */}
-                        <Route path="/formador/cursos" element={<ManageCourses />} />
-                        <Route path="/formador/curso/:id" element={<FormadorCurso />} />
-                        <Route path="/formador/curso/avaliar" element={<AvaliarFormando />} />
-                        <Route path="/formador/dashboard" element={<PagFormador />} />
                         
-                        {/* Gestor Routes */}
-                        <Route path="/gestor/dashboard" element={<PagGestor />} />
-                        <Route path="/gestor/lista/colaboradores" element={<ListaUtilizadores />} />
-                        <Route path="/gestor/colaborador/percursoFormativo" element={<PercursoFormativoGestor />} />
-                        <Route path="/gestor/lista/cursos" element={<GestaoCursos />} />
-                        <Route path="/gestor/cursodetalhes/:id" element={<CursoDetalhesGestor />} />
-                        <Route path="/gestor/lista/pedidos" element={<ListaPedidos />} />
-                        <Route path="/gestor/cursos/add" element={<AdicionarCurso />} />
-                        <Route path="/gestor/cursos/edit/:id" element={<EditarCurso />} />
-                        <Route path="/pedidos/view/:id" element={<ViewPedido />} />
+                        {/* Formador Routes - Protected by role */}
+                        <Route path="/formador/*" element={<ProtectedRoute />}>
+                            <Route path="cursos" element={<ManageCourses />} />
+                            <Route path="curso/:id" element={<FormadorCurso />} />
+                            <Route path="curso/avaliar" element={<AvaliarFormando />} />
+                            <Route path="dashboard" element={<PagFormador />} />
+                        </Route>
+                        
+                        {/* Gestor Routes - Protected by role */}
+                        <Route path="/gestor/*" element={<ProtectedRoute />}>
+                            <Route path="dashboard" element={<PagGestor />} />
+                            <Route path="lista/colaboradores" element={<ListaUtilizadores />} />
+                            <Route path="colaborador/percursoFormativo" element={<PercursoFormativoGestor />} />
+                            <Route path="lista/cursos" element={<GestaoCursos />} />
+                            <Route path="cursodetalhes/:id" element={<CursoDetalhesGestor />} />
+                            <Route path="lista/pedidos" element={<ListaPedidos />} />
+                            <Route path="cursos/add" element={<AdicionarCurso />} />
+                            <Route path="cursos/edit/:id" element={<EditarCurso />} />
+                            <Route path="pedidos/view/:id" element={<ViewPedido />} />
+                        </Route>
 
                         {/* Forum Routes */}
                         <Route path="/forum" element={<ForumList />} />

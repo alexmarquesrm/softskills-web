@@ -8,6 +8,7 @@ import CardInfo from "../../components/cards/cardDestaque";
 import CardPedido from '../../components/cards/cardPedido';
 import CardRow from '../../components/cards/cardRow';
 import FeaturedCourses from "../../components/cards/cardCourses";
+import WelcomeNotification from "../../components/notifications/WelcomeNotification";
 
 export default function PaginaGestor() {
   const [curso, setCurso] = useState([]);
@@ -59,33 +60,56 @@ export default function PaginaGestor() {
     if (curso.length === 0) return [];
 
     return curso.filter(item => {
+      // Verifica se tem data de início
+      const dataInicio = item.curso_sincrono?.data_inicio;
+      if (!dataInicio) return false;
 
-     // Verifica se ainda está em período de inicio
-      const dataLimite = item.curso_sincrono?.data_inicio;
-      if (!dataLimite || new Date(dataLimite) <= new Date()) return false;
-
-      return true;
-    });
+      // Verifica se a data de início é futura e está dentro dos próximos 15 dias
+      const hoje = new Date();
+      const dataInicioObj = new Date(dataInicio);
+      const diffTime = dataInicioObj - hoje;
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      
+      return diffDays >= 0 && diffDays <= 15;
+    }).sort((a, b) => new Date(a.curso_sincrono?.data_inicio) - new Date(b.curso_sincrono?.data_inicio));
   }, [curso]);
 
   const filteredCursoAtivo = useMemo(() => {
     if (curso.length === 0) return [];
 
     return curso.filter(item => {
+      // Verifica se tem data de início
+      const dataInicio = item.curso_sincrono?.data_inicio;
+      if (!dataInicio) return false;
 
-      // Verifica se já começou
-      const dataLimite = item.curso_sincrono?.data_inicio;
-      if (!dataLimite || new Date(dataLimite) > new Date()) return false;
+      // Verifica se já começou e não está terminado
+      const jaComecou = new Date(dataInicio) <= new Date();
+      const naoTerminado = !item.curso_sincrono?.estado;
 
-      if (item.curso_sincrono?.estado === true) return false;
-
-      return true;
+      return jaComecou && naoTerminado;
     });
   }, [curso]);
 
-  const renderPedidoCard = (curso, index) => (
-    <CardPedido index={index} curso={curso} />
-  );
+  const renderPedidoCard = (curso, index) => {
+    if (!curso) return null;
+    
+    return (
+      <CardPedido 
+        key={curso.curso_id || index}
+        pedido={{
+          ...curso,
+          titulo: curso.titulo,
+          formador: curso.formador?.nome || 'Não especificado',
+          tipo: 'CURSO',
+          tipoLabel: 'Curso',
+          data: curso.curso_sincrono?.data_inicio
+        }}
+        index={index}
+        showFormador={false}
+        showTimeAgo={false}
+      />
+    );
+  };
 
   const renderCourseCard = (curso, index) => (
     <FeaturedCourses key={curso.curso_id || index} curso={curso} mostrarBotao={true} mostrarInicioEFim={true} />
@@ -108,6 +132,7 @@ export default function PaginaGestor() {
 
   return (
     <Container fluid className="gestor-container">
+      <WelcomeNotification />
       <div className="page-header">
         <div className="page-header-content">
           <h1 className="page-title">Visão Geral</h1>
@@ -137,7 +162,12 @@ export default function PaginaGestor() {
               <p>A carregar cursos...</p>
             </div>
           ) : filteredCurso.length > 0 ? (
-            <CardRow dados={[...filteredCurso].sort((a, b) => new Date(a.curso_sincrono?.data_inicio) - new Date(b.curso_sincrono?.data_inicio))} renderCard={renderPedidoCard} scrollable={true} />
+            <CardRow 
+              dados={filteredCurso} 
+              renderCard={renderPedidoCard} 
+              scrollable={true}
+              emptyStateMessage="Não há cursos programados para começar neste momento."
+            />
           ) : (
             <div className="empty-state text-center">
               <FileEarmarkText size={40} className="empty-icon mb-3" />

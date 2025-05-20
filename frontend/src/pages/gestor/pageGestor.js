@@ -14,6 +14,7 @@ import {
   Clock
 } from 'react-bootstrap-icons';
 import "./pageGestor.css";
+import WelcomeNotification from "../../components/notifications/WelcomeNotification";
 
 export default function PaginaGestor() {
   const [tableRows, setTableRows] = useState([]);
@@ -166,19 +167,22 @@ export default function PaginaGestor() {
   }, [pedidos]);
   
   const renderPedidoCard = (pedido, index) => {
+    if (!pedido) return null;
+    
     return (
       <CardPedido 
-        key={index} 
+        key={pedido.pedido_id || index}
         pedido={{
           ...pedido,
-          titulo: pedido.tipo === 'CURSO' 
-            ? pedido.ped_curso?.titulo 
-            : pedido.ped_forum?.descricao,
+          titulo: pedido.tipo === 'CURSO' ? pedido.ped_curso?.titulo : pedido.ped_forum?.descricao,
           formador: pedido.ped_colaborador?.nome,
           tipo: pedido.tipo,
-          tipoLabel: pedido.tipo === 'CURSO' ? 'Curso' : 'Fórum'
-        }} 
-        index={index} 
+          tipoLabel: pedido.tipo === 'CURSO' ? 'Curso' : 'Fórum',
+          data: pedido.data
+        }}
+        index={index}
+        showFormador={true}
+        showTimeAgo={true}
       />
     );
   };
@@ -200,6 +204,7 @@ export default function PaginaGestor() {
 
   return (
     <Container fluid className="gestor-container">
+      <WelcomeNotification />
       <div className="page-header">
         <div className="page-header-content">
           <h1 className="page-title">Visão Geral</h1>

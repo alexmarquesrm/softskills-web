@@ -101,6 +101,7 @@ export default function CourseManage() {
         setTipoSelecionado({ S: false, A: false });
         setEstadoSelecionado({ porComecar: false, emCurso: false, terminado: false });
         setDataSelecionada({ inicio: '', fim: '' });
+        setNivelSelecionado({ 1: false, 2: false, 3: false, 4: false });
         setSearchTerm('');
     };
 

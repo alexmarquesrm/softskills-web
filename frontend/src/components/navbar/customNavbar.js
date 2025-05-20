@@ -6,8 +6,7 @@ import ProfileDropdown from "../dropdown/profileDropdown";
 import LoginModal from '../../modals/loginModal';
 import NavbarButton from "../buttons/navbarButton";
 import Sidebar from "../sidebar/sidebar";
-import { LuMenu, LuSearch } from "react-icons/lu";
-import { BsQuestionCircle } from "react-icons/bs";
+import { LuMenu} from "react-icons/lu";
 import { FaGraduationCap } from "react-icons/fa";
 import NotificationDropdown from '../notifications/NotificationDropdown';
 
@@ -21,11 +20,56 @@ function CustomNavbar() {
   useEffect(() => {
     const checkLoginStatus = () => {
       const token = sessionStorage.getItem('token');
-      setIsLoggedIn(!!token);
+      const isLoggedOut = localStorage.getItem('isLoggedOut');
+      const currentToken = localStorage.getItem('currentToken');
+      
+      // Primeiro verifica se há um token no localStorage
+      if (currentToken) {
+        // Se não houver token no sessionStorage, copia do localStorage
+        if (!token) {
+          sessionStorage.setItem('token', currentToken);
+          setIsLoggedIn(true);
+          return;
+        }
+        // Se já houver token no sessionStorage, mantém o estado
+        setIsLoggedIn(true);
+        return;
+      }
+
+      // Se não houver token no localStorage, verifica se é um logout
+      if (isLoggedOut === 'true') {
+        sessionStorage.clear();
+        localStorage.removeItem('isLoggedOut');
+        localStorage.removeItem('currentToken');
+        setIsLoggedIn(false);
+        navigate('/login');
+        return;
+      }
+      
+      // Se não houver token em nenhum lugar, está deslogado
+      setIsLoggedIn(false);
     };
 
+    // Check initial login status
     checkLoginStatus();
-    window.addEventListener('storage', checkLoginStatus);
+
+    // Listen for storage changes (other tabs)
+    const handleStorageChange = (e) => {
+      if (e.key === 'isLoggedOut' || e.key === 'currentToken') {
+        checkLoginStatus();
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Listen for session expiration
+    const handleSessionExpired = () => {
+      sessionStorage.clear();
+      localStorage.setItem('isLoggedOut', 'true');
+      localStorage.removeItem('currentToken');
+      setIsLoggedIn(false);
+      navigate('/login');
+    };
+    window.addEventListener('auth:sessionExpired', handleSessionExpired);
     
     // Add scroll listener for navbar shadow effect
     const handleScroll = () => {
@@ -35,10 +79,11 @@ function CustomNavbar() {
     window.addEventListener('scroll', handleScroll);
 
     return () => {
-      window.removeEventListener('storage', checkLoginStatus);
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('auth:sessionExpired', handleSessionExpired);
       window.removeEventListener('scroll', handleScroll);
     };
-  }, []);
+  }, [navigate]);
 
   const handleOpen = () => {
     setOpen(true);
@@ -50,7 +95,21 @@ function CustomNavbar() {
 
   const handleLoginSuccess = () => {
     setOpen(false);
-    setIsLoggedIn(true);
+    const token = sessionStorage.getItem('token');
+    if (token) {
+      localStorage.setItem('currentToken', token);
+      setIsLoggedIn(true);
+    }
+  };
+
+  const handleLogout = () => {
+    sessionStorage.clear();
+    localStorage.setItem('isLoggedOut', 'true');
+    localStorage.removeItem('currentToken');
+    setIsLoggedIn(false);
+    // Disparar evento para outras abas
+    window.dispatchEvent(new CustomEvent('auth:sessionExpired'));
+    navigate('/');
   };
 
   return (
@@ -102,11 +161,7 @@ function CustomNavbar() {
             ) : (
               <>
                 <NotificationDropdown />
-                <ProfileDropdown onLogout={() => {
-                  sessionStorage.clear();
-                  setIsLoggedIn(false);
-                  navigate('/');
-                }} />
+                <ProfileDropdown onLogout={handleLogout} />
               </>
             )}
           </div>

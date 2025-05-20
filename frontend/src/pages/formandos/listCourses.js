@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { Container, Row, Col, Spinner } from "react-bootstrap";
+import { Container, Row, Col, Spinner, Pagination } from "react-bootstrap";
 import { Book, AlertCircle } from 'react-feather';
 import axios from "../../config/configAxios";
 /* COMPONENTES */
@@ -21,6 +21,8 @@ export default function Courses() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isFiltersVisible, setIsFiltersVisible] = useState(true);
+    const [currentPage, setCurrentPage] = useState(1);
+    const coursesPerPage = 8;
 
     const fetchData = async () => {
         try {
@@ -65,21 +67,21 @@ export default function Courses() {
     }, [curso, tipoSelecionado, estadoSelecionado, dataSelecionada, nivelSelecionado, searchTerm]);
 
     const stats = useMemo(() => {
-            if (curso.length === 0) return { total: 0, emCurso: 0, terminados: 0 };
+        if (curso.length === 0) return { total: 0, emCurso: 0, terminados: 0 };
 
-            const porComecar = curso.filter(item => {
-                const estado = item.curso_sincrono?.estado === false;
-                const dataInicio = new Date(item.curso_sincrono?.data_inicio);
-                const dataAtual = new Date();
-                return estado && dataInicio > dataAtual;
-            }).length;
-            const assincrono = curso.filter(curso => curso.tipo === 'A' && curso.pendente === false).length;
-            
-            const total = porComecar + assincrono;
+        const porComecar = curso.filter(item => {
+            const estado = item.curso_sincrono?.estado === false;
+            const dataInicio = new Date(item.curso_sincrono?.data_inicio);
+            const dataAtual = new Date();
+            return estado && dataInicio > dataAtual;
+        }).length;
+        const assincrono = curso.filter(curso => curso.tipo === 'A' && curso.pendente === false).length;
 
-            return { total };
-        }, [curso]);
-    
+        const total = porComecar + assincrono;
+
+        return { total };
+    }, [curso]);
+
     const renderCourseCard = (curso, index) => (
         <FeaturedCourses key={curso.curso_id || index} curso={curso} mostrarBotao={true} />
     );
@@ -101,7 +103,19 @@ export default function Courses() {
         setTipoSelecionado({ S: false, A: false });
         setEstadoSelecionado({ emCurso: false, terminado: false });
         setDataSelecionada({ inicio: '', fim: '' });
+        setNivelSelecionado({ 1: false, 2: false, 3: false, 4: false });
         setSearchTerm('');
+    };
+
+    // Pagination logic
+    const indexOfLastCourse = currentPage * coursesPerPage;
+    const indexOfFirstCourse = indexOfLastCourse - coursesPerPage;
+    const currentCourses = filteredInscricoes.slice(indexOfFirstCourse, indexOfLastCourse);
+    const totalPages = Math.ceil(filteredInscricoes.length / coursesPerPage);
+
+    const handlePageChange = (pageNumber) => {
+        setCurrentPage(pageNumber);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     if (loading) {
@@ -196,11 +210,62 @@ export default function Courses() {
 
                         <div className="courses-container">
                             {filteredInscricoes.length > 0 ? (
-                                <div className="courses-grid">
-                                    {filteredInscricoes.map((item, index) =>
-                                        renderCourseCard(item, index)
+                                <>
+                                    <div className="courses-grid">
+                                        {currentCourses.map((item, index) =>
+                                            renderCourseCard(item, index)
+                                        )}
+                                    </div>
+                                    {totalPages > 1 && (
+                                        <div className="pagination-container">
+                                            <Pagination>
+                                                <Pagination.First
+                                                    onClick={() => handlePageChange(1)}
+                                                    disabled={currentPage === 1}
+                                                />
+                                                <Pagination.Prev
+                                                    onClick={() => handlePageChange(currentPage - 1)}
+                                                    disabled={currentPage === 1}
+                                                />
+
+                                                {[...Array(totalPages)].map((_, index) => {
+                                                    const pageNumber = index + 1;
+                                                    // Show first page, last page, current page, and pages around current page
+                                                    if (
+                                                        pageNumber === 1 ||
+                                                        pageNumber === totalPages ||
+                                                        (pageNumber >= currentPage - 1 && pageNumber <= currentPage + 1)
+                                                    ) {
+                                                        return (
+                                                            <Pagination.Item
+                                                                key={pageNumber}
+                                                                active={pageNumber === currentPage}
+                                                                onClick={() => handlePageChange(pageNumber)}
+                                                            >
+                                                                {pageNumber}
+                                                            </Pagination.Item>
+                                                        );
+                                                    } else if (
+                                                        pageNumber === currentPage - 2 ||
+                                                        pageNumber === currentPage + 2
+                                                    ) {
+                                                        return <Pagination.Ellipsis key={pageNumber} disabled />;
+                                                    }
+                                                    return null;
+                                                })}
+
+                                                <Pagination.Next
+                                                    onClick={() => handlePageChange(currentPage + 1)}
+                                                    disabled={currentPage === totalPages}
+                                                />
+                                                <Pagination.Last
+                                                    onClick={() => handlePageChange(totalPages)}
+                                                    disabled={currentPage === totalPages}
+                                                />
+                                            </Pagination>
+                                        </div>
                                     )}
-                                </div>
+                                </>
                             ) : (
                                 <div className="no-courses">
                                     <AlertCircle size={36} className="mb-3" />
