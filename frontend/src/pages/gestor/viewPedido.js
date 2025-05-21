@@ -31,7 +31,6 @@ export default function ViewPedido() {
                     headers: { Authorization: `${token}` }
                 });
                 setPedido(pedidoRes.data);
-
                 const colaboradorRes = await axios.get(`/colaborador/${pedidoRes.data.colaborador_id}`, {
                     headers: { Authorization: `${token}` }
                 });
@@ -137,12 +136,13 @@ export default function ViewPedido() {
         );
     }
 
+    console.log(pedido);
     const getStatusBadge = (pedido) => {
-        if (pedido?.pendente) {
+        if (pedido?.ped_curso?.pendente === true && pedido?.ped_curso?.aprovado === false) {
             return <span className="badge bg-warning">Pendente</span>;
-        } else if (pedido?.aprovado) {
+        } else if (pedido?.ped_curso?.pendente === false && pedido?.ped_curso?.aprovado === true) {
             return <span className="badge bg-success">Aprovado</span>;
-        } else {
+        } else if (pedido?.ped_curso?.pendente === false && pedido?.ped_curso?.aprovado === false) {
             return <span className="badge bg-danger">Recusado</span>;
         }
     };
