@@ -112,11 +112,20 @@ const controladorCursos = {
             as: "curso_topico",
             attributes: ["descricao"],
           },
+          {
+            model: models.inscricao,
+            as: "curso_inscricaos",
+            attributes: []
+          }
         ],
-        attributes: ["curso_id", "titulo", "descricao", "tipo", "total_horas", "pendente", "nivel"],
       });
 
       const cursosResumidos = cursos.map((curso) => {
+        const numeroInscritos = curso.curso_inscricaos ? curso.curso_inscricaos.length : 0;
+        const vagasDisponiveis = curso.tipo === 'S' && curso.curso_sincrono ? 
+          curso.curso_sincrono.limite_vagas - numeroInscritos : 
+          null;
+
         return {
           id: curso.curso_id,
           titulo: curso.titulo,
@@ -135,6 +144,7 @@ const controladorCursos = {
             fim: curso.curso_sincrono.data_fim,
             data_limite_inscricao: curso.curso_sincrono.data_limite_inscricao,
             vagas: curso.curso_sincrono.limite_vagas,
+            vagas_disponiveis: vagasDisponiveis,
             estado: curso.curso_sincrono.estado,
             formador: curso.curso_sincrono.sincrono_formador ? {
               formador_id: curso.curso_sincrono.sincrono_formador.formador_id,
@@ -146,10 +156,11 @@ const controladorCursos = {
               }
             } : null
           } : null,
+          numero_inscritos: numeroInscritos,
         };
       });
 
-      res.json(cursos);
+      res.json(cursosResumidos);
     } catch (error) {
       console.error("Erro ao obter cursos:", error);
       res.status(500).json({ message: "Erro interno ao obter cursos" });
