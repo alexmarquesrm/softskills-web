@@ -1,30 +1,21 @@
 import React, { useState, useEffect } from "react";
-import {
-  Container, Row, Col, Card, ListGroup, Spinner,
-  Badge, Accordion, Button, Alert
-} from "react-bootstrap";
+import {  Container, Row, Col, Card, ListGroup, Spinner,  Badge, Accordion, Button, Alert} from "react-bootstrap";
 import { useLocation, useParams, useNavigate } from "react-router-dom";
-import "./detailsCourse.css";
-import {
-  BsFillPeopleFill, BsCalendarCheck, BsPlusCircle, BsPencilSquare, BsFileText,
-  BsCameraVideo, BsBook, BsTools, BsUpload, BsInfoCircle, BsExclamationTriangle,
-  BsCheckCircle, BsClock, BsTrophy, BsFlag, BsDownload, BsPlayFill
-} from "react-icons/bs";
-import axios from "../../config/configAxios";
-
+import {  BsFillPeopleFill, BsCalendarCheck, BsPlusCircle, BsPencilSquare, BsFileText, BsCameraVideo,BsBook, BsTools, BsUpload, BsInfoCircle, BsExclamationTriangle,BsCheckCircle, BsClock, BsTrophy, BsFlag, BsDownload, BsPlayFill} from "react-icons/bs";
 /* COMPONENTES */
+import axios from "../../config/configAxios";
 import AddButton from "../../components/buttons/addButton";
 import EditButton from "../../components/buttons/editButton";
+import "./detailsCourse.css";
 /* MODALS */
 import ModalAdicionarFicheiro from "../../modals/addFile";
 import ModalEditarFicheiro from "../../modals/edditFile";
 
 export default function CursoDetalhes() {
-  const { id } = useParams(); // Get ID from URL parameter
+  const { id } = useParams(); 
   const location = useLocation();
   const navigate = useNavigate();
-  const courseId = location.state?.id || id; // Fallback to URL param if state is not available
-
+  const courseId = location.state?.id || id; 
   const [addFile, setAddFile] = useState(false);
   const [editFile, setEditFile] = useState(false);
   const [curso, setCurso] = useState(null);
@@ -53,12 +44,10 @@ export default function CursoDetalhes() {
         const token = sessionStorage.getItem('token');
         const formadorId = sessionStorage.getItem('colaboradorid');
 
-        // Get all instructor courses first
         const response = await axios.get(`/curso/formador/${formadorId}`, {
           headers: { Authorization: `${token}` }
         });
 
-        // Find the specific course in the returned data
         const foundCourse = response.data.find(c => c.curso_id.toString() === courseId.toString());
 
         if (foundCourse) {
@@ -79,7 +68,6 @@ export default function CursoDetalhes() {
     fetchCursoData();
   }, [courseId]);
 
-  // Fetch course materials when the active section changes to "materiais"
   useEffect(() => {
     const fetchMaterials = async () => {
       if (!selectedCursoId) return;
@@ -109,7 +97,6 @@ export default function CursoDetalhes() {
     }
   }, [selectedCursoId, activeSection, refreshTrigger]);
 
-  // Fetch alunos when the active section changes to "alunos"
   useEffect(() => {
     const fetchAlunos = async () => {
       if (!courseId || curso?.tipo !== 'S') return;
@@ -178,7 +165,6 @@ export default function CursoDetalhes() {
 
     return groupedBySection;
   };
-
   // Função para agrupar trabalho e entrega juntos por seção
   const getTrabalhoEntregaBySection = () => {
     const filtered = materials.filter(m => m.tipo === 'trabalho' || m.tipo === 'entrega');
@@ -189,7 +175,6 @@ export default function CursoDetalhes() {
       return acc;
     }, {});
   };
-
   // Adicione esta função ao seu componente
   const handleFileAction = (file) => {
     if (!file.url) {
@@ -197,7 +182,6 @@ export default function CursoDetalhes() {
       // Aqui você pode mostrar uma mensagem de erro para o usuário
       return;
     }
-
     // Verificar se é um arquivo que pode ser aberto no navegador
     const viewableExtensions = ['pdf', 'jpg', 'jpeg', 'png', 'gif', 'mp4', 'webm'];
     const extension = file.nome.split('.').pop().toLowerCase();
@@ -266,9 +250,7 @@ export default function CursoDetalhes() {
   if (loading) {
     return (
       <div className="loading-container d-flex justify-content-center align-items-center" style={{ height: "80vh" }}>
-        <Spinner animation="border" role="status" variant="primary">
-          <span className="visually-hidden">A carregar...</span>
-        </Spinner>
+        <Spinner animation="border" role="status" variant="primary"> <span className="visually-hidden">A carregar...</span></Spinner>
         <p className="ms-3 fw-bold">A carregar informação do curso...</p>
       </div>
     );
@@ -296,28 +278,11 @@ export default function CursoDetalhes() {
                 <div>
                   <h1 className="display-6 fw-bold mb-2">{curso?.titulo || "Detalhes do Curso"}</h1>
                   <div className="curso-meta d-flex align-items-center flex-wrap">
-                    <Badge bg="light" text="primary" className="me-2 mb-2 py-2 px-3">
-                      <BsFillPeopleFill className="me-1" />
-                      {curso?.tipo === "S" ? "Curso Síncrono" : "Curso Assíncrono"}
-                    </Badge>
-                    {curso?.nivel && (
-                      <Badge bg="light" text="primary" className="me-2 mb-2 py-2 px-3">
-                        <BsInfoCircle className="me-1" />
-                        Nível: {curso.nivel}
-                      </Badge>
-                    )}
-                    {curso?.curso_topico?.length > 0 && (
-                      <Badge bg="light" text="primary" className="me-2 mb-2 py-2 px-3">
-                        <BsInfoCircle className="me-1" />
-                        {curso.curso_topico[0].descricao || "Tópico não especificado"}
-                      </Badge>
-                    )}
-                    {curso?.total_horas && (
-                      <Badge bg="light" text="primary" className="me-2 mb-2 py-2 px-3">
-                        <BsClock className="me-1" />
-                        {curso.total_horas} horas
-                      </Badge>
-                    )}
+                    <Badge bg="light" text="primary" className="me-2 mb-2 py-2 px-3"> <BsFillPeopleFill className="me-1"/>{curso?.tipo === "S" ? "Curso Síncrono" : "Curso Assíncrono"}</Badge>
+
+                    {curso?.nivel && (<Badge bg="light" text="primary" className="me-2 mb-2 py-2 px-3"> <BsInfoCircle className="me-1" /> Nível: {curso.nivel}</Badge>)}
+                    {curso?.curso_topico?.length > 0 && (<Badge bg="light" text="primary" className="me-2 mb-2 py-2 px-3"><BsInfoCircle className="me-1"/> {curso.curso_topico[0].descricao || "Tópico não especificado"}</Badge>)}
+                    {curso?.total_horas && (<Badge bg="light" text="primary" className="me-2 mb-2 py-2 px-3"> <BsClock className="me-1" /> {curso.total_horas} horas</Badge>)}
                   </div>
                 </div>
               </div>
@@ -328,32 +293,13 @@ export default function CursoDetalhes() {
           <div className="course-navigation bg-white p-2">
             <Container>
               <div className="d-flex flex-wrap">
-                <Button
-                  variant={activeSection === "sobre" ? "primary" : "light"}
-                  onClick={() => handleSectionChange("sobre")}
-                  className="me-2 mb-2"
-                >
-                  <BsInfoCircle className="me-1" /> Sobre
-                </Button>
-                <Button
-                  variant={activeSection === "materiais" ? "primary" : "light"}
-                  onClick={() => handleSectionChange("materiais")}
-                  className="me-2 mb-2"
-                >
-                  <BsBook className="me-1" /> Materiais
-                </Button>
-                <Button
-                  variant={activeSection === "alunos" ? "primary" : "light"}
-                  onClick={() => handleSectionChange("alunos")}
-                  className="me-2 mb-2"
-                >
-                  <BsFillPeopleFill className="me-1" /> Alunos
-                </Button>
+                <Button variant={activeSection === "sobre" ? "primary" : "light"} onClick={() => handleSectionChange("sobre")} className="me-2 mb-2"><BsInfoCircle className="me-1" /> Sobre</Button>
+                <Button variant={activeSection === "materiais" ? "primary" : "light"} onClick={() => handleSectionChange("materiais")} className="me-2 mb-2"> <BsBook className="me-1" /> Materiais </Button>
+                <Button variant={activeSection === "alunos" ? "primary" : "light"} onClick={() => handleSectionChange("alunos")} className="me-2 mb-2" > <BsFillPeopleFill className="me-1" /> Alunos</Button>
               </div>
             </Container>
           </div>
         </Card>
-
         {/* Conteúdo da Seção Ativa */}
         <div className="section-content">
           {/* Seção "Sobre" */}
@@ -364,7 +310,6 @@ export default function CursoDetalhes() {
                   <BsInfoCircle className="me-2 text-primary" />
                   Informações do Curso
                 </h4>
-
                 <Row>
                   <Col lg={8}>
                     <div className="curso-info mb-4">
@@ -430,9 +375,7 @@ export default function CursoDetalhes() {
                               <BsCheckCircle className="me-2 text-primary mt-1" />
                               <div>
                                 <strong>Estado:</strong><br />
-                                <Badge bg={curso.curso_sincrono[0].estado ? 'success' : 'warning'}>
-                                  {curso.curso_sincrono[0].estado ? 'Concluído' : 'Em curso'}
-                                </Badge>
+                                <Badge bg={curso.curso_sincrono[0].estado ? 'success' : 'warning'}> {curso.curso_sincrono[0].estado ? 'Concluído' : 'Em curso'} </Badge>
                               </div>
                             </li>
                           )}
@@ -470,17 +413,10 @@ export default function CursoDetalhes() {
               <Card.Body>
                 <div className="d-flex justify-content-between align-items-center mb-4">
                   <h4 className="section-subtitle mb-0">
-                    <BsBook className="me-2 text-primary" />
-                    Materiais do Curso
+                    <BsBook className="me-2 text-primary" />Materiais do Curso
                   </h4>
                   <div className="curso-actions">
-                    <AddButton
-                      text="Adicionar Material"
-                      Icon={BsPlusCircle}
-                      onClick={handleAddContent}
-                      inline={true}
-                      className="btn-action"
-                    />
+                    <AddButton text="Adicionar Material" Icon={BsPlusCircle} onClick={handleAddContent} inline={true} className="btn-action"/>
                   </div>
                 </div>
 
@@ -496,19 +432,10 @@ export default function CursoDetalhes() {
                     <BsInfoCircle className="me-2" />
                     Nenhum material foi adicionado a este curso ainda.
                     <div className="mt-3">
-                      <Button
-                        variant="primary"
-                        size="sm"
-                        onClick={handleAddContent}
-                        className="d-inline-flex align-items-center"
-                      >
-                        <BsPlusCircle className="me-2" />
-                        Adicionar Primeiro Material
-                      </Button>
+                      <Button variant="primary" size="sm" onClick={handleAddContent} className="d-inline-flex align-items-center" > <BsPlusCircle className="me-2" /> Adicionar Primeiro Material</Button>
                     </div>
                   </Alert>
                 ) : (
-                  // Organizando materiais por tipo
                   <Accordion defaultActiveKey={[]} alwaysOpen className="material-accordion">
                     {/* Vídeos */}
                     <Accordion.Item eventKey="0">
@@ -543,27 +470,14 @@ export default function CursoDetalhes() {
                                           )}
                                           <div>
                                             {material.ficheiros.map((file, idx) => (
-                                              <Badge
-                                                key={idx}
-                                                bg="light"
-                                                text="danger"
-                                                onClick={() => handleFileAction(file)}
-                                                style={{ cursor: 'pointer' }}
-                                                className="me-2 mb-1 text-decoration-none d-inline-flex align-items-center"
-                                              >
-                                                <BsDownload className="me-1" /> {file.nome.split('.').pop().toUpperCase()} • {file.nome}
+                                              <Badge key={idx} bg="light" text="danger" onClick={() => handleFileAction(file) } style={{ cursor: 'pointer' }} className="me-2 mb-1 text-decoration-none d-inline-flex align-items-center">
+                                              <BsDownload className="me-1" /> {file.nome.split('.').pop().toUpperCase()} • {file.nome}
                                               </Badge>
                                             ))}
                                           </div>
                                         </div>
                                       </div>
-                                      <EditButton
-                                        text=""
-                                        Icon={BsPencilSquare}
-                                        onClick={() => handleEditFile(material.id)}
-                                        inline={true}
-                                        className="btn-edit-small"
-                                      />
+                                      <EditButton text="" Icon={BsPencilSquare} onClick={() => handleEditFile(material.id) } inline={true} className="btn-edit-small"/>
                                     </div>
                                   </ListGroup.Item>
                                 ))}
@@ -611,27 +525,14 @@ export default function CursoDetalhes() {
                                             )}
                                             <div>
                                               {material.ficheiros.map((file, idx) => (
-                                                <Badge
-                                                  key={idx}
-                                                  bg="light"
-                                                  text="danger"
-                                                  onClick={() => handleFileAction(file)}
-                                                  style={{ cursor: 'pointer' }}
-                                                  className="me-2 mb-1 text-decoration-none d-inline-flex align-items-center"
-                                                >
-                                                  <BsDownload className="me-1" /> {file.nome.split('.').pop().toUpperCase()} • {file.nome}
+                                                <Badge key={idx} bg="light" text="danger" onClick={() => handleFileAction(file)} style={{ cursor: 'pointer' }} className="me-2 mb-1 text-decoration-none d-inline-flex align-items-center">
+                                                <BsDownload className="me-1" /> {file.nome.split('.').pop().toUpperCase()} • {file.nome}
                                                 </Badge>
                                               ))}
                                             </div>
                                           </div>
                                         </div>
-                                        <EditButton
-                                          text=""
-                                          Icon={BsPencilSquare}
-                                          onClick={() => handleEditFile(material.id)}
-                                          inline={true}
-                                          className="btn-edit-small"
-                                        />
+                                        <EditButton text="" Icon={BsPencilSquare} onClick={() => handleEditFile(material.id) } inline={true} className="btn-edit-small"/>
                                       </div>
                                     </ListGroup.Item>
                                   ))}
@@ -658,27 +559,14 @@ export default function CursoDetalhes() {
                                             )}
                                             <div>
                                               {material.ficheiros.map((file, idx) => (
-                                                <Badge
-                                                  key={idx}
-                                                  bg="light"
-                                                  text="danger"
-                                                  onClick={() => handleFileAction(file)}
-                                                  style={{ cursor: 'pointer' }}
-                                                  className="me-2 mb-1 text-decoration-none d-inline-flex align-items-center"
-                                                >
-                                                  <BsDownload className="me-1" /> {file.nome.split('.').pop().toUpperCase()} • {file.nome}
+                                                <Badge key={idx} bg="light" text="danger" onClick={() => handleFileAction(file)} style={{ cursor: 'pointer' }} className="me-2 mb-1 text-decoration-none d-inline-flex align-items-center">
+                                                <BsDownload className="me-1" /> {file.nome.split('.').pop().toUpperCase()} • {file.nome}
                                                 </Badge>
                                               ))}
                                             </div>
                                           </div>
                                         </div>
-                                        <EditButton
-                                          text=""
-                                          Icon={BsPencilSquare}
-                                          onClick={() => handleEditFile(material.id)}
-                                          inline={true}
-                                          className="btn-edit-small"
-                                        />
+                                        <EditButton text="" Icon={BsPencilSquare} onClick={() => handleEditFile(material.id)} inline={true} className="btn-edit-small"/>
                                       </div>
                                     </ListGroup.Item>
                                   ))}
@@ -730,33 +618,18 @@ export default function CursoDetalhes() {
                                               <small className="text-muted d-block mb-2">{material.descricao}</small>
                                             )}
                                             {material.data_entrega && (
-                                              <Badge bg={material.tipo === 'trabalho' ? 'info' : 'warning'} text="dark" className="mb-2">
-                                                <BsClock className="me-1" /> Prazo: {formatDate(material.data_entrega)}
-                                              </Badge>
+                                              <Badge bg={material.tipo === 'trabalho' ? 'info' : 'warning'} text="dark" className="mb-2"> <BsClock className="me-1" /> Prazo: {formatDate(material.data_entrega)}</Badge>
                                             )}
                                             <div>
                                               {material.ficheiros && material.ficheiros.map((file, idx) => (
-                                                <Badge
-                                                  key={idx}
-                                                  bg="light"
-                                                  text={material.tipo === 'trabalho' ? 'info' : 'warning'}
-                                                  onClick={() => handleFileAction(file)}
-                                                  style={{ cursor: 'pointer' }}
-                                                  className="me-2 mb-1 text-decoration-none d-inline-flex align-items-center"
-                                                >
-                                                  <BsDownload className="me-1" /> {file.nome.split('.').pop().toUpperCase()} • {file.nome}
+                                                <Badge key={idx} bg="light" text={material.tipo === 'trabalho' ? 'info' : 'warning'} onClick={() => handleFileAction(file)} style={{ cursor: 'pointer' }} className="me-2 mb-1 text-decoration-none d-inline-flex align-items-center">
+                                                <BsDownload className="me-1" /> {file.nome.split('.').pop().toUpperCase()} • {file.nome}
                                                 </Badge>
                                               ))}
                                             </div>
                                           </div>
                                         </div>
-                                        <EditButton
-                                          text=""
-                                          Icon={BsPencilSquare}
-                                          onClick={() => handleEditFile(material.id)}
-                                          inline={true}
-                                          className="btn-edit-small"
-                                        />
+                                        <EditButton text="" Icon={BsPencilSquare} onClick={() => handleEditFile(material.id)} inline={true} className="btn-edit-small"/>
                                       </div>
                                     </ListGroup.Item>
                                   ))}
@@ -783,27 +656,18 @@ export default function CursoDetalhes() {
 
                 <div className="d-flex justify-content-between align-items-center mb-3">
                   <div>
-                    <Badge bg="primary" className="me-2 py-2 px-3">
-                      Total: {curso?.curso_sincrono?.[0]?.limite_vagas || 0} Vagas
-                    </Badge>
-                    <Badge bg="success" className="me-2 py-2 px-3">
-                      Inscritos: {alunos.length} Alunos
-                    </Badge>
+                    <Badge bg="primary" className="me-2 py-2 px-3"> Total: {curso?.curso_sincrono?.[0]?.limite_vagas || 0} Vagas</Badge>
+                    <Badge bg="success" className="me-2 py-2 px-3"> Inscritos: {alunos.length} Alunos </Badge>
                   </div>
                 </div>
 
                 {alunosLoading ? (
                   <div className="text-center py-4">
-                    <Spinner animation="border" role="status" variant="primary">
-                      <span className="visually-hidden">A carregar alunos...</span>
-                    </Spinner>
+                    <Spinner animation="border" role="status" variant="primary"> <span className="visually-hidden">A carregar alunos...</span> </Spinner>
                     <p className="mt-2">A carregar lista de alunos...</p>
                   </div>
                 ) : alunos.length === 0 ? (
-                  <Alert variant="light" className="text-center">
-                    <BsInfoCircle className="me-2" />
-                    Nenhum aluno inscrito neste curso ainda.
-                  </Alert>
+                  <Alert variant="light" className="text-center"> <BsInfoCircle className="me-2" /> Nenhum aluno inscrito neste curso ainda. </Alert>
                 ) : (
                   <ListGroup variant="flush" className="material-list">
                     {alunos.map((aluno) => (
@@ -823,9 +687,7 @@ export default function CursoDetalhes() {
                               </div>
                             </div>
                           </div>
-                          <Badge bg={aluno.estado === 'Concluído' ? 'success' : 'warning'}>
-                            {aluno.estado}
-                          </Badge>
+                          <Badge bg={aluno.estado === 'Concluído' ? 'success' : 'warning'}> {aluno.estado} </Badge>
                         </div>
                       </ListGroup.Item>
                     ))}
@@ -836,22 +698,8 @@ export default function CursoDetalhes() {
           )}
         </div>
       </Container>
-
-      <ModalAdicionarFicheiro
-        show={addFile}
-        handleClose={() => setAddFile(false)}
-        tiposPermitidos={['documento', 'video', 'entrega', 'trabalho', 'aula']}
-        courseId={selectedCursoId}
-        onUploadSuccess={handleUploadSuccess}
-      />
-
-      <ModalEditarFicheiro
-        show={editFile}
-        handleClose={() => setEditFile(false)}
-        fileId={selectedFileId}
-        cursoId={selectedCursoId}
-        onUpdateSuccess={handleUpdateSuccess}
-      />
+      <ModalAdicionarFicheiro show={addFile} handleClose={() => setAddFile(false)} tiposPermitidos={['documento', 'video', 'entrega', 'trabalho', 'aula']} courseId={selectedCursoId} onUploadSuccess={handleUploadSuccess}/>
+      <ModalEditarFicheiro show={editFile} handleClose={() => setEditFile(false)} fileId={selectedFileId} cursoId={selectedCursoId} onUpdateSuccess={handleUpdateSuccess}/>
     </div>
   );
 }
