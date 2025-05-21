@@ -475,11 +475,16 @@ const controladorUtilizadores = {
           models.gestor.findOne({ where: { gestor_id: id } })
         ]);
 
-        // Adicionar ou remover formando
+        // Adicionar ou remover formando (apenas se não houver referências)
         if (novosTipos.includes("Formando") && !formando) {
           await models.formando.create({ formando_id: id });
         } else if (!novosTipos.includes("Formando") && formando) {
-          await formando.destroy();
+          try {
+            await formando.destroy();
+          } catch (error) {
+            // Se houver erro de foreign key, manter o tipo
+            console.log("Não foi possível remover o tipo Formando devido a referências existentes");
+          }
         }
 
         // Adicionar ou remover formador
@@ -489,14 +494,22 @@ const controladorUtilizadores = {
             especialidade: dadosAtualizados.especialidade || "Geral"
           });
         } else if (!novosTipos.includes("Formador") && formador) {
-          await formador.destroy();
+          try {
+            await formador.destroy();
+          } catch (error) {
+            console.log("Não foi possível remover o tipo Formador devido a referências existentes");
+          }
         }
 
         // Adicionar ou remover gestor
         if (novosTipos.includes("Gestor") && !gestor) {
           await models.gestor.create({ gestor_id: id });
         } else if (!novosTipos.includes("Gestor") && gestor) {
-          await gestor.destroy();
+          try {
+            await gestor.destroy();
+          } catch (error) {
+            console.log("Não foi possível remover o tipo Gestor devido a referências existentes");
+          }
         }
 
         // Retornar os dados atualizados do colaborador
