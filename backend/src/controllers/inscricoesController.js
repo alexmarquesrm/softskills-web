@@ -8,28 +8,66 @@ const controladorInscricoes = {
   // Criar uma nova inscrição
   async create(req, res) {
     const { formando_id, curso_id } = req.body;
+    const transaction = await sequelizeConn.transaction();
+    
     try {
-      // Validar se o usuário autenticado é o mesmo que está sendo inscrito
-      // Isso evita que um usuário inscreva outro usuário
-      if (!req.body.formando_id) {
-        return res.status(403).json({
-          erro: "Não é permitido criar inscrições para outros usuários"
+      // Validar os dados
+      if (!formando_id || !curso_id) {
+        return res.status(400).json({
+          erro: "formando_id e curso_id são obrigatórios"
         });
       }
-      const novaInscricao = await models.inscricao.create({
-        formando_id,
-        curso_id,
-        nota: null,
-        data_inscricao: new Date(),
-        estado: false
+      
+      await sequelizeConn.query('CALL gerir_inscricao_curso($1, $2)', {
+        bind: [parseInt(formando_id), parseInt(curso_id)],
+        type: sequelizeConn.QueryTypes.RAW,
+        transaction
       });
+      
+      // procurar a inscrição criada e devolver
+      const novaInscricao = await models.inscricao.findOne({
+        where: { 
+          formando_id,
+          curso_id
+        },
+        include: [
+          {
+            model: models.curso,
+            as: "inscricao_curso"
+          }
+        ],
+        transaction
+      });
+
+      // Commit da transação
+      await transaction.commit();
+
       res.status(201).json(novaInscricao);
     } catch (error) {
-      res.status(500).json({ erro: "Erro ao criar inscrição", detalhes: error.message });
+      // Rollback da transação em caso de erro
+      await transaction.rollback();
+      
+      console.error('Erro detalhado:', error);
+      
+      // Tratar erros específicos do procedimento
+      if (error.message && typeof error.message === 'string') {
+        if (error.message.includes('Curso não encontrado')) {
+          return res.status(404).json({ erro: "Curso não encontrado" });
+        } else if (error.message.includes('Formando já está inscrito')) {
+          return res.status(400).json({ erro: "Formando já está inscrito neste curso" });
+        } else if (error.message.includes('limite de vagas')) {
+          return res.status(400).json({ erro: "Curso já atingiu o limite de vagas" });
+        }
+      }
+      
+      res.status(500).json({ 
+        erro: "Erro ao criar inscrição", 
+        detalhes: error.message || 'Erro desconhecido' 
+      });
     }
   },
 
-  // Listar todas as inscrições (apenas para administradores)
+  // Listar todas as inscrições (apenas para gestores)
   async getAll(req, res) {
     try {
       // Verificar se o usuário é Gestor, seja como tipo ativo ou como um dos tipos disponíveis
