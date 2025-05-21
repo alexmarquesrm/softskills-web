@@ -416,8 +416,8 @@ export default function EditProfile ({ show, onClose, onSave, initialData = {} }
               <h5 className="text-primary mb-3">Configurações da Conta</h5>
               <Row>
                 <Col md={6}>
-                  <div className="mb-3">
-                    <label className="form-label">Tipo de Utilizador</label>
+                  <div className="border rounded p-3 h-100">
+                    <label className="form-label fw-bold mb-2">Tipo de Utilizador</label>
                     <div className="d-flex flex-column gap-2">
                       <Form.Check
                         type="checkbox"
@@ -462,20 +462,23 @@ export default function EditProfile ({ show, onClose, onSave, initialData = {} }
                   </div>
                 </Col>
                 <Col md={6}>
-                  <div className="d-flex align-items-center h-100">
-                    <Form.Check 
-                      type="switch" 
-                      id="ativoSwitch" 
-                      label={
-                        <div className="d-flex align-items-center">
-                          <span className={!formData.inativo ? "text-success" : "text-danger"}>
-                            {!formData.inativo ? "Conta Ativa" : "Conta Inativa"}
-                          </span>
-                        </div>
-                      }
-                      checked={!formData.inativo}
-                      onChange={() => setFormData(prev => ({ ...prev, inativo: !prev.inativo }))}
-                    />
+                  <div className="border rounded p-3 h-100">
+                    <label className="form-label fw-bold mb-2">Estado da Conta</label>
+                    <div className="d-flex align-items-center">
+                      <Form.Check 
+                        type="switch" 
+                        id="ativoSwitch" 
+                        label={
+                          <div className="d-flex align-items-center">
+                            <span className={!formData.inativo ? "text-success" : "text-danger"}>
+                              {!formData.inativo ? "Conta Ativa" : "Conta Inativa"}
+                            </span>
+                          </div>
+                        }
+                        checked={!formData.inativo}
+                        onChange={() => setFormData(prev => ({ ...prev, inativo: !prev.inativo }))}
+                      />
+                    </div>
                   </div>
                 </Col>
               </Row>
