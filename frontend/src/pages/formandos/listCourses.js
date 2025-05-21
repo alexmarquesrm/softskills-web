@@ -7,13 +7,12 @@ import FeaturedCourses from "../../components/cards/cardCourses";
 import SearchBar from '../../components/textFields/search';
 import Filtros from '../../components/filters/filtros';
 import { filtrarCursosOuInscricoes } from '../../utils/filtrarCursos';
-/* CSS */
-
 
 export default function Courses() {
     const [curso, setCurso] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
-    // Modificando o estado inicial para false (não selecionado)
+    const [inscricao, setInscricao] = useState([]);
+    const [inscricaoCarregada, setInscricaoCarregada] = useState(false);
     const [tipoSelecionado, setTipoSelecionado] = useState({ S: false, A: false });
     const [estadoSelecionado, setEstadoSelecionado] = useState({ emCurso: false, terminado: false });
     const [dataSelecionada, setDataSelecionada] = useState({ inicio: '', fim: '' });
@@ -24,15 +23,36 @@ export default function Courses() {
     const [currentPage, setCurrentPage] = useState(1);
     const coursesPerPage = 8;
 
+    const fetchDataInscricao = async () => {
+        try {
+            const response = await axios.get('/inscricao/minhas');
+            setInscricao(response.data);
+        } catch (err) {
+            console.error("Erro ao carregar curso:", err);
+            setError("Erro ao carregar os dados do curso");
+            setLoading(false);
+        } finally {
+            setInscricaoCarregada(true);
+        }
+    };
+
     const fetchData = async () => {
         try {
             const token = sessionStorage.getItem('token');
             const response = await axios.get(`/curso`, {
                 headers: { Authorization: `${token}` }
             });
-
             const cursos = response.data;
-            setCurso(cursos);
+
+            // Pegamos os ids dos cursos já inscritos
+            const cursosInscritosIds = inscricao.map(i => i.curso_id);
+            
+            // Filtramos os cursos onde o id não está nas inscrições
+            const cursosNaoInscritos = cursos.filter(
+                (curso) => !cursosInscritosIds.includes(curso.curso_id)
+            );
+
+            setCurso(cursosNaoInscritos);
         } catch (error) {
             console.error("Erro ao procurar inscrições", error);
             setError("Não foi possível carregar as inscrições");
@@ -42,8 +62,14 @@ export default function Courses() {
     };
 
     useEffect(() => {
-        fetchData();
+        fetchDataInscricao();
     }, []);
+
+    useEffect(() => {
+        if (inscricaoCarregada) {
+            fetchData();
+        }
+    }, [inscricaoCarregada]);
 
     // Memoizar inscrições filtradas para melhorar desempenho
     const filteredInscricoes = useMemo(() => {

@@ -1,23 +1,28 @@
 const initModels = require("../models/init-models");
 const sequelizeConn = require("../bdConexao");
+const formando = require("../models/formando");
+const curso = require("../models/curso");
 const models = initModels(sequelizeConn);
 
 const controladorInscricoes = {
   // Criar uma nova inscrição
   async create(req, res) {
+    const { formando_id, curso_id } = req.body;
     try {
       // Validar se o usuário autenticado é o mesmo que está sendo inscrito
       // Isso evita que um usuário inscreva outro usuário
-      if (req.body.formando_id && req.body.formando_id !== req.user.id) {
+      if (!req.body.formando_id) {
         return res.status(403).json({
           erro: "Não é permitido criar inscrições para outros usuários"
         });
       }
-
-      // Garantir que o formando_id seja o ID do usuário autenticado
-      req.body.formando_id = req.user.id;
-
-      const novaInscricao = await models.inscricao.create(req.body);
+      const novaInscricao = await models.inscricao.create({
+        formando_id,
+        curso_id,
+        nota: null,
+        data_inscricao: new Date(),
+        estado: false
+      });
       res.status(201).json(novaInscricao);
     } catch (error) {
       res.status(500).json({ erro: "Erro ao criar inscrição", detalhes: error.message });
