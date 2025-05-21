@@ -138,7 +138,7 @@ const controladorPedidos = {
           {
             model: models.curso,
             as: "ped_curso",
-            attributes: ["titulo", "pendente"],
+            attributes: ["titulo", "pendente", "aprovado"],
             required: false,
             where: {
               curso_id: {
