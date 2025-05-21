@@ -3,6 +3,7 @@ const fs = require('fs');
 const stream = require('stream');
 require('dotenv').config();
 
+// Configuração do cliente MinIO
 var minioClient = new minio.Client({
     endPoint: process.env[`MINIO_ENDPOINT`],
     port: parseInt(process.env[`MINIO_PORT`]),
@@ -10,6 +11,15 @@ var minioClient = new minio.Client({
     accessKey: process.env[`MINIO_ROOT_USER`],
     secretKey: process.env[`MINIO_ROOT_PASSWORD`],
 })
+
+// Adicionar função para corrigir as URLs
+function fixMinioUrl(url) {
+    // Substitui o endereço IP interno pelo nome do domínio público
+    if (typeof url === 'string') {
+        return url.replace('http://192.168.1.91:9000', 'http://minecraftatm9.serveminecraft.net:9005');
+    }
+    return url;
+}
 
 minioClient.listBuckets(function (err, buckets) {
     if (err) {
@@ -105,8 +115,8 @@ const objectStorage = {
                     const promise = new Promise((res, rej) => {
                         minioClient.presignedGetObject(standardBucketName, obj.name, 24 * 60 * 60, function (err, presignedUrl) {
                             if (err) return rej(err);
-                            obj.url = presignedUrl;
-                            console.log(`Generated URL for ${obj.name}: ${presignedUrl}`);
+                            obj.url = fixMinioUrl(presignedUrl); // Corrigir a URL
+                            console.log(`Generated URL for ${obj.name}: ${obj.url}`);
                             res(obj);
                         });
                     });
@@ -160,7 +170,7 @@ const objectStorage = {
                     reject(err);
                     return;
                 }
-                resolve(presignedUrl);
+                resolve(fixMinioUrl(presignedUrl)); // Corrigir a URL
             });
         });
     },
@@ -186,7 +196,7 @@ const objectStorage = {
                         files.push({
                             nome: obj.name,
                             tamanho: obj.size,
-                            url: url
+                            url: fixMinioUrl(url) // Corrigir a URL
                         });
                     } catch (err) {
                         console.error(`Erro ao gerar URL para '${obj.name}':`, err);
