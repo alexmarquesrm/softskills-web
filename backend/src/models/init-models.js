@@ -33,6 +33,8 @@ var _threads_avaliacao = require("./threads_avaliacao");
 var _topico = require("./topico");
 var _trabalho = require("./trabalho");
 var _trabalhos_formando = require("./trabalhos_formando");
+var _departamento = require("./departamento");
+var _funcao = require("./funcao");
 
 function initModels(sequelize) {
   var area = _area(sequelize, DataTypes);
@@ -69,6 +71,8 @@ function initModels(sequelize) {
   var topico = _topico(sequelize, DataTypes);
   var trabalho = _trabalho(sequelize, DataTypes);
   var trabalhos_formando = _trabalhos_formando(sequelize, DataTypes);
+  var departamento = _departamento(sequelize, DataTypes);
+  var funcao = _funcao(sequelize, DataTypes);
 
   aula.belongsToMany(formando, { as: 'formando_id_formando_presenca_form_sincs', through: presenca_form_sinc, foreignKey: "aula_id", otherKey: "formando_id" });
   comentarios.belongsToMany(comentarios, { as: 'resposta_id_comentarios', through: comentario_resposta, foreignKey: "comentariopai_id", otherKey: "resposta_id" });
@@ -186,6 +190,10 @@ function initModels(sequelize) {
   curso.hasMany(avaliacao_formador, { as: "curso_avaformador", foreignKey: "curso_id"});
   avaliacao_formador.belongsTo(formador, { as: "avaformador_formador", foreignKey: "formador_id"});
   formador.hasMany(avaliacao_formador, { as: "formador_avaformador", foreignKey: "formador_id"});
+  funcao.belongsTo(departamento, { as: 'funcao_departamento', foreignKey: 'departamento_id'});
+  departamento.hasMany(funcao, { as: 'departamento_funcoes', foreignKey: 'departamento_id'});
+  colaborador.belongsTo(funcao, { as: 'colaborador_funcao', foreignKey: 'funcao_id'});
+  funcao.hasMany(colaborador, { as: 'funcao_colaboradores', foreignKey: 'funcao_id'});
 
   return {
     ficheiro,
@@ -222,6 +230,8 @@ function initModels(sequelize) {
     topico,
     trabalho,
     trabalhos_formando,
+    departamento,
+    funcao,
   };
 }
 module.exports = initModels;

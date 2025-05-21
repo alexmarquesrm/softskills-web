@@ -139,6 +139,28 @@ export default function EditColab() {
       const primeiroNome = utilizador.nome ? utilizador.nome.split(" ")[0] : "";
       const ultimoNome = utilizador.nome ? utilizador.nome.split(" ").slice(1).join(" ") : "";
 
+      //dados do departamento e função
+      let departamentoNome = "";
+      let funcaoNome = "";
+      
+      if (utilizador.funcao_id) {
+        try {
+          // função
+          const funcaoResponse = await axios.get(`/funcao/${utilizador.funcao_id}`);
+          if (funcaoResponse.data) {
+            funcaoNome = funcaoResponse.data.nome;
+            
+            // departamento
+            const departamentoResponse = await axios.get(`/departamento/${funcaoResponse.data.departamento_id}`);
+            if (departamentoResponse.data) {
+              departamentoNome = departamentoResponse.data.nome;
+            }
+          }
+        } catch (error) {
+          console.error("Erro ao buscar dados de departamento/função:", error);
+        }
+      }
+
       setFormData({
         primeiroNome: primeiroNome,
         ultimoNome: ultimoNome,
@@ -146,8 +168,8 @@ export default function EditColab() {
         dataNasc: utilizador.data_nasc || "",
         email: utilizador.email || "",
         telefone: utilizador.telefone || "",
-        departamento: utilizador.departamento || "",
-        cargo: utilizador.cargo || "",
+        departamento: departamentoNome,
+        cargo: funcaoNome,
         sobre_mim: utilizador.sobre_mim || "",
         novaPassword: "",
         confirmarPassword: "",

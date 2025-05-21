@@ -17,15 +17,49 @@ import { BsArrowReturnLeft } from "react-icons/bs";
 const ModalAddUser = ({ show, onClose }) => {
   const [Pnome, setPnome] = useState('');
   const [Unome, setUnome] = useState('');
-  const [nomeCompleto, setNomeCompleto] = useState(''); 
   const [username, setUsername] = useState('');
   const [data, setData] = useState('');
   const [email, setEmail] = useState('');
   const [telemovel, setTelemovel] = useState('');
-  const [departamento, setDepartamento] = useState('');
-  const [cargo, setCargo] = useState();
+  const [departamentoId, setDepartamentoId] = useState('');
+  const [funcaoId, setFuncaoId] = useState('');
   const [ativo, setAtivo] = useState(true);
   const [tipoUtilizador, setTipoUtilizador] = useState([]);
+  
+  // Estados para as listas
+  const [departamentos, setDepartamentos] = useState([]);
+  const [funcoes, setFuncoes] = useState([]);
+
+  // Carregar departamentos e funções
+  useEffect(() => {
+    const fetchDepartamentos = async () => {
+      try {
+        const response = await axios.get('/departamento');
+        setDepartamentos(response.data);
+      } catch (error) {
+        console.error("Erro ao carregar departamentos:", error);
+      }
+    };
+
+    const fetchFuncoes = async () => {
+      try {
+        const response = await axios.get('/funcao');
+        setFuncoes(response.data);
+      } catch (error) {
+        console.error("Erro ao carregar funções:", error);
+      }
+    };
+
+    if (show) {
+      fetchDepartamentos();
+      fetchFuncoes();
+    }
+  }, [show]);
+
+  // Filtrar funções baseado no departamento selecionado
+  const funcoesFiltradas = funcoes.filter(funcao => 
+    departamentoId ? funcao.departamento_id === parseInt(departamentoId) : true
+  );
 
   const handleSave = async () => {
     try {
@@ -37,14 +71,18 @@ const ModalAddUser = ({ show, onClose }) => {
         return;
       }
 
+      if (!departamentoId || !funcaoId) {
+        alert("Por favor selecione um departamento e uma função");
+        return;
+      }
+
       const novoColaborador = {
         nome: nomeCompleto,
         username,
         data_nasc: data,
         email,
         telefone: telemovel,
-        departamento,
-        cargo,
+        funcao_id: parseInt(funcaoId),
         inativo: !ativo,
         tipo: tipoUtilizador[0], 
       };
@@ -58,7 +96,7 @@ const ModalAddUser = ({ show, onClose }) => {
       onClose();
     } catch (error) {
       console.error("Erro ao criar perfil", error);
-      alert("Erro ao atualizar perfil."); 
+      alert("Erro ao criar perfil."); 
     }
   };
 
@@ -69,8 +107,8 @@ const ModalAddUser = ({ show, onClose }) => {
     setData('');
     setTelemovel('');
     setUsername('');
-    setDepartamento('');
-    setCargo('');
+    setDepartamentoId('');
+    setFuncaoId('');
     setAtivo(true);
     setTipoUtilizador([]);
   };
@@ -88,6 +126,11 @@ const ModalAddUser = ({ show, onClose }) => {
         return [...prev, tipo];
       }
     });
+  };
+
+  const handleDepartamentoChange = (e) => {
+    setDepartamentoId(e.target.value);
+    setFuncaoId(''); // Reset função quando departamento muda
   };
 
   return (
@@ -170,23 +213,41 @@ const ModalAddUser = ({ show, onClose }) => {
               <Col md={12}>
                 <h5 className="text-primary mb-3">Informações Profissionais</h5>
                 <Row className="mb-3">
-                  <InputField 
-                    label="Departamento" 
-                    type="text" 
-                    name="departamento" 
-                    value={departamento} 
-                    onChange={(e) => setDepartamento(e.target.value)} 
-                    icon={<FaBuilding />} 
-                    colSize={6} 
-                  />
-                  <InputField 
-                    label="Cargo" 
-                    type="text" 
-                    name="cargo" 
-                    value={cargo} 
-                    onChange={(e) => setCargo(e.target.value)} 
-                    colSize={6} 
-                  />
+                  <Col md={6}>
+                    <Form.Group>
+                      <Form.Label>Departamento</Form.Label>
+                      <Form.Select
+                        value={departamentoId}
+                        onChange={handleDepartamentoChange}
+                        className="form-control"
+                      >
+                        <option value="">Selecione um departamento</option>
+                        {departamentos.map(dept => (
+                          <option key={dept.departamento_id} value={dept.departamento_id}>
+                            {dept.nome}
+                          </option>
+                        ))}
+                      </Form.Select>
+                    </Form.Group>
+                  </Col>
+                  <Col md={6}>
+                    <Form.Group>
+                      <Form.Label>Função</Form.Label>
+                      <Form.Select
+                        value={funcaoId}
+                        onChange={(e) => setFuncaoId(e.target.value)}
+                        className="form-control"
+                        disabled={!departamentoId}
+                      >
+                        <option value="">Selecione uma função</option>
+                        {funcoesFiltradas.map(func => (
+                          <option key={func.funcao_id} value={func.funcao_id}>
+                            {func.nome}
+                          </option>
+                        ))}
+                      </Form.Select>
+                    </Form.Group>
+                  </Col>
                 </Row>
               </Col>
             </Row>

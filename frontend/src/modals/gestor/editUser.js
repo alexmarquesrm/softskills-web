@@ -22,14 +22,48 @@ export default function EditProfile ({ show, onClose, onSave, initialData = {} }
     dataNasc: "",
     email: "",
     telefone: "",
-    departamento: "",
-    cargo: "",
+    funcao_id: "",
     tipo: "",
     inativo: false,
     fotoPerfilUrl: ""
   });
 
   const [previewFoto, setPreviewFoto] = useState(profilePic);
+  const [departamentos, setDepartamentos] = useState([]);
+  const [funcoes, setFuncoes] = useState([]);
+  const [departamentoAtual, setDepartamentoAtual] = useState(null);
+  const [funcaoNome, setFuncaoNome] = useState("");
+
+  // Carregar departamentos e funções
+  useEffect(() => {
+    const fetchDepartamentos = async () => {
+      try {
+        const response = await axios.get('/departamento');
+        setDepartamentos(response.data);
+      } catch (error) {
+        console.error("Erro ao carregar departamentos:", error);
+      }
+    };
+
+    const fetchFuncoes = async () => {
+      try {
+        const response = await axios.get('/funcao');
+        setFuncoes(response.data);
+      } catch (error) {
+        console.error("Erro ao carregar funções:", error);
+      }
+    };
+
+    if (show) {
+      fetchDepartamentos();
+      fetchFuncoes();
+    }
+  }, [show]);
+
+  // Filtrar funções baseado no departamento atual
+  const funcoesFiltradas = funcoes.filter(funcao => 
+    departamentoAtual ? funcao.departamento_id === departamentoAtual : true
+  );
 
   const fetchData = async () => {
     try {
@@ -44,6 +78,22 @@ export default function EditProfile ({ show, onClose, onSave, initialData = {} }
       const primeiroNome = utilizador.nome.split(" ")[0];
       const ultimoNome = utilizador.nome.split(" ").slice(1).join(" ");
 
+      // Encontrar o departamento atual baseado na função
+      let departamentoAtualId = null;
+      if (utilizador.funcao_id) {
+        try {
+          const funcaoResponse = await axios.get(`/funcao/${utilizador.funcao_id}`);
+          if (funcaoResponse.data) {
+            departamentoAtualId = funcaoResponse.data.departamento_id;
+            setFuncaoNome(funcaoResponse.data.nome); // Armazenar o nome da função
+          }
+        } catch (error) {
+          console.error("Erro ao buscar dados da função:", error);
+        }
+      }
+
+      setDepartamentoAtual(departamentoAtualId);
+
       setFormData({
         primeiroNome: primeiroNome || "",
         ultimoNome: ultimoNome || "",
@@ -51,8 +101,7 @@ export default function EditProfile ({ show, onClose, onSave, initialData = {} }
         dataNasc: utilizador.data_nasc || "",
         email: utilizador.email || "",
         telefone: utilizador.telefone || "",
-        departamento: utilizador.departamento || "",
-        cargo: utilizador.cargo || "",
+        funcao_id: utilizador.funcao_id || "",
         tipo: utilizador.tipo || "",
         inativo: utilizador.inativo || false,
         fotoPerfilUrl: utilizador.fotoPerfilUrl || ""
@@ -108,6 +157,15 @@ export default function EditProfile ({ show, onClose, onSave, initialData = {} }
     });
   };
 
+  const handleDepartamentoChange = (e) => {
+    const deptId = parseInt(e.target.value);
+    setDepartamentoAtual(deptId);
+    setFormData(prev => ({
+      ...prev,
+      funcao_id: "" // Reset função quando departamento muda
+    }));
+  };
+
   return (
     <ModalCustom show={show} handleClose={onClose} title="Editar Utilizador" size="xl">
       <Card className="border-0 shadow-sm">
@@ -130,7 +188,7 @@ export default function EditProfile ({ show, onClose, onSave, initialData = {} }
               <h5 className="text-primary mb-2">
                 {initialData.nome || "Sem nome para mostrar"}
               </h5>
-              <p className="text-muted mb-0">{initialData.funcao || "Sem dados"}</p>
+              <p className="text-muted mb-0">{funcaoNome || "Sem dados"}</p>
             </Col>
           </Row>
 
@@ -138,65 +196,66 @@ export default function EditProfile ({ show, onClose, onSave, initialData = {} }
             <Col md={12}>
               <h5 className="text-primary mb-3">Informações Pessoais</h5>
               <Row className="mb-3">
-                <InputField 
-                  label="Primeiro Nome" 
-                  name="primeiroNome" 
-                  value={formData.primeiroNome} 
-                  onChange={handleChange} 
-                  colSize={6} 
-                />
-                <InputField 
-                  label="Último Nome" 
-                  name="ultimoNome" 
-                  value={formData.ultimoNome} 
-                  onChange={handleChange} 
-                  colSize={6} 
-                />
+                <Col md={6}>
+                  <InputField
+                    label="Primeiro Nome"
+                    name="primeiroNome"
+                    value={formData.primeiroNome}
+                    onChange={handleChange}
+                    icon={<FaUser />}
+                  />
+                </Col>
+                <Col md={6}>
+                  <InputField
+                    label="Último Nome"
+                    name="ultimoNome"
+                    value={formData.ultimoNome}
+                    onChange={handleChange}
+                    icon={<FaUser />}
+                  />
+                </Col>
               </Row>
-
               <Row className="mb-3">
-                <InputField 
-                  label="Nome Utilizador" 
-                  name="username" 
-                  value={formData.username} 
-                  onChange={handleChange} 
-                  icon={<FaUser />} 
-                  colSize={6} 
-                />
-                <InputField 
-                  label="Data Nascimento" 
-                  name="dataNasc" 
-                  value={formData.dataNasc} 
-                  type="date" 
-                  icon={<IoCalendarNumberSharp />} 
-                  colSize={6} 
-                  disabled 
-                  readOnly 
-                />
+                <Col md={6}>
+                  <InputField
+                    label="Username"
+                    name="username"
+                    value={formData.username}
+                    onChange={handleChange}
+                    icon={<FaUser />}
+                  />
+                </Col>
+                <Col md={6}>
+                  <InputField
+                    label="Data de Nascimento"
+                    name="dataNasc"
+                    type="date"
+                    value={formData.dataNasc}
+                    onChange={handleChange}
+                    icon={<IoCalendarNumberSharp />}
+                  />
+                </Col>
               </Row>
-            </Col>
-          </Row>
-
-          <Row className="mb-4">
-            <Col md={12}>
-              <h5 className="text-primary mb-3">Informações de Contacto</h5>
               <Row className="mb-3">
-                <InputField 
-                  label="Email" 
-                  name="email" 
-                  value={formData.email} 
-                  onChange={handleChange} 
-                  icon={<MdEmail />} 
-                  colSize={6} 
-                />
-                <InputField 
-                  label="Número Telemóvel" 
-                  name="telefone" 
-                  value={formData.telefone} 
-                  onChange={handleChange} 
-                  icon={<FaMobileAlt />} 
-                  colSize={6} 
-                />
+                <Col md={6}>
+                  <InputField
+                    label="Email"
+                    name="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    icon={<MdEmail />}
+                  />
+                </Col>
+                <Col md={6}>
+                  <InputField
+                    label="Telefone"
+                    name="telefone"
+                    value={formData.telefone}
+                    onChange={handleChange}
+                    icon={<FaMobileAlt />}
+                  />
+                </Col>
               </Row>
             </Col>
           </Row>
@@ -205,79 +264,75 @@ export default function EditProfile ({ show, onClose, onSave, initialData = {} }
             <Col md={12}>
               <h5 className="text-primary mb-3">Informações Profissionais</h5>
               <Row className="mb-3">
-                <InputField 
-                  label="Departamento" 
-                  name="departamento" 
-                  value={formData.departamento} 
-                  onChange={handleChange} 
-                  icon={<FaBuilding />} 
-                  colSize={6} 
-                  disabled 
-                  readOnly
-                />
-                <InputField 
-                  label="Cargo" 
-                  name="cargo" 
-                  value={formData.cargo} 
-                  onChange={handleChange} 
-                  colSize={6} 
-                  disabled 
-                  readOnly
-                />
+                <Col md={6}>
+                  <Form.Group>
+                    <Form.Label>Departamento</Form.Label>
+                    <Form.Select
+                      value={departamentoAtual || ""}
+                      onChange={handleDepartamentoChange}
+                      className="form-control"
+                    >
+                      <option value="">Selecione um departamento</option>
+                      {departamentos.map(dept => (
+                        <option key={dept.departamento_id} value={dept.departamento_id}>
+                          {dept.nome}
+                        </option>
+                      ))}
+                    </Form.Select>
+                  </Form.Group>
+                </Col>
+                <Col md={6}>
+                  <Form.Group>
+                    <Form.Label>Função</Form.Label>
+                    <Form.Select
+                      value={formData.funcao_id}
+                      onChange={(e) => setFormData({...formData, funcao_id: e.target.value})}
+                      className="form-control"
+                      disabled={!departamentoAtual}
+                    >
+                      <option value="">Selecione uma função</option>
+                      {funcoesFiltradas.map(func => (
+                        <option key={func.funcao_id} value={func.funcao_id}>
+                          {func.nome}
+                        </option>
+                      ))}
+                    </Form.Select>
+                  </Form.Group>
+                </Col>
               </Row>
             </Col>
           </Row>
 
           <Row className="mb-4">
             <Col md={12}>
-              <h5 className="text-primary mb-3">Configurações da Conta</h5>
-              <Row>
+              <h5 className="text-primary mb-3">Tipo de Utilizador</h5>
+              <Row className="mb-3">
                 <Col md={6}>
-                  <div className="mb-3">
-                    <label className="form-label">Tipo de Utilizador</label>
-                    <div className="d-flex gap-4">
-                      <Form.Check
-                        type="checkbox"
-                        id="formando"
-                        label={
-                          <div className="d-flex align-items-center">
-                            <FaUserGraduate className="me-2 text-primary" />
-                            <span>Formando</span>
-                          </div>
-                        }
-                        checked={formData.tipo === "Formando"}
-                        onChange={() => setFormData({...formData, tipo: "Formando"})}
-                      />
-                      <Form.Check
-                        type="checkbox"
-                        id="formador"
-                        label={
-                          <div className="d-flex align-items-center">
-                            <FaUserTie className="me-2 text-primary" />
-                            <span>Formador</span>
-                          </div>
-                        }
-                        checked={formData.tipo === "Formador"}
-                        onChange={() => setFormData({...formData, tipo: "Formador"})}
-                      />
-                    </div>
-                  </div>
+                  <Form.Group>
+                    <Form.Label>Tipo</Form.Label>
+                    <Form.Select
+                      name="tipo"
+                      value={formData.tipo}
+                      onChange={handleChange}
+                      className="form-control"
+                    >
+                      <option value="">Selecione o tipo</option>
+                      <option value="gestor">Gestor</option>
+                      <option value="formador">Formador</option>
+                      <option value="formando">Formando</option>
+                    </Form.Select>
+                  </Form.Group>
                 </Col>
                 <Col md={6}>
-                  <Form.Check 
-                    type="switch" 
-                    id="ativoSwitch" 
-                    label={
-                      <div className="d-flex align-items-center">
-                        <span className={!formData.inativo ? "text-success" : "text-danger"}>
-                          {!formData.inativo ? "Conta Ativa" : "Conta Inativa"}
-                        </span>
-                      </div>
-                    }
-                    checked={!formData.inativo}
-                    onChange={() => setFormData({...formData, inativo: !formData.inativo})}
-                    className="mt-1"
-                  />
+                  <Form.Group className="mt-4">
+                    <Form.Check
+                      type="checkbox"
+                      label="Inativo"
+                      name="inativo"
+                      checked={formData.inativo}
+                      onChange={handleChange}
+                    />
+                  </Form.Group>
                 </Col>
               </Row>
             </Col>
@@ -285,10 +340,10 @@ export default function EditProfile ({ show, onClose, onSave, initialData = {} }
 
           <div className="d-flex justify-content-end gap-3 mt-4">
             <Cancelar text="Cancelar" onClick={onClose} Icon={BsArrowReturnLeft} inline={true} />
-            <Guardar text="Guardar Alterações" onClick={handleGuardar} Icon={FaRegSave} />
+            <Guardar text="Guardar" onClick={handleGuardar} Icon={FaRegSave} />
           </div>
         </Card.Body>
       </Card>
     </ModalCustom>
   );
-};
+}

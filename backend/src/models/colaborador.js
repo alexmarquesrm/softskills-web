@@ -14,12 +14,12 @@ module.exports = function(sequelize, DataTypes) {
     email: {
       type: DataTypes.TEXT,
       allowNull: false,
-      unique: "colaborador_email_key"
+      unique: true
     },
     username: {
       type: DataTypes.TEXT,
       allowNull: false,
-      unique: "colaborador_username_key"
+      unique: true
     },
     pssword: {
       type: DataTypes.TEXT,
@@ -29,18 +29,18 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.DATEONLY,
       allowNull: true
     },
-    cargo: {
-      type: DataTypes.TEXT,
-      allowNull: false
-    },
-    departamento: {
-      type: DataTypes.TEXT,
-      allowNull: false
+    funcao_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'funcao',
+        key: 'funcao_id'
+      }
     },
     telefone: {
-      type: DataTypes.DECIMAL,
+      type: DataTypes.DECIMAL(9,0),
       allowNull: false,
-      unique: "colaborador_telefone_key"
+      unique: true
     },
     sobre_mim: {
       type: DataTypes.TEXT,
@@ -53,7 +53,7 @@ module.exports = function(sequelize, DataTypes) {
     },
     inativo: {
       type: DataTypes.BOOLEAN,
-      allowNull: true,
+      allowNull: false,
       defaultValue: false
     }
   }, {
@@ -62,27 +62,6 @@ module.exports = function(sequelize, DataTypes) {
     schema: 'public',
     timestamps: false,
     indexes: [
-      {
-        name: "colaborador_email_key",
-        unique: true,
-        fields: [
-          { name: "email" },
-        ]
-      },
-      {
-        name: "colaborador_telefone_key",
-        unique: true,
-        fields: [
-          { name: "telefone" },
-        ]
-      },
-      {
-        name: "colaborador_username_key",
-        unique: true,
-        fields: [
-          { name: "username" },
-        ]
-      },
       {
         name: "pk_colab",
         unique: true,

@@ -90,18 +90,64 @@ INSERT INTO FORUM (TOPICO_ID, DESCRICAO, APROVADO, PENDENTE) VALUES
 (19, 'Como Criar Música no FL Studio', TRUE, FALSE),
 (20, 'Mindfulness e Meditação', TRUE, FALSE);
    
+-- Inserção na Tabela DEPARTAMENTO
+INSERT INTO DEPARTAMENTO (NOME) VALUES
+('Tecnologia'),
+('Design'),
+('Marketing'),
+('Negócios'),
+('Educação'),
+('Saúde'),
+('Música');
+
+-- Inserção na Tabela FUNCAO
+INSERT INTO FUNCAO (DEPARTAMENTO_ID, NOME) VALUES
+-- Tecnologia
+(1, 'Gestor de TI'),
+(1, 'Desenvolvedor Senior'),
+(1, 'Desenvolvedor Pleno'),
+(1, 'Desenvolvedor Junior'),
+(1, 'Estagiário de TI'),
+
+-- Design
+(2, 'Designer Senior'),
+(2, 'Designer Pleno'),
+(2, 'Designer Junior'),
+
+-- Marketing
+(3, 'Especialista em SEO'),
+(3, 'Analista de Marketing'),
+(3, 'Assistente de Marketing'),
+
+-- Negócios
+(4, 'Gestor de Projetos'),
+(4, 'Analista de Negócios'),
+
+-- Educação
+(5, 'Formador Senior'),
+(5, 'Formador Pleno'),
+(5, 'Formador Junior'),
+
+-- Saúde
+(6, 'Instrutor de Saúde'),
+(6, 'Assistente de Saúde'),
+
+-- Música
+(7, 'Instrutor de Música'),
+(7, 'Assistente Musical');
+
 -- Inserção na Tabela COLABORADOR (pass= 123)
-INSERT INTO COLABORADOR (NOME, EMAIL, USERNAME, PSSWORD, DATA_NASC, CARGO, DEPARTAMENTO, TELEFONE, SCORE) VALUES
-('Ana Costa', 'ana.costa@exemplo.com', 'ana123', '$2a$12$Dvv3PM454wsS0mCoyyArsuB6uEq4JyBqam2Kff3iYXkl8LZ9lbk4i', '1985-02-20', 'Gestora de TI', 'Tecnologia', 912345670, 95),
-('Carlos Silva', 'carlos.silva@exemplo.com', 'carlos90', '$2a$12$Dvv3PM454wsS0mCoyyArsuB6uEq4JyBqam2Kff3iYXkl8LZ9lbk4i', '1990-06-15', 'Desenvolvedor Web', 'Desenvolvimento', 912345671, 88),
-('Mariana Alves', 'mariana.alves@exemplo.com', 'marianaA', '$2a$12$Dvv3PM454wsS0mCoyyArsuB6uEq4JyBqam2Kff3iYXkl8LZ9lbk4i', '1992-04-10', 'Designer Gráfico', 'Design',912345672, 90),
-('João Pereira', 'joao.pereira@exemplo.com', 'joaoPereira', '$2a$12$Dvv3PM454wsS0mCoyyArsuB6uEq4JyBqam2Kff3iYXkl8LZ9lbk4i', '1988-03-12', 'Especialista em SEO', 'Marketing',912345673, 80),
-('Rita Santos', 'rita.santos@exemplo.com', 'ritaS', '$2a$12$Dvv3PM454wsS0mCoyyArsuB6uEq4JyBqam2Kff3iYXkl8LZ9lbk4i', '1995-01-25', 'Gestora de Projetos', 'Negócios',912345674, 92),
-('Pedro Rocha', 'pedro.rocha@exemplo.com', 'pedro123', '$2a$12$Dvv3PM454wsS0mCoyyArsuB6uEq4JyBqam2Kff3iYXkl8LZ9lbk4i', '1983-11-10', 'Instrutor de Fotografia', 'Fotografia', 912345675, 85),
-('Lucas Souza', 'lucas.souza@exemplo.com', 'lucasUI', '$2a$12$Dvv3PM454wsS0mCoyyArsuB6uEq4JyBqam2Kff3iYXkl8LZ9lbk4i', '1994-02-28', 'Desenvolvedor Frontend', 'Desenvolvimento', 912345676, 91),
-('Tiago Martins', 'tiago.martins@exemplo.com', 'tiago01', '$2a$12$Dvv3PM454wsS0mCoyyArsuB6uEq4JyBqam2Kff3iYXkl8LZ9lbk4i', '1987-07-05', 'Consultor de Marketing Digital', 'Marketing', 912345677, 89),
-('Carla Lima', 'carla.lima@exemplo.com', 'carlaLima', '$2a$12$Dvv3PM454wsS0mCoyyArsuB6uEq4JyBqam2Kff3iYXkl8LZ9lbk4i', '1993-10-17', 'Instrutora de Música', 'Música', 912345678, 95),
-('Fábio Almeida', 'fabio.almeida@exemplo.com', 'fabioF', '$2a$12$Dvv3PM454wsS0mCoyyArsuB6uEq4JyBqam2Kff3iYXkl8LZ9lbk4i', '1986-09-30', 'Treinador de Saúde e Bem-estar', 'Saúde', 912345679, 85);
+INSERT INTO COLABORADOR (NOME, EMAIL, USERNAME, PSSWORD, DATA_NASC, FUNCAO_ID, TELEFONE, SCORE) VALUES
+('Ana Costa', 'ana.costa@exemplo.com', 'ana123', '$2a$12$Dvv3PM454wsS0mCoyyArsuB6uEq4JyBqam2Kff3iYXkl8LZ9lbk4i', '1985-02-20', 1, 912345670, 95),
+('Carlos Silva', 'carlos.silva@exemplo.com', 'carlos90', '$2a$12$Dvv3PM454wsS0mCoyyArsuB6uEq4JyBqam2Kff3iYXkl8LZ9lbk4i', '1990-06-15', 2, 912345671, 88),
+('Mariana Alves', 'mariana.alves@exemplo.com', 'marianaA', '$2a$12$Dvv3PM454wsS0mCoyyArsuB6uEq4JyBqam2Kff3iYXkl8LZ9lbk4i', '1992-04-10', 6, 912345672, 90),
+('João Pereira', 'joao.pereira@exemplo.com', 'joaoPereira', '$2a$12$Dvv3PM454wsS0mCoyyArsuB6uEq4JyBqam2Kff3iYXkl8LZ9lbk4i', '1988-03-12', 8, 912345673, 80),
+('Rita Santos', 'rita.santos@exemplo.com', 'ritaS', '$2a$12$Dvv3PM454wsS0mCoyyArsuB6uEq4JyBqam2Kff3iYXkl8LZ9lbk4i', '1995-01-25', 13, 912345674, 92),
+('Pedro Rocha', 'pedro.rocha@exemplo.com', 'pedro123', '$2a$12$Dvv3PM454wsS0mCoyyArsuB6uEq4JyBqam2Kff3iYXkl8LZ9lbk4i', '1983-11-10', 15, 912345675, 85),
+('Lucas Souza', 'lucas.souza@exemplo.com', 'lucasUI', '$2a$12$Dvv3PM454wsS0mCoyyArsuB6uEq4JyBqam2Kff3iYXkl8LZ9lbk4i', '1994-02-28', 3, 912345676, 91),
+('Tiago Martins', 'tiago.martins@exemplo.com', 'tiago01', '$2a$12$Dvv3PM454wsS0mCoyyArsuB6uEq4JyBqam2Kff3iYXkl8LZ9lbk4i', '1987-07-05', 9, 912345677, 89),
+('Carla Lima', 'carla.lima@exemplo.com', 'carlaLima', '$2a$12$Dvv3PM454wsS0mCoyyArsuB6uEq4JyBqam2Kff3iYXkl8LZ9lbk4i', '1993-10-17', 19, 912345678, 95),
+('Fábio Almeida', 'fabio.almeida@exemplo.com', 'fabioF', '$2a$12$Dvv3PM454wsS0mCoyyArsuB6uEq4JyBqam2Kff3iYXkl8LZ9lbk4i', '1986-09-30', 16, 912345679, 85);
 
 -- Inserção na Tabela GESTOR
 INSERT INTO GESTOR (GESTOR_ID) VALUES

@@ -35,6 +35,29 @@ DROP TABLE IF EXISTS FORUM;
 DROP TABLE IF EXISTS TOPICO;
 DROP TABLE IF EXISTS AREA;
 DROP TABLE IF EXISTS CATEGORIA;
+DROP TABLE IF EXISTS FUNCAO;
+DROP TABLE IF EXISTS DEPARTAMENTO;
+
+/*==============================================================*/
+/* Table: DEPARTAMENTO                                          */
+/*==============================================================*/
+CREATE TABLE DEPARTAMENTO (
+   DEPARTAMENTO_ID      SERIAL NOT NULL UNIQUE,
+   NOME                 TEXT NOT NULL,
+   CONSTRAINT PK_DEPARTAMENTO PRIMARY KEY (DEPARTAMENTO_ID)
+);
+
+/*==============================================================*/
+/* Table: FUNCAO                                                */
+/*==============================================================*/
+CREATE TABLE FUNCAO (
+   FUNCAO_ID            SERIAL NOT NULL UNIQUE,
+   DEPARTAMENTO_ID      INTEGER NOT NULL,
+   NOME                 TEXT NOT NULL,
+   CONSTRAINT PK_FUNCAO PRIMARY KEY (FUNCAO_ID),
+   CONSTRAINT FK_FUNCAO_DEPARTAMENTO FOREIGN KEY (DEPARTAMENTO_ID)
+      REFERENCES DEPARTAMENTO (DEPARTAMENTO_ID)
+);
 
 /*==============================================================*/
 /* Table: CATEGORIA                                             */
@@ -92,13 +115,14 @@ CREATE TABLE COLABORADOR (
    USERNAME             TEXT NOT NULL UNIQUE,
    PSSWORD              TEXT NOT NULL,
    DATA_NASC            DATE NULL,
-   CARGO                TEXT NOT NULL,
-   DEPARTAMENTO         TEXT NOT NULL,
+   FUNCAO_ID            INTEGER NOT NULL,
    TELEFONE             NUMERIC(9) NOT NULL UNIQUE,
    SOBRE_MIM            TEXT NULL,
    SCORE                INTEGER DEFAULT 0,
    INATIVO              BOOLEAN DEFAULT FALSE,
-   CONSTRAINT PK_COLAB PRIMARY KEY (COLABORADOR_ID)
+   CONSTRAINT PK_COLAB PRIMARY KEY (COLABORADOR_ID),
+   CONSTRAINT FK_COLAB_FUNCAO FOREIGN KEY (FUNCAO_ID)
+      REFERENCES FUNCAO (FUNCAO_ID)
 );
 
 /*==============================================================*/
