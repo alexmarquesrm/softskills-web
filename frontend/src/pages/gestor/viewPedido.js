@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Container, Button, Row, Col, Alert, Spinner } from "react-bootstrap";
+import { Container, Button, Row, Col, Alert, Spinner, Card } from "react-bootstrap";
 import { useNavigate, useParams } from 'react-router-dom';
-import { File } from 'react-feather'; 
-import { BsArrowReturnLeft, BsCheckCircle } from "react-icons/bs";
+import { File, Calendar, User, Book, Clock, Award, Info, Mail } from 'react-feather'; 
+import { BsArrowReturnLeft, BsCheckCircle, BsXCircle } from "react-icons/bs";
 import axios from "../../config/configAxios";
 import Cancelar from "../../components/buttons/cancelButton";
 import "./pedidos.css"; 
@@ -14,12 +14,8 @@ export default function ViewPedido() {
     const [processando, setProcessando] = useState(false);
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(false);
-    
-   
     const [pedido, setPedido] = useState(null);
     const [colaborador, setColaborador] = useState(null);
-    
-    // Dados do (curso ou fórum)
     const [referencia, setReferencia] = useState(null);
     const [tipoReferencia, setTipoReferencia] = useState("");
     const [topico, setTopico] = useState(null);
@@ -31,18 +27,16 @@ export default function ViewPedido() {
                 setLoading(true);
                 const token = sessionStorage.getItem('token');
                 
-                // Buscar o pedido pelo ID
-              const pedidoRes = await axios.get(`/pedido/${id}`, {
-                         headers: { Authorization: `${token}` }
-                    });
+                const pedidoRes = await axios.get(`/pedido/${id}`, {
+                    headers: { Authorization: `${token}` }
+                });
                 setPedido(pedidoRes.data);
-                // Buscar dados do colaborador
+
                 const colaboradorRes = await axios.get(`/colaborador/${pedidoRes.data.colaborador_id}`, {
                     headers: { Authorization: `${token}` }
                 });
                 setColaborador(colaboradorRes.data);
                 
-                // Verificar o tipo do pedido 
                 if (pedidoRes.data.tipo === "CURSO") {
                     setTipoReferencia("curso");
                     const cursoRes = await axios.get(`/curso/${pedidoRes.data.referencia_id}`, {
@@ -50,7 +44,6 @@ export default function ViewPedido() {
                     });
                     setReferencia(cursoRes.data);
                     
-                    // Se for um curso síncrono, buscar dados do formador
                     if (cursoRes.data.tipo === "S" && cursoRes.data.curso_sincrono?.formador_id) {
                         const formadorRes = await axios.get(`/formador/${cursoRes.data.curso_sincrono.formador_id}`, {
                             headers: { Authorization: `${token}` }
@@ -58,7 +51,6 @@ export default function ViewPedido() {
                         setFormador(formadorRes.data);
                     }
                     
-                    // Buscar dados do tópico
                     if (cursoRes.data.topico_id) {
                         const topicoRes = await axios.get(`/topico/${cursoRes.data.topico_id}`, {
                             headers: { Authorization: `${token}` }
@@ -87,50 +79,51 @@ export default function ViewPedido() {
     }, [id]);
 
     const aprovarPedido = async () => {
-    try {
-        setProcessando(true);
-        const token = sessionStorage.getItem('token');
+        try {
+            setProcessando(true);
+            const token = sessionStorage.getItem('token');
 
-        await axios.put(`/pedido/${id}`, {
-            pendente: false,
-            status: 'APROVADO',
-            aprovado: true    
-        }, {
-            headers: { Authorization: `${token}` }
-        });
+            await axios.put(`/pedido/${id}`, {
+                pendente: false,
+                status: 'APROVADO',
+                aprovado: true    
+            }, {
+                headers: { Authorization: `${token}` }
+            });
 
-        setSuccess(true);
-        setTimeout(() => navigate('/gestor/lista/pedidos'), 2000);
-    } catch (err) {
-        console.error("Erro ao aprovar pedido:", err);
-        setError("Não foi possível aprovar o pedido. Por favor, tente novamente.");
-    } finally {
-        setProcessando(false);
-    }
-};
+            setSuccess(true);
+            setTimeout(() => navigate('/gestor/lista/pedidos'), 2000);
+        } catch (err) {
+            console.error("Erro ao aprovar pedido:", err);
+            setError("Não foi possível aprovar o pedido. Por favor, tente novamente.");
+        } finally {
+            setProcessando(false);
+        }
+    };
 
-const recusarPedido = async () => {
-    try {
-        setProcessando(true);
-        const token = sessionStorage.getItem('token');
+    const recusarPedido = async () => {
+        try {
+            setProcessando(true);
+            const token = sessionStorage.getItem('token');
 
-        await axios.put(`/pedido/${id}`, {
-            pendente: false,
-            status: 'RECUSADO',
-            aprovado: false    
-        }, {
-            headers: { Authorization: `${token}` }
-        });
+            await axios.put(`/pedido/${id}`, {
+                pendente: false,
+                status: 'RECUSADO',
+                aprovado: false    
+            }, {
+                headers: { Authorization: `${token}` }
+            });
 
-        setSuccess(true);
-        setTimeout(() => navigate('/gestor/lista/pedidos'), 2000);
-    } catch (err) {
-        console.error("Erro ao recusar pedido:", err);
-        setError("Não foi possível recusar o pedido. Por favor, tente novamente.");
-    } finally {
-        setProcessando(false);
-    }
-};
+            setSuccess(true);
+            setTimeout(() => navigate('/gestor/lista/pedidos'), 2000);
+        } catch (err) {
+            console.error("Erro ao recusar pedido:", err);
+            setError("Não foi possível recusar o pedido. Por favor, tente novamente.");
+        } finally {
+            setProcessando(false);
+        }
+    };
+
     const goBack = () => navigate(-1);
 
     if (loading) {
@@ -144,96 +137,195 @@ const recusarPedido = async () => {
         );
     }
 
+    const getStatusBadge = (pedido) => {
+        if (pedido?.pendente) {
+            return <span className="badge bg-warning">Pendente</span>;
+        } else if (pedido?.aprovado) {
+            return <span className="badge bg-success">Aprovado</span>;
+        } else {
+            return <span className="badge bg-danger">Recusado</span>;
+        }
+    };
+
     return (
         <div className="view-pedido-page">
             <Container>
                 <div className="page-header">
-                    <div className="header-left">
-                        <div className="title-container">
-                            <File size={28} className="title-icon" />
-                            <h1>Detalhes do Pedido</h1>
+                    <div className="title-container">
+                        <div className="title-icon">
+                            <File size={24} />
                         </div>
+                        <h1>Detalhes do Pedido</h1>
                     </div>
                 </div>
 
-                {success && <Alert variant="success">Pedido processado com sucesso! Redirecionando...</Alert>}
-                {error && <Alert variant="danger">{error}</Alert>}
+                {success && (
+                    <Alert variant="success">
+                        <BsCheckCircle className="me-2" />
+                        Pedido processado com sucesso! Redirecionando...
+                    </Alert>
+                )}
+                {error && (
+                    <Alert variant="danger">
+                        <BsXCircle className="me-2" />
+                        {error}
+                    </Alert>
+                )}
 
-                <div className="pedido-info-section mb-4">
-                    <h3>Informações do Pedido</h3>
-                    <Row>
-                        <Col md={6}>
-                            <p><strong>ID do Pedido:</strong> {pedido?.pedido_id}</p>
-                            <p><strong>Tipo:</strong> {pedido?.tipo === "CURSO" ? "Curso" : "Fórum"}</p>
-                            <p><strong>Data do Pedido:</strong> {new Date(pedido?.data).toLocaleString()}</p>
-                        </Col>
-                        <Col md={6}>
-                            <p><strong>Solicitante:</strong> {colaborador?.nome || `Colaborador ID: ${pedido?.colaborador_id}`}</p>
-                            <p><strong>Email:</strong> {colaborador?.email || "N/A"}</p>
-                            <p><strong>Estado:</strong> {
-                            pedido?.tipo === 'CURSO' && pedido?.ped_curso?.pendente ? (
-                                <span className="badge bg-warning">Pendente</span>
-                            ) : pedido?.tipo === 'CURSO' && pedido?.ped_curso?.pendente === false ? (
-                                <span className="badge bg-success">Aprovado</span>
-                            ) : pedido?.tipo === 'FORUM' && pedido?.ped_forum?.pendente ? (
-                                <span className="badge bg-warning">Pendente</span>
-                            ) : pedido?.tipo === 'FORUM' && pedido?.ped_forum?.pendente === false ? (
-                                <span className="badge bg-success">Aprovado</span>
-                            ) : (
-                                <span className="badge bg-secondary">Desconhecido</span>
-                            )
-                        }</p>                   
-                         </Col>
-                    </Row>
-                </div>
-
-                {tipoReferencia === "curso" && referencia && (
-                    <div className="curso-info-section mb-4">
-                        <h3>Informações do Curso</h3>
+                <Card>
+                    <Card.Header>
+                        <h3>Informações do Pedido</h3>
+                    </Card.Header>
+                    <Card.Body>
                         <Row>
                             <Col md={6}>
-                                <p><strong>Título:</strong> {referencia.titulo}</p>
-                                <p><strong>Tipo:</strong> {referencia.tipo === "S" ? "Síncrono" : "Assíncrono"}</p>
-                                <p><strong>Total de Horas:</strong> {referencia.total_horas}</p>
-                                <p><strong>Nível:</strong> {referencia.nivel}</p>
-                                <p><strong>Certificado:</strong> {referencia.certificado ? "Sim" : "Não"}</p>
+                                <div className="info-item">
+                                    <User size={24} />
+                                    <div>
+                                        <strong>Solicitante:</strong>
+                                        <p className="mb-0">{colaborador?.nome || `Colaborador ID: ${pedido?.colaborador_id}`}</p>
+                                    </div>
+                                </div>
+                                <div className="info-item">
+                                    <Mail size={24} />
+                                    <div>
+                                        <strong>Email:</strong>
+                                        <p className="mb-0">{colaborador?.email || "N/A"}</p>
+                                    </div>
+                                </div>
                             </Col>
                             <Col md={6}>
-                                <p><strong>Tópico:</strong> {topico?.descricao || "N/A"}</p>
-                                {referencia.tipo === "S" && referencia.curso_sincrono && (
-                                    <>
-                                        <p><strong>Formador:</strong> {formador?.colaborador?.nome || "N/A"}</p>
-                                        <p><strong>Vagas:</strong> {referencia.curso_sincrono.limite_vagas}</p>
-                                        <p><strong>Data de Início:</strong> {referencia.curso_sincrono.data_inicio ? new Date(referencia.curso_sincrono.data_inicio).toLocaleDateString() : "N/A"}</p>
-                                        <p><strong>Data de Fim:</strong> {referencia.curso_sincrono.data_fim ? new Date(referencia.curso_sincrono.data_fim).toLocaleDateString() : "N/A"}</p>
-                                    </>
-                                )}
+                                <div className="info-item">
+                                    <Calendar size={24} />
+                                    <div>
+                                        <strong>Data do Pedido:</strong>
+                                        <p className="mb-0">{new Date(pedido?.data).toLocaleString()}</p>
+                                    </div>
+                                </div>
+                                <div className="info-item">
+                                    <Info size={24} />
+                                    <div>
+                                        <strong>Estado:</strong>
+                                        <p className="mb-0">{getStatusBadge(pedido)}</p>
+                                    </div>
+                                </div>
                             </Col>
                         </Row>
-                        <div className="curso-descricao mt-3">
-                            <h5>Descrição</h5>
-                            <p>{referencia.descricao}</p>
-                        </div>
-                    </div>
+                    </Card.Body>
+                </Card>
+
+                {tipoReferencia === "curso" && referencia && (
+                    <Card>
+                        <Card.Header>
+                            <h3>Informações do Curso</h3>
+                        </Card.Header>
+                        <Card.Body>
+                            <Row>
+                                <Col md={6}>
+                                    <div className="info-item">
+                                        <Book size={24} />
+                                        <div>
+                                            <strong>Título:</strong>
+                                            <p className="mb-0">{referencia.titulo}</p>
+                                        </div>
+                                    </div>
+                                    <div className="info-item">
+                                        <Clock size={24} />
+                                        <div>
+                                            <strong>Total de Horas:</strong>
+                                            <p className="mb-0">{referencia.total_horas}</p>
+                                        </div>
+                                    </div>
+                                    <div className="info-item">
+                                        <Award size={24} />
+                                        <div>
+                                            <strong>Nível:</strong>
+                                            <p className="mb-0">{referencia.nivel}</p>
+                                        </div>
+                                    </div>
+                                </Col>
+                                <Col md={6}>
+                                    <div className="info-item">
+                                        <Info size={24} />
+                                        <div>
+                                            <strong>Tópico:</strong>
+                                            <p className="mb-0">{topico?.descricao || "N/A"}</p>
+                                        </div>
+                                    </div>
+                                    {referencia.tipo === "S" && referencia.curso_sincrono && (
+                                        <>
+                                            <div className="info-item">
+                                                <User size={24} />
+                                                <div>
+                                                    <strong>Formador:</strong>
+                                                    <p className="mb-0">{formador?.colaborador?.nome || "N/A"}</p>
+                                                </div>
+                                            </div>
+                                            <div className="info-item">
+                                                <Calendar size={24} />
+                                                <div>
+                                                    <strong>Data de Início:</strong>
+                                                    <p className="mb-0">{referencia.curso_sincrono.data_inicio ? new Date(referencia.curso_sincrono.data_inicio).toLocaleDateString() : "N/A"}</p>
+                                                </div>
+                                            </div>
+                                            <div className="info-item">
+                                                <Calendar size={24} />
+                                                <div>
+                                                    <strong>Data de Fim:</strong>
+                                                    <p className="mb-0">{referencia.curso_sincrono.data_fim ? new Date(referencia.curso_sincrono.data_fim).toLocaleDateString() : "N/A"}</p>
+                                                </div>
+                                            </div>
+                                        </>
+                                    )}
+                                </Col>
+                            </Row>
+                            <div className="curso-descricao">
+                                <h5>Descrição</h5>
+                                <p className="mb-0">{referencia.descricao}</p>
+                            </div>
+                        </Card.Body>
+                    </Card>
                 )}
 
                 {tipoReferencia === "forum" && referencia && (
-                    <div className="forum-info-section mb-4">
-                        <h3>Informações do Fórum</h3>
-                        <Row>
-                            <Col md={6}>
-                                <p><strong>Nome do Tópico:</strong> {referencia.nome || referencia.descricao}</p>
-                                <p><strong>ID do Tópico:</strong> {referencia.topico_id}</p>
-                            </Col>
-                            <Col md={6}>
-                                <p><strong>Área:</strong> {referencia.area_id ? `Área ID: ${referencia.area_id}` : "N/A"}</p>
-                            </Col>
-                        </Row>
-                        <div className="forum-descricao mt-3">
-                            <h5>Descrição</h5>
-                            <p>{referencia.descricao}</p>
-                        </div>
-                    </div>
+                    <Card>
+                        <Card.Header>
+                            <h3>Informações do Fórum</h3>
+                        </Card.Header>
+                        <Card.Body>
+                            <Row>
+                                <Col md={6}>
+                                    <div className="info-item">
+                                        <Book size={24} />
+                                        <div>
+                                            <strong>Nome do Tópico:</strong>
+                                            <p className="mb-0">{referencia.nome || referencia.descricao}</p>
+                                        </div>
+                                    </div>
+                                    <div className="info-item">
+                                        <Info size={24} />
+                                        <div>
+                                            <strong>ID do Tópico:</strong>
+                                            <p className="mb-0">{referencia.topico_id}</p>
+                                        </div>
+                                    </div>
+                                </Col>
+                                <Col md={6}>
+                                    <div className="info-item">
+                                        <Info size={24} />
+                                        <div>
+                                            <strong>Área:</strong>
+                                            <p className="mb-0">{referencia.area_id ? `Área ID: ${referencia.area_id}` : "N/A"}</p>
+                                        </div>
+                                    </div>
+                                </Col>
+                            </Row>
+                            <div className="forum-descricao">
+                                <h5>Descrição</h5>
+                                <p className="mb-0">{referencia.descricao}</p>
+                            </div>
+                        </Card.Body>
+                    </Card>
                 )}
 
                 <div className="form-buttons">
@@ -243,14 +335,24 @@ const recusarPedido = async () => {
                             variant="danger" 
                             className="me-2" 
                             onClick={recusarPedido} 
-                            disabled={processando}
+                            disabled={processando || pedido?.pendente === false}
                         >
-                            {processando ? "Processando..." : "Recusar Pedido"}
+                            {processando ? (
+                                <>
+                                    <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
+                                    <span className="ms-2">Processando...</span>
+                                </>
+                            ) : (
+                                <>
+                                    <BsXCircle className="me-2" />
+                                    Recusar Pedido
+                                </>
+                            )}
                         </Button>
                         <Button 
                             variant="success" 
                             onClick={aprovarPedido} 
-                            disabled={processando}
+                            disabled={processando || pedido?.pendente === false}
                         >
                             {processando ? (
                                 <>
