@@ -81,7 +81,7 @@ export default function CourseManage() {
 
     const renderCourseCard = (curso, index) => {
         return (
-            <FeaturedCourses key={curso.curso_id || index} curso={curso} mostrarBotao={false} mostrarBotaoEdit={true} />
+            <FeaturedCourses key={curso.curso_id || index} curso={curso} mostrarBotao={true} mostrarBotaoEdit={true} />
         );
     };
 
