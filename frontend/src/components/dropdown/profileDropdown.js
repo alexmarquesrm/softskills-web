@@ -32,18 +32,39 @@ function ProfileDropdown({ onLogout }) {
       const response = await axios.get('/colaborador/me');
       const userData = response.data;
       
+      // Atualizar dados do usuário no sessionStorage
+      if (userData.nome) sessionStorage.setItem("nome", userData.nome);
+      if (userData.email) sessionStorage.setItem("email", userData.email);
+      
       // Check if photo URL exists and is valid
       if (userData.fotoPerfilUrl && 
           userData.fotoPerfilUrl !== "undefined" && 
           userData.fotoPerfilUrl !== "null" && 
           userData.fotoPerfilUrl !== "") {
-        setProfilePhoto(userData.fotoPerfilUrl);
+        // Verificar se a URL é válida
+        try {
+          const url = new URL(userData.fotoPerfilUrl);
+          if (url.protocol === 'https:' || url.protocol === 'http:') {
+            setProfilePhoto(userData.fotoPerfilUrl);
+          } else {
+            console.error("Invalid URL protocol:", url.protocol);
+            setProfilePhoto(null);
+          }
+        } catch (error) {
+          console.error("Invalid URL format:", error);
+          setProfilePhoto(null);
+        }
       } else {
         setProfilePhoto(null);
       }
     } catch (error) {
       console.error("Error fetching profile data:", error);
       setProfilePhoto(null);
+      
+      // Se o erro for 401 (não autorizado), fazer logout
+      if (error.response && error.response.status === 401) {
+        onLogout();
+      }
     }
   };
 
@@ -125,9 +146,11 @@ function ProfileDropdown({ onLogout }) {
             roundedCircle 
             className="profile-image"
             onError={(e) => {
-              console.error("Error loading profile image");
+              console.error("Error loading profile image:", e);
               e.target.src = defaultProfilePic;
               setProfilePhoto(null);
+              // Tentar recarregar a foto após um erro
+              setTimeout(fetchUserProfileData, 5000);
             }}
           />
         ) : (
@@ -185,8 +208,11 @@ function ProfileDropdown({ onLogout }) {
                     roundedCircle 
                     className="dropdown-profile-image"
                     onError={(e) => {
-                      console.error("Error loading profile image");
+                      console.error("Error loading profile image:", e);
                       e.target.src = defaultProfilePic;
+                      setProfilePhoto(null);
+                      // Tentar recarregar a foto após um erro
+                      setTimeout(fetchUserProfileData, 5000);
                     }}
                   />
                 </div>
