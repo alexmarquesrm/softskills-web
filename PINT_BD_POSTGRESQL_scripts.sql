@@ -67,16 +67,38 @@ CREATE TABLE IF NOT EXISTS notificacao (
 -- Trigger para criar notificação quando um curso começa
 CREATE OR REPLACE FUNCTION notificar_inicio_curso()
 RETURNS TRIGGER AS $$
+DECLARE
+    data_inicio DATE;
 BEGIN
-    -- Inserir notificação para cada formando inscrito no curso
-    INSERT INTO notificacao (formando_id, descricao)
-    SELECT 
-        i.formando_id,
-        'O curso "' || c.titulo || '" começa hoje!'
-    FROM inscricao i
-    JOIN curso c ON i.curso_id = c.curso_id
-    WHERE i.curso_id = NEW.curso_id
-    AND i.estado = 'CONFIRMADA';
+    -- Obter a data de início do curso
+    SELECT s.data_inicio INTO data_inicio
+    FROM sincrono s
+    WHERE s.curso_id = NEW.curso_id;
+
+    -- Se for um curso síncrono, criar notificações
+    IF data_inicio IS NOT NULL THEN
+        -- Notificação 3 dias antes
+        INSERT INTO notificacao (formando_id, descricao)
+        SELECT 
+            i.formando_id,
+            'O curso "' || c.titulo || '" começa em 3 dias!'
+        FROM inscricao i
+        JOIN curso c ON i.curso_id = c.curso_id
+        WHERE i.curso_id = NEW.curso_id
+        AND i.estado = 'CONFIRMADA'
+        AND data_inicio = CURRENT_DATE + INTERVAL '3 days';
+
+        -- Notificação no dia
+        INSERT INTO notificacao (formando_id, descricao)
+        SELECT 
+            i.formando_id,
+            'O curso "' || c.titulo || '" começa hoje!'
+        FROM inscricao i
+        JOIN curso c ON i.curso_id = c.curso_id
+        WHERE i.curso_id = NEW.curso_id
+        AND i.estado = 'CONFIRMADA'
+        AND data_inicio = CURRENT_DATE;
+    END IF;
     
     RETURN NEW;
 END;
@@ -119,7 +141,6 @@ $$ LANGUAGE plpgsql;
 -------------------------------------------------------------------------------------------
 
 
--- Procedimento armazenado para gerir inscrições em cursos
 CREATE OR REPLACE PROCEDURE gerir_inscricao_curso(
     p_formando_id INTEGER,
     p_curso_id INTEGER
@@ -175,20 +196,14 @@ BEGIN
         p_formando_id,
         p_curso_id,
         CURRENT_TIMESTAMP,
-        TRUE
+        FALSE
     );
     
     RAISE NOTICE 'Inscrição realizada com sucesso';
-    
-    COMMIT;
-EXCEPTION
-    WHEN OTHERS THEN
-        ROLLBACK;
-        RAISE;
 END;
 $$;
 
-
 -------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------
 
+SELECT proname FROM pg_proc WHERE proname = 'gerir_inscricao_curso';
