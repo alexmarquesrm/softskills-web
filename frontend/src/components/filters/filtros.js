@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ChevronDown, ChevronUp, Filter, X } from "react-bootstrap-icons";
+import axios from "../../config/configAxios";
 import "./filtros.css";
 
 function FiltrosCursos({
@@ -11,16 +12,44 @@ function FiltrosCursos({
     setDataSelecionada,
     nivelSelecionado = { 1: false, 2: false, 3: false, 4: false },
     setNivelSelecionado,
+    categoriaSelecionada,
+    setCategoriaSelecionada,
+    areaSelecionada,
+    setAreaSelecionada,
+    topicoSelecionado,
+    setTopicoSelecionado,
     mostrarTipo = true,
     mostrarEstado = true,
     mostrarData = false,
     mostrarNivel = true,
+    mostrarCategoria = false,
 }) {
     const [tipoAberto, setTipoAberto] = useState(true);
     const [estadoAberto, setEstadoAberto] = useState(true);
     const [filtersExpanded, setFiltersExpanded] = useState(true);
     const [dataAberto, setDataAberto] = useState(true);
     const [nivelAberto, setNivelAberto] = useState(true);
+    const [categoriaAberta, setCategoriaAberta] = useState(true);
+    const [categorias, setCategorias] = useState([]);
+    const [loadingCategorias, setLoading] = useState(false);
+    const [errorCategorias, setError] = useState(null);
+
+    const fetchCategorias = async () => {
+        setLoading(true);
+        try {
+            const response = await axios.get("/categoria");
+            setCategorias(response.data);
+            setError(null);
+        } catch (err) {
+            console.error("Erro ao obter categorias:", err);
+            setError("Falha ao carregar categorias");
+        } finally {
+            setLoading(false);
+        }
+    };
+    useEffect(() => {
+        fetchCategorias();
+    }, []);
 
     // Toggle individual filter value
     const toggleTipo = (tipo) => {
@@ -41,12 +70,24 @@ function FiltrosCursos({
         4: "Expert",
     };
 
+    const toggleCheckbox = (id, list, setList) => {
+        const safeList = list ?? [];
+        if (safeList.includes(id)) {
+            setList(safeList.filter(item => item !== id));
+        } else {
+            setList([...safeList, id]);
+        }
+    };
+
     // Reset all filters
     const resetFilters = () => {
         setTipoSelecionado({ S: false, A: false });
         setEstadoSelecionado({ porComecar: false, emCurso: false, terminado: false });
         setDataSelecionada({ inicio: '', fim: '' });
         setNivelSelecionado({ 1: false, 2: false, 3: false, 4: false });
+        setCategoriaSelecionada(null);
+        setAreaSelecionada(null);
+        setTopicoSelecionado([]);
     }
 
     // Count active filters
@@ -55,7 +96,10 @@ function FiltrosCursos({
         const selectedEstados = estadoSelecionado ? Object.values(estadoSelecionado).filter(Boolean).length : 0;
         const dataAtiva = (dataSelecionada?.inicio || dataSelecionada?.fim) ? 1 : 0;
         const selectedNiveis = nivelSelecionado ? Object.values(nivelSelecionado).filter(Boolean).length : 0;
-        return selectedTipos + selectedEstados + selectedNiveis + dataAtiva;
+        const selectedCategorias = categoriaSelecionada != null ? 1 : 0;
+        const selectedAreas = areaSelecionada != null ? 1 : 0;
+        const selectedTopicos = topicoSelecionado?.length || 0;
+        return selectedTipos + selectedEstados + selectedNiveis + dataAtiva + selectedCategorias + selectedAreas + selectedTopicos;
     };
 
     const activeCount = getActiveFiltersCount();
@@ -237,6 +281,97 @@ function FiltrosCursos({
                         </div>
                     </div>
                 )}
+
+                {/* Categoria */}
+                {mostrarCategoria && (
+                <div className="filtro-box">
+                    <div
+                        className={`filtro-header ${categoriaAberta ? 'active' : ''}`}
+                        onClick={() => setCategoriaAberta(!categoriaAberta)}
+                    >
+                        <span className="filtro-title">Categorias</span>
+                        {categoriaAberta ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                    </div>
+                    <div className={`filtro-opcoes ${categoriaAberta ? 'visible' : ''}`}>
+                        {(categorias ?? []).map(cat => (
+                            <div key={cat.categoria_id} className="checkbox-option">
+                                <div className="checkbox-wrapper-13">
+                                    <input
+                                        id={`cat-${cat.categoria_id}`}
+                                        type="checkbox"
+                                        checked={categoriaSelecionada === cat.categoria_id}
+                                        onChange={() => {
+                                            setCategoriaSelecionada(prev =>
+                                                prev === cat.categoria_id ? null : cat.categoria_id
+                                            );
+                                            setAreaSelecionada(null);
+                                            setTopicoSelecionado([]);
+                                        }}
+                                    />
+                                    <label htmlFor={`cat-${cat.categoria_id}`}>{cat.descricao}</label>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+                )}
+
+                {categoriaSelecionada && (
+                    <div className="filtro-box">
+                        <div className="filtro-header active">
+                            <span className="filtro-title">Áreas</span>
+                        </div>
+                        <div className="filtro-opcoes visible">
+                            {(categorias.find(cat => cat.categoria_id === categoriaSelecionada)?.categoria_areas ?? [])
+                                .map(area => (
+                                    <div key={area.area_id} className="checkbox-option">
+                                        <div className="checkbox-wrapper-13">
+                                            <input
+                                                id={`area-${area.area_id}`}
+                                                type="checkbox"
+                                                checked={areaSelecionada === area.area_id}
+                                                onChange={() => {
+                                                    setAreaSelecionada(prev =>
+                                                        prev === area.area_id ? null : area.area_id
+                                                    );
+                                                    setTopicoSelecionado([]);
+                                                }}
+                                            />
+                                            <label htmlFor={`area-${area.area_id}`}>{area.descricao}</label>
+                                        </div>
+                                    </div>
+                                ))}
+                        </div>
+                    </div>
+                )}
+
+                {areaSelecionada != null && areaSelecionada !== '' && (
+                    <div className="filtro-box">
+                        <div className="filtro-header active">
+                            <span className="filtro-title">Tópicos</span>
+                        </div>
+                        <div className="filtro-opcoes visible">
+                            {(categorias ?? [])
+                                .flatMap(cat => cat.categoria_areas ?? [])
+                                .filter(area => area.area_id === areaSelecionada)
+                                .flatMap(area => area.area_topicos ?? [])
+                                .map(topico => (
+                                    <div key={topico.topico_id} className="checkbox-option">
+                                        <div className="checkbox-wrapper-13">
+                                            <input
+                                                id={`topico-${topico.topico_id}`}
+                                                type="checkbox"
+                                                checked={(topicoSelecionado ?? []).includes(topico.topico_id)}
+                                                onChange={() => toggleCheckbox(topico.topico_id, topicoSelecionado, setTopicoSelecionado)}
+                                            />
+                                            <label htmlFor={`topico-${topico.topico_id}`}>{topico.descricao}</label>
+                                        </div>
+                                    </div>
+                                ))}
+                        </div>
+                    </div>
+                )}
+
             </div>
         </div>
     );

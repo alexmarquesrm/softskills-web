@@ -12,7 +12,7 @@ const controladorCursos = {
       const {
         gestor_id,
         topico_id,
-        tipo,  
+        tipo,
         total_horas,
         titulo,
         descricao,
@@ -110,7 +110,21 @@ const controladorCursos = {
           {
             model: models.topico,
             as: "curso_topico",
-            attributes: ["descricao"],
+            attributes: ["topico_id", "descricao"],
+            include: [
+              {
+                model: models.area,
+                as: "topico_area",
+                attributes: ["area_id", "descricao"],
+                include: [
+                  {
+                    model: models.categoria,
+                    as: "area_categoria",
+                    attributes: ["categoria_id", "descricao"],
+                  },
+                ],
+              },
+            ],
           },
           {
             model: models.inscricao,
@@ -402,7 +416,7 @@ const controladorCursos = {
         });
       }
 
-      const curso = await models.curso.findByPk(id, {include: includes});
+      const curso = await models.curso.findByPk(id, { include: includes });
 
       res.json(curso);
     } catch (error) {
@@ -507,9 +521,9 @@ const controladorCursos = {
       });
     } catch (error) {
       console.error("Erro ao obter alunos inscritos:", error);
-      res.status(500).json({ 
-        success: false, 
-        message: "Erro interno ao obter alunos inscritos" 
+      res.status(500).json({
+        success: false,
+        message: "Erro interno ao obter alunos inscritos"
       });
     }
   },
@@ -569,7 +583,7 @@ const controladorCursos = {
         } else {
           await models.sincrono.create(sincronoData, { transaction: t });
         }
-      } 
+      }
       // Se for do tipo A (Assincrono), atualizar ou criar entrada na tabela assincrono
       else if (tipo === "A") {
         const cursoAssincrono = await models.assincrono.findOne({
@@ -584,7 +598,7 @@ const controladorCursos = {
       }
 
       await t.commit();
-      
+
       // procurar curso atualizado com todos os relacionamentos
       const cursoAtualizado = await models.curso.findByPk(id, {
         include: [

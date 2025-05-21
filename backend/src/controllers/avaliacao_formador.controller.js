@@ -135,7 +135,7 @@ const controladorAvaliacaoFormador = {
     }
   },
 
-  // Buscar todas as avaliações de um formador específico
+  // procurar todas as avaliações de um formador específico
   getAvaliacoesByFormador: async (req, res) => {
     const { formador_id } = req.params;
 

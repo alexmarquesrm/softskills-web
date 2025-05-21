@@ -17,6 +17,10 @@ export default function Courses() {
     const [estadoSelecionado, setEstadoSelecionado] = useState({ emCurso: false, terminado: false });
     const [dataSelecionada, setDataSelecionada] = useState({ inicio: '', fim: '' });
     const [nivelSelecionado, setNivelSelecionado] = useState({ 1: false, 2: false, 3: false, 4: false });
+    const [categoriaSelecionada, setCategoriaSelecionada] = useState(null);
+    const [areaSelecionada, setAreaSelecionada] = useState(null);
+    const [topicoSelecionado, setTopicoSelecionado] = useState([]);
+
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isFiltersVisible, setIsFiltersVisible] = useState(true);
@@ -83,7 +87,7 @@ export default function Courses() {
             }
             return true;
         });
-
+        console.log(cursosValidos);
         return filtrarCursosOuInscricoes({
             dados: cursosValidos,
             tipoSelecionado,
@@ -91,9 +95,12 @@ export default function Courses() {
             dataSelecionada,
             nivelSelecionado,
             searchTerm,
+            categoriaSelecionada,
+            areaSelecionada,
+            topicoSelecionado,
             modo: 'curso'
         });
-    }, [curso, tipoSelecionado, estadoSelecionado, dataSelecionada, nivelSelecionado, searchTerm]);
+    }, [curso, tipoSelecionado, estadoSelecionado, dataSelecionada, nivelSelecionado, categoriaSelecionada, areaSelecionada, topicoSelecionado, searchTerm]);
 
     const stats = useMemo(() => {
         if (curso.length === 0) return { total: 0, emCurso: 0, terminados: 0 };
@@ -210,9 +217,16 @@ export default function Courses() {
                             setDataSelecionada={setDataSelecionada}
                             nivelSelecionado={nivelSelecionado}
                             setNivelSelecionado={setNivelSelecionado}
+                            categoriaSelecionada={categoriaSelecionada}
+                            setCategoriaSelecionada={setCategoriaSelecionada}
+                            areaSelecionada={areaSelecionada}
+                            setAreaSelecionada={setAreaSelecionada}
+                            topicoSelecionado={topicoSelecionado}
+                            setTopicoSelecionado={setTopicoSelecionado}
                             mostrarTipo={true}
                             mostrarEstado={false}
                             mostrarData={true}
+                            mostrarCategoria={true}
                         />
                     </Col>
 

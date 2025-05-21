@@ -294,8 +294,6 @@ const Sidebar = ({ isOpen, onClose }) => {
               <>
                 <NavItem href="/gestor/lista/cursos" icon={<Book size={16} />} label="Gerir Cursos" itemName="cursos" />
                 <NavItem href="/gestor/lista/colaboradores" icon={<PeopleFill size={16} />} label="Gerir Colaboradores" itemName="colaboradores" />
-                <NavItem href="/gestor/lista/departamentos" icon={<Building size={16} />} label="Gerir Departamentos" itemName="departamentos" />
-                <NavItem href="/gestor/lista/funcoes" icon={<Gear size={16} />} label="Gerir Funções" itemName="funcoes" />
                 <NavItem href="/gestor/lista/denuncias" icon={<Flag size={18} />} label="Ver Denúncias" itemName="denuncias" />
                 <NavItem href="/gestor/lista/pedidos" icon={<EnvelopeOpen size={18} />} label="Ver Pedidos" itemName="pedidos" />
               </>

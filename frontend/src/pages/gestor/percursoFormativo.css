@@ -122,7 +122,7 @@
 .filtros-sidebar {
   transition: max-height 0.3s ease, opacity 0.3s ease;
   margin-bottom: 2rem;
-  max-height: calc(100vh - 200px);
+  max-height: calc(110vh - 200px);
   overflow-y: auto;
   padding-right: 1rem;
   position: sticky;

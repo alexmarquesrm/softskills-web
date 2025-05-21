@@ -31,7 +31,7 @@ export default function UserProfile() {
         });
         setUserData(response.data);
       } catch (error) {
-        console.error("Erro ao buscar dados do usuário:", error);
+        console.error("Erro ao procurar dados do usuário:", error);
       }
     };
 
