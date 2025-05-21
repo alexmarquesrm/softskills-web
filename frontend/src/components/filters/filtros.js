@@ -13,7 +13,8 @@ function FiltrosCursos({
     setNivelSelecionado,
     mostrarTipo = true,
     mostrarEstado = true,
-    mostrarData = false
+    mostrarData = false,
+    mostrarNivel = true,
 }) {
     const [tipoAberto, setTipoAberto] = useState(true);
     const [estadoAberto, setEstadoAberto] = useState(true);
@@ -170,7 +171,7 @@ function FiltrosCursos({
                     </div>
                 </div>)}
 
-                <div className="filtro-box">
+                {mostrarNivel && <div className="filtro-box">
                     <div
                         className={`filtro-header ${nivelAberto ? 'active' : ''}`}
                         onClick={() => setNivelAberto(!nivelAberto)}
@@ -194,6 +195,7 @@ function FiltrosCursos({
                         ))}
                     </div>
                 </div>
+                }
 
                 {/* Data de inicio */}
                 {mostrarData && (

@@ -8,7 +8,7 @@ import "./detailsCourse.css";
 import {
   BsFillPeopleFill, BsCalendarCheck, BsPlusCircle, BsPencilSquare, BsFileText,
   BsCameraVideo, BsBook, BsTools, BsUpload, BsInfoCircle, BsExclamationTriangle,
-  BsCheckCircle, BsClock, BsTrophy, BsFlag, BsDownload, BsPlayFill
+  BsCheckCircle, BsClock, BsDownload, BsPlayFill
 } from "react-icons/bs";
 import axios from "../../config/configAxios";
 
@@ -36,7 +36,6 @@ export default function CursoDetalhes() {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [materialLoading, setMaterialLoading] = useState(false);
   const [selectedCursoId, setSelectedCursoId] = useState(null);
-  const [selectedVideo, setSelectedVideo] = useState(null);
   const [alunos, setAlunos] = useState([]);
   const [alunosLoading, setAlunosLoading] = useState(false);
 
@@ -216,47 +215,10 @@ export default function CursoDetalhes() {
     }
   };
 
-  // Format file size
-  const formatFileSize = (bytes) => {
-    if (!bytes) return 'Desconhecido';
-
-    if (bytes < 1024) return bytes + ' B';
-    else if (bytes < 1048576) return (bytes / 1024).toFixed(2) + ' KB';
-    else return (bytes / 1048576).toFixed(2) + ' MB';
-  };
-
   // Format date
   const formatDate = (dateString) => {
     if (!dateString) return "Não especificado";
     return new Date(dateString).toLocaleDateString('pt-PT');
-  };
-
-  // Determine icon based on file extension
-  const getFileIcon = (fileName) => {
-    const extension = fileName.split('.').pop().toLowerCase();
-
-    // Document types
-    if (['pdf', 'doc', 'docx', 'txt', 'rtf'].includes(extension)) {
-      return <BsFileText className="me-2" />;
-    }
-    // Video types
-    else if (['mp4', 'avi', 'mov', 'wmv', 'mkv', 'webm'].includes(extension)) {
-      return <BsCameraVideo className="me-2" />;
-    }
-    // Presentation types
-    else if (['ppt', 'pptx'].includes(extension)) {
-      return <BsBook className="me-2" />;
-    }
-    // Compressed files
-    else if (['zip', 'rar', '7z'].includes(extension)) {
-      return <BsTools className="me-2" />;
-    }
-    // Spreadsheets
-    else if (['xls', 'xlsx', 'csv'].includes(extension)) {
-      return <BsFileText className="me-2" />;
-    }
-    // Default
-    return <BsFileText className="me-2" />;
   };
 
   const getFormadorNome = () => {
