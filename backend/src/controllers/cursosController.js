@@ -124,52 +124,20 @@ const controladorCursos = {
             [
               Sequelize.literal('(SELECT COUNT(*) FROM inscricao WHERE inscricao.curso_id = curso.curso_id)'),
               'numero_inscritos'
+            ],
+            [
+              Sequelize.literal(`CASE 
+                WHEN curso.tipo = 'S' AND curso_sincrono.limite_vagas IS NOT NULL 
+                THEN curso_sincrono.limite_vagas - (SELECT COUNT(*) FROM inscricao WHERE inscricao.curso_id = curso.curso_id)
+                ELSE NULL 
+              END`),
+              'vagas_disponiveis'
             ]
           ]
         }
       });
 
-      const cursosResumidos = cursos.map((curso) => {
-        const numeroInscritos = parseInt(curso.getDataValue('numero_inscritos')) || 0;
-        const vagasDisponiveis = curso.tipo === 'S' && curso.curso_sincrono ? 
-          curso.curso_sincrono.limite_vagas - numeroInscritos : 
-          null;
-
-        return {
-          id: curso.curso_id,
-          titulo: curso.titulo,
-          descricao: curso.descricao,
-          tipo: curso.tipo,
-          total_horas: curso.total_horas,
-          pendente: curso.pendente,
-          nivel: curso.nivel,
-          topico: curso.curso_topico?.descricao || null,
-          gestor: {
-            nome: curso.gestor?.gestor_colab?.nome || null,
-            email: curso.gestor?.gestor_colab?.email || null,
-          },
-          curso_sincrono: curso.curso_sincrono ? {
-            inicio: curso.curso_sincrono.data_inicio,
-            fim: curso.curso_sincrono.data_fim,
-            data_limite_inscricao: curso.curso_sincrono.data_limite_inscricao,
-            vagas: curso.curso_sincrono.limite_vagas,
-            vagas_disponiveis: vagasDisponiveis,
-            estado: curso.curso_sincrono.estado,
-            formador: curso.curso_sincrono.sincrono_formador ? {
-              formador_id: curso.curso_sincrono.sincrono_formador.formador_id,
-              especialidade: curso.curso_sincrono.sincrono_formador.especialidade,
-              colaborador: {
-                nome: curso.curso_sincrono.sincrono_formador.formador_colab?.nome || null,
-                email: curso.curso_sincrono.sincrono_formador.formador_colab?.email || null,
-                telefone: curso.curso_sincrono.sincrono_formador.formador_colab?.telefone || null,
-              }
-            } : null
-          } : null,
-          numero_inscritos: numeroInscritos,
-        };
-      });
-
-      res.json(cursosResumidos);
+      res.json(cursos);
     } catch (error) {
       console.error("Erro ao obter cursos:", error);
       res.status(500).json({ message: "Erro interno ao obter cursos" });
