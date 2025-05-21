@@ -3,12 +3,16 @@ import { Container, Row, Col, Card, Spinner, Alert } from "react-bootstrap";
 import { IoIosBook, IoIosAdd } from "react-icons/io";
 import axios from "../../config/configAxios";
 import DataTable from "../../components/tables/dataTable";
+import CategoryModal from "../../modals/gestor/categoryModal";
 import "./categoriesList.css";
 
 export default function CategoriesList() {
   const [tableRows, setTableRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [successMessage, setSuccessMessage] = useState(null);
   const [stats, setStats] = useState({
     total: 0,
     activeAreas: 0,
@@ -127,9 +131,37 @@ export default function CategoriesList() {
   }, []);
 
   const handleEdit = (category) => {
-    // TODO: Implement edit functionality
-    console.log("Edit category:", category);
+    setSelectedCategory({
+      categoria_id: category.id,
+      descricao: category.descricao
+    });
+    setShowModal(true);
   };
+
+  const handleAddClick = () => {
+    setSelectedCategory(null);
+    setShowModal(true);
+  };
+
+  const handleModalClose = () => {
+    setShowModal(false);
+    setSelectedCategory(null);
+  };
+
+  const handleModalSuccess = (message) => {
+    setSuccessMessage(message);
+    fetchData();
+  };
+
+  // Clear success message after 3 seconds
+  useEffect(() => {
+    if (successMessage) {
+      const timer = setTimeout(() => {
+        setSuccessMessage(null);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [successMessage]);
 
   if (loading) {
     return (
@@ -147,6 +179,12 @@ export default function CategoriesList() {
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h3 className="mb-0">Lista de Categorias</h3>
       </div>
+
+      {successMessage && (
+        <Alert variant="success" className="mb-4" onClose={() => setSuccessMessage(null)} dismissible>
+          {successMessage}
+        </Alert>
+      )}
 
       {/* Stats Cards */}
       <Row className="mb-4 g-3">
@@ -213,9 +251,16 @@ export default function CategoriesList() {
       )}
 
       {/* Floating Action Button */}
-      <button className="floating-add-button" onClick={() => {}} title="Adicionar Categoria">
+      <button className="floating-add-button" onClick={handleAddClick} title="Adicionar Categoria">
         <IoIosAdd size={24} />
       </button>
+
+      <CategoryModal
+        show={showModal}
+        handleClose={handleModalClose}
+        category={selectedCategory}
+        onSuccess={handleModalSuccess}
+      />
     </Container>
   );
 } 

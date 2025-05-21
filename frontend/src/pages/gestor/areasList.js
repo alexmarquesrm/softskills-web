@@ -3,12 +3,16 @@ import { Container, Row, Col, Card, Spinner, Alert } from "react-bootstrap";
 import { IoIosBook, IoIosAdd } from "react-icons/io";
 import axios from "../../config/configAxios";
 import DataTable from "../../components/tables/dataTable";
+import AreaModal from "../../modals/gestor/areaModal";
 import "./areasList.css";
 
 export default function AreasList() {
   const [tableRows, setTableRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedArea, setSelectedArea] = useState(null);
+  const [successMessage, setSuccessMessage] = useState(null);
   const [stats, setStats] = useState({
     total: 0,
     totalTopics: 0,
@@ -132,9 +136,49 @@ export default function AreasList() {
   }, []);
 
   const handleEdit = (area) => {
-    // TODO: Implement edit functionality
-    console.log("Edit area:", area);
+    // Fetch the complete area data from the API
+    const fetchAreaData = async () => {
+      try {
+        const response = await axios.get(`/area/${area.id}`);
+        setSelectedArea({
+          area_id: response.data.area_id,
+          descricao: response.data.descricao,
+          categoria_id: response.data.categoria_id
+        });
+        setShowModal(true);
+      } catch (err) {
+        console.error("Erro ao buscar dados da área:", err);
+        setError("Erro ao carregar dados da área. Tente novamente.");
+      }
+    };
+
+    fetchAreaData();
   };
+
+  const handleAddClick = () => {
+    setSelectedArea(null);
+    setShowModal(true);
+  };
+
+  const handleModalClose = () => {
+    setShowModal(false);
+    setSelectedArea(null);
+  };
+
+  const handleModalSuccess = (message) => {
+    setSuccessMessage(message);
+    fetchData();
+  };
+
+  // Clear success message after 3 seconds
+  useEffect(() => {
+    if (successMessage) {
+      const timer = setTimeout(() => {
+        setSuccessMessage(null);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [successMessage]);
 
   if (loading) {
     return (
@@ -152,6 +196,12 @@ export default function AreasList() {
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h3 className="mb-0">Lista de Áreas</h3>
       </div>
+
+      {successMessage && (
+        <Alert variant="success" className="mb-4" onClose={() => setSuccessMessage(null)} dismissible>
+          {successMessage}
+        </Alert>
+      )}
 
       {/* Stats Cards */}
       <Row className="mb-4 g-3">
@@ -218,9 +268,16 @@ export default function AreasList() {
       )}
 
       {/* Floating Action Button */}
-      <button className="floating-add-button" onClick={() => {}} title="Adicionar Área">
+      <button className="floating-add-button" onClick={handleAddClick} title="Adicionar Área">
         <IoIosAdd size={24} />
       </button>
+
+      <AreaModal
+        show={showModal}
+        handleClose={handleModalClose}
+        area={selectedArea}
+        onSuccess={handleModalSuccess}
+      />
     </Container>
   );
 } 

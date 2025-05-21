@@ -3,12 +3,16 @@ import { Container, Row, Col, Card, Spinner, Alert } from "react-bootstrap";
 import { IoIosBook, IoIosAdd } from "react-icons/io";
 import axios from "../../config/configAxios";
 import DataTable from "../../components/tables/dataTable";
+import TopicModal from "../../modals/gestor/topicModal";
 import "./topicsList.css";
 
 export default function TopicsList() {
   const [tableRows, setTableRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedTopic, setSelectedTopic] = useState(null);
+  const [successMessage, setSuccessMessage] = useState(null);
   const [stats, setStats] = useState({
     total: 0,
     areasWithTopics: 0,
@@ -85,7 +89,6 @@ export default function TopicsList() {
     try {
       const response = await axios.get("/categoria");
       const categories = response.data;
-
       // Calculate stats and collect topics
       const topics = [];
       const areasWithTopics = new Set();
@@ -96,11 +99,14 @@ export default function TopicsList() {
           category.categoria_areas.forEach(area => {
             if (area.area_topicos) {
               area.area_topicos.forEach(topic => {
-                topics.push({
-                  ...topic,
+                const topicData = {
+                  topico_id: topic.topico_id,
+                  descricao: topic.descricao,
                   area: area.descricao,
-                  categoria: category.descricao
-                });
+                  categoria: category.descricao,
+                  area_id: area.area_id
+                };
+                topics.push(topicData);
                 areasWithTopics.add(area.area_id);
                 categoriesWithTopics.add(category.categoria_id);
               });
@@ -120,7 +126,8 @@ export default function TopicsList() {
         id: topic.topico_id,
         descricao: topic.descricao,
         area: topic.area,
-        categoria: topic.categoria
+        categoria: topic.categoria,
+        area_id: topic.area_id
       })));
 
       setError(null);
@@ -137,9 +144,49 @@ export default function TopicsList() {
   }, []);
 
   const handleEdit = (topic) => {
-    // TODO: Implement edit functionality
-    console.log("Edit topic:", topic);
+    // Fetch the complete topic data from the API
+    const fetchTopicData = async () => {
+      try {
+        const response = await axios.get(`/topico/${topic.id}`);
+        setSelectedTopic({
+          topico_id: response.data.topico_id,
+          descricao: response.data.descricao,
+          area_id: response.data.area_id
+        });
+        setShowModal(true);
+      } catch (err) {
+        console.error("Erro ao buscar dados do tópico:", err);
+        setError("Erro ao carregar dados do tópico. Tente novamente.");
+      }
+    };
+
+    fetchTopicData();
   };
+
+  const handleAddClick = () => {
+    setSelectedTopic(null);
+    setShowModal(true);
+  };
+
+  const handleModalClose = () => {
+    setShowModal(false);
+    setSelectedTopic(null);
+  };
+
+  const handleModalSuccess = (message) => {
+    setSuccessMessage(message);
+    fetchData();
+  };
+
+  // Clear success message after 3 seconds
+  useEffect(() => {
+    if (successMessage) {
+      const timer = setTimeout(() => {
+        setSuccessMessage(null);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [successMessage]);
 
   if (loading) {
     return (
@@ -157,6 +204,12 @@ export default function TopicsList() {
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h3 className="mb-0">Lista de Tópicos</h3>
       </div>
+
+      {successMessage && (
+        <Alert variant="success" className="mb-4" onClose={() => setSuccessMessage(null)} dismissible>
+          {successMessage}
+        </Alert>
+      )}
 
       {/* Stats Cards */}
       <Row className="mb-4 g-3">
@@ -223,9 +276,16 @@ export default function TopicsList() {
       )}
 
       {/* Floating Action Button */}
-      <button className="floating-add-button" onClick={() => {}} title="Adicionar Tópico">
+      <button className="floating-add-button" onClick={handleAddClick} title="Adicionar Tópico">
         <IoIosAdd size={24} />
       </button>
+
+      <TopicModal
+        show={showModal}
+        handleClose={handleModalClose}
+        topic={selectedTopic}
+        onSuccess={handleModalSuccess}
+      />
     </Container>
   );
 } 
