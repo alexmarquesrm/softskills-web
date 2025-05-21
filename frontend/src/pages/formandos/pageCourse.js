@@ -896,10 +896,16 @@ export default function CursoFormando() {
                         <BsTrophy className="me-2 text-primary" size={24} />
                         <h5 className="mb-0">Certificação</h5>
                       </div>
-                      <p className="mb-0">
-                        Ao completar este curso com sucesso e obtendo uma classificação mínima de 70%,
-                        receberá um certificado digital que pode ser adicionado ao seu perfil profissional.
-                      </p>
+                      {curso?.certificado ? (
+                        <p className="mb-0">
+                          Ao completar este curso com sucesso e obtendo uma classificação mínima de 70%,
+                          receberá um certificado digital que pode ser adicionado ao seu perfil profissional.
+                        </p>
+                      ) : (
+                        <p className="mb-0">
+                          Este curso não oferece certificação.
+                        </p>
+                      )}
                     </div>
                   </Card.Body>
                 </Card>
