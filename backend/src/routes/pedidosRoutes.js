@@ -3,7 +3,7 @@ const router = express.Router();
 const controladorPedidos = require("../controllers/pedidosController");
 
 // Rota para criar um novo pedido
-router.post("/", controladorPedidos.createPedido);
+router.post("/criar", controladorPedidos.createPedido);
 
 // Rota para obter todos os pedidos
 router.get("/", controladorPedidos.getAllPedidos);
