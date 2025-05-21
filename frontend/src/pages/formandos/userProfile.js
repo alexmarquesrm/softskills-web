@@ -157,7 +157,7 @@ export default function EditColab() {
             }
           }
         } catch (error) {
-          console.error("Erro ao buscar dados de departamento/função:", error);
+          console.error("Erro ao procurar dados de departamento/função:", error);
         }
       }
 

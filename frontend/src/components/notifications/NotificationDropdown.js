@@ -25,7 +25,7 @@ function NotificationDropdown() {
       setNotifications(response.data);
       setUnreadCount(response.data.filter(n => !n.lida).length);
     } catch (error) {
-      console.error('Erro ao buscar notificações:', error);
+      console.error('Erro ao procurar notificações:', error);
     }
   };
 
