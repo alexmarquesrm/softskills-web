@@ -783,7 +783,6 @@ export default function CursoDetalhesGestor() {
                                 </div>
                                     </Col>
                                 </Row>
-
                                 {curso?.certificado && (
                                     <div className="certification-info mt-4 p-4 bg-primary bg-opacity-10 rounded">
                                         <div className="d-flex align-items-center mb-3">
