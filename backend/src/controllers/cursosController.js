@@ -115,13 +115,22 @@ const controladorCursos = {
           {
             model: models.inscricao,
             as: "curso_inscricaos",
-            attributes: []
+            attributes: [],
+            required: false
           }
         ],
+        attributes: {
+          include: [
+            [
+              Sequelize.literal('(SELECT COUNT(*) FROM inscricao WHERE inscricao.curso_id = curso.curso_id)'),
+              'numero_inscritos'
+            ]
+          ]
+        }
       });
 
       const cursosResumidos = cursos.map((curso) => {
-        const numeroInscritos = curso.curso_inscricaos ? curso.curso_inscricaos.length : 0;
+        const numeroInscritos = parseInt(curso.getDataValue('numero_inscritos')) || 0;
         const vagasDisponiveis = curso.tipo === 'S' && curso.curso_sincrono ? 
           curso.curso_sincrono.limite_vagas - numeroInscritos : 
           null;
