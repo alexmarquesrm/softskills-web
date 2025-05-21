@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Create axios instance with base URL
 const instance = axios.create({
-    baseURL: process.env.REACT_APP_API_URL || 'http://localhost:8000'
+    baseURL: process.env.REACT_APP_API_URL || 'http://minecraftatm9.serveminecraft.net:9010'
 });
 
 // Default headers configuration
