@@ -23,7 +23,7 @@ export default function EditProfile ({ show, onClose, onSave, initialData = {} }
     email: "",
     telefone: "",
     funcao_id: "",
-    tipo: "",
+    tipos: [],
     inativo: false,
     fotoPerfilUrl: ""
   });
@@ -75,7 +75,7 @@ export default function EditProfile ({ show, onClose, onSave, initialData = {} }
     if (!formData.dataNasc) errors.dataNasc = "Data de nascimento é obrigatória";
     if (!departamentoAtual) errors.departamentoAtual = "Departamento é obrigatório";
     if (!formData.funcao_id) errors.funcao_id = "Função é obrigatória";
-    if (!formData.tipo) errors.tipo = "Tipo de utilizador é obrigatório";
+    if (formData.tipos.length === 0) errors.tipos = "Selecione pelo menos um tipo de utilizador";
 
     setValidationErrors(errors);
     return Object.keys(errors).length === 0;
@@ -91,7 +91,6 @@ export default function EditProfile ({ show, onClose, onSave, initialData = {} }
         headers: { Authorization: `${token}` }
       });
       const utilizador = response.data;
-      
       const primeiroNome = utilizador.nome.split(" ")[0];
       const ultimoNome = utilizador.nome.split(" ").slice(1).join(" ");
 
@@ -111,6 +110,18 @@ export default function EditProfile ({ show, onClose, onSave, initialData = {} }
 
       setDepartamentoAtual(departamentoAtualId);
 
+      // Get user types from the API response
+      let tipos = [];
+      
+      // Se tiver tipos no response, usa ele
+      if (utilizador.tipos && Array.isArray(utilizador.tipos)) {
+        tipos = utilizador.tipos;
+      }
+      // Se não tiver tipos mas tiver tipo, converte para array
+      else if (utilizador.tipo) {
+        tipos = [utilizador.tipo];
+      }
+      
       setFormData({
         primeiroNome: primeiroNome || "",
         ultimoNome: ultimoNome || "",
@@ -119,7 +130,7 @@ export default function EditProfile ({ show, onClose, onSave, initialData = {} }
         email: utilizador.email || "",
         telefone: utilizador.telefone || "",
         funcao_id: utilizador.funcao_id || "",
-        tipo: utilizador.tipo || "",
+        tipos: tipos,
         inativo: utilizador.inativo || false,
         fotoPerfilUrl: utilizador.fotoPerfilUrl || ""
       });
@@ -146,15 +157,25 @@ export default function EditProfile ({ show, onClose, onSave, initialData = {} }
       const token = sessionStorage.getItem("token");
       const id = initialData.id;
 
-      const payload = {
-        ...formData,
-        nome: `${formData.primeiroNome} ${formData.ultimoNome}`.trim(),
-        data_nasc: formData.dataNasc,
-      };
+      // Encontrar a função e departamento selecionados
+      const funcaoSelecionada = funcoes.find(f => f.funcao_id === parseInt(formData.funcao_id));
+      const departamentoSelecionado = departamentos.find(d => d.departamento_id === departamentoAtual);
 
-      delete payload.primeiroNome;
-      delete payload.ultimoNome;
-      delete payload.dataNasc;
+      const payload = {
+        funcao_id: parseInt(formData.funcao_id),
+        nome: `${formData.primeiroNome} ${formData.ultimoNome}`.trim(),
+        username: formData.username,
+        data_nasc: formData.dataNasc,
+        email: formData.email,
+        telefone: parseInt(formData.telefone),
+        inativo: formData.inativo,
+        tipos: formData.tipos,
+        cargo: funcaoSelecionada?.nome || '',
+        departamento: departamentoSelecionado?.nome || '',
+        sobre_mim: formData.sobre_mim || '',
+        score: formData.score || 0,
+        especialidade: formData.tipos.includes("Formador") ? "Geral" : null
+      };
       
       await axios.put(`/colaborador/atualizar/${id}`, payload, {
         headers: { Authorization: `${token}` }
@@ -167,6 +188,7 @@ export default function EditProfile ({ show, onClose, onSave, initialData = {} }
       }, 1500);
     } catch (error) {
       console.error("Erro ao atualizar perfil", error);
+      console.error("Detalhes do erro:", error.response?.data);
       setError(error.response?.data?.message || "Erro ao atualizar perfil. Por favor, tente novamente.");
     } finally {
       setLoading(false);
@@ -205,6 +227,21 @@ export default function EditProfile ({ show, onClose, onSave, initialData = {} }
       setValidationErrors(prev => ({
         ...prev,
         departamentoAtual: undefined
+      }));
+    }
+  };
+
+  const handleTipoChange = (tipo) => {
+    setFormData(prev => ({
+      ...prev,
+      tipos: prev.tipos.includes(tipo)
+        ? prev.tipos.filter(t => t !== tipo)
+        : [...prev.tipos, tipo]
+    }));
+    if (validationErrors.tipos) {
+      setValidationErrors(prev => ({
+        ...prev,
+        tipos: undefined
       }));
     }
   };
@@ -376,37 +413,70 @@ export default function EditProfile ({ show, onClose, onSave, initialData = {} }
 
           <Row className="mb-4">
             <Col md={12}>
-              <h5 className="text-primary mb-3">Tipo de Utilizador</h5>
-              <Row className="mb-3">
+              <h5 className="text-primary mb-3">Configurações da Conta</h5>
+              <Row>
                 <Col md={6}>
-                  <Form.Group>
-                    <Form.Label>Tipo</Form.Label>
-                    <Form.Select
-                      name="tipo"
-                      value={formData.tipo}
-                      onChange={handleChange}
-                      className={validationErrors.tipo ? "is-invalid" : ""}
-                    >
-                      <option value="">Selecione o tipo</option>
-                      <option value="gestor">Gestor</option>
-                      <option value="formador">Formador</option>
-                      <option value="formando">Formando</option>
-                    </Form.Select>
-                    {validationErrors.tipo && (
-                      <div className="invalid-feedback">{validationErrors.tipo}</div>
+                  <div className="mb-3">
+                    <label className="form-label">Tipo de Utilizador</label>
+                    <div className="d-flex flex-column gap-2">
+                      <Form.Check
+                        type="checkbox"
+                        id="gestor"
+                        label={
+                          <div className="d-flex align-items-center">
+                            <FaUser className="me-2 text-primary" />
+                            <span>Gestor</span>
+                          </div>
+                        }
+                        checked={formData.tipos.includes("Gestor")}
+                        onChange={() => handleTipoChange("Gestor")}
+                      />
+                      <Form.Check
+                        type="checkbox"
+                        id="formador"
+                        label={
+                          <div className="d-flex align-items-center">
+                            <FaUserTie className="me-2 text-primary" />
+                            <span>Formador</span>
+                          </div>
+                        }
+                        checked={formData.tipos.includes("Formador")}
+                        onChange={() => handleTipoChange("Formador")}
+                      />
+                      <Form.Check
+                        type="checkbox"
+                        id="formando"
+                        label={
+                          <div className="d-flex align-items-center">
+                            <FaUserGraduate className="me-2 text-primary" />
+                            <span>Formando</span>
+                          </div>
+                        }
+                        checked={formData.tipos.includes("Formando")}
+                        onChange={() => handleTipoChange("Formando")}
+                      />
+                    </div>
+                    {validationErrors.tipos && (
+                      <div className="text-danger mt-1">{validationErrors.tipos}</div>
                     )}
-                  </Form.Group>
+                  </div>
                 </Col>
                 <Col md={6}>
-                  <Form.Group className="mt-4">
-                    <Form.Check
-                      type="checkbox"
-                      label="Inativo"
-                      name="inativo"
-                      checked={formData.inativo}
-                      onChange={handleChange}
+                  <div className="d-flex align-items-center h-100">
+                    <Form.Check 
+                      type="switch" 
+                      id="ativoSwitch" 
+                      label={
+                        <div className="d-flex align-items-center">
+                          <span className={!formData.inativo ? "text-success" : "text-danger"}>
+                            {!formData.inativo ? "Conta Ativa" : "Conta Inativa"}
+                          </span>
+                        </div>
+                      }
+                      checked={!formData.inativo}
+                      onChange={() => setFormData(prev => ({ ...prev, inativo: !prev.inativo }))}
                     />
-                  </Form.Group>
+                  </div>
                 </Col>
               </Row>
             </Col>

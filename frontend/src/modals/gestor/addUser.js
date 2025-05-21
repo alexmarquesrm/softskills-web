@@ -88,19 +88,33 @@ const ModalAddUser = ({ show, onClose }) => {
       const token = sessionStorage.getItem("token");
       const nomeCompleto = `${formData.Pnome} ${formData.Unome}`;
       
+      // Encontrar a função e departamento selecionados
+      const funcaoSelecionada = funcoes.find(f => f.funcao_id === parseInt(formData.funcaoId));
+      const departamentoSelecionado = departamentos.find(d => d.departamento_id === parseInt(formData.departamentoId));
+      
+      // Preparar o payload conforme esperado pelo backend
       const novoColaborador = {
+        funcao_id: parseInt(formData.funcaoId),
         nome: nomeCompleto,
         username: formData.username,
         data_nasc: formData.data,
         email: formData.email,
-        telefone: formData.telemovel,
-        funcao_id: parseInt(formData.funcaoId),
+        telefone: parseInt(formData.telemovel),
         inativo: !formData.ativo,
-        tipo: formData.tipoUtilizador[0]
+        tipo: formData.tipoUtilizador[0],
+        tipos: formData.tipoUtilizador,
+        cargo: funcaoSelecionada?.nome || '',
+        departamento: departamentoSelecionado?.nome || '',
+        sobre_mim: '',
+        score: 0,
+        especialidade: formData.tipoUtilizador.includes("Formador") ? "Geral" : null
       };
 
-      await axios.post(`/colaborador/adicionar`, novoColaborador, {
-        headers: { Authorization: `${token}` }
+      const response = await axios.post(`/colaborador/adicionar`, novoColaborador, {
+        headers: { 
+          Authorization: `${token}`,
+          'Content-Type': 'application/json'
+        }
       });
 
       setSuccess(true);
@@ -110,7 +124,13 @@ const ModalAddUser = ({ show, onClose }) => {
       }, 1500);
     } catch (error) {
       console.error("Erro ao criar perfil", error);
-      setError(error.response?.data?.message || "Erro ao criar perfil. Por favor, tente novamente.");
+      console.error("Detalhes do erro:", error.response?.data);
+      console.error("Stack trace:", error.stack);
+      if (error.response?.data?.message) {
+        setError(error.response.data.message);
+      } else {
+        setError("Erro ao criar perfil. Por favor, tente novamente.");
+      }
     } finally {
       setLoading(false);
     }
@@ -325,18 +345,18 @@ const ModalAddUser = ({ show, onClose }) => {
                 <Col md={6}>
                   <div className="mb-3">
                     <label className="form-label">Tipo de Utilizador</label>
-                    <div className="d-flex gap-4">
+                    <div className="d-flex flex-column gap-2">
                       <Form.Check
                         type="checkbox"
-                        id="formando"
+                        id="gestor"
                         label={
                           <div className="d-flex align-items-center">
-                            <FaUserGraduate className="me-2 text-primary" />
-                            <span>Formando</span>
+                            <FaUser className="me-2 text-primary" />
+                            <span>Gestor</span>
                           </div>
                         }
-                        checked={formData.tipoUtilizador.includes("Formando")}
-                        onChange={() => handleTipoChange("Formando")}
+                        checked={formData.tipoUtilizador.includes("Gestor")}
+                        onChange={() => handleTipoChange("Gestor")}
                       />
                       <Form.Check
                         type="checkbox"
@@ -350,6 +370,18 @@ const ModalAddUser = ({ show, onClose }) => {
                         checked={formData.tipoUtilizador.includes("Formador")}
                         onChange={() => handleTipoChange("Formador")}
                       />
+                      <Form.Check
+                        type="checkbox"
+                        id="formando"
+                        label={
+                          <div className="d-flex align-items-center">
+                            <FaUserGraduate className="me-2 text-primary" />
+                            <span>Formando</span>
+                          </div>
+                        }
+                        checked={formData.tipoUtilizador.includes("Formando")}
+                        onChange={() => handleTipoChange("Formando")}
+                      />
                     </div>
                     {validationErrors.tipoUtilizador && (
                       <div className="text-danger mt-1">{validationErrors.tipoUtilizador}</div>
@@ -357,20 +389,21 @@ const ModalAddUser = ({ show, onClose }) => {
                   </div>
                 </Col>
                 <Col md={6}>
-                  <Form.Check 
-                    type="switch" 
-                    id="ativoSwitch" 
-                    label={
-                      <div className="d-flex align-items-center">
-                        <span className={formData.ativo ? "text-success" : "text-danger"}>
-                          {formData.ativo ? "Conta Ativa" : "Conta Inativa"}
-                        </span>
-                      </div>
-                    }
-                    checked={formData.ativo}
-                    onChange={() => setFormData(prev => ({ ...prev, ativo: !prev.ativo }))}
-                    className="mt-4"
-                  />
+                  <div className="d-flex align-items-center h-100">
+                    <Form.Check 
+                      type="switch" 
+                      id="ativoSwitch" 
+                      label={
+                        <div className="d-flex align-items-center">
+                          <span className={formData.ativo ? "text-success" : "text-danger"}>
+                            {formData.ativo ? "Conta Ativa" : "Conta Inativa"}
+                          </span>
+                        </div>
+                      }
+                      checked={formData.ativo}
+                      onChange={() => setFormData(prev => ({ ...prev, ativo: !prev.ativo }))}
+                    />
+                  </div>
                 </Col>
               </Row>
             </Col>

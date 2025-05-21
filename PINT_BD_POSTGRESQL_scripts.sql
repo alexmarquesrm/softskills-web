@@ -2,10 +2,10 @@ CREATE OR REPLACE FUNCTION criar_colaborador_default_formando(
     p_nome TEXT,
     p_email TEXT,
     p_data_nasc DATE,
-    p_cargo TEXT,
-    p_departamento TEXT,
+    p_funcao_id INTEGER,
     p_telefone NUMERIC(9),
     p_score INTEGER,
+    p_sobre_mim TEXT,
     p_username TEXT,
     p_pssword TEXT
 )
@@ -14,8 +14,8 @@ DECLARE
     novo_colaborador_id INTEGER;
 BEGIN
     -- Criar colaborador
-    INSERT INTO colaborador (nome, email, data_nasc, cargo, departamento, telefone, score, username, pssword)
-    VALUES (p_nome, p_email, p_data_nasc, p_cargo, p_departamento, p_telefone, p_score, p_username, p_pssword)
+    INSERT INTO colaborador (nome, email, data_nasc, funcao_id, telefone, score, sobre_mim, username, pssword, inativo)
+    VALUES (p_nome, p_email, p_data_nasc, p_funcao_id, p_telefone, p_score, p_sobre_mim, p_username, p_pssword, false)
     RETURNING colaborador_id INTO novo_colaborador_id;
 
     -- Criar formando com o mesmo ID das credenciais

@@ -60,8 +60,6 @@ const controladorUtilizadores = {
   getColaboradorById: async (req, res) => {
     const id = req.params.id;
     try {
-      // Verificar se o usuário está tentando acessar seu próprio perfil
-      // ou se tem permissão administrativa
       const isOwnProfile = parseInt(id) === req.user.id;
       const userRoles = req.user.allUserTypes?.split(',') || [];
       const isAdmin = req.user.tipo === 'Gestor' || userRoles.includes('Gestor');
@@ -96,12 +94,35 @@ const controladorUtilizadores = {
         return res.status(404).json({ message: "Colaborador não encontrado" });
       }
 
+      // Check all possible roles
+      const [formando, formador, gestor] = await Promise.all([
+        models.formando.findOne({ where: { formando_id: id } }),
+        models.formador.findOne({ where: { formador_id: id } }),
+        models.gestor.findOne({ where: { gestor_id: id } })
+      ]);
+
+      // Collect all user types in an array
+      const userTypes = [];
+      if (formando) userTypes.push("Formando");
+      if (formador) userTypes.push("Formador");
+      if (gestor) userTypes.push("Gestor");
+
+      // If no roles found, use "Desconhecido"
+      if (userTypes.length === 0) {
+        userTypes.push("Desconhecido");
+      }
+
       const files = await ficheirosController.getFilesFromBucketOnly(id, 'colaborador');
 
       const colaboradorData = colaborador.toJSON();
       if (files.length > 0) {
         colaboradorData.fotoPerfilUrl = files[0].url;
       }
+
+      // Adicionar tipos do user ao objeto de resposta
+      colaboradorData.tipos = userTypes;
+      colaboradorData.tipo = userTypes[0];
+
       res.json(colaboradorData);
     } catch (error) {
       console.error('Erro ao obter colaborador:', error);
@@ -323,7 +344,7 @@ const controladorUtilizadores = {
         });
       }
 
-      const { nome, email, data_nasc, cargo, departamento, telefone, sobre_mim = null, score = 0, username, tipo, especialidade, inativo } = req.body;
+      const { nome, email, data_nasc, funcao_id, telefone, sobre_mim = null, score = 0, username, tipo, tipos, especialidade, inativo } = req.body;
 
       // Verificar se username já existe
       const existingUser = await models.colaborador.findOne({
@@ -335,60 +356,70 @@ const controladorUtilizadores = {
       }
 
       const hashedPassword = await bcrypt.hash("123", 10);
+      let novoColaborador;
 
-      if (tipo === "Formando") {
+      // Se for Formando, usar a função do banco
+      if (tipos?.includes("Formando")) {
         const sql = `
           SELECT criar_colaborador_default_formando( 
             :nome,
             :email,
             :data_nasc,
-            :cargo,
-            :departamento,
+            :funcao_id,
             :telefone,
-            :sobre_mim,
             :score,
+            :sobre_mim,
             :username,
             :hashedPassword
           )`;
 
         await sequelizeConn.query(sql, {
-          replacements: { nome, email, data_nasc, cargo, departamento, telefone, sobre_mim, score, username, hashedPassword },
+          replacements: { nome, email, data_nasc, funcao_id, telefone, score, sobre_mim, username, hashedPassword },
           type: sequelizeConn.QueryTypes.SELECT,
         });
 
-        return res.status(201).json({ message: "Colaborador formando criado com sucesso." });
-
-      } else if (tipo === "Formador") {
-        const novoColaborador = await models.colaborador.create({
+        // Buscar o colaborador criado
+        novoColaborador = await models.colaborador.findOne({
+          where: { username }
+        });
+      } else {
+        // Se não for Formando, criar normalmente
+        novoColaborador = await models.colaborador.create({
           nome,
           email,
           username,
           pssword: hashedPassword,
           data_nasc,
-          cargo,
-          departamento,
+          funcao_id,
           telefone,
           sobre_mim,
           score: 0,
           inativo,
         });
+      }
 
-        // Depois cria o formador com o ID do colaborador criado
-        const novoFormador = await models.formador.create({
+      // Se for Formador, criar o registro de formador
+      if (tipos?.includes("Formador")) {
+        await models.formador.create({
           formador_id: novoColaborador.colaborador_id,
           especialidade,
         });
+      }
 
-        return res.status(201).json({
-          message: "Formador criado com sucesso",
-          formador: {
-            id: novoFormador.formador_id,
-            especialidade: novoFormador.especialidade,
-          },
+      // Se for Gestor, criar o registo de gestor
+      if (tipos?.includes("Gestor")) {
+        await models.gestor.create({
+          gestor_id: novoColaborador.colaborador_id
         });
       }
 
-      return res.status(400).json({ message: "Tipo de colaborador inválido" });
+      return res.status(201).json({
+        message: "Colaborador criado com sucesso",
+        colaborador: {
+          id: novoColaborador.colaborador_id,
+          tipos: tipos || [tipo]
+        }
+      });
 
     } catch (error) {
       console.error(error);
@@ -413,6 +444,7 @@ const controladorUtilizadores = {
       }
 
       const dadosAtualizados = { ...req.body };
+      const novosTipos = dadosAtualizados.tipos || [];
 
       // Se vier uma nova password, fazer o hash
       if (dadosAtualizados.novaPassword) {
@@ -423,6 +455,7 @@ const controladorUtilizadores = {
       // Remover campos auxiliares que não existem na tabela
       delete dadosAtualizados.novaPassword;
       delete dadosAtualizados.confirmarPassword;
+      delete dadosAtualizados.tipos;
 
       // Atualizar as informações do colaborador
       const updated = await models.colaborador.update(dadosAtualizados, {
@@ -435,9 +468,49 @@ const controladorUtilizadores = {
           await ficheirosController.adicionar(id, 'colaborador', [dadosAtualizados.fotoPerfil], req.user.id || null);
         }
 
+        // Verificar e atualizar os tipos de usuário
+        const [formando, formador, gestor] = await Promise.all([
+          models.formando.findOne({ where: { formando_id: id } }),
+          models.formador.findOne({ where: { formador_id: id } }),
+          models.gestor.findOne({ where: { gestor_id: id } })
+        ]);
+
+        // Adicionar ou remover formando
+        if (novosTipos.includes("Formando") && !formando) {
+          await models.formando.create({ formando_id: id });
+        } else if (!novosTipos.includes("Formando") && formando) {
+          await formando.destroy();
+        }
+
+        // Adicionar ou remover formador
+        if (novosTipos.includes("Formador") && !formador) {
+          await models.formador.create({
+            formador_id: id,
+            especialidade: dadosAtualizados.especialidade || "Geral"
+          });
+        } else if (!novosTipos.includes("Formador") && formador) {
+          await formador.destroy();
+        }
+
+        // Adicionar ou remover gestor
+        if (novosTipos.includes("Gestor") && !gestor) {
+          await models.gestor.create({ gestor_id: id });
+        } else if (!novosTipos.includes("Gestor") && gestor) {
+          await gestor.destroy();
+        }
+
         // Retornar os dados atualizados do colaborador
-        const updatedColaborador = await models.colaborador.findByPk(id);
-        return res.json(updatedColaborador);
+        const updatedColaborador = await models.colaborador.findByPk(id, {
+          attributes: {
+            exclude: ['pssword']
+          }
+        });
+
+        // Adicionar os tipos atualizados à resposta
+        const colaboradorData = updatedColaborador.toJSON();
+        colaboradorData.tipos = novosTipos;
+
+        return res.json(colaboradorData);
       }
 
       res.status(404).json({ message: "Colaborador não encontrado" });
