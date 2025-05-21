@@ -192,8 +192,8 @@ function initModels(sequelize) {
   formador.hasMany(avaliacao_formador, { as: "formador_avaformador", foreignKey: "formador_id"});
   funcao.belongsTo(departamento, { as: 'funcao_departamento', foreignKey: 'departamento_id'});
   departamento.hasMany(funcao, { as: 'departamento_funcoes', foreignKey: 'departamento_id'});
-  colaborador.belongsTo(funcao, { as: 'colaborador_funcao', foreignKey: 'funcao_id'});
-  funcao.hasMany(colaborador, { as: 'funcao_colaboradores', foreignKey: 'funcao_id'});
+  colaborador.belongsTo(funcao, { as: 'colab_funcao', foreignKey: 'funcao_id'});
+  funcao.hasMany(colaborador, { as: 'funcao_colab', foreignKey: 'funcao_id'});
 
   return {
     ficheiro,

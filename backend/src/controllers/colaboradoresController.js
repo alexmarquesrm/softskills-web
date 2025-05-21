@@ -76,6 +76,20 @@ const controladorUtilizadores = {
         attributes: {
           exclude: ['pssword'],
         },
+        include: [
+          {
+            model: models.funcao,
+            as: 'colab_funcao',
+            attributes: ['nome'],
+            include: [
+              {
+                model: models.departamento,
+                as: 'funcao_departamento',
+                attributes: ['nome'],
+              }
+            ]
+          }
+        ],
       });
 
       if (!colaborador) {
