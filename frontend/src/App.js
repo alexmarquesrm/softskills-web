@@ -27,7 +27,9 @@ import GestaoCursos from "./pages/gestor/courseManage";
 import EditarCurso from "./pages/gestor/editCourse";
 import ViewPedido from "./pages/gestor/viewPedido";
 import PedirCurso from "./pages/formadores/pedirCurso";
-
+import CategoriesList from "./pages/gestor/categoriesList";
+import AreasList from "./pages/gestor/areasList";
+import TopicsList from "./pages/gestor/topicsList";
 
 // Forum Pages
 import ForumList from "./pages/forum/forumList";
@@ -75,6 +77,9 @@ function AppContent() {
                             <Route path="cursos/add" element={<AdicionarCurso />} />
                             <Route path="cursos/edit/:id" element={<EditarCurso />} />
                             <Route path="pedidos/view/:id" element={<ViewPedido />} />
+                            <Route path="lista/categorias" element={<CategoriesList />} />
+                            <Route path="lista/areas" element={<AreasList />} />
+                            <Route path="lista/topicos" element={<TopicsList />} />
                         </Route>
 
                         {/* Forum Routes */}
