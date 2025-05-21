@@ -24,7 +24,16 @@ const controladorComentarios = {
       include: [{
         model: models.colaborador,
         as: 'colab_comentarios',
-        attributes: ['nome', 'cargo', 'departamento']
+        include: [{
+          model: models.funcao,
+          as: 'colab_funcao',
+          include: [{
+            model: models.departamento,
+            as: 'funcao_departamento',
+            attributes: ['nome']
+          }]
+        }],
+        attributes: ['nome']
       }],
       order: [['comentario_id', 'ASC']]
     });
@@ -76,7 +85,16 @@ const controladorComentarios = {
         include: [{
           model: models.colaborador,
           as: 'colab_comentarios',
-          attributes: ['nome', 'cargo', 'departamento']
+          include: [{
+            model: models.funcao,
+            as: 'colab_funcao',
+            include: [{
+              model: models.departamento,
+              as: 'funcao_departamento',
+              attributes: ['nome']
+            }]
+          }],
+          attributes: ['nome']
         }]
       });
 
@@ -113,13 +131,20 @@ const controladorComentarios = {
             [Op.notIn]: idsRespostas
           }
         },
-        include: [
-          {
-            model: models.colaborador,
-            as: 'colab_comentarios',
-            attributes: ['nome', 'cargo', 'departamento']
-          }
-        ],
+        include: [{
+          model: models.colaborador,
+          as: 'colab_comentarios',
+          include: [{
+            model: models.funcao,
+            as: 'colab_funcao',
+            include: [{
+              model: models.departamento,
+              as: 'funcao_departamento',
+              attributes: ['nome']
+            }]
+          }],
+          attributes: ['nome']
+        }],
         order: [['comentario_id', 'DESC']]
       });
 
@@ -156,7 +181,16 @@ const controladorComentarios = {
         include: [{
           model: models.colaborador,
           as: 'colab_comentarios',
-          attributes: ['nome', 'cargo', 'departamento']
+          include: [{
+            model: models.funcao,
+            as: 'colab_funcao',
+            include: [{
+              model: models.departamento,
+              as: 'funcao_departamento',
+              attributes: ['nome']
+            }]
+          }],
+          attributes: ['nome']
         }]
       });
 
