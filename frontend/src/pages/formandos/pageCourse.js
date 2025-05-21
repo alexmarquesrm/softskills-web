@@ -1,17 +1,22 @@
 import React, { useState, useEffect } from "react";
-import {
-  Container, Row, Col, Card, ListGroup, Spinner,
-  Badge, Accordion, Button, Alert
-} from "react-bootstrap";
+import { Container, Row, Col, Card, ListGroup, Spinner, Badge, Accordion, Button, Alert } from "react-bootstrap";
 import { useParams, useNavigate } from "react-router-dom";
-import "./pageCourse.css";
 import {
   BsFillPeopleFill, BsCalendarCheck, BsFileText, BsCameraVideo, BsBook,
   BsTools, BsUpload, BsInfoCircle, BsExclamationTriangle, BsCheckCircle,
   BsQuestionCircle, BsTrophy, BsClock, BsDownload, BsFlag, BsPlayFill
 } from "react-icons/bs";
 import axios from "../../config/configAxios";
+import { toast } from 'react-toastify';
+// COMPONENTES
+import Inscrever from "../../components/buttons/saveButton";
+import Cancelar from "../../components/buttons/cancelButton";
 import ModalSubmeterTrabalho from '../../modals/formandos/submeterFicheiro';
+// ICONS
+import { BsArrowReturnLeft } from "react-icons/bs";
+import { FaRegCheckCircle } from "react-icons/fa";
+// CSS
+import "./pageCourse.css";
 
 export default function CursoFormando() {
   const { id } = useParams();
@@ -145,6 +150,34 @@ export default function CursoFormando() {
       fetchMaterials();
     }
   }, [id, activeSection, refreshTrigger]);
+
+  const handleInscricao = async (e) => {
+    try {
+      const token = sessionStorage.getItem('token');
+      const idColab = sessionStorage.getItem('colaboradorid');
+
+      let inscricaoData = {
+        formando_id: idColab,
+        curso_id: id
+      };
+
+      await axios.post('/inscricao/criar', inscricaoData, {
+        headers: { Authorization: `${token}` }
+      });
+
+      toast.success("Inscrição realizada com sucesso!");
+
+      setTimeout(() => {
+        navigate('/utilizadores/lista/cursos');
+      }, 2000);
+
+    } catch (error) {
+      console.error("Erro ao inscrever", error);
+      setError("Não foi possível inscrever no curso. Por favor, avise o gestor.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // 2. Update your handleFileAction function to be more robust with different data structures
   // Função para abrir ou baixar um arquivo
@@ -902,6 +935,12 @@ export default function CursoFormando() {
                 </div>
               </Card.Body>
             </Card>
+          )}
+          {inscricao === null && (
+            <div className="d-flex justify-content-center mt-4">
+              <Cancelar text={"Cancelar"} onClick={() => navigate("/utilizadores/lista/cursos")} Icon={BsArrowReturnLeft} inline={true} />
+              <Inscrever text={"Inscrever"} onClick={handleInscricao} Icon={FaRegCheckCircle} />
+            </div>
           )}
         </div>
       </Container>
