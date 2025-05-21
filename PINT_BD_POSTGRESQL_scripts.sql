@@ -55,14 +55,8 @@ $$ LANGUAGE plpgsql;
 -------------------------------------------------------------------------------------------
 
 
--- Tabela de notificações
-CREATE TABLE IF NOT EXISTS notificacao (
-    notificacao_id SERIAL PRIMARY KEY,
-    formando_id INTEGER REFERENCES colaborador(colaborador_id),
-    descricao TEXT NOT NULL,
-    data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    lida BOOLEAN DEFAULT FALSE
-);
+-- Remover trigger existente se houver
+DROP TRIGGER IF EXISTS trigger_notificar_inicio_curso ON inscricao;
 
 -- Trigger para criar notificação quando um curso começa
 CREATE OR REPLACE FUNCTION notificar_inicio_curso()
@@ -70,33 +64,40 @@ RETURNS TRIGGER AS $$
 DECLARE
     data_inicio DATE;
 BEGIN
+    -- Criar notificação de inscrição
+    INSERT INTO notificacao (formando_id, curso_id, descricao)
+    SELECT 
+        NEW.formando_id,
+        NEW.curso_id,
+        'Você foi inscrito no curso "' || c.titulo || '"'
+    FROM curso c
+    WHERE c.curso_id = NEW.curso_id;
+
     -- Obter a data de início do curso
     SELECT s.data_inicio INTO data_inicio
     FROM sincrono s
     WHERE s.curso_id = NEW.curso_id;
 
-    -- Se for um curso síncrono, criar notificações
+    -- Se for um curso síncrono, criar notificações adicionais
     IF data_inicio IS NOT NULL THEN
         -- Notificação 3 dias antes
-        INSERT INTO notificacao (formando_id, descricao)
+        INSERT INTO notificacao (formando_id, curso_id, descricao)
         SELECT 
-            i.formando_id,
+            NEW.formando_id,
+            NEW.curso_id,
             'O curso "' || c.titulo || '" começa em 3 dias!'
-        FROM inscricao i
-        JOIN curso c ON i.curso_id = c.curso_id
-        WHERE i.curso_id = NEW.curso_id
-        AND i.estado = 'CONFIRMADA'
+        FROM curso c
+        WHERE c.curso_id = NEW.curso_id
         AND data_inicio = CURRENT_DATE + INTERVAL '3 days';
 
         -- Notificação no dia
-        INSERT INTO notificacao (formando_id, descricao)
+        INSERT INTO notificacao (formando_id, curso_id, descricao)
         SELECT 
-            i.formando_id,
+            NEW.formando_id,
+            NEW.curso_id,
             'O curso "' || c.titulo || '" começa hoje!'
-        FROM inscricao i
-        JOIN curso c ON i.curso_id = c.curso_id
-        WHERE i.curso_id = NEW.curso_id
-        AND i.estado = 'CONFIRMADA'
+        FROM curso c
+        WHERE c.curso_id = NEW.curso_id
         AND data_inicio = CURRENT_DATE;
     END IF;
     
@@ -206,4 +207,3 @@ $$;
 -------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------
 
-SELECT proname FROM pg_proc WHERE proname = 'gerir_inscricao_curso';
