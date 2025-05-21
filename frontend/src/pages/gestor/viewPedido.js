@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Container, Button, Row, Col, Alert, Spinner, Card } from "react-bootstrap";
+import { Container, Button, Row, Col, Alert, Spinner, Card, Breadcrumb } from "react-bootstrap";
 import { useNavigate, useParams } from 'react-router-dom';
 import { File, Calendar, User, Book, Clock, Award, Info, Mail } from 'react-feather'; 
-import { BsArrowReturnLeft, BsCheckCircle, BsXCircle } from "react-icons/bs";
+import { BsCheckCircle, BsXCircle } from "react-icons/bs";
 import axios from "../../config/configAxios";
-import Cancelar from "../../components/buttons/cancelButton";
 import "./pedidos.css"; 
 
 export default function ViewPedido() {
@@ -123,8 +122,6 @@ export default function ViewPedido() {
         }
     };
 
-    const goBack = () => navigate(-1);
-
     if (loading) {
         return (
             <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: "50vh" }}>
@@ -150,6 +147,11 @@ export default function ViewPedido() {
     return (
         <div className="view-pedido-page">
             <Container>
+                <Breadcrumb className="mb-4">
+                    <Breadcrumb.Item href="/gestor/lista/pedidos">Pedidos</Breadcrumb.Item>
+                    <Breadcrumb.Item active>Detalhes do Pedido</Breadcrumb.Item>
+                </Breadcrumb>
+
                 <div className="page-header">
                     <div className="title-container">
                         <div className="title-icon">
@@ -329,13 +331,12 @@ export default function ViewPedido() {
                 )}
 
                 <div className="form-buttons">
-                    <Cancelar text="Voltar" onClick={goBack} Icon={BsArrowReturnLeft} inline={true} />
-                    <div>
+                    <div className="d-flex justify-content-center gap-3">
                         <Button 
                             variant="danger" 
-                            className="me-2" 
                             onClick={recusarPedido} 
                             disabled={processando || pedido?.pendente === false}
+                            className="px-4"
                         >
                             {processando ? (
                                 <>
@@ -353,6 +354,7 @@ export default function ViewPedido() {
                             variant="success" 
                             onClick={aprovarPedido} 
                             disabled={processando || pedido?.pendente === false}
+                            className="px-4"
                         >
                             {processando ? (
                                 <>

@@ -112,13 +112,41 @@
     background: linear-gradient(135deg, #dc3545, #c82333) !important;
 }
 
+.view-pedido-page .breadcrumb {
+    background-color: transparent;
+    padding: 0;
+    margin-bottom: 2rem;
+}
+
+.view-pedido-page .breadcrumb-item + .breadcrumb-item::before {
+    content: "›";
+    font-size: 1.2rem;
+    line-height: 1;
+    color: #6c757d;
+}
+
+.view-pedido-page .breadcrumb-item a {
+    color: #416699;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.view-pedido-page .breadcrumb-item a:hover {
+    color: #3b96d3;
+}
+
+.view-pedido-page .breadcrumb-item.active {
+    color: #6c757d;
+}
+
 .view-pedido-page .form-buttons {
     margin-top: 2rem;
     padding: 1.5rem 0;
     border-top: 1px solid #f0f0f0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+}
+
+.view-pedido-page .form-buttons .btn {
+    min-width: 180px;
 }
 
 .view-pedido-page .btn {
