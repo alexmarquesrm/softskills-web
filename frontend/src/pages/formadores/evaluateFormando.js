@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Container, Card, Table, Badge, Button, Form } from "react-bootstrap";
 import { BsFillPeopleFill, BsChatDots, BsArrowReturnLeft } from "react-icons/bs";
 import { BsSend } from "react-icons/bs";
+import { IoPersonOutline } from "react-icons/io5";
+
 
 import ModalCustom from "../../modals/modalCustom";
 import "./evaluateFormando.css";
@@ -13,29 +15,26 @@ export default function AvaliacaoTrabalho() {
   const cursoNome = "Curso de Redes de Segurança";
 
   const formandos = [
-    { id: 25638, nome: "Ana Silva", progresso: 75, avaliado: true },
-    { id: 24562, nome: "Bruno Costa", progresso: 60, avaliado: false },
-    { id: 23262, nome: "Carla Dias", progresso: 90, avaliado: true },
-    { id: 28662, nome: "Daniel Fonseca", progresso: 45, avaliado: false },
-    { id: 24062, nome: "Eduarda Ramos", progresso: 80, avaliado: true },
-    { id: 28962, nome: "Fábio Nunes", progresso: 55, avaliado: false },
-    { id: 27962, nome: "Gabriela Matos", progresso: 70, avaliado: true },
-    { id: 23962, nome: "Henrique Lopes", progresso: 65, avaliado: false },
-    { id: 22962, nome: "Inês Carvalho", progresso: 85, avaliado: true },
-    { id: 21462, nome: "João Pereira", progresso: 50, avaliado: false },
-    { id: 24562, nome: "Liliana Rocha", progresso: 95, avaliado: true },
-    { id: 21212, nome: "Marco Silva", progresso: 40, avaliado: false },
+    { nome: "Ana Silva", avaliado: true },
+    { nome: "Bruno Costa", avaliado: false },
+    { nome: "Carla Dias", avaliado: true },
+    { nome: "Daniel Fonseca", avaliado: false },
+    { nome: "Eduarda Ramos", avaliado: true },
+    { nome: "Fábio Nunes", avaliado: false },
+    { nome: "Gabriela Matos", avaliado: true },
+    { nome: "Henrique Lopes", avaliado: false },
+    { nome: "Inês Carvalho", avaliado: true },
+    { nome: "João Pereira", avaliado: false },
+    { nome: "Liliana Rocha", avaliado: true },
+    { nome: "Marco Silva", avaliado: false },
   ];
 
   const [showModal, setShowModal] = useState(false);
   const [showModalAvaliacao, setShowModalAvaliacao] = useState(false);
   const [formandoSelecionado, setFormandoSelecionado] = useState(null);
   const [nota, setNota] = useState("");
+  const [erroNota, setErroNota] = useState("");
 
-  const abrirNotas = (formando) => {
-    setFormandoSelecionado(formando);
-    setShowModal(true);
-  };
 
   const abrirAvaliacao = (formando) => {
     setFormandoSelecionado(formando);
@@ -53,6 +52,11 @@ export default function AvaliacaoTrabalho() {
   };
 
   const handleSubmit = () => {
+    if (!nota) {
+      setErroNota("Por favor, selecione uma classificação antes de guardar");
+      return;
+    }
+    setErroNota("");
     alert("Dados enviados");
     fecharModalAvaliacao();
   };
@@ -75,12 +79,9 @@ export default function AvaliacaoTrabalho() {
           </p>
         </div>
 
-        <div className="caixa-redes mb-3">
-          <h6 className="mb-0">Formato da aula</h6>
-          <div className="sinc-meta">
-            <BsFillPeopleFill className="me-2" />
-            Síncrono
-          </div>
+        <div className="title-container">
+          <IoPersonOutline size={28} className="title-icon" />
+          <h1>Avaliar Formandos</h1>
         </div>
 
         <div className="divider mb-3"></div>
@@ -92,10 +93,9 @@ export default function AvaliacaoTrabalho() {
                 <td className="py-3 px-4 d-flex flex-column">
                   <div className="d-flex align-items-center mb-1">
                     <BsFillPeopleFill className="me-2 text-secondary" />
-                    <strong>{formando.nome}</strong> (ID: {formando.id})
+                    <strong>{formando.nome}</strong>
                   </div>
                   <div className="text-muted small">
-                    Progresso: {formando.progresso}% ·{" "}
                     <Badge bg={formando.avaliado ? "success" : "warning"}>
                       {formando.avaliado ? "Avaliado" : "Pendente"}
                     </Badge>
@@ -111,12 +111,12 @@ export default function AvaliacaoTrabalho() {
                     Avaliar
                   </Button>
                   <Button
-                    variant="outline-secondary"
+                    variant="primary"
                     size="sm"
-                    onClick={() => abrirNotas(formando)}
+                    className="me-3"
+                    onClick={() => ('')}
                   >
-                    <BsChatDots className="me-1" />
-                    Notas
+                    Download Ficheiro
                   </Button>
                 </td>
               </tr>
@@ -165,62 +165,38 @@ export default function AvaliacaoTrabalho() {
         title={`Avaliação de ${formandoSelecionado?.nome}`}
       >
         <div className="p-4 rounded" style={{ backgroundColor: "#f9f9f9" }}>
-
-
-
-
-          <h6 className="mb-3">Ficheiros Entregues</h6>
-          <div className="mb-3">
-            <div className="d-flex flex-column gap-2">
-              {(formandoSelecionado?.ficheiros || []).map((ficheiro, idx) => {
-                const tipoIcone = {
-                  pdf: "bi bi-file-earmark-pdf text-danger",
-                  csv: "bi bi-file-earmark-spreadsheet text-success",
-                  doc: "bi bi-file-earmark-word text-primary",
-                  default: "bi bi-file-earmark"
-                };
-                const iconeClasse = tipoIcone[ficheiro.tipo] || tipoIcone.default;
-
-                return (
-                  <div
-                    key={idx}
-                    className="p-2 bg-light border rounded d-flex justify-content-between align-items-center"
-                  >
-                    <span>
-                      <i className={`${iconeClasse} me-2`}></i>
-                      {ficheiro.nome}
-                    </span>
-                    <div className="d-flex gap-3 align-items-center">
-                      <a href={ficheiro.url} target="_blank" rel="noopener noreferrer">
-                        <i className="bi bi-eye-fill text-primary" title="Visualizar"></i>
-                      </a>
-                      <a href={ficheiro.url} download>
-                        <i className="bi bi-download" title="Download"></i>
-                      </a>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
           <Form>
             <Form.Group className="mb-3" controlId="avaliacaoNota">
               <Form.Label>Classificação</Form.Label>
-              <Form.Select
+              <Form.Control
+                type="number"
+                min="0"
+                max="20"
                 value={nota}
-                onChange={(e) => setNota(e.target.value)}
-              >
-                <option value="">Seleciona uma nota</option>
-                <option value="1">1 - Muito Fraco</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="5">5 - Excelente</option>
-              </Form.Select>
+                onChange={(e) => {
+                  const valor = e.target.value;
+                  if (valor === "" || (Number(valor) >= 0 && Number(valor) <= 20)) {
+                    setNota(valor);
+                    setErroNota("");
+                  } else {
+                    setErroNota("A nota deve ser entre 0 e 20.");
+                  }
+                }}
+                placeholder="Insira uma nota de 0 a 20"
+              />
+              {erroNota && <div className="text-danger mt-1">{erroNota}</div>}
+            </Form.Group>
+            <Form.Group className="mb-3" controlId="comentario">
+              <Form.Label>Comentário</Form.Label>
+              <Form.Control
+                as="textarea"
+                rows={4}
+                placeholder="Escreve aqui um comentário sobre o desempenho do formando..."
+                style={{ resize: "none" }}
+              />
             </Form.Group>
 
-            <div className="d-flex justify-content-end gap-2"> 
+            <div className="d-flex justify-content-end gap-2">
               <Cancelar text="Cancelar" onClick={fecharModalAvaliacao} Icon={BsArrowReturnLeft} inline={true} />
               <Guardar text="Guardar" onClick={handleSubmit} Icon={BsSend} />
             </div>
