@@ -15,8 +15,8 @@ const notificacaoController = {
 
       res.json(notificacoes);
     } catch (error) {
-      console.error('Erro ao buscar notificações:', error);
-      res.status(500).json({ error: 'Erro ao buscar notificações' });
+      console.error('Erro ao procurar notificações:', error);
+      res.status(500).json({ error: 'Erro ao procurar notificações' });
     }
   },
 

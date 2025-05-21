@@ -57,7 +57,7 @@ export default function PercursoFormativoFormando() {
         }
     }, [handleApiError]);
 
-    // Buscar inscrições do utilizador autenticado
+    // procurar inscrições do utilizador autenticado
     const fetchDataInscricao = useCallback(async () => {
         try {
             // Usar a rota segura que retorna apenas as inscrições 

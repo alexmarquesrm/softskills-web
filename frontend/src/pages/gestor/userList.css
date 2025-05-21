@@ -1,0 +1,54 @@
+.hover-underline:hover {
+  text-decoration: underline;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.hover-shadow {
+  transition: all 0.3s ease;
+}
+
+.hover-shadow:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+.bootstrap-data-table-container {
+  border-radius: 12px;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.bootstrap-data-table th {
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  color: #6c757d;
+}
+
+.bootstrap-data-table td {
+  vertical-align: middle;
+}
+
+.bootstrap-data-table tbody tr {
+  transition: background-color 0.2s ease;
+}
+
+.bootstrap-data-table tbody tr:hover {
+  background-color: rgba(13, 110, 253, 0.05);
+}
+
+.btn-outline-primary {
+  border-width: 1.5px;
+}
+
+.btn-outline-primary:hover {
+  transform: translateY(-1px);
+}
+
+.badge {
+  font-weight: 500;
+  letter-spacing: 0.025em;
+} 

@@ -88,7 +88,7 @@ export default function EditProfile ({ show, onClose, onSave, initialData = {} }
             setFuncaoNome(funcaoResponse.data.nome); // Armazenar o nome da função
           }
         } catch (error) {
-          console.error("Erro ao buscar dados da função:", error);
+          console.error("Erro ao buprocurarscar dados da função:", error);
         }
       }
 

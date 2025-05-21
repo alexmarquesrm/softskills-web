@@ -40,7 +40,7 @@ const ThreadDetail = () => {
         ]);
         setThread(threadResponse.data);
         setComments(commentsResponse.data);
-        // Buscar info do fórum para mostrar nome
+        // procurar info do fórum para mostrar nome
         const forumId = threadResponse.data.forum_id || id;
         const forumResponse = await axios.get(`/forum/${forumId}`);
         setForum(forumResponse.data);

@@ -13,10 +13,10 @@ import { IoMdAddCircleOutline } from "react-icons/io";
 import { PiStudentBold } from "react-icons/pi";
 import { BsFillPeopleFill, BsBuilding, BsBriefcase, BsEnvelope } from "react-icons/bs";
 import { Card, Row, Col, Badge } from 'react-bootstrap';
+import './userList.css';
 
 export default function UsersTable() {
   const [isNewModalOpen, setNewModalOpen] = useState(false);
-  const [isEditModalOpen, setEditModalOpen] = useState(false);
   const [tableRows, setTableRows] = useState([]);
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -36,9 +36,9 @@ export default function UsersTable() {
       headerName: 'Nº Colaborador', 
       align: 'left', 
       headerAlign: 'left', 
-      width: '100px',
+      width: '120px',
       renderCell: ({ row }) => (
-        <Badge bg="light" text="dark" className="px-2 py-1">
+        <Badge bg="light" text="dark" className="px-3 py-2 rounded-pill">
           #{row.id}
         </Badge>
       )
@@ -48,15 +48,16 @@ export default function UsersTable() {
       headerName: 'Nome', 
       align: 'left', 
       headerAlign: 'left', 
-      minWidth: '180px', 
+      minWidth: '200px', 
       renderCell: ({ row }) => (
         <div className="d-flex align-items-center">
-          <div className="bg-light rounded-circle p-2 me-2">
-            <BsFillPeopleFill className="text-primary" size={16} />
+          <div className="bg-primary bg-opacity-10 rounded-circle p-2 me-3">
+            <BsFillPeopleFill className="text-primary" size={18} />
           </div>
           <span 
             onClick={() => navigate('/gestor/colaborador/percursoFormativo', { state: { id: row.id } })}
-            style={{ color: '#3182ce', cursor: 'pointer', fontWeight: 500 }}
+            className="text-primary fw-medium cursor-pointer hover-underline"
+            style={{ cursor: 'pointer' }}
           >
             {row.nome}
           </span>
@@ -68,11 +69,11 @@ export default function UsersTable() {
       headerName: 'Email', 
       align: 'left', 
       headerAlign: 'left', 
-      minWidth: '220px',
+      minWidth: '240px',
       renderCell: ({ row }) => (
         <div className="d-flex align-items-center">
-          <BsEnvelope className="text-muted me-2" />
-          {row.email}
+          <BsEnvelope className="text-muted me-2" size={16} />
+          <span className="text-muted">{row.email}</span>
         </div>
       )
     },
@@ -81,11 +82,11 @@ export default function UsersTable() {
       headerName: 'Departamento', 
       align: 'left', 
       headerAlign: 'left', 
-      minWidth: '160px',
+      minWidth: '180px',
       renderCell: ({ row }) => (
         <div className="d-flex align-items-center">
-          <BsBuilding className="text-muted me-2" />
-          {row.departamento}
+          <BsBuilding className="text-muted me-2" size={16} />
+          <span className="text-muted">{row.departamento || 'Não definido'}</span>
         </div>
       )
     },
@@ -94,30 +95,30 @@ export default function UsersTable() {
       headerName: 'Função', 
       align: 'left', 
       headerAlign: 'left', 
-      minWidth: '160px',
+      minWidth: '180px',
       renderCell: ({ row }) => (
         <div className="d-flex align-items-center">
-          <BsBriefcase className="text-muted me-2" />
-          {row.funcao}
+          <BsBriefcase className="text-muted me-2" size={16} />
+          <span className="text-muted">{row.funcao || 'Não definido'}</span>
         </div>
       )
     },
     {
       field: 'percurso', 
       headerName: 'Percurso', 
-      align: 'left', 
-      headerAlign: 'left', 
+      align: 'center', 
+      headerAlign: 'center', 
       sortable: false, 
-      width: '100px',
+      width: '120px',
       renderCell: ({ row }) => (
         <button 
-          className="btn btn-sm btn-outline-info d-flex align-items-center"
+          className="btn btn-sm btn-outline-primary d-flex align-items-center gap-1 mx-auto"
           onClick={(e) => {
             e.stopPropagation();
             navigate('/gestor/colaborador/percursoFormativo', { state: { id: row.id } });
           }}
         >
-          <PiStudentBold className="me-1" />
+          <PiStudentBold size={16} />
           <span className="d-none d-lg-inline">Percurso</span>
         </button>
       )
@@ -125,25 +126,22 @@ export default function UsersTable() {
     {
       field: 'actions', 
       headerName: 'Ações', 
-      align: 'left', 
-      headerAlign: 'left', 
+      align: 'center', 
+      headerAlign: 'center', 
       sortable: false, 
       width: '120px',
       renderCell: ({ row }) => (
-        <div className="d-flex gap-2">
+        <div className="d-flex justify-content-center">
           <button 
-            className="btn btn-sm btn-outline-primary d-flex align-items-center"
+            className="btn btn-sm btn-outline-primary d-flex align-items-center gap-1"
             onClick={(e) => {
               e.stopPropagation();
               handleEditClick(row);
             }}
           >
-            <FaPencilAlt className="me-1" />
+            <FaPencilAlt size={14} />
             <span className="d-none d-lg-inline">Editar</span>
           </button>
-          <Badge bg={row.inativo ? "danger" : "success"} className="d-flex align-items-center">
-            {row.inativo ? "Inativo" : "Ativo"}
-          </Badge>
         </div>
       )
     },
@@ -172,26 +170,58 @@ export default function UsersTable() {
         headers: { Authorization: `${token}` }
       });
       const utilizadores = response.data;
-      console.log(utilizadores);
+      console.log('Dados recebidos da API:', utilizadores);
       const sortedUtilizadores = utilizadores.sort((a, b) => a.colaborador_id - b.colaborador_id);
 
+      // dados de departamento e função para cada usuário
+      const utilizadoresCompletos = await Promise.all(
+        sortedUtilizadores.map(async (colaborador) => {
+          let departamentoNome = "Não definido";
+          let funcaoNome = "Não definido";
+
+          if (colaborador.funcao_id) {
+            try {
+              // dados da função
+              const funcaoResponse = await axios.get(`/funcao/${colaborador.funcao_id}`);
+              if (funcaoResponse.data) {
+                funcaoNome = funcaoResponse.data.nome;
+                
+                // dados do departamento
+                const departamentoResponse = await axios.get(`/departamento/${funcaoResponse.data.departamento_id}`);
+                if (departamentoResponse.data) {
+                  departamentoNome = departamentoResponse.data.nome;
+                }
+              }
+            } catch (error) {
+              console.error("Erro a procurar dados de departamento/função:", error);
+            }
+          }
+
+          return {
+            ...colaborador,
+            departamento: departamentoNome,
+            funcao: funcaoNome
+          };
+        })
+      );
+
       // Calcular estatísticas
-      const departamentos = new Set(utilizadores.map(u => u.departamento));
-      const funcoes = new Set(utilizadores.map(u => u.cargo));
+      const departamentos = new Set(utilizadoresCompletos.map(u => u.departamento).filter(Boolean));
+      const funcoes = new Set(utilizadoresCompletos.map(u => u.funcao).filter(Boolean));
       
       setStats({
-        total: utilizadores.length,
+        total: utilizadoresCompletos.length,
         departamentos: departamentos.size,
         funcoes: funcoes.size,
-        ativos: utilizadores.filter(u => !u.inativo).length
+        ativos: utilizadoresCompletos.filter(u => !u.inativo).length
       });
 
       setTableRows(
-        sortedUtilizadores.map((colaborador) => ({
+        utilizadoresCompletos.map((colaborador) => ({
           id: colaborador.colaborador_id,
           nome: colaborador.nome,
           departamento: colaborador.departamento,
-          funcao: colaborador.cargo,
+          funcao: colaborador.funcao,
           email: colaborador.email,
           inativo: colaborador.inativo
         }))
@@ -216,66 +246,66 @@ export default function UsersTable() {
   return (
     <div className="container py-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h3>Lista de Colaboradores</h3>
+        <h3 className="mb-0">Lista de Colaboradores</h3>
       </div>
 
       {/* Cards de Estatísticas */}
-      <Row className="mb-4">
+      <Row className="mb-4 g-3">
         <Col md={3}>
-          <Card className="border-0 bg-light h-100">
+          <Card className="border-0 bg-light h-100 shadow-sm hover-shadow">
             <Card.Body className="py-3">
               <div className="d-flex align-items-center">
                 <div className="bg-primary rounded-circle p-3 me-3">
                   <BsFillPeopleFill className="text-white" size={24} />
                 </div>
                 <div>
-                  <h6 className="mb-0">Total de Colaboradores</h6>
-                  <h4 className="mb-0">{stats.total}</h4>
+                  <h6 className="mb-1 text-muted">Total de Colaboradores</h6>
+                  <h4 className="mb-0 fw-bold">{stats.total}</h4>
                 </div>
               </div>
             </Card.Body>
           </Card>
         </Col>
         <Col md={3}>
-          <Card className="border-0 bg-light h-100">
+          <Card className="border-0 bg-light h-100 shadow-sm hover-shadow">
             <Card.Body className="py-3">
               <div className="d-flex align-items-center">
                 <div className="bg-success rounded-circle p-3 me-3">
                   <BsBuilding className="text-white" size={24} />
                 </div>
                 <div>
-                  <h6 className="mb-0">Departamentos</h6>
-                  <h4 className="mb-0">{stats.departamentos}</h4>
+                  <h6 className="mb-1 text-muted">Departamentos</h6>
+                  <h4 className="mb-0 fw-bold">{stats.departamentos}</h4>
                 </div>
               </div>
             </Card.Body>
           </Card>
         </Col>
         <Col md={3}>
-          <Card className="border-0 bg-light h-100">
+          <Card className="border-0 bg-light h-100 shadow-sm hover-shadow">
             <Card.Body className="py-3">
               <div className="d-flex align-items-center">
                 <div className="bg-info rounded-circle p-3 me-3">
                   <BsBriefcase className="text-white" size={24} />
                 </div>
                 <div>
-                  <h6 className="mb-0">Funções</h6>
-                  <h4 className="mb-0">{stats.funcoes}</h4>
+                  <h6 className="mb-1 text-muted">Funções</h6>
+                  <h4 className="mb-0 fw-bold">{stats.funcoes}</h4>
                 </div>
               </div>
             </Card.Body>
           </Card>
         </Col>
         <Col md={3}>
-          <Card className="border-0 bg-light h-100">
+          <Card className="border-0 bg-light h-100 shadow-sm hover-shadow">
             <Card.Body className="py-3">
               <div className="d-flex align-items-center">
                 <div className="bg-warning rounded-circle p-3 me-3">
                   <BsFillPeopleFill className="text-white" size={24} />
                 </div>
                 <div>
-                  <h6 className="mb-0">Colaboradores Ativos</h6>
-                  <h4 className="mb-0">{stats.ativos}</h4>
+                  <h6 className="mb-1 text-muted">Colaboradores Ativos</h6>
+                  <h4 className="mb-0 fw-bold">{stats.ativos}</h4>
                 </div>
               </div>
             </Card.Body>
