@@ -5,6 +5,9 @@ export function filtrarCursosOuInscricoes({
   dataSelecionada,
   nivelSelecionado,
   searchTerm,
+  categoriaSelecionada,
+  areaSelecionada,
+  topicoSelecionado,
   modo = 'curso' // ou 'inscricao'
 }) {
   const anyTipoSelected = tipoSelecionado.S || tipoSelecionado.A;
@@ -58,6 +61,12 @@ export function filtrarCursosOuInscricoes({
       if (dataSelecionada.inicio && dataCurso < new Date(dataSelecionada.inicio)) return false;
       if (dataSelecionada.fim && dataCurso > new Date(dataSelecionada.fim)) return false;
     }
+
+    if (categoriaSelecionada != null && categoriaSelecionada !== curso.curso_topico?.topico_area?.area_categoria?.categoria_id) return false;
+
+    if (areaSelecionada != null && areaSelecionada !== curso.curso_topico?.topico_area?.area_id) return false;
+
+    if ((topicoSelecionado?.length ?? 0) > 0 &&!topicoSelecionado.includes(curso.curso_topico?.topico_id)) return false;
 
     // Pesquisa textual
     if (searchTerm.trim() !== '') {
