@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "../../config/configAxios";
-import { Row, Col, Form, Card } from "react-bootstrap";
+import { Row, Col, Form, Card, Alert, Spinner } from "react-bootstrap";
 import profilePic from "../../logo.svg";
 /* COMPONENTES */
 import Guardar from "../../components/buttons/saveButton";
@@ -14,7 +14,7 @@ import { MdEmail } from "react-icons/md";
 import { IoCalendarNumberSharp } from "react-icons/io5";
 import { BsArrowReturnLeft } from "react-icons/bs";
 
-export default function EditProfile ({ show, onClose, onSave, initialData = {} }){
+export default function EditProfile ({ show, onClose, onSave, initialData = {} }) {
   const [formData, setFormData] = useState({
     primeiroNome: "",
     ultimoNome: "",
@@ -33,62 +33,79 @@ export default function EditProfile ({ show, onClose, onSave, initialData = {} }
   const [funcoes, setFuncoes] = useState([]);
   const [departamentoAtual, setDepartamentoAtual] = useState(null);
   const [funcaoNome, setFuncaoNome] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
+  const [validationErrors, setValidationErrors] = useState({});
 
-  // Carregar departamentos e funções
+  // Load departments and functions
   useEffect(() => {
-    const fetchDepartamentos = async () => {
+    const fetchData = async () => {
       try {
-        const response = await axios.get('/departamento');
-        setDepartamentos(response.data);
+        const [deptResponse, funcResponse] = await Promise.all([
+          axios.get('/departamento'),
+          axios.get('/funcao')
+        ]);
+        setDepartamentos(deptResponse.data);
+        setFuncoes(funcResponse.data);
       } catch (error) {
-        console.error("Erro ao carregar departamentos:", error);
-      }
-    };
-
-    const fetchFuncoes = async () => {
-      try {
-        const response = await axios.get('/funcao');
-        setFuncoes(response.data);
-      } catch (error) {
-        console.error("Erro ao carregar funções:", error);
+        console.error("Erro ao carregar dados:", error);
+        setError("Não foi possível carregar os dados necessários. Por favor, tente novamente.");
       }
     };
 
     if (show) {
-      fetchDepartamentos();
-      fetchFuncoes();
+      fetchData();
     }
   }, [show]);
 
-  // Filtrar funções baseado no departamento atual
+  // Filter functions based on current department
   const funcoesFiltradas = funcoes.filter(funcao => 
     departamentoAtual ? funcao.departamento_id === departamentoAtual : true
   );
 
+  const validateForm = () => {
+    const errors = {};
+    
+    if (!formData.primeiroNome.trim()) errors.primeiroNome = "Primeiro nome é obrigatório";
+    if (!formData.ultimoNome.trim()) errors.ultimoNome = "Último nome é obrigatório";
+    if (!formData.username.trim()) errors.username = "Nome de utilizador é obrigatório";
+    if (!formData.email.trim()) errors.email = "Email é obrigatório";
+    else if (!/\S+@\S+\.\S+/.test(formData.email)) errors.email = "Email inválido";
+    if (!formData.dataNasc) errors.dataNasc = "Data de nascimento é obrigatória";
+    if (!departamentoAtual) errors.departamentoAtual = "Departamento é obrigatório";
+    if (!formData.funcao_id) errors.funcao_id = "Função é obrigatória";
+    if (!formData.tipo) errors.tipo = "Tipo de utilizador é obrigatório";
+
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const fetchData = async () => {
+    setLoading(true);
     try {
       const token = sessionStorage.getItem("token");
       const id = initialData.id;
 
       const response = await axios.get(`/colaborador/${id}`, {
-        headers: { Authorization: `${token}` },
+        headers: { Authorization: `${token}` }
       });
       const utilizador = response.data;
       
       const primeiroNome = utilizador.nome.split(" ")[0];
       const ultimoNome = utilizador.nome.split(" ").slice(1).join(" ");
 
-      // Encontrar o departamento atual baseado na função
+      // Find current department based on function
       let departamentoAtualId = null;
       if (utilizador.funcao_id) {
         try {
           const funcaoResponse = await axios.get(`/funcao/${utilizador.funcao_id}`);
           if (funcaoResponse.data) {
             departamentoAtualId = funcaoResponse.data.departamento_id;
-            setFuncaoNome(funcaoResponse.data.nome); // Armazenar o nome da função
+            setFuncaoNome(funcaoResponse.data.nome);
           }
         } catch (error) {
-          console.error("Erro ao buprocurarscar dados da função:", error);
+          console.error("Erro ao procurar dados da função:", error);
         }
       }
 
@@ -112,10 +129,19 @@ export default function EditProfile ({ show, onClose, onSave, initialData = {} }
       }
     } catch (error) {
       console.error("Erro ao procurar dados do colaborador", error);
+      setError("Não foi possível carregar os dados do colaborador. Por favor, tente novamente.");
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleGuardar = async () => {
+    if (!validateForm()) return;
+
+    setLoading(true);
+    setError(null);
+    setSuccess(false);
+
     try {
       const token = sessionStorage.getItem("token");
       const id = initialData.id;
@@ -131,15 +157,19 @@ export default function EditProfile ({ show, onClose, onSave, initialData = {} }
       delete payload.dataNasc;
       
       await axios.put(`/colaborador/atualizar/${id}`, payload, {
-        headers: { Authorization: `${token}` },
+        headers: { Authorization: `${token}` }
       });
 
-      alert("Perfil atualizado com sucesso!");
-      if (onSave) onSave(payload);
-      onClose();
+      setSuccess(true);
+      setTimeout(() => {
+        if (onSave) onSave(payload);
+        onClose();
+      }, 1500);
     } catch (error) {
       console.error("Erro ao atualizar perfil", error);
-      alert("Erro ao atualizar perfil.");
+      setError(error.response?.data?.message || "Erro ao atualizar perfil. Por favor, tente novamente.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -151,10 +181,17 @@ export default function EditProfile ({ show, onClose, onSave, initialData = {} }
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData({
-      ...formData,
-      [name]: type === "checkbox" ? checked : value,
-    });
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value
+    }));
+    // Clear validation error when field is modified
+    if (validationErrors[name]) {
+      setValidationErrors(prev => ({
+        ...prev,
+        [name]: undefined
+      }));
+    }
   };
 
   const handleDepartamentoChange = (e) => {
@@ -162,14 +199,36 @@ export default function EditProfile ({ show, onClose, onSave, initialData = {} }
     setDepartamentoAtual(deptId);
     setFormData(prev => ({
       ...prev,
-      funcao_id: "" // Reset função quando departamento muda
+      funcao_id: "" // Reset function when department changes
     }));
+    if (validationErrors.departamentoAtual) {
+      setValidationErrors(prev => ({
+        ...prev,
+        departamentoAtual: undefined
+      }));
+    }
   };
+
+  if (loading && !formData.username) {
+    return (
+      <ModalCustom show={show} handleClose={onClose} title="Editar Utilizador" size="xl">
+        <div className="d-flex justify-content-center align-items-center p-5">
+          <Spinner animation="border" role="status" variant="primary">
+            <span className="visually-hidden">A carregar...</span>
+          </Spinner>
+          <p className="ms-3 mb-0">A carregar dados do utilizador...</p>
+        </div>
+      </ModalCustom>
+    );
+  }
 
   return (
     <ModalCustom show={show} handleClose={onClose} title="Editar Utilizador" size="xl">
       <Card className="border-0 shadow-sm">
         <Card.Body className="p-4">
+          {error && <Alert variant="danger" className="mb-4">{error}</Alert>}
+          {success && <Alert variant="success" className="mb-4">Utilizador atualizado com sucesso!</Alert>}
+
           <Row className="mb-4 align-items-center">
             <Col xs={4} sm={3} md={2} className="d-flex justify-content-center">
               <img 
@@ -202,6 +261,7 @@ export default function EditProfile ({ show, onClose, onSave, initialData = {} }
                     name="primeiroNome"
                     value={formData.primeiroNome}
                     onChange={handleChange}
+                    error={validationErrors.primeiroNome}
                     icon={<FaUser />}
                   />
                 </Col>
@@ -211,6 +271,7 @@ export default function EditProfile ({ show, onClose, onSave, initialData = {} }
                     name="ultimoNome"
                     value={formData.ultimoNome}
                     onChange={handleChange}
+                    error={validationErrors.ultimoNome}
                     icon={<FaUser />}
                   />
                 </Col>
@@ -222,6 +283,7 @@ export default function EditProfile ({ show, onClose, onSave, initialData = {} }
                     name="username"
                     value={formData.username}
                     onChange={handleChange}
+                    error={validationErrors.username}
                     icon={<FaUser />}
                   />
                 </Col>
@@ -232,6 +294,7 @@ export default function EditProfile ({ show, onClose, onSave, initialData = {} }
                     type="date"
                     value={formData.dataNasc}
                     onChange={handleChange}
+                    error={validationErrors.dataNasc}
                     icon={<IoCalendarNumberSharp />}
                   />
                 </Col>
@@ -244,6 +307,7 @@ export default function EditProfile ({ show, onClose, onSave, initialData = {} }
                     type="email"
                     value={formData.email}
                     onChange={handleChange}
+                    error={validationErrors.email}
                     icon={<MdEmail />}
                   />
                 </Col>
@@ -270,7 +334,7 @@ export default function EditProfile ({ show, onClose, onSave, initialData = {} }
                     <Form.Select
                       value={departamentoAtual || ""}
                       onChange={handleDepartamentoChange}
-                      className="form-control"
+                      className={validationErrors.departamentoAtual ? "is-invalid" : ""}
                     >
                       <option value="">Selecione um departamento</option>
                       {departamentos.map(dept => (
@@ -279,15 +343,19 @@ export default function EditProfile ({ show, onClose, onSave, initialData = {} }
                         </option>
                       ))}
                     </Form.Select>
+                    {validationErrors.departamentoAtual && (
+                      <div className="invalid-feedback">{validationErrors.departamentoAtual}</div>
+                    )}
                   </Form.Group>
                 </Col>
                 <Col md={6}>
                   <Form.Group>
                     <Form.Label>Função</Form.Label>
                     <Form.Select
+                      name="funcao_id"
                       value={formData.funcao_id}
-                      onChange={(e) => setFormData({...formData, funcao_id: e.target.value})}
-                      className="form-control"
+                      onChange={handleChange}
+                      className={validationErrors.funcao_id ? "is-invalid" : ""}
                       disabled={!departamentoAtual}
                     >
                       <option value="">Selecione uma função</option>
@@ -297,6 +365,9 @@ export default function EditProfile ({ show, onClose, onSave, initialData = {} }
                         </option>
                       ))}
                     </Form.Select>
+                    {validationErrors.funcao_id && (
+                      <div className="invalid-feedback">{validationErrors.funcao_id}</div>
+                    )}
                   </Form.Group>
                 </Col>
               </Row>
@@ -314,13 +385,16 @@ export default function EditProfile ({ show, onClose, onSave, initialData = {} }
                       name="tipo"
                       value={formData.tipo}
                       onChange={handleChange}
-                      className="form-control"
+                      className={validationErrors.tipo ? "is-invalid" : ""}
                     >
                       <option value="">Selecione o tipo</option>
                       <option value="gestor">Gestor</option>
                       <option value="formador">Formador</option>
                       <option value="formando">Formando</option>
                     </Form.Select>
+                    {validationErrors.tipo && (
+                      <div className="invalid-feedback">{validationErrors.tipo}</div>
+                    )}
                   </Form.Group>
                 </Col>
                 <Col md={6}>
@@ -340,7 +414,17 @@ export default function EditProfile ({ show, onClose, onSave, initialData = {} }
 
           <div className="d-flex justify-content-end gap-3 mt-4">
             <Cancelar text="Cancelar" onClick={onClose} Icon={BsArrowReturnLeft} inline={true} />
-            <Guardar text="Guardar" onClick={handleGuardar} Icon={FaRegSave} />
+            <Guardar 
+              text={loading ? (
+                <>
+                  <Spinner as="span" animation="border" size="sm" className="me-2" />
+                  A guardar...
+                </>
+              ) : "Guardar"} 
+              onClick={handleGuardar} 
+              Icon={FaRegSave}
+              disabled={loading}
+            />
           </div>
         </Card.Body>
       </Card>

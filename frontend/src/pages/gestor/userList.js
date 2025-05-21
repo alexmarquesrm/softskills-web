@@ -1,18 +1,18 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from 'react-router-dom';
 import axios from "../../config/configAxios";
 /* COMPONENTES */
 import DataTable from '../../components/tables/dataTable';
-import AddButton from '../../components/buttons/addButton';
+import SearchBar from '../../components/textFields/search';
 /* MODALS */
 import NovoUser from '../../modals/gestor/addUser';
 import EditUser from '../../modals/gestor/editUser';
 /* ICONS */
 import { FaPencilAlt } from "react-icons/fa";
-import { IoMdAddCircleOutline } from "react-icons/io";
+import { IoMdAdd } from "react-icons/io";
 import { PiStudentBold } from "react-icons/pi";
 import { BsFillPeopleFill, BsBuilding, BsBriefcase, BsEnvelope } from "react-icons/bs";
-import { Card, Row, Col, Badge } from 'react-bootstrap';
+import { Card, Row, Col, Badge, Spinner, Alert } from 'react-bootstrap';
 import './userList.css';
 
 export default function UsersTable() {
@@ -21,6 +21,9 @@ export default function UsersTable() {
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isFiltersVisible, setIsFiltersVisible] = useState(true);
   const [stats, setStats] = useState({
     total: 0,
     departamentos: 0,
@@ -29,6 +32,19 @@ export default function UsersTable() {
   });
 
   const navigate = useNavigate();
+
+  // Memoize filtered rows for better performance
+  const filteredRows = useMemo(() => {
+    if (!searchTerm) return tableRows;
+    
+    const searchLower = searchTerm.toLowerCase();
+    return tableRows.filter(row => 
+      row.nome.toLowerCase().includes(searchLower) ||
+      row.email.toLowerCase().includes(searchLower) ||
+      row.departamento?.toLowerCase().includes(searchLower) ||
+      row.funcao?.toLowerCase().includes(searchLower)
+    );
+  }, [tableRows, searchTerm]);
 
   const tableColumns = [
     { 
@@ -74,19 +90,6 @@ export default function UsersTable() {
         <div className="d-flex align-items-center">
           <BsEnvelope className="text-muted me-2" size={16} />
           <span className="text-muted">{row.email}</span>
-        </div>
-      )
-    },
-    {
-      field: 'departamento', 
-      headerName: 'Departamento', 
-      align: 'left', 
-      headerAlign: 'left', 
-      minWidth: '180px',
-      renderCell: ({ row }) => (
-        <div className="d-flex align-items-center">
-          <BsBuilding className="text-muted me-2" size={16} />
-          <span className="text-muted">{row.departamento || 'Não definido'}</span>
         </div>
       )
     },
@@ -158,6 +161,7 @@ export default function UsersTable() {
   };
 
   const fetchData = async () => {
+    setLoading(true);
     try {
       const token = sessionStorage.getItem('token');
       if (!token) {
@@ -170,10 +174,9 @@ export default function UsersTable() {
         headers: { Authorization: `${token}` }
       });
       const utilizadores = response.data;
-      console.log('Dados recebidos da API:', utilizadores);
       const sortedUtilizadores = utilizadores.sort((a, b) => a.colaborador_id - b.colaborador_id);
 
-      // dados de departamento e função para cada usuário
+      // Fetch department and function data for each user
       const utilizadoresCompletos = await Promise.all(
         sortedUtilizadores.map(async (colaborador) => {
           let departamentoNome = "Não definido";
@@ -181,12 +184,10 @@ export default function UsersTable() {
 
           if (colaborador.funcao_id) {
             try {
-              // dados da função
               const funcaoResponse = await axios.get(`/funcao/${colaborador.funcao_id}`);
               if (funcaoResponse.data) {
                 funcaoNome = funcaoResponse.data.nome;
                 
-                // dados do departamento
                 const departamentoResponse = await axios.get(`/departamento/${funcaoResponse.data.departamento_id}`);
                 if (departamentoResponse.data) {
                   departamentoNome = departamentoResponse.data.nome;
@@ -205,7 +206,7 @@ export default function UsersTable() {
         })
       );
 
-      // Calcular estatísticas
+      // Calculate statistics
       const departamentos = new Set(utilizadoresCompletos.map(u => u.departamento).filter(Boolean));
       const funcoes = new Set(utilizadoresCompletos.map(u => u.funcao).filter(Boolean));
       
@@ -230,6 +231,8 @@ export default function UsersTable() {
     } catch (error) {
       setError(error);
       console.error("Erro ao procurar dados:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -243,13 +246,36 @@ export default function UsersTable() {
     }
   }, [isNewModalOpen]);
 
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value);
+  };
+
+  const handleSearchClick = () => {
+    // Kept for compatibility with SearchBar component
+  };
+
+  const toggleFilters = () => {
+    setIsFiltersVisible(!isFiltersVisible);
+  };
+
+  if (loading) {
+    return (
+      <div className="loading-container">
+        <Spinner animation="border" role="status" variant="primary">
+          <span className="visually-hidden">A carregar...</span>
+        </Spinner>
+        <p>A carregar informação...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="container py-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h3 className="mb-0">Lista de Colaboradores</h3>
       </div>
 
-      {/* Cards de Estatísticas */}
+      {/* Stats Cards */}
       <Row className="mb-4 g-3">
         <Col md={3}>
           <Card className="border-0 bg-light h-100 shadow-sm hover-shadow">
@@ -312,36 +338,43 @@ export default function UsersTable() {
           </Card>
         </Col>
       </Row>
+
+      {/* Search and Filters */}
+      <div className="mb-4">
+        <SearchBar
+          searchTerm={searchTerm}
+          handleSearchChange={handleSearchChange}
+          handleSearchClick={handleSearchClick}
+          placeholder="Pesquisar colaboradores..."
+        />
+      </div>
       
       {error && error.response && error.response.status === 403 ? (
-        <div className="alert alert-danger">
+        <Alert variant="danger">
           Sem permissão para visualizar a lista de colaboradores.
-        </div>
+        </Alert>
       ) : error ? (
-        <div className="alert alert-danger">
+        <Alert variant="danger">
           Erro ao carregar dados: {error.message}
-        </div>
+        </Alert>
       ) : (
         <DataTable 
           columns={tableColumns} 
-          rows={tableRows || []} 
+          rows={filteredRows || []} 
           title=" " 
-          showSearch={true} 
+          showSearch={false} 
           pageSize={10} 
           emptyStateMessage="Nenhum colaborador encontrado"
-          addButton={
-            <AddButton 
-              text="Adicionar Colaborador" 
-              onClick={() => setNewModalOpen(true)} 
-              Icon={IoMdAddCircleOutline} 
-              inline 
-            />
-          }
         />
       )}
   
       <NovoUser show={isNewModalOpen} onClose={() => setNewModalOpen(false)} />
       <EditUser show={showModal} onClose={() => setShowModal(false)} onSave={handleSave} initialData={selectedUser || {}} />
+
+      {/* Floating Action Button */}
+      <button className="floating-add-button" onClick={() => setNewModalOpen(true)} title="Adicionar Colaborador">
+        <IoMdAdd size={24} />
+      </button>
     </div>
   );
 }
