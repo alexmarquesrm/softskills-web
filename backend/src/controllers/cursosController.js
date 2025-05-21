@@ -19,6 +19,7 @@ const controladorCursos = {
         pendente,
         certificado,
         nivel,
+        aprovado,
         sincrono
       } = req.body;
 
@@ -32,7 +33,8 @@ const controladorCursos = {
         descricao,
         pendente,
         certificado,
-        nivel
+        nivel,
+        aprovado
       }, { transaction: t });
 
       // Se for do tipo S (Sincrono), criar entrada na tabela sincrono

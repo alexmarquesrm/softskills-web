@@ -26,6 +26,7 @@ import PercursoFormativoGestor from "./pages/gestor/percursoFormativo";
 import GestaoCursos from "./pages/gestor/courseManage";
 import EditarCurso from "./pages/gestor/editCourse";
 import ViewPedido from "./pages/gestor/viewPedido";
+import PedirCurso from "./pages/formadores/pedirCurso";
 
 
 // Forum Pages
@@ -60,6 +61,7 @@ function AppContent() {
                             <Route path="curso/:id" element={<FormadorCurso />} />
                             <Route path="curso/avaliar" element={<AvaliarFormando />} />
                             <Route path="dashboard" element={<PagFormador />} />
+                            <Route path="pedircurso" element={<PedirCurso />} />
                         </Route>
                         
                         {/* Gestor Routes - Protected by role */}

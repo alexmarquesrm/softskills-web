@@ -316,12 +316,15 @@ export default function CoursesManage() {
                     </Col>
                 </Row>
             </Container>
-             {/* Botão flutuante para adicionar novo curso */}
-                        {tipoUser === "Formador" && ( 
-                            <button className="floating-add-button" onClick={'curso'} title="Pedir Curso">
-                                <IoMdAdd size={24} />
-                            </button>
-                        )}
+             {/* Botão flutuante para adicionar novo curso pendente */}
+                   {tipoUser === "Formador" && ( 
+    <button 
+        className="floating-add-button" 
+        onClick={() => navigate('/formador/pedircurso')} 
+        title="Pedir Curso">
+        <IoMdAdd size={24} />
+    </button>
+)}
         </div>
     );
 }
