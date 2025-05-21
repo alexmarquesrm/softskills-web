@@ -44,11 +44,14 @@ export default function Courses() {
             });
             const cursos = response.data;
 
+            // Apenas cursos que ainda têm vagas disponíveis
+            const cursosComVagas = cursos.filter(curso => {
+                return curso.tipo === 'A' || (parseInt(curso.vagas_disponiveis) > 0);
+            });
             // Pegamos os ids dos cursos já inscritos
             const cursosInscritosIds = inscricao.map(i => i.curso_id);
-            
             // Filtramos os cursos onde o id não está nas inscrições
-            const cursosNaoInscritos = cursos.filter(
+            const cursosNaoInscritos = cursosComVagas.filter(
                 (curso) => !cursosInscritosIds.includes(curso.curso_id)
             );
 
