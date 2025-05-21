@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Container, Button, Row, Col, Alert, Spinner, Card, Breadcrumb } from "react-bootstrap";
+import { Container, Button, Row, Col, Alert, Spinner, Card } from "react-bootstrap";
 import { useNavigate, useParams } from 'react-router-dom';
 import { File, Calendar, User, Book, Clock, Award, Info, Mail } from 'react-feather'; 
 import { BsCheckCircle, BsXCircle } from "react-icons/bs";
 import axios from "../../config/configAxios";
+import CustomBreadcrumb from "../../components/Breadcrumb";
 import "./pedidos.css"; 
 
 export default function ViewPedido() {
@@ -144,13 +145,16 @@ export default function ViewPedido() {
         }
     };
 
+    const breadcrumbItems = [
+        { label: 'Gestor', path: '/gestor' },
+        { label: 'Pedidos', path: '/gestor/lista/pedidos' },
+        { label: 'Detalhes do Pedido', path: `/gestor/pedido/${id}` }
+    ];
+
     return (
         <div className="view-pedido-page">
             <Container>
-                <Breadcrumb className="mb-4">
-                    <Breadcrumb.Item href="/gestor/lista/pedidos">Pedidos</Breadcrumb.Item>
-                    <Breadcrumb.Item active>Detalhes do Pedido</Breadcrumb.Item>
-                </Breadcrumb>
+                <CustomBreadcrumb items={breadcrumbItems} />
 
                 <div className="page-header">
                     <div className="title-container">
