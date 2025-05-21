@@ -11,11 +11,14 @@ var minioClient = new minio.Client({
     secretKey: process.env[`MINIO_ROOT_PASSWORD`],
 })
 
+/*
 console.log('MinIO Client configurado com:', {
     endPoint: process.env[`MINIO_ENDPOINT`],
     port: parseInt(process.env[`MINIO_PORT`])
 });
+*/
 
+// Listar todos os buckets
 minioClient.listBuckets(function (err, buckets) {
     if (err) {
         return console.log('Erro ao listar os buckets:', err);
