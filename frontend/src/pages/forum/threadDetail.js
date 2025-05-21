@@ -161,10 +161,15 @@ const ThreadDetail = () => {
             <span className="author-label">Autor:</span>
             <span className="author-value">{comment.colab_comentarios.nome}</span>
           </div>
-          {comment.colab_comentarios.cargo && (
+          {comment.colab_comentarios.colab_funcao && (
             <div className="comment-role">
-              <span className="role-label">Cargo:</span>
-              <span className="role-value">{comment.colab_comentarios.cargo}</span>
+              <span className="role-label">Função:</span>
+              <span className="role-value">{comment.colab_comentarios.colab_funcao.nome}</span>
+              {comment.colab_comentarios.colab_funcao.funcao_departamento && (
+                <span className="department-value">
+                  ({comment.colab_comentarios.colab_funcao.funcao_departamento.nome})
+                </span>
+              )}
             </div>
           )}
         </div>
