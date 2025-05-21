@@ -1,71 +1,173 @@
-.caixa-redes {
-  background-color: #fff;
-  padding: 16px 20px;
-  border-radius: 10px;
-  border: 1px solid #e0e0e0;
-  margin-bottom: 1rem;
-  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+
+.page-container {
+  background-color: #f3f7ff;
+  min-height: 100vh;
+  padding: 2rem 0;
 }
 
-.caixa-redes h4 {
-  font-weight: 600;
-  margin: 0;
-  color: #333;
+.main-card {
+  border: none;
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(20, 50, 150, 0.1);
+  padding: 2rem;
+  background-color: #ffffff;
 }
 
-.sinc-meta {
-  font-size: 0.95rem;
-  display: flex;
-  align-items: center;
-  color: #6c757d;
-}
-
-.sinc-meta svg {
-  color: #416699;
-}
-
-.table-responsive {
-  margin-bottom: 0;
-}
-
-.table th,
-.table td {
-  padding: 1rem;
-}
-
-.table tbody tr {
-  background-color: #fff;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  border-radius: 8px;
-}
-
-.table tbody tr:hover {
-  background-color: rgba(65, 102, 153, 0.05);
-}
-
-.formando-row {
-  border-bottom: 1px solid #e0e0e0;
-}
-
-.table td a {
-  color: #416699;
-  font-weight: 500;
-  transition: color 0.2s ease;
-}
-
-.table td a:hover {
-  color: #003366;
-}
-
-.divider {
-  border-bottom: 3px solid #416699;
-  width: 100px;
+/* Cabeçalho da página */
+.page-header {
+  border-bottom: 2px solid #e9f0ff;
+  padding-bottom: 1.2rem;
   margin-bottom: 1.5rem;
 }
 
-
-.table tbody tr {
-  border-left: 1px solid transparent; 
+.header-title {
+  color: #1a56db;
+  font-weight: 600;
+  margin: 0;
 }
 
+.header-subtitle {
+  color: #6b7280;
+  font-weight: 500;
+  margin-top: 0.5rem;
+}
+
+/* Informações sobre prazo e objetivo */
+.deadline-info {
+  background-color: #e0e7ff;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: flex-start;
+  color: #1e40af;
+}
+
+.deadline-icon {
+  margin-right: 0.8rem;
+  color: #1d4ed8;
+  margin-top: 0.2rem;
+}
+
+/* Título da seção de avaliação */
+.section-title {
+  display: flex;
+  align-items: center;
+  color: #1a56db;
+  margin: 1.5rem 0 1rem 0;
+}
+
+.title-icon {
+  color: #1a56db;
+  margin-right: 0.8rem;
+}
+
+.divider {
+  height: 1px;
+  width: 100%;
+  background-color: #e9f0ff;
+  margin: 1rem 0 1.5rem 0;
+}
+
+/* Cartões de formandos */
+.formandos-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.student-card {
+  border-left: 4px solid #3b82f6;
+  border-radius: 8px;
+  background-color: #f9faff;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: all 0.2s ease;
+}
+
+.student-card:hover {
+  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.1);
+  transform: translateY(-2px);
+}
+
+.student-info {
+  display: flex;
+  align-items: center;
+}
+
+.avatar-icon {
+  background-color: #e0e7ff;
+  color: #3b82f6;
+  padding: 0.5rem;
+  border-radius: 50%;
+  margin-right: 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.student-name {
+  color: #1e3a8a;
+  font-weight: 600;
+  font-size: 1.05rem;
+  margin-bottom: 0.2rem;
+}
+
+/* Badges de status */
+.badge-success {
+  background-color: #059669 !important;
+  font-weight: 500;
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+}
+
+.badge-warning {
+  background-color: #f59e0b !important;
+  font-weight: 500;
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+}
+
+/* Botões de ação */
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.action-button {
+  background-color: #1d4ed8 !important;
+  border: none !important;
+  border-radius: 6px !important;
+  padding: 0.4rem 0.8rem !important;
+  transition: all 0.2s ease;
+  font-weight: 500 !important;
+}
+
+.action-button:hover {
+  background-color: #1e40af !important;
+  transform: translateY(-1px);
+}
+
+.secondary-button {
+  background-color: #e0e7ff !important;
+  border: none !important;
+  color: #1d4ed8 !important;
+  border-radius: 6px !important;
+  padding: 0.4rem 0.8rem !important;
+  transition: all 0.2s ease;
+  font-weight: 500 !important;
+}
+
+.secondary-button:hover {
+  background-color: #c7d2fe !important;
+  transform: translateY(-1px);
+}
+
+.button-content {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
 

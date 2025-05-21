@@ -1,15 +1,14 @@
 import React, { useState } from "react";
-import { Container, Card, Table, Badge, Button, Form } from "react-bootstrap";
-import { BsFillPeopleFill, BsChatDots, BsArrowReturnLeft } from "react-icons/bs";
+import { Container, Card, Badge, Button, Form } from "react-bootstrap";
+import { BsFillPeopleFill, BsChatDots, BsArrowReturnLeft, BsDownload, BsFileText } from "react-icons/bs";
 import { BsSend } from "react-icons/bs";
 import { IoPersonOutline } from "react-icons/io5";
 
-
 import ModalCustom from "../../modals/modalCustom";
-import "./evaluateFormando.css";
 import AddButton from "../../components/buttons/addButton";
 import Cancelar from "../../components/buttons/cancelButton";
 import Guardar from "../../components/buttons/saveButton";
+import "./evaluateFormando.css"; 
 
 export default function AvaliacaoTrabalho() {
   const cursoNome = "Curso de Redes de Segurança";
@@ -35,7 +34,6 @@ export default function AvaliacaoTrabalho() {
   const [nota, setNota] = useState("");
   const [erroNota, setErroNota] = useState("");
 
-
   const abrirAvaliacao = (formando) => {
     setFormandoSelecionado(formando);
     setShowModalAvaliacao(true);
@@ -49,6 +47,8 @@ export default function AvaliacaoTrabalho() {
   const fecharModalAvaliacao = () => {
     setFormandoSelecionado(null);
     setShowModalAvaliacao(false);
+    setNota("");
+    setErroNota("");
   };
 
   const handleSubmit = () => {
@@ -62,68 +62,77 @@ export default function AvaliacaoTrabalho() {
   };
 
   return (
-    <Container className="mt-5 mb-5">
-      <Card className="shadow-sm p-4">
-        <div className="mb-4">
-          <h4 className="mb-1">Avaliação do Trabalho 1</h4>
-          <h6 className="text-muted">{cursoNome}</h6>
-        </div>
+    <div className="page-container">
+      <Container>
+        <Card className="main-card">
+          <div className="page-header">
+            <h3 className="header-title">Avaliação do Trabalho 1</h3>
+            <h5 className="header-subtitle">{cursoNome}</h5>
+          </div>
 
-        <div className="mb-4">
-          <p>
-            <strong>Objetivo:</strong> Avaliar a apresentação do trabalho com
-            base nos critérios de clareza, conteúdo técnico e originalidade.
-          </p>
-          <p>
-            <strong>Data limite:</strong> 25 de Abril de 2025
-          </p>
-        </div>
+          <div className="deadline-info">
+            <BsFileText size={20} className="deadline-icon" />
+            <div>
+              <strong>Objetivo:</strong> Avaliar a apresentação do trabalho com
+              base nos critérios de clareza, conteúdo técnico e originalidade.
+              <br />
+              <strong>Data limite:</strong> 25 de Abril de 2025
+            </div>
+          </div>
 
-        <div className="title-container">
-          <IoPersonOutline size={28} className="title-icon" />
-          <h1>Avaliar Formandos</h1>
-        </div>
+          <div className="section-title">
+            <IoPersonOutline size={24} className="title-icon" />
+            <h4>Avaliar Formandos</h4>
+          </div>
 
-        <div className="divider mb-3"></div>
+          <div className="divider"></div>
 
-        <Table responsive borderless className="mb-0">
-          <tbody>
+          <div className="formandos-container">
             {formandos.map((formando, idx) => (
-              <tr key={idx} className="formando-row">
-                <td className="py-3 px-4 d-flex flex-column">
-                  <div className="d-flex align-items-center mb-1">
-                    <BsFillPeopleFill className="me-2 text-secondary" />
-                    <strong>{formando.nome}</strong>
+              <div key={idx} className="student-card">
+                <div className="student-info">
+                  <div className="avatar-icon">
+                    <BsFillPeopleFill size={18} />
                   </div>
-                  <div className="text-muted small">
-                    <Badge bg={formando.avaliado ? "success" : "warning"}>
+                  <div>
+                    <div className="student-name">{formando.nome}</div>
+                    <Badge 
+                      bg={formando.avaliado ? "success" : "warning"} 
+                      className={formando.avaliado ? "badge-success" : "badge-warning"}
+                    >
                       {formando.avaliado ? "Avaliado" : "Pendente"}
                     </Badge>
                   </div>
-                </td>
-                <td className="text-end py-3 px-4">
+                </div>
+                <div className="action-buttons">
                   <Button
                     variant="primary"
                     size="sm"
-                    className="me-3"
                     onClick={() => abrirAvaliacao(formando)}
+                    className="action-button"
                   >
-                    Avaliar
+                    <div className="button-content">
+                      <BsChatDots size={16} />
+                      <span>Avaliar</span>
+                    </div>
                   </Button>
                   <Button
-                    variant="primary"
+                    variant="secondary"
                     size="sm"
-                    className="me-3"
                     onClick={() => ('')}
+                    className="secondary-button"
                   >
-                    Download Ficheiro
+                    <div className="button-content">
+                      <BsDownload size={16} />
+                      <span>Download</span>
+                    </div>
                   </Button>
-                </td>
-              </tr>
+                </div>
+              </div>
             ))}
-          </tbody>
-        </Table>
-      </Card>
+          </div>
+        </Card>
+      </Container>
 
       {/* Modal de Notas */}
       <ModalCustom
@@ -131,22 +140,19 @@ export default function AvaliacaoTrabalho() {
         handleClose={fecharModal}
         title={`Notas de ${formandoSelecionado?.nome}`}
       >
-        <div
-          className="border p-4 shadow-sm rounded"
-          style={{ backgroundColor: "#fff" }}
-        >
+        <div className="modal-content">
           <Form>
             <Form.Group className="mb-3" controlId="comentario">
-              <Form.Label>Comentário</Form.Label>
+              <Form.Label className="form-label">Comentário</Form.Label>
               <Form.Control
                 as="textarea"
                 rows={4}
                 placeholder="Escreve aqui um comentário sobre o desempenho do formando..."
-                style={{ resize: "none" }}
+                className="form-control-custom"
               />
             </Form.Group>
 
-            <div className="d-flex justify-content-end mt-3">
+            <div className="d-flex justify-content-end mt-4">
               <AddButton
                 text="Guardar Nota"
                 onClick={fecharModal}
@@ -203,7 +209,6 @@ export default function AvaliacaoTrabalho() {
           </Form>
         </div>
       </ModalCustom>
-
-    </Container>
+    </div>
   );
 }
