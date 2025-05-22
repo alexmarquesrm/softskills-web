@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import axios from "../../config/configAxios"; 
+import axios from "../../config/configAxios";
 import { Gear, Flag, EnvelopeOpen, PersonCircle, BoxArrowRight, Book, PeopleFill, Building, Grid, ChevronRight, ChevronDown } from "react-bootstrap-icons";
 import "./sidebar.css";
 import { useNavigate } from 'react-router-dom';
@@ -11,14 +11,16 @@ const Sidebar = ({ isOpen, onClose }) => {
   const [categorias, setCategorias] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  
+  const [categoriaSelecionada, setCategoriaSelecionada] = useState(null);
+  const [areaSelecionada, setAreaSelecionada] = useState(null);
+
   // Estado para controlar visibilidade do menu de categorias
   const [showCategoriesMenu, setShowCategoriesMenu] = useState(false);
-  
+
   // Estado para controlar categorias expandidas e áreas expandidas
   const [expandedCategories, setExpandedCategories] = useState({});
   const [expandedAreas, setExpandedAreas] = useState({});
-  
+
   const sidebarRef = useRef(null);
 
   // Fetch categories from backend
@@ -52,7 +54,7 @@ const Sidebar = ({ isOpen, onClose }) => {
     if (isOpen) {
       document.addEventListener("mousedown", handleClickOutside);
     }
-    
+
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
@@ -74,19 +76,34 @@ const Sidebar = ({ isOpen, onClose }) => {
   // Funções para navegação programática
   const navigateToCategory = (categoryId, e) => {
     e.preventDefault();
-    navigate(`/categorias/${categoryId}`);
+    navigate(`/utilizadores/lista/cursos?categoriaId=${categoryId}`);
     onClose();
   };
-  
+
   const navigateToArea = (areaId, e) => {
     e.preventDefault();
-    navigate(`/areas/${areaId}`);
+    const params = new URLSearchParams();
+    if (categoriaSelecionada) params.append('categoriaId', categoriaSelecionada);
+    params.append('areaId', areaId);
+    navigate(`/utilizadores/lista/cursos?${params.toString()}`);
     onClose();
   };
-  
+
   const navigateToTopic = (topicId, e) => {
     e.preventDefault();
-    navigate(`/topicos/${topicId}`);
+
+    const params = new URLSearchParams();
+
+    if (categoriaSelecionada) {
+      params.append('categoriaId', categoriaSelecionada);
+    }
+    if (areaSelecionada) {
+      params.append('areaId', areaSelecionada);
+    }
+
+    params.append('topicoId', topicId);
+
+    navigate(`/utilizadores/lista/cursos?${params.toString()}`);
     onClose();
   };
 
@@ -95,7 +112,7 @@ const Sidebar = ({ isOpen, onClose }) => {
     e.preventDefault();
     e.stopPropagation();
     setShowCategoriesMenu(prev => !prev);
-    
+
     // Reiniciar estados expandidos quando fechar o menu
     if (showCategoriesMenu) {
       setExpandedCategories({});
@@ -107,14 +124,16 @@ const Sidebar = ({ isOpen, onClose }) => {
   const toggleCategory = (categoryId, e) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     // Altera apenas o estado da categoria clicada
     setExpandedCategories(prev => {
       const newState = { ...prev };
       newState[categoryId] = !prev[categoryId];
       return newState;
     });
-    
+
+    setCategoriaSelecionada(categoryId);
+
     // Fecha todas as áreas quando colapsar uma categoria
     if (expandedCategories[categoryId]) {
       const updatedAreas = { ...expandedAreas };
@@ -134,16 +153,17 @@ const Sidebar = ({ isOpen, onClose }) => {
   const toggleAreaTopics = (areaId, e) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     setExpandedAreas(prev => ({
       ...prev,
       [areaId]: !prev[areaId]
     }));
+    setAreaSelecionada(areaId);
   };
 
   const NavItem = ({ href, icon, label, itemName, hasChildren, onClick, isExpanded, onToggle }) => (
-    <a 
-      href={onClick ? undefined : href} 
+    <a
+      href={onClick ? undefined : href}
       className={`sidebar-item ${activeItem === itemName ? 'active' : ''} ${hasChildren ? 'has-children' : ''}`}
       onClick={(e) => {
         if (onClick) {
@@ -179,7 +199,7 @@ const Sidebar = ({ isOpen, onClose }) => {
           <div key={categoria.categoria_id} className="categoria-section">
             <div className="categoria-header">
               <div className={`categoria-title-container ${expandedCategories[categoria.categoria_id] ? 'expanded' : ''}`}>
-                <a 
+                <a
                   href={`/categorias/${categoria.categoria_id}`}
                   className="categoria-title"
                   onClick={(e) => navigateToCategory(categoria.categoria_id, e)}
@@ -187,8 +207,8 @@ const Sidebar = ({ isOpen, onClose }) => {
                   {categoria.descricao}
                 </a>
                 {categoria.categoria_areas && categoria.categoria_areas.length > 0 && (
-                  <div 
-                    className="toggle-icon" 
+                  <div
+                    className="toggle-icon"
                     onClick={(e) => toggleCategory(categoria.categoria_id, e)}
                   >
                     {expandedCategories[categoria.categoria_id] ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
@@ -196,39 +216,38 @@ const Sidebar = ({ isOpen, onClose }) => {
                 )}
               </div>
             </div>
-            
+
             {/* Áreas visíveis apenas quando a categoria está expandida */}
             {expandedCategories[categoria.categoria_id] && categoria.categoria_areas && categoria.categoria_areas.length > 0 && (
               <div className="areas-container">
                 {categoria.categoria_areas.map((area) => (
                   <div key={area.area_id} className="area-item">
                     <div className="area-header">
-                      <a 
-                        href={`/areas/${area.area_id}`}
+                      <a
+                        href="#"
                         className="area-title"
                         onClick={(e) => {
-                          if (!(area.area_topicos && area.area_topicos.length > 0 && e.target === e.currentTarget)) {
-                            navigateToArea(area.area_id, e);
-                          }
+                          e.preventDefault(); // Impede a navegação padrão do link
+                          navigateToArea(area.area_id, e);
                         }}
                       >
                         {area.descricao}
                       </a>
                       {area.area_topicos && area.area_topicos.length > 0 && (
-                        <div 
-                          className="toggle-icon" 
+                        <div
+                          className="toggle-icon"
                           onClick={(e) => toggleAreaTopics(area.area_id, e)}
                         >
                           {expandedAreas[area.area_id] ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
                         </div>
                       )}
                     </div>
-                    
+
                     {/* Tópicos colapsáveis */}
                     {expandedAreas[area.area_id] && area.area_topicos && area.area_topicos.length > 0 && (
                       <div className="topics-container">
                         {area.area_topicos.map((topico) => (
-                          <a 
+                          <a
                             key={topico.topico_id}
                             href={`/topicos/${topico.topico_id}`}
                             className="topic-item"
@@ -265,21 +284,21 @@ const Sidebar = ({ isOpen, onClose }) => {
           {/* Menu Principais para todos os tipos de usuário */}
           <div className="menu-section">
             <span className="menu-heading">PRINCIPAIS</span>
-            
+
             {/* Botão Categorias apenas para não-gestores */}
             {tipoUtilizador !== "Gestor" && (
               <>
-                <NavItem 
-                  href="#" 
-                  icon={<Book size={16} />} 
-                  label="Categorias" 
-                  itemName="categorias-menu" 
+                <NavItem
+                  href="#"
+                  icon={<Book size={16} />}
+                  label="Categorias"
+                  itemName="categorias-menu"
                   hasChildren={true}
                   isExpanded={showCategoriesMenu}
                   onToggle={toggleCategoriesMenu}
                   onClick={toggleCategoriesMenu}
                 />
-                
+
                 {/* Menu de categorias expandido */}
                 {showCategoriesMenu && (
                   <div className="sidebar-submenu">
@@ -288,7 +307,7 @@ const Sidebar = ({ isOpen, onClose }) => {
                 )}
               </>
             )}
-            
+
             {/* Itens específicos para cada tipo de usuário */}
             {tipoUtilizador === "Gestor" && (
               <>

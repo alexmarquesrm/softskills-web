@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { Container, Row, Col, Spinner, Pagination } from "react-bootstrap";
 import { Book, AlertCircle } from 'react-feather';
 import axios from "../../config/configAxios";
+import { useSearchParams } from 'react-router-dom';
 /* COMPONENTES */
 import FeaturedCourses from "../../components/cards/cardCourses";
 import SearchBar from '../../components/textFields/search';
@@ -24,6 +25,7 @@ export default function Courses() {
     const [error, setError] = useState(null);
     const [isFiltersVisible, setIsFiltersVisible] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
+    const [searchParams] = useSearchParams();
     const coursesPerPage = 8;
 
     const fetchDataInscricao = async () => {
@@ -66,6 +68,17 @@ export default function Courses() {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        const categoriaIdFromUrl = searchParams.get('categoriaId');
+        const areaIdFromUrl = searchParams.get('areaId');
+        const topicoIdFromUrl = searchParams.get('topicoId');
+
+        setCategoriaSelecionada(categoriaIdFromUrl ? Number(categoriaIdFromUrl) : null);
+        setAreaSelecionada(areaIdFromUrl ? Number(areaIdFromUrl) : null);
+        setTopicoSelecionado(topicoIdFromUrl ? [Number(topicoIdFromUrl)] : []);
+    }, [searchParams]);
+
 
     useEffect(() => {
         fetchDataInscricao();
