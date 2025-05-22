@@ -159,7 +159,7 @@ export default function PaginaGestor() {
         <div className="section-header">
           <h2 className="section-title">
             <FileEarmarkText className="section-icon" />
-            Alertas
+            Trabalhos
           </h2>
           <div className="section-actions">
             <button className="btn btn-link section-link">
@@ -179,7 +179,7 @@ export default function PaginaGestor() {
           ) : (
             <div className="empty-state text-center">
               <FileEarmarkText size={40} className="empty-icon mb-3" />
-              <p>Não há alertas neste momento.</p>
+              <p>Não há trabalhos para entregar neste momento.</p>
             </div>
           )}
         </div>
