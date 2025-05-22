@@ -53,6 +53,11 @@ const controladorComentarios = {
     try {
       const { thread_id, colaborador_id, descricao, comentariopai_id } = req.body;
 
+      // Validar se a descrição não está vazia
+      if (!descricao || descricao.trim().length === 0) {
+        return res.status(400).json({ error: 'O comentário não pode estar vazio' });
+      }
+
       // Verificar se a thread existe
       const thread = await models.threads.findByPk(thread_id);
       if (!thread) {

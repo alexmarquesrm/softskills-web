@@ -3,6 +3,8 @@ import axios from "../../config/configAxios";
 import { useParams, useNavigate } from 'react-router-dom';
 import { MessageSquare, ArrowLeft, ThumbsUp, ThumbsDown, Flag, Send, User } from 'react-feather';
 import { Container, Row } from 'react-bootstrap';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import './threadDetail.css';
 
 function getInitials(name) {
@@ -115,7 +117,7 @@ const ThreadDetail = () => {
         descricao: 'Denúncia de conteúdo inapropriado'
       };
       await axios.post('/denuncia/criar', reportData);
-      alert('Denúncia enviada com sucesso');
+      toast.success('Denúncia enviada com sucesso');
     } catch (err) {
       setError(err.message || 'Erro ao enviar denúncia');
     }
@@ -124,12 +126,20 @@ const ThreadDetail = () => {
   const handleCommentSubmit = async (e, replyToId = null) => {
     e.preventDefault();
     try {
+      const commentText = replyToId ? replyComment : newComment;
+      
+      // Validar se o comentário não está vazio
+      if (!commentText || commentText.trim().length === 0) {
+        toast.error('O comentário não pode estar vazio');
+        return;
+      }
+
       const colaborador_id = sessionStorage.getItem('colaboradorid');
       if (!colaborador_id) throw new Error('Utilizador não autenticado');
       const commentData = {
         thread_id: parseInt(threadId),
         colaborador_id: parseInt(colaborador_id),
-        descricao: replyToId ? replyComment : newComment,
+        descricao: commentText,
         comentariopai_id: replyToId || replyTo
       };
       await axios.post('/comentario/criar', commentData);
@@ -138,8 +148,9 @@ const ThreadDetail = () => {
       setReplyTo(null);
       const commentsResponse = await axios.get(`/comentario/thread/${threadId}`);
       setComments(commentsResponse.data);
+      toast.success('Comentário adicionado com sucesso!');
     } catch (err) {
-      setError(err.message || 'Erro ao adicionar comentário');
+      toast.error(err.message || 'Erro ao adicionar comentário');
     }
   };
 

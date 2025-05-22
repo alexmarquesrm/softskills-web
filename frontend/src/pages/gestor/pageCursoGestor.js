@@ -8,7 +8,7 @@ import "./detailsCourseGestor.css";
 import {
     BsFillPeopleFill, BsCalendarCheck, BsPlusCircle, BsPencilSquare, BsFileText,
     BsCameraVideo, BsBook, BsUpload, BsInfoCircle, BsExclamationTriangle,
-    BsCheckCircle, BsClock, BsFlag, BsDownload, BsPlayFill, BsTools
+    BsCheckCircle, BsClock, BsFlag, BsDownload, BsPlayFill, BsTools, BsTrophy
 } from "react-icons/bs";
 import axios from "../../config/configAxios";
 
@@ -780,9 +780,21 @@ export default function CursoDetalhesGestor() {
                                                     </ListGroup.Item>
                                                 ))}
                                             </ListGroup>
-                                        </div>
+                                </div>
                                     </Col>
                                 </Row>
+                                {curso?.certificado && (
+                                    <div className="certification-info mt-4 p-4 bg-primary bg-opacity-10 rounded">
+                                        <div className="d-flex align-items-center mb-3">
+                                            <BsTrophy className="me-2 text-primary" size={24} />
+                                            <h5 className="mb-0">Certificação</h5>
+                                        </div>
+                                        <p className="mb-0">
+                                            Ao completar este curso com sucesso e obtendo uma classificação mínima de 70%,
+                                            o aluno receberá um certificado digital que pode ser adicionado ao seu perfil profissional.
+                                        </p>
+                                    </div>
+                                )}
                             </Card.Body>
                         </Card>
                     )}

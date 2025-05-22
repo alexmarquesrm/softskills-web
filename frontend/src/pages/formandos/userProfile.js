@@ -25,7 +25,7 @@ export default function EditColab() {
   const [formData, setFormData] = useState({
     primeiroNome: "", ultimoNome: "", username: "", dataNasc: "", email: "", telefone: "", departamento: "",
     cargo: "", sobre_mim: "", novaPassword: "", confirmarPassword: "", receberEmails: false, notificacoesForum: false,
-    fotoPerfilUrl: ""
+    fotoPerfilUrl: "", funcao_id: ""
   });
   
   // Keep original name for display until save
@@ -125,9 +125,6 @@ export default function EditColab() {
     try {
       setIsLoading(true);
 
-      // Problema: o backend espera o ID no formato 'colaborador_id' 
-      // mas possivelmente está enviando 'utilizadorid' ou 'colaboradorid'
-      // Solução: usar a rota /colaborador/me para procurar o perfil do próprio usuário
       const response = await axios.get('/colaborador/me');
       const utilizador = response.data;
       
@@ -139,25 +136,25 @@ export default function EditColab() {
       const primeiroNome = utilizador.nome ? utilizador.nome.split(" ")[0] : "";
       const ultimoNome = utilizador.nome ? utilizador.nome.split(" ").slice(1).join(" ") : "";
 
-      //dados do departamento e função
+      // Buscar dados do departamento e função
       let departamentoNome = "";
       let funcaoNome = "";
       
       if (utilizador.funcao_id) {
         try {
-          // função
+          // Buscar função
           const funcaoResponse = await axios.get(`/funcao/${utilizador.funcao_id}`);
           if (funcaoResponse.data) {
             funcaoNome = funcaoResponse.data.nome;
             
-            // departamento
+            // Buscar departamento
             const departamentoResponse = await axios.get(`/departamento/${funcaoResponse.data.departamento_id}`);
             if (departamentoResponse.data) {
               departamentoNome = departamentoResponse.data.nome;
             }
           }
         } catch (error) {
-          console.error("Erro ao procurar dados de departamento/função:", error);
+          console.error("Erro ao buscar dados de departamento/função:", error);
         }
       }
 
@@ -175,7 +172,8 @@ export default function EditColab() {
         confirmarPassword: "",
         fotoPerfilUrl: utilizador.fotoPerfilUrl || "",
         receberEmails: utilizador.receberEmails || false,
-        notificacoesForum: utilizador.notificacoesForum || false
+        notificacoesForum: utilizador.notificacoesForum || false,
+        funcao_id: utilizador.funcao_id || ""
       });
       
       // Set display name separately from form data
@@ -247,8 +245,15 @@ export default function EditColab() {
 
       // Preparando o payload para envio
       const payload = {
-        ...formData,
         nome: `${formData.primeiroNome} ${formData.ultimoNome}`.trim(),
+        username: formData.username,
+        email: formData.email,
+        data_nasc: formData.dataNasc,
+        telefone: parseInt(formData.telefone),
+        funcao_id: parseInt(formData.funcao_id),
+        sobre_mim: formData.sobre_mim || '',
+        receberEmails: formData.receberEmails,
+        notificacoesForum: formData.notificacoesForum
       };
 
       // Adicionar foto de perfil se alterada
@@ -270,7 +275,10 @@ export default function EditColab() {
       delete payload.confirmarPassword;
       delete payload.primeiroNome;
       delete payload.ultimoNome;
+      delete payload.departamento;
+      delete payload.cargo;
 
+      console.log(payload);
       // Enviar atualização ao servidor
       await axios.put(`/colaborador/atualizar/${id}`, payload);
 
