@@ -4,8 +4,8 @@ const models = initModels(sequelizeConn);
 const { Sequelize } = require("sequelize");
 
 const controladorForuns = {
-// Criar novo fórum
-createForum: async (req, res) => {
+  // Criar novo fórum
+  createForum: async (req, res) => {
     const { topico_id, descricao } = req.body;
     try {
       const novoForum = await models.forum.create({ topico_id, descricao });
@@ -27,7 +27,13 @@ createForum: async (req, res) => {
             include: [
               {
                 model: models.area,
-                as: 'topico_area'
+                as: 'topico_area',
+                include: [
+                  {
+                    model: models.categoria,
+                    as: 'area_categoria'
+                  }
+                ]
               }
             ]
           }
@@ -44,7 +50,7 @@ createForum: async (req, res) => {
       // Transform the data structure
       const result = forums.map(forum => {
         const forumJSON = forum.toJSON();
-        
+
         // Ensure counts are numbers
         forumJSON.thread_count = 0;
         forumJSON.participant_count = 0;

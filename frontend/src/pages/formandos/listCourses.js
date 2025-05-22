@@ -20,7 +20,6 @@ export default function Courses() {
     const [categoriaSelecionada, setCategoriaSelecionada] = useState(null);
     const [areaSelecionada, setAreaSelecionada] = useState(null);
     const [topicoSelecionado, setTopicoSelecionado] = useState([]);
-
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isFiltersVisible, setIsFiltersVisible] = useState(true);
@@ -140,6 +139,9 @@ export default function Courses() {
         setEstadoSelecionado({ emCurso: false, terminado: false });
         setDataSelecionada({ inicio: '', fim: '' });
         setNivelSelecionado({ 1: false, 2: false, 3: false, 4: false });
+        setCategoriaSelecionada(null);
+        setAreaSelecionada(null);
+        setTopicoSelecionado([]);
         setSearchTerm('');
     };
 
