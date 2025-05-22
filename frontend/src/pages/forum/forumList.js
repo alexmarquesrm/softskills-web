@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import axios from "../../config/configAxios";
 import { Link } from 'react-router-dom';
-import { MessageSquare, Users, ArrowRight } from 'react-feather';
+import { MessageSquare, Users, ArrowRight, AlertCircle } from 'react-feather';
 import { Container, Row, Col } from 'react-bootstrap';
 import Filtros from '../../components/filters/filtros';
 import SearchBar from '../../components/textFields/search';
+import { filtrarCursosOuInscricoes } from '../../utils/filtrarCursos';
 import './forumList.css';
 
 const ForumList = () => {
@@ -13,8 +14,12 @@ const ForumList = () => {
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [tipoSelecionado, setTipoSelecionado] = useState({ S: false, A: false });
-  const [estadoSelecionado, setEstadoSelecionado] = useState({ porComecar: false, emCurso: false, terminado: false });
+  const [estadoSelecionado, setEstadoSelecionado] = useState({ emCurso: false, terminado: false });
   const [dataSelecionada, setDataSelecionada] = useState({ inicio: '', fim: '' });
+  const [nivelSelecionado, setNivelSelecionado] = useState({ 1: false, 2: false, 3: false, 4: false });
+  const [categoriaSelecionada, setCategoriaSelecionada] = useState(null);
+  const [areaSelecionada, setAreaSelecionada] = useState(null);
+  const [topicoSelecionado, setTopicoSelecionado] = useState([]);
   const [isFiltersVisible, setIsFiltersVisible] = useState(true);
 
   useEffect(() => {
@@ -32,13 +37,22 @@ const ForumList = () => {
     fetchForums();
   }, []);
 
-  const toggleFilters = () => {
-    setIsFiltersVisible(!isFiltersVisible);
-  };
+  console.log(forums);
 
-  const clearFilters = () => {
-    setSearchTerm('');
-  };
+  const filteredForum = useMemo(() => {
+    return filtrarCursosOuInscricoes({
+      dados: forums,
+      tipoSelecionado,
+      estadoSelecionado,
+      dataSelecionada,
+      nivelSelecionado,
+      searchTerm,
+      categoriaSelecionada,
+      areaSelecionada,
+      topicoSelecionado,
+      modo: 'forum'
+    });
+  }, [forums, tipoSelecionado, estadoSelecionado, dataSelecionada, nivelSelecionado, categoriaSelecionada, areaSelecionada, topicoSelecionado, searchTerm]);
 
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
@@ -46,6 +60,22 @@ const ForumList = () => {
 
   const handleSearchClick = () => {
     // Mantido para compatibilidade com o componente SearchBar
+  };
+
+  const toggleFilters = () => {
+    setIsFiltersVisible(!isFiltersVisible);
+  };
+
+  // Função para limpar filtros modificada
+  const clearFilters = () => {
+    setTipoSelecionado({ S: false, A: false });
+    setEstadoSelecionado({ emCurso: false, terminado: false });
+    setDataSelecionada({ inicio: '', fim: '' });
+    setNivelSelecionado({ 1: false, 2: false, 3: false, 4: false });
+    setCategoriaSelecionada(null);
+    setAreaSelecionada(null);
+    setTopicoSelecionado([]);
+    setSearchTerm('');
   };
 
   if (loading) return <div className="loading">Carregando fóruns...</div>;
@@ -83,9 +113,17 @@ const ForumList = () => {
               setEstadoSelecionado={setEstadoSelecionado}
               dataSelecionada={dataSelecionada}
               setDataSelecionada={setDataSelecionada}
-              mostrarTipo={true}
-              mostrarEstado={true}
-              mostrarData={true}
+              categoriaSelecionada={categoriaSelecionada}
+              setCategoriaSelecionada={setCategoriaSelecionada}
+              areaSelecionada={areaSelecionada}
+              setAreaSelecionada={setAreaSelecionada}
+              topicoSelecionado={topicoSelecionado}
+              setTopicoSelecionado={setTopicoSelecionado}
+              mostrarTipo={false}
+              mostrarEstado={false}
+              mostrarData={false}
+              mostrarNivel={false}
+              mostrarCategoria={true}
             />
           </Col>
 
@@ -93,10 +131,10 @@ const ForumList = () => {
           <Col lg={9} md={12}>
             <div className="forum-header-actions">
               <div className="forum-count">
-                {forums.length === 1 ? (
+                {filteredForum.length === 1 ? (
                   <span>1 fórum encontrado</span>
                 ) : (
-                  <span>{forums.length} fóruns encontrados</span>
+                  <span>{filteredForum.length} fóruns encontrados</span>
                 )}
               </div>
 
@@ -110,42 +148,54 @@ const ForumList = () => {
               </div>
             </div>
 
-            <div className="forum-grid">
-              {forums.map((forum) => (
-                <div key={forum.forum_id} className="forum-card">
-                  <div className="forum-card-header">
-                    <div className="forum-category">
-                      <span className="category-label">Área:</span>
-                      <span className="category-value">{forum.forum_topico?.topico_area?.descricao || 'Não especificada'}</span>
-                    </div>
-                    <div className="forum-topic">
-                      <span className="topic-label">Tópico:</span>
-                      <span className="topic-value">{forum.forum_topico?.descricao || 'Não especificado'}</span>
-                    </div>
-                  </div>
-
-                  <div className="forum-card-body">
-                    <h2 className="forum-title">{forum.descricao}</h2>
-                    <div className="forum-stats">
-                      <div className="stat-item">
-                        <MessageSquare size={16} />
-                        <span>{forum.thread_count || 0} Threads</span>
+            <div className="forum-container">
+              {filteredForum.length > 0 ? (
+                <div className="forum-grid">
+                  {filteredForum.map((forum) => (
+                    <div key={forum.forum_id} className="forum-card">
+                      <div className="forum-card-header">
+                        <div className="forum-category">
+                          <span className="category-label">Área:</span>
+                          <span className="category-value">{forum.forum_topico?.topico_area?.descricao || 'Não especificada'}</span>
+                        </div>
+                        <div className="forum-topic">
+                          <span className="topic-label">Tópico:</span>
+                          <span className="topic-value">{forum.forum_topico?.descricao || 'Não especificado'}</span>
+                        </div>
                       </div>
-                      <div className="stat-item">
-                        <Users size={16} />
-                        <span>{forum.participant_count || 0} Participantes</span>
+
+                      <div className="forum-card-body">
+                        <h2 className="forum-title">{forum.descricao}</h2>
+                        <div className="forum-stats">
+                          <div className="stat-item">
+                            <MessageSquare size={16} />
+                            <span>{forum.thread_count || 0} Threads</span>
+                          </div>
+                          <div className="stat-item">
+                            <Users size={16} />
+                            <span>{forum.participant_count || 0} Participantes</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="forum-card-footer">
+                        <Link to={`/forum/${forum.forum_id}`} className="view-forum-btn">
+                          Aceder ao Fórum
+                          <ArrowRight size={16} />
+                        </Link>
                       </div>
                     </div>
-                  </div>
-
-                  <div className="forum-card-footer">
-                    <Link to={`/forum/${forum.forum_id}`} className="view-forum-btn">
-                      Aceder ao Fórum
-                      <ArrowRight size={16} />
-                    </Link>
-                  </div>
+                  ))}
                 </div>
-              ))}
+              ) : (
+                <div className="no-courses">
+                  <AlertCircle size={36} className="mb-3" />
+                  <p>Não foram encontrados fóruns com os filtros selecionados.</p>
+                  <button className="reset-search-btn" onClick={clearFilters}>
+                    Limpar filtros
+                  </button>
+                </div>
+              )}
             </div>
           </Col>
         </Row>
