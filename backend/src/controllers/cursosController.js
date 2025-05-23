@@ -499,7 +499,7 @@ const controladorCursos = {
             ]
           }
         ],
-        attributes: ["inscricao_id", "tipo_avaliacao", "nota", "data_certificado", "data_inscricao", "estado"]
+        attributes: ["inscricao_id", "nota", "data_certificado", "data_inscricao", "estado"]
       });
 
       // Transformar os dados para o formato desejado
@@ -507,7 +507,6 @@ const controladorCursos = {
         id: inscricao.inscricao_formando.formando_id,
         nome: inscricao.inscricao_formando.formando_colab.nome,
         email: inscricao.inscricao_formando.formando_colab.email,
-        tipo_avaliacao: inscricao.tipo_avaliacao,
         nota: inscricao.nota,
         data_certificado: inscricao.data_certificado,
         data_inscricao: inscricao.data_inscricao,
