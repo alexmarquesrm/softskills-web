@@ -3,6 +3,7 @@ import axios from '../config/configAxios';
 import { Modal, Button, Form, InputGroup, Container, Row, Col } from 'react-bootstrap';
 import { EyeFill, EyeSlashFill, PersonFill, KeyFill } from 'react-bootstrap-icons';
 import { useNavigate } from 'react-router-dom';
+import RegisterUser from './registerUser';
 import 'react-toastify/dist/ReactToastify.css';
 import './loginModal.css';
 
@@ -10,12 +11,13 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
     const [login, setLogin] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
+    const [ModalRegisterOpen, setModalRegisterOpen] = useState(false);
     const [loginError, setLoginError] = useState(false);
     const [loginErrorMessage, setLoginErrorMessage] = useState('');
     const [passError, setPassError] = useState(false);
     const [passErrorMessage, setPassErrorMessage] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-
+    
     const navigate = useNavigate();
 
     const verificarLogin = async (login) => {
@@ -239,24 +241,16 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
                                     </Button>
                                 </div>
 
-                                <Button
-                                    variant="primary"
-                                    className="login-button w-100"
-                                    type="submit"
-                                    disabled={isLoading}
-                                >
+                                <Button variant="primary" className="login-button w-100" type="submit" disabled={isLoading}>
                                     {isLoading ? 'A processar...' : 'Entrar'}
                                 </Button>
 
                                 <div className="text-center mt-4 mb-2">
                                     <p className="register-prompt mb-0">
                                         Não tem uma conta?{' '}
-                                        <Button
-                                            variant="link"
-                                            className="register-link p-0"
-                                            onClick={handleRegister}
-                                        >
-                                            Registar
+                                        <RegisterUser show={ModalRegisterOpen} onClose={() => setModalRegisterOpen(false)} />
+                                        <Button variant="link" className="register-link p-0" onClick={() => setModalRegisterOpen(true)}>
+                                            Registrar
                                         </Button>
                                     </p>
                                 </div>

@@ -4,6 +4,7 @@ const sequelizeConn = require("../bdConexao");
 const models = initModels(sequelizeConn);
 const ficheirosController = require('./ficheiros');
 const bcrypt = require('bcrypt');
+const e = require("express");
 
 const controladorUtilizadores = {
   // Função para obter o próprio perfil do usuário autenticado
@@ -282,15 +283,31 @@ const controladorUtilizadores = {
 
   registarNovoColaborador: async (req, res) => {
     try {
-      const { nome, email, data_nasc, cargo, departamento, telefone, score, sobre_mim, username, password } = req.body;
-
+      const { nome, email, data_nasc, telefone, score, sobre_mim, username, password } = req.body;
+      const funcao_id = null;
       // Verificar se username já existe
       const existingUser = await models.colaborador.findOne({
         where: { username }
       });
 
+      const existingEmail = await models.colaborador.findOne({
+        where: { email }
+      });
+
+      const existingTelefone = await models.colaborador.findOne({
+        where: { telefone }
+      });
+
       if (existingUser) {
         return res.status(400).json({ message: "Username já está em uso" });
+      }
+
+      if (existingEmail) {
+        return res.status(400).json({ message: "Email já está em uso" });
+      }
+      
+      if (existingTelefone) {
+        return res.status(400).json({ message: "Telefone já está em uso" });
       }
 
       const hashedPassword = await bcrypt.hash(password, 10);
@@ -300,8 +317,7 @@ const controladorUtilizadores = {
           :nome,
           :email,
           :data_nasc,
-          :cargo,
-          :departamento,
+          :funcao_id,
           :telefone,
           :score,
           :sobre_mim,
@@ -315,8 +331,7 @@ const controladorUtilizadores = {
           nome,
           email,
           data_nasc,
-          cargo,
-          departamento,
+          funcao_id,
           telefone,
           score,
           sobre_mim,
