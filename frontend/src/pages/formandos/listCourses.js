@@ -15,6 +15,7 @@ export default function Courses() {
     const [inscricao, setInscricao] = useState([]);
     const [inscricaoCarregada, setInscricaoCarregada] = useState(false);
     const [tipoSelecionado, setTipoSelecionado] = useState({ S: false, A: false });
+    const [certSelecionado, setCertSelecionado] = useState({ C: false, S: false });
     const [estadoSelecionado, setEstadoSelecionado] = useState({ emCurso: false, terminado: false });
     const [dataSelecionada, setDataSelecionada] = useState({ inicio: '', fim: '' });
     const [nivelSelecionado, setNivelSelecionado] = useState({ 1: false, 2: false, 3: false, 4: false });
@@ -103,6 +104,7 @@ export default function Courses() {
         return filtrarCursosOuInscricoes({
             dados: cursosValidos,
             tipoSelecionado,
+            certSelecionado,
             estadoSelecionado,
             dataSelecionada,
             nivelSelecionado,
@@ -112,7 +114,7 @@ export default function Courses() {
             topicoSelecionado,
             modo: 'curso'
         });
-    }, [curso, tipoSelecionado, estadoSelecionado, dataSelecionada, nivelSelecionado, categoriaSelecionada, areaSelecionada, topicoSelecionado, searchTerm]);
+    }, [curso, tipoSelecionado, certSelecionado, estadoSelecionado, dataSelecionada, nivelSelecionado, categoriaSelecionada, areaSelecionada, topicoSelecionado, searchTerm]);
 
     const stats = useMemo(() => {
         if (curso.length === 0) return { total: 0, emCurso: 0, terminados: 0 };
@@ -149,6 +151,7 @@ export default function Courses() {
     // Função para limpar filtros modificada
     const clearFilters = () => {
         setTipoSelecionado({ S: false, A: false });
+        setCertSelecionado({ C: false, S: false });
         setEstadoSelecionado({ emCurso: false, terminado: false });
         setDataSelecionada({ inicio: '', fim: '' });
         setNivelSelecionado({ 1: false, 2: false, 3: false, 4: false });
@@ -226,6 +229,8 @@ export default function Courses() {
                         <Filtros
                             tipoSelecionado={tipoSelecionado}
                             setTipoSelecionado={setTipoSelecionado}
+                            certSelecionado={certSelecionado}
+                            setCertSelecionado={setCertSelecionado}
                             estadoSelecionado={estadoSelecionado}
                             setEstadoSelecionado={setEstadoSelecionado}
                             dataSelecionada={dataSelecionada}
@@ -242,6 +247,7 @@ export default function Courses() {
                             mostrarEstado={false}
                             mostrarData={true}
                             mostrarCategoria={true}
+                            mostrarCertificado={true}
                         />
                     </Col>
 

@@ -1,6 +1,7 @@
 export function filtrarCursosOuInscricoes({
   dados,
   tipoSelecionado,
+  certSelecionado,
   estadoSelecionado,
   dataSelecionada,
   nivelSelecionado,
@@ -11,6 +12,7 @@ export function filtrarCursosOuInscricoes({
   modo = 'curso' // ou 'inscricao'
 }) {
   const anyTipoSelected = tipoSelecionado.S || tipoSelecionado.A;
+  const anyCertSelected = certSelecionado.C || certSelecionado.S;
   const anyEstadoSelected = estadoSelecionado.porComecar || estadoSelecionado.emCurso || estadoSelecionado.terminado;
   const now = new Date();
 
@@ -83,6 +85,12 @@ export function filtrarCursosOuInscricoes({
     if (anyTipoSelected) {
       if (curso.tipo === 'S' && !tipoSelecionado.S) return false;
       if (curso.tipo === 'A' && !tipoSelecionado.A) return false;
+    }
+
+    // Certificado
+    if (anyCertSelected) {
+      if (curso.certificado === true && !certSelecionado.C) return false;
+      if (curso.certificado === false && !certSelecionado.S) return false;
     }
 
     const anyNivelSelected = Object.values(nivelSelecionado).some(Boolean);

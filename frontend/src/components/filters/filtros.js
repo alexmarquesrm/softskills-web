@@ -6,6 +6,8 @@ import "./filtros.css";
 function FiltrosCursos({
     tipoSelecionado = { S: false, A: false },
     setTipoSelecionado,
+    certSelecionado = { C: false, S: false },
+    setCertSelecionado,
     estadoSelecionado = { porComecar: false, emCurso: false, terminado: false },
     setEstadoSelecionado,
     dataSelecionada = { inicio: '', fim: '' },
@@ -23,8 +25,10 @@ function FiltrosCursos({
     mostrarData = false,
     mostrarNivel = true,
     mostrarCategoria = false,
+    mostrarCertificado = false,
 }) {
     const [tipoAberto, setTipoAberto] = useState(true);
+    const [certAberto, setCertAberto] = useState(true);
     const [estadoAberto, setEstadoAberto] = useState(true);
     const [filtersExpanded, setFiltersExpanded] = useState(true);
     const [dataAberto, setDataAberto] = useState(true);
@@ -56,6 +60,10 @@ function FiltrosCursos({
         setTipoSelecionado((prev) => ({ ...prev, [tipo]: !prev[tipo] }));
     };
 
+    const toggleCert = (cert) => {
+        setCertSelecionado((prev) => ({ ...prev, [cert]: !prev[cert] }));
+    };
+
     const toggleEstado = (estado) => {
         setEstadoSelecionado((prev) => ({ ...prev, [estado]: !prev[estado] }));
     };
@@ -82,6 +90,7 @@ function FiltrosCursos({
     // Reset all filters
     const resetFilters = () => {
         setTipoSelecionado({ S: false, A: false });
+        setCertSelecionado({ C: false, S: false });
         setEstadoSelecionado({ porComecar: false, emCurso: false, terminado: false });
         setDataSelecionada({ inicio: '', fim: '' });
         setNivelSelecionado({ 1: false, 2: false, 3: false, 4: false });
@@ -93,13 +102,14 @@ function FiltrosCursos({
     // Count active filters
     const getActiveFiltersCount = () => {
         const selectedTipos = tipoSelecionado ? Object.values(tipoSelecionado).filter(Boolean).length : 0;
+        const selectedCert = certSelecionado ? Object.values(certSelecionado).filter(Boolean).length : 0;
         const selectedEstados = estadoSelecionado ? Object.values(estadoSelecionado).filter(Boolean).length : 0;
         const dataAtiva = (dataSelecionada?.inicio || dataSelecionada?.fim) ? 1 : 0;
         const selectedNiveis = nivelSelecionado ? Object.values(nivelSelecionado).filter(Boolean).length : 0;
         const selectedCategorias = categoriaSelecionada != null ? 1 : 0;
         const selectedAreas = areaSelecionada != null ? 1 : 0;
         const selectedTopicos = topicoSelecionado?.length || 0;
-        return selectedTipos + selectedEstados + selectedNiveis + dataAtiva + selectedCategorias + selectedAreas + selectedTopicos;
+        return selectedTipos + selectedCert + selectedEstados + selectedNiveis + dataAtiva + selectedCategorias + selectedAreas + selectedTopicos;
     };
 
     const activeCount = getActiveFiltersCount();
@@ -164,6 +174,41 @@ function FiltrosCursos({
                                     onChange={() => toggleTipo("A")}
                                 />
                                 <label htmlFor="tipo-assincrono">Assíncrono</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>)}
+
+                {/* Certificação */}
+                {mostrarCertificado && (<div className="filtro-box">
+                    <div
+                        className={`filtro-header ${certAberto ? 'active' : ''}`}
+                        onClick={() => setCertAberto(!certAberto)}
+                    >
+                        <span className="filtro-title">Certificação</span>
+                        {certAberto ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                    </div>
+                    <div className={`filtro-opcoes ${certAberto ? 'visible' : ''}`}>
+                        <div className="checkbox-option">
+                            <div className="checkbox-wrapper-13">
+                                <input
+                                    id="com-certificado"
+                                    type="checkbox"
+                                    checked={certSelecionado.C}
+                                    onChange={() => toggleCert("C")}
+                                />
+                                <label htmlFor="com-certificado">Com Certificação</label>
+                            </div>
+                        </div>
+                        <div className="checkbox-option">
+                            <div className="checkbox-wrapper-13">
+                                <input
+                                    id="sem-certificado"
+                                    type="checkbox"
+                                    checked={certSelecionado.S}
+                                    onChange={() => toggleCert("S")}
+                                />
+                                <label htmlFor="sem-certificado">Sem Certificação</label>
                             </div>
                         </div>
                     </div>

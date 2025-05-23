@@ -10,12 +10,13 @@ import FeaturedCourses from "../../components/cards/cardCourses";
 import SearchBar from '../../components/textFields/search';
 import Filtros from '../../components/filters/filtros';
 
-export default function CoursesManage() { 
+export default function CoursesManage() {
     const navigate = useNavigate();
     const [cursos, setCursos] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
-        const tipoUser = sessionStorage.getItem('tipo');
+    const tipoUser = sessionStorage.getItem('tipo');
     const [tipoSelecionado, setTipoSelecionado] = useState({ S: false, A: false });
+    const [certSelecionado, setCertSelecionado] = useState({ C: false, S: false });
     const [estadoSelecionado, setEstadoSelecionado] = useState({ porComecar: false, emCurso: false, terminado: false });
     const [dataSelecionada, setDataSelecionada] = useState({ inicio: '', fim: '' });
     const [nivelSelecionado, setNivelSelecionado] = useState({ 1: false, 2: false, 3: false, 4: false });
@@ -60,6 +61,7 @@ export default function CoursesManage() {
         return filtrarCursosOuInscricoes({
             dados: cursos,
             tipoSelecionado,
+            certSelecionado,
             estadoSelecionado,
             dataSelecionada,
             nivelSelecionado,
@@ -129,6 +131,7 @@ export default function CoursesManage() {
     // Function to clear filters
     const clearFilters = () => {
         setTipoSelecionado({ S: false, A: false });
+        setCertSelecionado({ C: false, S: false });
         setEstadoSelecionado({ porComecar: false, emCurso: false, terminado: false });
         setDataSelecionada({ inicio: '', fim: '' });
         setNivelSelecionado({ 1: false, 2: false, 3: false, 4: false });
@@ -212,6 +215,8 @@ export default function CoursesManage() {
                         <Filtros
                             tipoSelecionado={tipoSelecionado}
                             setTipoSelecionado={setTipoSelecionado}
+                            certSelecionado={certSelecionado}
+                            setCertSelecionado={setCertSelecionado}
                             estadoSelecionado={estadoSelecionado}
                             setEstadoSelecionado={setEstadoSelecionado}
                             dataSelecionada={dataSelecionada}
@@ -316,15 +321,15 @@ export default function CoursesManage() {
                     </Col>
                 </Row>
             </Container>
-             {/* Botão flutuante para adicionar novo curso pendente */}
-                   {tipoUser === "Formador" && ( 
-    <button 
-        className="floating-add-button" 
-        onClick={() => navigate('/formador/pedircurso')} 
-        title="Pedir Curso">
-        <IoMdAdd size={24} />
-    </button>
-)}
+            {/* Botão flutuante para adicionar novo curso pendente */}
+            {tipoUser === "Formador" && (
+                <button
+                    className="floating-add-button"
+                    onClick={() => navigate('/formador/pedircurso')}
+                    title="Pedir Curso">
+                    <IoMdAdd size={24} />
+                </button>
+            )}
         </div>
     );
 }

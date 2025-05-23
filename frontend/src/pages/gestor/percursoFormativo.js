@@ -17,8 +17,8 @@ export default function PercursoFormativo() {
     const [nome, setNome] = useState('');
     const [inscricao, setInscricao] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
-    // Modificando o estado inicial para false (não selecionado)
     const [tipoSelecionado, setTipoSelecionado] = useState({ S: false, A: false });
+    const [certSelecionado, setCertSelecionado] = useState({ C: false, S: false });
     const [estadoSelecionado, setEstadoSelecionado] = useState({ porComecar: false, emCurso: false, terminado: false });
     const [dataSelecionada, setDataSelecionada] = useState({ inicio: '', fim: '' });
     const [nivelSelecionado, setNivelSelecionado] = useState({ 1: false, 2: false, 3: false, 4: false });
@@ -73,6 +73,7 @@ export default function PercursoFormativo() {
         return filtrarCursosOuInscricoes({
             dados: inscricao,
             tipoSelecionado,
+            certSelecionado,
             estadoSelecionado,
             dataSelecionada,
             nivelSelecionado,
@@ -117,6 +118,7 @@ export default function PercursoFormativo() {
     // Função para limpar filtros modificada
     const clearFilters = () => {
         setTipoSelecionado({ S: false, A: false });
+        setCertSelecionado({ C: false, S: false });
         setEstadoSelecionado({ porComecar: false, emCurso: false, terminado: false });
         setDataSelecionada({ inicio: '', fim: '' });
         setNivelSelecionado({ 1: false, 2: false, 3: false, 4: false });
@@ -200,6 +202,8 @@ export default function PercursoFormativo() {
                         <Filtros
                             tipoSelecionado={tipoSelecionado}
                             setTipoSelecionado={setTipoSelecionado}
+                            certSelecionado={certSelecionado}
+                            setCertSelecionado={setCertSelecionado}
                             estadoSelecionado={estadoSelecionado}
                             setEstadoSelecionado={setEstadoSelecionado}
                             dataSelecionada={dataSelecionada}

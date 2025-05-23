@@ -19,6 +19,7 @@ export default function CourseManage() {
     const [searchTerm, setSearchTerm] = useState('');
     const tipoUser = sessionStorage.getItem('tipo');
     const [tipoSelecionado, setTipoSelecionado] = useState({ S: false, A: false });
+    const [certSelecionado, setCertSelecionado] = useState({ C: false, S: false });
     const [estadoSelecionado, setEstadoSelecionado] = useState({ porComecar: false, emCurso: false, terminado: false });
     const [dataSelecionada, setDataSelecionada] = useState({ inicio: '', fim: '' });
     const [nivelSelecionado, setNivelSelecionado] = useState({ 1: false, 2: false, 3: false, 4: false });
@@ -54,6 +55,7 @@ export default function CourseManage() {
         return filtrarCursosOuInscricoes({
             dados: curso,
             tipoSelecionado,
+            certSelecionado,
             estadoSelecionado,
             dataSelecionada,
             nivelSelecionado,
@@ -99,6 +101,7 @@ export default function CourseManage() {
 
     const clearFilters = () => {
         setTipoSelecionado({ S: false, A: false });
+        setCertSelecionado({ C: false, S: false });
         setEstadoSelecionado({ porComecar: false, emCurso: false, terminado: false });
         setDataSelecionada({ inicio: '', fim: '' });
         setNivelSelecionado({ 1: false, 2: false, 3: false, 4: false });
@@ -183,6 +186,8 @@ export default function CourseManage() {
                         <Filtros
                             tipoSelecionado={tipoSelecionado}
                             setTipoSelecionado={setTipoSelecionado}
+                            certSelecionado={certSelecionado}
+                            setCertSelecionado={setCertSelecionado}
                             estadoSelecionado={estadoSelecionado}
                             setEstadoSelecionado={setEstadoSelecionado}
                             dataSelecionada={dataSelecionada}

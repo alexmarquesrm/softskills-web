@@ -16,6 +16,7 @@ export default function PercursoFormativoFormando() {
     const [inscricao, setInscricao] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [tipoSelecionado, setTipoSelecionado] = useState({ S: false, A: false });
+    const [certSelecionado, setCertSelecionado] = useState({ C: false, S: false });
     const [estadoSelecionado, setEstadoSelecionado] = useState({ porComecar: false, emCurso: false, terminado: false });
     const [dataSelecionada, setDataSelecionada] = useState({ inicio: '', fim: '' });
     const [nivelSelecionado, setNivelSelecionado] = useState({ 1: false, 2: false, 3: false, 4: false });
@@ -93,13 +94,14 @@ export default function PercursoFormativoFormando() {
         return filtrarCursosOuInscricoes({
             dados: inscricao,
             tipoSelecionado,
+            certSelecionado,
             estadoSelecionado,
             dataSelecionada,
             nivelSelecionado,
             searchTerm,
             modo: 'inscricao'
         });
-    }, [inscricao, tipoSelecionado, estadoSelecionado, dataSelecionada, nivelSelecionado, searchTerm]);
+    }, [inscricao, certSelecionado, tipoSelecionado, estadoSelecionado, dataSelecionada, nivelSelecionado, searchTerm]);
 
     // Stats (permanece igual)
     const stats = useMemo(() => {
@@ -146,6 +148,7 @@ export default function PercursoFormativoFormando() {
     // Função para limpar filtros
     const clearFilters = () => {
         setTipoSelecionado({ S: false, A: false });
+        setCertSelecionado({ C: false, S: false });
         setEstadoSelecionado({ porComecar: false, emCurso: false, terminado: false });
         setDataSelecionada({ inicio: '', fim: '' });
         setNivelSelecionado({ 1: false, 2: false, 3: false, 4: false });
@@ -229,6 +232,8 @@ export default function PercursoFormativoFormando() {
                         <Filtros
                             tipoSelecionado={tipoSelecionado}
                             setTipoSelecionado={setTipoSelecionado}
+                            certSelecionado={certSelecionado}
+                            setCertSelecionado={setCertSelecionado}
                             estadoSelecionado={estadoSelecionado}
                             setEstadoSelecionado={setEstadoSelecionado}
                             dataSelecionada={dataSelecionada}
@@ -238,6 +243,7 @@ export default function PercursoFormativoFormando() {
                             mostrarTipo={true}
                             mostrarEstado={true}
                             mostrarData={true}
+                            mostrarCertificado={true}
                         />
                     </Col>
 
