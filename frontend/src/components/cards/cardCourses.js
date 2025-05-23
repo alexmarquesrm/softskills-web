@@ -1,11 +1,12 @@
 import React from "react";
 import { Card, Badge, Button } from "react-bootstrap";
-import { Clock, Users, Calendar, Award, CheckCircle, RefreshCcw, Edit } from "react-feather";
+import { Clock, Users, Calendar, Award, CheckCircle, RefreshCcw, Edit} from "react-feather";
+import {BsTrophy} from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
 import ReactGif from "./../../images/react.gif";
 import "./cardCourses.css";
 
-function CardCourses({ curso, inscricao, mostrarBotao = true, mostrarInicioEFim = false, mostrarBotaoEdit = false }) {
+function CardCourses({ curso, inscricao, mostrarBotao = true, mostrarInicioEFim = false, mostrarBotaoEdit = false, mostrarCertificado = false, mostrarNivelCard= false }) {
   const navigate = useNavigate();
   const tipoUser = sessionStorage.getItem('tipo');
 
@@ -63,12 +64,16 @@ function CardCourses({ curso, inscricao, mostrarBotao = true, mostrarInicioEFim 
 
       <div className="course-header" style={{ cursor: 'pointer' }} onClick={handleViewDetails}>
         <img src={ReactGif} alt="Curso" className="course-image" />
+        {mostrarNivelCard && (
+        <Badge className={`course-type-badge2 nivel`}>
+          Nível-{ String(curso.nivel)}
+        </Badge>)}
         <Badge
           className="course-type-badge"
           bg={getBadgeVariant(curso.tipo)}
         >
           {getTipoLabel(curso.tipo)}
-        </Badge>
+        </Badge>  
       </div>
 
       <Card.Body className="d-flex flex-column">
@@ -138,6 +143,13 @@ function CardCourses({ curso, inscricao, mostrarBotao = true, mostrarInicioEFim 
                 if (dataInicio && new Date(dataInicio) > new Date()) return 'Por começar';
                 return 'Em curso';
               })()}</span>
+            </div>
+          )}
+
+          {(mostrarCertificado === true && curso?.certificado !== false) && (
+            <div className="meta-item">
+              <BsTrophy size={16} className="icon" />
+              <span>Certificação</span>
             </div>
           )}
 

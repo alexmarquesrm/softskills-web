@@ -131,7 +131,7 @@ export default function Courses() {
     }, [curso]);
 
     const renderCourseCard = (curso, index) => (
-        <FeaturedCourses key={curso.curso_id || index} curso={curso} mostrarBotao={true} />
+        <FeaturedCourses key={curso.curso_id || index} curso={curso} mostrarBotao={true} mostrarCertificado={true} mostrarNivelCard={true} />
     );
 
     const handleSearchChange = (event) => {
