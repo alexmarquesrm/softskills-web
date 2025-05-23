@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import {  Container, Row, Col, Card, ListGroup, Spinner,  Badge, Accordion, Button, Alert} from "react-bootstrap";
+import { Container, Row, Col, Card, ListGroup, Spinner, Badge, Accordion, Button, Alert } from "react-bootstrap";
 import { useLocation, useParams, useNavigate } from "react-router-dom";
-import {  BsFillPeopleFill, BsCalendarCheck, BsPlusCircle, BsPencilSquare, BsFileText, BsCameraVideo,BsBook, BsTools, BsUpload, BsInfoCircle, BsExclamationTriangle,BsCheckCircle, BsClock, BsDownload, BsPlayFill} from "react-icons/bs";
+import { BsEye, BsFillPeopleFill, BsCalendarCheck, BsPlusCircle, BsPencilSquare, BsFileText, BsCameraVideo, BsBook, BsTools, BsUpload, BsInfoCircle, BsExclamationTriangle, BsCheckCircle, BsClock, BsDownload, BsPlayFill } from "react-icons/bs";
+
 /* COMPONENTES */
 import axios from "../../config/configAxios";
 import AddButton from "../../components/buttons/addButton";
@@ -12,10 +13,10 @@ import ModalAdicionarFicheiro from "../../modals/addFile";
 import ModalEditarFicheiro from "../../modals/edditFile";
 
 export default function CursoDetalhes() {
-  const { id } = useParams(); 
+  const { id } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
-  const courseId = location.state?.id || id; 
+  const courseId = location.state?.id || id;
   const [addFile, setAddFile] = useState(false);
   const [editFile, setEditFile] = useState(false);
   const [curso, setCurso] = useState(null);
@@ -133,6 +134,15 @@ export default function CursoDetalhes() {
     setSelectedFileId(fileId);
     setEditFile(true);
   };
+  const handleViewEntregas = (materialId) => {
+    navigate('/formador/curso/avaliar', {
+      state: {
+        materialId: materialId,
+        cursoId: selectedCursoId,
+        cursoTitulo: curso?.titulo
+      }
+    });
+  };
 
   const handleAddContent = () => {
     setAddFile(true);
@@ -151,7 +161,7 @@ export default function CursoDetalhes() {
   // Group materials by type and section
   const getMaterialsByType = (tipo) => {
     const materialsOfType = materials.filter(material => material.tipo === tipo);
-    
+
     // Group by section
     const groupedBySection = materialsOfType.reduce((acc, material) => {
       const section = material.secao || 'Sem Seção';
@@ -433,7 +443,7 @@ export default function CursoDetalhes() {
                                           <div>
                                             {material.ficheiros.map((file, idx) => (
                                               <Badge key={idx} bg="light" text="danger" onClick={() => handleFileAction(file) } style={{ cursor: 'pointer' }} className="me-2 mb-1 text-decoration-none d-inline-flex align-items-center">
-                                              <BsDownload className="me-1" /> {file.nome.split('.').pop().toUpperCase()} • {file.nome}
+                                                <BsDownload className="me-1" /> {file.nome.split('.').pop().toUpperCase()} • {file.nome}
                                               </Badge>
                                             ))}
                                           </div>
@@ -458,13 +468,13 @@ export default function CursoDetalhes() {
                           <span>Documentos e Aulas</span>
                           <Badge bg="primary" className="ms-2">
                             {Object.values(getMaterialsByType('documento')).reduce((acc, section) => acc + section.length, 0) +
-                             Object.values(getMaterialsByType('aula')).reduce((acc, section) => acc + section.length, 0)}
+                              Object.values(getMaterialsByType('aula')).reduce((acc, section) => acc + section.length, 0)}
                           </Badge>
                         </div>
                       </Accordion.Header>
                       <Accordion.Body>
-                        {Object.keys(getMaterialsByType('documento')).length === 0 && 
-                         Object.keys(getMaterialsByType('aula')).length === 0 ? (
+                        {Object.keys(getMaterialsByType('documento')).length === 0 &&
+                          Object.keys(getMaterialsByType('aula')).length === 0 ? (
                           <p className="text-muted text-center py-3">Nenhum documento ou aula adicionado</p>
                         ) : (
                           <>
@@ -488,7 +498,7 @@ export default function CursoDetalhes() {
                                             <div>
                                               {material.ficheiros.map((file, idx) => (
                                                 <Badge key={idx} bg="light" text="danger" onClick={() => handleFileAction(file)} style={{ cursor: 'pointer' }} className="me-2 mb-1 text-decoration-none d-inline-flex align-items-center">
-                                                <BsDownload className="me-1" /> {file.nome.split('.').pop().toUpperCase()} • {file.nome}
+                                                  <BsDownload className="me-1" /> {file.nome.split('.').pop().toUpperCase()} • {file.nome}
                                                 </Badge>
                                               ))}
                                             </div>
@@ -522,7 +532,7 @@ export default function CursoDetalhes() {
                                             <div>
                                               {material.ficheiros.map((file, idx) => (
                                                 <Badge key={idx} bg="light" text="danger" onClick={() => handleFileAction(file)} style={{ cursor: 'pointer' }} className="me-2 mb-1 text-decoration-none d-inline-flex align-items-center">
-                                                <BsDownload className="me-1" /> {file.nome.split('.').pop().toUpperCase()} • {file.nome}
+                                                  <BsDownload className="me-1" /> {file.nome.split('.').pop().toUpperCase()} • {file.nome}
                                                 </Badge>
                                               ))}
                                             </div>
@@ -585,14 +595,19 @@ export default function CursoDetalhes() {
                                             <div>
                                               {material.ficheiros && material.ficheiros.map((file, idx) => (
                                                 <Badge key={idx} bg="light" text={material.tipo === 'trabalho' ? 'info' : 'warning'} onClick={() => handleFileAction(file)} style={{ cursor: 'pointer' }} className="me-2 mb-1 text-decoration-none d-inline-flex align-items-center">
-                                                <BsDownload className="me-1" /> {file.nome.split('.').pop().toUpperCase()} • {file.nome}
+                                                  <BsDownload className="me-1" /> {file.nome.split('.').pop().toUpperCase()} • {file.nome}
                                                 </Badge>
                                               ))}
                                             </div>
                                           </div>
                                         </div>
-                                        <EditButton text="" Icon={BsPencilSquare} onClick={() => handleEditFile(material.id)} inline={true} className="btn-edit-small"/>
-                                      </div>
+                                        <div className="d-flex">
+                                          {material.tipo === 'entrega' && (
+                                            <Button variant="outline-primary" size="sm" onClick={() => handleViewEntregas(material.id)} className="me-2 d-flex align-items-center" title="Ver entregas dos alunos"> <BsEye /></Button>
+                                          )}
+                                          <EditButton text="" Icon={BsPencilSquare} onClick={() => handleEditFile(material.id)}inline={true}className="btn-edit-small"/>
+                                        </div>                                      
+                                        </div>
                                     </ListGroup.Item>
                                   ))}
                               </ListGroup>

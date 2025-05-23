@@ -11,7 +11,6 @@ import Guardar from "../../components/buttons/saveButton";
 import "./evaluateFormando.css"; 
 
 export default function AvaliacaoTrabalho() {
-  const cursoNome = "Curso de Redes de Segurança";
 
   const formandos = [
     { nome: "Ana Silva", avaliado: true },
@@ -66,8 +65,7 @@ export default function AvaliacaoTrabalho() {
       <Container>
         <Card className="main-card">
           <div className="page-header">
-            <h3 className="header-title">Avaliação do Trabalho 1</h3>
-            <h5 className="header-subtitle">{cursoNome}</h5>
+            <h3 className="header-title">Avaliação dos Trabalhos</h3>
           </div>
 
           <div className="deadline-info">
