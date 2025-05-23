@@ -171,7 +171,7 @@ export default function PaginaGestor() {
           ) : (
             <div className="empty-state text-center p-4">
               <FileEarmarkText size={40} className="empty-icon mb-3" />
-              <p className="text-muted">Não há cursos programados para começar nos próximos 15 dias.</p>
+              <p>Não há cursos programados para começar nos próximos 15 dias.</p>
             </div>
           )}
         </div>

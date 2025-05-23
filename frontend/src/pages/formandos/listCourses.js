@@ -99,7 +99,7 @@ export default function Courses() {
             }
             return true;
         });
-        console.log(cursosValidos);
+        
         return filtrarCursosOuInscricoes({
             dados: cursosValidos,
             tipoSelecionado,
