@@ -14,6 +14,7 @@ router.get("/username/:username", colaboradorController.getUserByLogin);
 router.post("/registo", colaboradorController.registarNovoColaborador);
 router.post('/login', colaboradorController.login);
 router.post('/change-password', authenticate, colaboradorController.changePassword);
+router.post('/reset-password', colaboradorController.resetPassword);
 
 // Rotas protegidas que exigem autenticação
 // Listar todos colaboradores (apenas gestor)

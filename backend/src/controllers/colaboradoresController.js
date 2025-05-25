@@ -687,5 +687,54 @@ const controladorUtilizadores = {
       res.status(500).json({ message: "Erro ao alterar password" });
     }
   },
+
+  resetPassword: async (req, res) => {
+    try {
+      const { email } = req.body;
+
+      // Buscar o usuário pelo email
+      const user = await models.colaborador.findOne({
+        where: { email }
+      });
+
+      if (!user) {
+        // Retornar sucesso mesmo se o email não existir por questões de segurança
+        return res.json({ message: "Se o email estiver registado, receberá uma nova password em breve." });
+      }
+
+      // Gerar uma nova senha aleatória
+      const newPassword = Math.random().toString(36).slice(-8);
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+      // Atualizar a senha e limpar o último login
+      await user.update({
+        pssword: hashedPassword,
+        last_login: null // Força a troca de senha no próximo login
+      });
+
+      // Enviar email com a nova senha
+      const emailText = `
+        Olá ${user.nome},
+
+        A sua password foi redefinida com sucesso. Aqui está a sua nova password:
+
+        Nova password: ${newPassword}
+
+        Por motivos de segurança, será necessário alterar esta password no seu próximo login.
+
+        Se não solicitou esta alteração, por favor contacte o administrador do sistema.
+
+        Atenciosamente,
+        Equipa SoftSkills
+      `;
+
+      await sendEmail(user.email, 'Redefinição de Password - SoftSkills', emailText);
+
+      res.json({ message: "Se o email estiver registado, receberá uma nova password em breve." });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Erro ao redefinir password" });
+    }
+  },
 };
 module.exports = controladorUtilizadores;

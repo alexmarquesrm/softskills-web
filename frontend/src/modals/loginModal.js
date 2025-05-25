@@ -1,85 +1,59 @@
 import React, { useState } from 'react';
 import axios from '../config/configAxios';
-import { Modal, Button, Form, InputGroup, Container, Row, Col } from 'react-bootstrap';
+import { Modal, Button, Form, InputGroup, Container, Row, Col, Alert } from 'react-bootstrap';
 import { EyeFill, EyeSlashFill, PersonFill, KeyFill } from 'react-bootstrap-icons';
 import { useNavigate } from 'react-router-dom';
 import RegisterUser from './registerUser';
+import ResetPasswordModal from './resetPasswordModal';
 import 'react-toastify/dist/ReactToastify.css';
 import './loginModal.css';
 import ChangePasswordModal from './changePasswordModal';
 
 const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
-    const [login, setLogin] = useState('');
-    const [password, setPassword] = useState('');
+    const [formData, setFormData] = useState({
+        login: '',
+        password: ''
+    });
     const [showPassword, setShowPassword] = useState(false);
     const [ModalRegisterOpen, setModalRegisterOpen] = useState(false);
-    const [loginError, setLoginError] = useState(false);
-    const [loginErrorMessage, setLoginErrorMessage] = useState('');
-    const [passError, setPassError] = useState(false);
-    const [passErrorMessage, setPassErrorMessage] = useState('');
+    const [validationErrors, setValidationErrors] = useState({});
     const [isLoading, setIsLoading] = useState(false);
     const [showChangePassword, setShowChangePassword] = useState(false);
+    const [showResetPassword, setShowResetPassword] = useState(false);
+    const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
     
     const navigate = useNavigate();
 
-    const verificarLogin = async (login) => {
-        try {
-            // Rota pública para verificar se o usuário existe
-            const response = await axios.get(`/colaborador/username/${login}`);
-            return response.status === 200;
-        } catch (error) {
-            if (error.response?.status === 404) {
-                return false;
-            }
-            console.error('Erro ao verificar utilizador:', error);
-            return true;
+    const validateForm = () => {
+        const errors = {};
+        
+        if (!formData.login) {
+            errors.login = 'Por favor, introduza o seu nome de utilizador';
         }
-    };
-
-    const validateForm = async () => {
-        let errors = {};
-
-        if (!login.trim()) {
-            errors.loginError = true;
-            errors.loginMessage = "Por favor, introduza o seu nome de utilizador";
-        } else {
-            const loginExists = await verificarLogin(login);
-            if (!loginExists) {
-                errors.loginError = true;
-                errors.loginMessage = "O utilizador que introduziu não se encontra registado.";
-            }
+        
+        if (!formData.password) {
+            errors.password = 'Por favor, introduza a sua senha';
         }
-
-        if (!password) {
-            errors.passError = true;
-            errors.passMessage = "Por favor, introduza a sua password";
-        }
-
-        return errors;
-    };
-
-    const handleClickShowPassword = () => {
-        setShowPassword(!showPassword);
+        
+        setValidationErrors(errors);
+        return Object.keys(errors).length === 0;
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setIsLoading(true);
-        const errors = await validateForm();
-        setLoginError(errors.loginError || false);
-        setLoginErrorMessage(errors.loginMessage || "");
-        setPassError(errors.passError || false);
-        setPassErrorMessage(errors.passMessage || "");
-
-        if (Object.keys(errors).length > 0) {
-            setIsLoading(false);
+        
+        if (!validateForm()) {
             return;
         }
-
+        
+        setIsLoading(true);
+        setError('');
+        
         try {
             const response = await axios.post('/colaborador/login', {
-                username: login,
-                password: password
+                username: formData.login,
+                password: formData.password
             });
 
             const utilizador = response.data.user;
@@ -104,24 +78,18 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
             sessionStorage.setItem('primeirologin', utilizador.isFirstLogin ? "true" : "false");
             sessionStorage.setItem('tipo', currentType);
             sessionStorage.setItem('saudacao', saudacao);
-            
-            // Armazenar todos os tipos de usuário se disponíveis
-            if (utilizador.allUserTypes && utilizador.allUserTypes.length > 0) {
-                sessionStorage.setItem('allUserTypes', utilizador.allUserTypes.join(','));
-            } else {
-                sessionStorage.setItem('allUserTypes', utilizador.tipo);
-            }
 
-            // Configurar o token para todas as requisições futuras
-            axios.defaults.headers.common['Authorization'] = token;
-
-            // Se for primeiro login, mostrar o modal de alteração de senha
-            if (utilizador.isFirstLogin) {
-                handleClose();
+            // Se o último login for null, mostrar o modal de alteração de password
+            if (utilizador.ultimologin === null) {
+                resetForm();
                 setShowChangePassword(true);
             } else {
                 // Determinar a rota de redirecionamento baseada nas roles
                 let redirectPath = '/';
+                const userType = utilizador.tipo;
+                const allUserTypes = utilizador.allUserTypes || [userType];
+                const isGestor = userType === 'Gestor' || allUserTypes.includes('Gestor');
+
                 if (isGestor) {
                     redirectPath = '/gestor/dashboard';
                 } else if (userType === 'Formando' || allUserTypes.includes('Formando')) {
@@ -137,175 +105,152 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
                         welcomeMessage: `${saudacao}, ${utilizador.nome}! Bem-vindo(a) à plataforma de cursos.`
                     }
                 });
-                onLoginSuccess();
+                if (onLoginSuccess) {
+                    onLoginSuccess();
+                }
             }
-        } catch (error) {
-            console.error('Erro no login:', error);
-            if (error.response?.status === 404) {
-                setLoginError(true);
-                setLoginErrorMessage("Utilizador não encontrado");
-            } else if (error.response?.status === 401) {
-                setPassError(true);
-                setPassErrorMessage("Password incorreta");
-            } else {
-                setLoginError(true);
-                setLoginErrorMessage("Erro ao fazer login. Tente novamente.");
-            }
+        } catch (err) {
+            setError(err.response?.data?.message || 'Erro ao fazer login');
         } finally {
             setIsLoading(false);
         }
     };
 
-    const handleChangePasswordSuccess = () => {
-        const userType = sessionStorage.getItem('tipo');
-        let redirectPath = '/';
-        
-        if (userType === 'Gestor') {
-            redirectPath = '/gestor/dashboard';
-        } else if (userType === 'Formando') {
-            redirectPath = '/utilizadores/dashboard';
-        } else if (userType === 'Formador') {
-            redirectPath = '/formador/dashboard';
-        }
-
-        navigate(redirectPath, { 
-            state: { 
-                welcomeMessage: `${sessionStorage.getItem('saudacao')}, ${sessionStorage.getItem('nome')}! Bem-vindo(a) à plataforma de cursos.`
-            }
-        });
-        onLoginSuccess();
-    };
-
     const resetForm = () => {
-        setLogin('');
-        setPassword('');
-        setLoginErrorMessage('');
-        setPassErrorMessage('');
-    };
-
-    const handleCancel = () => {
-        resetForm();
-        setLoginError(false);
-        setPassError(false);
-        handleClose();
-    };
-
-    const handleRegister = () => {
-        // Reset all login modal states
-        setLogin('');
-        setPassword('');
-        setLoginError(false);
-        setLoginErrorMessage('');
-        setPassError(false);
-        setPassErrorMessage('');
+        setFormData({
+            login: '',
+            password: ''
+        });
+        setError('');
+        setValidationErrors({});
         setShowPassword(false);
         setIsLoading(false);
-        
-        handleClose();
-        setModalRegisterOpen(true);
     };
 
-    const handleKeyPress = (e) => {
-        if (e.key === 'Enter') {
-            handleSubmit(e);
-        }
+    const closeModal = () => {
+        resetForm();
+        handleClose();
     };
 
     return (
-        <>
-            <Modal show={open} onHide={handleCancel} centered className="login-modal">
-                <Modal.Header closeButton className="border-0 pb-0 position-relative">
-                    <div className="logo-container w-100 text-center">
-                        <h2 className="app-logo mb-0">
-                            <span className="logo-first">Soft</span>
-                            <span className="logo-second">Skills</span>
-                        </h2>
+        <Modal show={open} onHide={closeModal} centered className="login-modal">
+            <Modal.Header>
+                <div className="logo-container">
+                    <h2 className="app-logo">
+                        <span className="logo-first">Soft</span>
+                        <span className="logo-second">Skills</span>
+                    </h2>
+                    <h4 className="welcome-title">Bem-vindo</h4>
+                    <p className="welcome-subtitle">Introduza as suas credenciais para aceder</p>
+                </div>
+            </Modal.Header>
+            <Modal.Body>
+                {error && (
+                    <Alert variant="danger" className="register-form-alert register-form-alert-danger">
+                        {error}
+                    </Alert>
+                )}
+                {success && (
+                    <Alert variant="success" className="register-form-alert register-form-alert-success">
+                        {success}
+                    </Alert>
+                )}
+                <Form onSubmit={handleSubmit}>
+                    <Form.Group className="mb-3">
+                        <Form.Label className="register-form-label">Nome de Utilizador</Form.Label>
+                        <div className={`register-form-input-group ${validationErrors.login ? 'is-invalid' : ''}`}>
+                            <div className="register-form-input-icon">
+                                <PersonFill />
+                            </div>
+                            <Form.Control
+                                type="text"
+                                value={formData.login}
+                                onChange={(e) => setFormData({...formData, login: e.target.value})}
+                                placeholder="Introduza o seu nome de utilizador"
+                            />
+                        </div>
+                        {validationErrors.login && (
+                            <div className="register-form-error-message">{validationErrors.login}</div>
+                        )}
+                    </Form.Group>
+
+                    <Form.Group className="mb-3">
+                        <Form.Label className="register-form-label">Senha</Form.Label>
+                        <div className={`register-form-input-group ${validationErrors.password ? 'is-invalid' : ''}`}>
+                            <div className="register-form-input-icon">
+                                <KeyFill />
+                            </div>
+                            <Form.Control
+                                type={showPassword ? "text" : "password"}
+                                value={formData.password}
+                                onChange={(e) => setFormData({...formData, password: e.target.value})}
+                                placeholder="Introduza a sua senha"
+                            />
+                            <div 
+                                className="register-form-password-toggle"
+                                onClick={() => setShowPassword(!showPassword)}
+                            >
+                                {showPassword ? <EyeSlashFill /> : <EyeFill />}
+                            </div>
+                        </div>
+                        {validationErrors.password && (
+                            <div className="register-form-error-message">{validationErrors.password}</div>
+                        )}
+                    </Form.Group>
+
+                    <div className="d-flex justify-content-end mb-3">
+                        <Button 
+                            variant="link" 
+                            className="forgot-password-link"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                setShowResetPassword(true);
+                            }}
+                            disabled={isLoading}
+                        >
+                            Esqueceu a password?
+                        </Button>
                     </div>
-                </Modal.Header>
-                <Modal.Body className="pt-0">
-                    <Container>
-                        <Row className="justify-content-center">
-                            <Col xs={12} md={10}>
-                                <div className="text-center mb-4">
-                                    <h4 className="welcome-title">Bem-vindo de volta!</h4>
-                                    <p className="welcome-subtitle">Introduza os seus dados para continuar</p>
-                                </div>
 
-                                <Form onSubmit={handleSubmit}>
-                                    <Form.Group className="mb-4">
-                                        <InputGroup className="input-group-custom">
-                                            <InputGroup.Text>
-                                                <PersonFill />
-                                            </InputGroup.Text>
-                                            <Form.Control
-                                                type="text"
-                                                placeholder="Nome de utilizador"
-                                                value={login}
-                                                onChange={(e) => setLogin(e.target.value)}
-                                                isInvalid={loginError}
-                                                autoFocus
-                                                onKeyDown={handleKeyPress}
-                                            />
-                                        </InputGroup>
-                                        {loginError && (
-                                            <div className="error-message">
-                                                <small>{loginErrorMessage}</small>
-                                            </div>
-                                        )}
-                                    </Form.Group>
+                    <Button 
+                        type="submit" 
+                        className="register-form-button w-100"
+                        disabled={isLoading}
+                    >
+                        {isLoading ? (
+                            <>
+                                <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                A processar...
+                            </>
+                        ) : (
+                            'Entrar'
+                        )}
+                    </Button>
 
-                                    <Form.Group className="mb-4">
-                                        <InputGroup className="input-group-custom">
-                                            <InputGroup.Text>
-                                                <KeyFill />
-                                            </InputGroup.Text>
-                                            <Form.Control type={showPassword ? "text" : "password"} placeholder="Password"
-                                                value={password} onChange={(e) => setPassword(e.target.value)}
-                                                isInvalid={passError} onKeyDown={handleKeyPress} />
-                                            <InputGroup.Text onClick={handleClickShowPassword} className="password-toggle">
-                                                {showPassword ? <EyeSlashFill /> : <EyeFill />}
-                                            </InputGroup.Text>
-                                        </InputGroup>
-                                        {passError && (
-                                            <div className="error-message">
-                                                <small>{passErrorMessage}</small>
-                                            </div>
-                                        )}
-                                    </Form.Group>
-
-                                    <div className="d-flex justify-content-end mb-3">
-                                        <Button variant="link" className="forgot-password p-0">
-                                            Esqueceu a password?
-                                        </Button>
-                                    </div>
-
-                                    <Button variant="primary" className="login-button w-100" type="submit" disabled={isLoading}>
-                                        {isLoading ? 'A processar...' : 'Entrar'}
-                                    </Button>
-
-                                    <div className="text-center mt-4 mb-2">
-                                        <p className="register-prompt mb-0">
-                                            Não tem uma conta?{' '}
-                                            <Button variant="link" className="register-link p-0" onClick={handleRegister}>
-                                                Registar
-                                            </Button>
-                                        </p>
-                                    </div>
-                                </Form>
-                            </Col>
-                        </Row>
-                    </Container>
-                </Modal.Body>
-            </Modal>
-
+                    <div className="text-center mt-3">
+                        <Button 
+                            variant="link" 
+                            className="register-link"
+                            onClick={() => setModalRegisterOpen(true)}
+                        >
+                            Não tem conta? Registar
+                        </Button>
+                    </div>
+                </Form>
+            </Modal.Body>
             <RegisterUser show={ModalRegisterOpen} onClose={() => setModalRegisterOpen(false)} />
-
             <ChangePasswordModal 
                 show={showChangePassword}
-                onHide={() => setShowChangePassword(false)}
-                onSuccess={handleChangePasswordSuccess}
+                onHide={() => {
+                    setShowChangePassword(false);
+                    handleClose();
+                }}
             />
-        </>
+            <ResetPasswordModal
+                show={showResetPassword}
+                onHide={() => setShowResetPassword(false)}
+            />
+        </Modal>
     );
 };
 

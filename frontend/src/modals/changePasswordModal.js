@@ -1,180 +1,207 @@
 import React, { useState } from 'react';
-import { Modal, Button, Form, Alert } from 'react-bootstrap';
-import axios from '../config/configAxios';
+import { Modal, Form, Button, Alert } from 'react-bootstrap';
 import { KeyFill, EyeFill, EyeSlashFill } from 'react-bootstrap-icons';
+import axios from '../config/configAxios';
 import './changePasswordModal.css';
 
-const ChangePasswordModal = ({ show, onHide, onSuccess }) => {
-    const [currentPassword, setCurrentPassword] = useState('');
-    const [newPassword, setNewPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
-    const [showCurrentPassword, setShowCurrentPassword] = useState(false);
-    const [showNewPassword, setShowNewPassword] = useState(false);
-    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+const ChangePasswordModal = ({ show, onHide }) => {
+    const [formData, setFormData] = useState({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: ''
+    });
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [showPasswords, setShowPasswords] = useState({
+        current: false,
+        new: false,
+        confirm: false
+    });
+    const [validationErrors, setValidationErrors] = useState({});
+
+    const validateForm = () => {
+        const errors = {};
+        
+        if (!formData.currentPassword) {
+            errors.currentPassword = 'Por favor, introduza a sua senha atual';
+        }
+        
+        if (!formData.newPassword) {
+            errors.newPassword = 'Por favor, introduza a nova senha';
+        } else if (formData.newPassword.length < 8) {
+            errors.newPassword = 'A senha deve ter pelo menos 8 caracteres';
+        }
+        
+        if (!formData.confirmPassword) {
+            errors.confirmPassword = 'Por favor, confirme a nova senha';
+        } else if (formData.newPassword !== formData.confirmPassword) {
+            errors.confirmPassword = 'As senhas não coincidem';
+        }
+        
+        setValidationErrors(errors);
+        return Object.keys(errors).length === 0;
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        
+        if (!validateForm()) {
+            return;
+        }
+        
+        setLoading(true);
         setError('');
         setSuccess('');
-
-        // Validações
-        if (!currentPassword || !newPassword || !confirmPassword) {
-            setError('Por favor, preencha todos os campos');
-            return;
-        }
-
-        if (newPassword !== confirmPassword) {
-            setError('As passwords não coincidem');
-            return;
-        }
-
-        if (newPassword.length < 8) {
-            setError('A nova password deve ter pelo menos 8 caracteres');
-            return;
-        }
-
-        setIsLoading(true);
-
+        
         try {
             const response = await axios.post('/colaborador/change-password', {
-                currentPassword,
-                newPassword
+                currentPassword: formData.currentPassword,
+                newPassword: formData.newPassword
             });
-
-            setSuccess('Password alterada com sucesso!');
             
-            // Limpar o flag de primeiro login
-            sessionStorage.setItem('primeirologin', 'false');
-
-            // Limpar o formulário
-            setCurrentPassword('');
-            setNewPassword('');
-            setConfirmPassword('');
-
-            // Chamar o callback de sucesso após 2 segundos
-            setTimeout(() => {
-                onSuccess();
-                onHide();
-            }, 2000);
-
-        } catch (error) {
-            if (error.response?.status === 401) {
-                setError('Password atual incorreta');
+            if (response.status === 200) {
+                setSuccess('Senha alterada com sucesso!');
+                setTimeout(() => {
+                    handleClose();
+                }, 2000);
             } else {
-                setError('Erro ao alterar password. Tente novamente.');
+                setError(response.data.message || 'Erro ao alterar a senha');
             }
+        } catch (err) {
+            setError(err.response?.data?.message || 'Erro ao conectar com o servidor');
         } finally {
-            setIsLoading(false);
+            setLoading(false);
         }
     };
 
     const handleClose = () => {
-        // Se for primeiro login, redirecionar para a página inicial
-        const isFirstLogin = sessionStorage.getItem('primeirologin') === 'true';
-        if (isFirstLogin) {
-            // Limpar dados da sessão
-            sessionStorage.clear();
-            // Redirecionar para a página inicial
-            window.location.href = '/';
-            return;
-        }
-
-        setCurrentPassword('');
-        setNewPassword('');
-        setConfirmPassword('');
+        setFormData({
+            currentPassword: '',
+            newPassword: '',
+            confirmPassword: ''
+        });
         setError('');
         setSuccess('');
+        setLoading(false);
+        setShowPasswords({
+            current: false,
+            new: false,
+            confirm: false
+        });
+        setValidationErrors({});
         onHide();
     };
 
     return (
-        <Modal 
-            show={show} 
-            onHide={handleClose} 
-            centered 
-            className="change-password-modal"
-        >
-            <Modal.Header closeButton>
-                <Modal.Title>Alterar Password</Modal.Title>
+        <Modal show={show} onHide={handleClose} centered className="change-password-modal">
+            <Modal.Header>
+                <div className="logo-container">
+                    <h2 className="app-logo">
+                        <span className="logo-first">Soft</span>
+                        <span className="logo-second">Skills</span>
+                    </h2>
+                    <h4 className="welcome-title">Alterar Senha</h4>
+                    <p className="welcome-subtitle">Introduza a sua senha atual e a nova senha</p>
+                </div>
             </Modal.Header>
             <Modal.Body>
-                {error && <Alert variant="danger">{error}</Alert>}
-                {success && <Alert variant="success">{success}</Alert>}
-
-                {sessionStorage.getItem('primeirologin') === 'true' && (
-                    <Alert variant="info" className="mb-4">
-                        Por motivos de segurança, é necessário alterar a sua password para continuar.
+                {error && (
+                    <Alert variant="danger" className="register-form-alert register-form-alert-danger">
+                        {error}
                     </Alert>
                 )}
-
+                {success && (
+                    <Alert variant="success" className="register-form-alert register-form-alert-success">
+                        {success}
+                    </Alert>
+                )}
                 <Form onSubmit={handleSubmit}>
                     <Form.Group className="mb-3">
-                        <Form.Label>Password Atual</Form.Label>
-                        <div className="password-input-group">
-                            <KeyFill className="input-icon" />
+                        <Form.Label className="register-form-label">Senha Atual</Form.Label>
+                        <div className={`register-form-input-group ${validationErrors.currentPassword ? 'is-invalid' : ''}`}>
+                            <div className="register-form-input-icon">
+                                <KeyFill />
+                            </div>
                             <Form.Control
-                                type={showCurrentPassword ? "text" : "password"}
-                                value={currentPassword}
-                                onChange={(e) => setCurrentPassword(e.target.value)}
-                                placeholder="Introduza a password atual"
+                                type={showPasswords.current ? "text" : "password"}
+                                value={formData.currentPassword}
+                                onChange={(e) => setFormData({...formData, currentPassword: e.target.value})}
+                                placeholder="Introduza a sua senha atual"
                             />
                             <div 
-                                className="password-toggle"
-                                onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                                className="register-form-password-toggle"
+                                onClick={() => setShowPasswords({...showPasswords, current: !showPasswords.current})}
                             >
-                                {showCurrentPassword ? <EyeSlashFill /> : <EyeFill />}
+                                {showPasswords.current ? <EyeSlashFill /> : <EyeFill />}
                             </div>
                         </div>
+                        {validationErrors.currentPassword && (
+                            <div className="register-form-error-message">{validationErrors.currentPassword}</div>
+                        )}
                     </Form.Group>
 
                     <Form.Group className="mb-3">
-                        <Form.Label>Nova Password</Form.Label>
-                        <div className="password-input-group">
-                            <KeyFill className="input-icon" />
+                        <Form.Label className="register-form-label">Nova Senha</Form.Label>
+                        <div className={`register-form-input-group ${validationErrors.newPassword ? 'is-invalid' : ''}`}>
+                            <div className="register-form-input-icon">
+                                <KeyFill />
+                            </div>
                             <Form.Control
-                                type={showNewPassword ? "text" : "password"}
-                                value={newPassword}
-                                onChange={(e) => setNewPassword(e.target.value)}
-                                placeholder="Introduza a nova password"
+                                type={showPasswords.new ? "text" : "password"}
+                                value={formData.newPassword}
+                                onChange={(e) => setFormData({...formData, newPassword: e.target.value})}
+                                placeholder="Introduza a nova senha"
                             />
                             <div 
-                                className="password-toggle"
-                                onClick={() => setShowNewPassword(!showNewPassword)}
+                                className="register-form-password-toggle"
+                                onClick={() => setShowPasswords({...showPasswords, new: !showPasswords.new})}
                             >
-                                {showNewPassword ? <EyeSlashFill /> : <EyeFill />}
+                                {showPasswords.new ? <EyeSlashFill /> : <EyeFill />}
                             </div>
                         </div>
+                        {validationErrors.newPassword && (
+                            <div className="register-form-error-message">{validationErrors.newPassword}</div>
+                        )}
                     </Form.Group>
 
-                    <Form.Group className="mb-4">
-                        <Form.Label>Confirmar Nova Password</Form.Label>
-                        <div className="password-input-group">
-                            <KeyFill className="input-icon" />
+                    <Form.Group className="mb-3">
+                        <Form.Label className="register-form-label">Confirmar Nova Senha</Form.Label>
+                        <div className={`register-form-input-group ${validationErrors.confirmPassword ? 'is-invalid' : ''}`}>
+                            <div className="register-form-input-icon">
+                                <KeyFill />
+                            </div>
                             <Form.Control
-                                type={showConfirmPassword ? "text" : "password"}
-                                value={confirmPassword}
-                                onChange={(e) => setConfirmPassword(e.target.value)}
-                                placeholder="Confirme a nova password"
+                                type={showPasswords.confirm ? "text" : "password"}
+                                value={formData.confirmPassword}
+                                onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
+                                placeholder="Confirme a nova senha"
                             />
                             <div 
-                                className="password-toggle"
-                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                className="register-form-password-toggle"
+                                onClick={() => setShowPasswords({...showPasswords, confirm: !showPasswords.confirm})}
                             >
-                                {showConfirmPassword ? <EyeSlashFill /> : <EyeFill />}
+                                {showPasswords.confirm ? <EyeSlashFill /> : <EyeFill />}
                             </div>
                         </div>
+                        {validationErrors.confirmPassword && (
+                            <div className="register-form-error-message">{validationErrors.confirmPassword}</div>
+                        )}
                     </Form.Group>
 
                     <Button 
-                        variant="primary" 
                         type="submit" 
-                        className="w-100 change-password-button"
-                        disabled={isLoading}
+                        className="register-form-button w-100"
+                        disabled={loading}
                     >
-                        {isLoading ? 'A processar...' : 'Alterar Password'}
+                        {loading ? (
+                            <>
+                                <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                A processar...
+                            </>
+                        ) : (
+                            'Alterar Senha'
+                        )}
                     </Button>
                 </Form>
             </Modal.Body>
