@@ -191,8 +191,18 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
     };
 
     const handleRegister = () => {
+        // Reset all login modal states
+        setLogin('');
+        setPassword('');
+        setLoginError(false);
+        setLoginErrorMessage('');
+        setPassError(false);
+        setPassErrorMessage('');
+        setShowPassword(false);
+        setIsLoading(false);
+        
         handleClose();
-        navigate('/register');
+        setModalRegisterOpen(true);
     };
 
     const handleKeyPress = (e) => {
@@ -276,9 +286,8 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
                                     <div className="text-center mt-4 mb-2">
                                         <p className="register-prompt mb-0">
                                             Não tem uma conta?{' '}
-                                            <RegisterUser show={ModalRegisterOpen} onClose={() => setModalRegisterOpen(false)} />
-                                            <Button variant="link" className="register-link p-0" onClick={() => setModalRegisterOpen(true)}>
-                                                Registrar
+                                            <Button variant="link" className="register-link p-0" onClick={handleRegister}>
+                                                Registar
                                             </Button>
                                         </p>
                                     </div>
@@ -288,6 +297,8 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
                     </Container>
                 </Modal.Body>
             </Modal>
+
+            <RegisterUser show={ModalRegisterOpen} onClose={() => setModalRegisterOpen(false)} />
 
             <ChangePasswordModal 
                 show={showChangePassword}

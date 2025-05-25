@@ -44,6 +44,7 @@ const RegisterUser = ({ show, onClose }) => {
     };
 
     const handleClose = () => {
+        // Reset form data
         setFormData({
             primeiro_nome: '',
             ultimo_nome: '',
@@ -54,9 +55,16 @@ const RegisterUser = ({ show, onClose }) => {
             telefone: '',
             data_nasc: ''
         });
+        
+        // Reset all states
         setError('');
         setSuccess('');
         setValidationErrors({});
+        setLoading(false);
+        setShowPassword(false);
+        setShowConfirmPassword(false);
+        
+        // Close modal
         onClose();
     };
 
