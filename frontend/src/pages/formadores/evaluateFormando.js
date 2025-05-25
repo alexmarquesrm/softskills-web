@@ -1,17 +1,15 @@
 import React, { useState } from "react";
 import { Container, Card, Badge, Button, Form } from "react-bootstrap";
-import { BsFillPeopleFill, BsChatDots, BsArrowReturnLeft, BsDownload, BsFileText } from "react-icons/bs";
-import { BsSend } from "react-icons/bs";
+import { BsFillPeopleFill, BsChatDots, BsArrowReturnLeft, BsDownload, BsFileText, BsSend } from "react-icons/bs";
 import { IoPersonOutline } from "react-icons/io5";
 
 import ModalCustom from "../../modals/modalCustom";
 import AddButton from "../../components/buttons/addButton";
 import Cancelar from "../../components/buttons/cancelButton";
 import Guardar from "../../components/buttons/saveButton";
-import "./evaluateFormando.css"; 
+import "./evaluateFormando.css";
 
 export default function AvaliacaoTrabalho() {
-
   const formandos = [
     { nome: "Ana Silva", avaliado: true },
     { nome: "Bruno Costa", avaliado: false },
@@ -32,6 +30,8 @@ export default function AvaliacaoTrabalho() {
   const [formandoSelecionado, setFormandoSelecionado] = useState(null);
   const [nota, setNota] = useState("");
   const [erroNota, setErroNota] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filtroAvaliacao, setFiltroAvaliacao] = useState("todos");
 
   const abrirAvaliacao = (formando) => {
     setFormandoSelecionado(formando);
@@ -63,18 +63,18 @@ export default function AvaliacaoTrabalho() {
   return (
     <div className="page-container">
       <Container>
-        <Card className="main-card">
-          <div className="page-header">
-            <h3 className="header-title">Avaliação dos Trabalhos</h3>
-          </div>
+        <div className="header-card">
+          <h1 className="header-card-title">Avaliação dos Trabalhos</h1>
+          <p className="header-card-subtitle">Gerir e avaliar trabalhos dos formandos</p>
+        </div>
 
+        <Card className="main-card">
           <div className="deadline-info">
             <BsFileText size={20} className="deadline-icon" />
             <div>
               <strong>Objetivo:</strong> Avaliar a apresentação do trabalho com
               base nos critérios de clareza, conteúdo técnico e originalidade.
               <br />
-              <strong>Data limite:</strong> 25 de Abril de 2025
             </div>
           </div>
 
@@ -84,50 +84,77 @@ export default function AvaliacaoTrabalho() {
           </div>
 
           <div className="divider"></div>
+          <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+            <Form.Control
+              type="text"
+              placeholder="Pesquisar formando..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{ maxWidth: "250px" }}
+            />
+            <Form.Select
+              value={filtroAvaliacao}
+              onChange={(e) => setFiltroAvaliacao(e.target.value)}
+              style={{ maxWidth: "200px" }}
+            >
+              <option value="todos">Todos</option>
+              <option value="avaliado">Avaliados</option>
+              <option value="pendente">Pendentes</option>
+            </Form.Select>
+          </div>
 
           <div className="formandos-container">
-            {formandos.map((formando, idx) => (
-              <div key={idx} className="student-card">
-                <div className="student-info">
-                  <div className="avatar-icon">
-                    <BsFillPeopleFill size={18} />
+            {formandos
+              .filter((formando) => {
+                const nomeMatch = formando.nome.toLowerCase().includes(searchTerm.toLowerCase());
+                const filtroMatch =
+                  filtroAvaliacao === "todos" ||
+                  (filtroAvaliacao === "avaliado" && formando.avaliado) ||
+                  (filtroAvaliacao === "pendente" && !formando.avaliado);
+                return nomeMatch && filtroMatch;
+              })
+              .map((formando, idx) => (
+                <div key={idx} className="student-card">
+                  <div className="student-info">
+                    <div className="avatar-icon">
+                      <BsFillPeopleFill size={18} />
+                    </div>
+                    <div>
+                      <div className="student-name">{formando.nome}</div>
+                      <Badge
+                        bg={formando.avaliado ? "success" : "warning"}
+                        className={formando.avaliado ? "badge-success" : "badge-warning"}
+                      >
+                        {formando.avaliado ? "Avaliado" : "Pendente"}
+                      </Badge>
+                    </div>
                   </div>
-                  <div>
-                    <div className="student-name">{formando.nome}</div>
-                    <Badge 
-                      bg={formando.avaliado ? "success" : "warning"} 
-                      className={formando.avaliado ? "badge-success" : "badge-warning"}
+                  <div className="action-buttons">
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      onClick={() => abrirAvaliacao(formando)}
+                      className="action-button"
                     >
-                      {formando.avaliado ? "Avaliado" : "Pendente"}
-                    </Badge>
+                      <div className="button-content">
+                        <BsChatDots size={16} />
+                        <span>Avaliar</span>
+                      </div>
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => ('')}
+                      className="secondary-button"
+                    >
+                      <div className="button-content">
+                        <BsDownload size={16} />
+                        <span>Download</span>
+                      </div>
+                    </Button>
                   </div>
                 </div>
-                <div className="action-buttons">
-                  <Button
-                    variant="primary"
-                    size="sm"
-                    onClick={() => abrirAvaliacao(formando)}
-                    className="action-button"
-                  >
-                    <div className="button-content">
-                      <BsChatDots size={16} />
-                      <span>Avaliar</span>
-                    </div>
-                  </Button>
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => ('')}
-                    className="secondary-button"
-                  >
-                    <div className="button-content">
-                      <BsDownload size={16} />
-                      <span>Download</span>
-                    </div>
-                  </Button>
-                </div>
-              </div>
-            ))}
+              ))}
           </div>
         </Card>
       </Container>

@@ -1,27 +1,47 @@
-
 .page-container {
-  background-color: #f3f7ff;
   min-height: 100vh;
   padding: 2rem 0;
+}
+
+
+.header-card {
+  background: linear-gradient(135deg, #39639C 0%, #39639C 100%);
+  border-radius: 15px;
+  box-shadow: 0 8px 25px rgba(57, 99, 156, 0.25);
+  padding: 2rem;
+  margin-bottom: 1.5rem;
+  color: white;
+}
+
+.header-card-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+  color: white;
+}
+
+.header-card-subtitle {
+  font-size: 1rem;
+  margin: 0;
+  opacity: 0.9;
+  color: #d6e3ff;
 }
 
 .main-card {
   border: none;
   border-radius: 15px;
-  box-shadow: 0 8px 20px rgba(20, 50, 150, 0.1);
+  box-shadow: 0 8px 25px rgba(57, 99, 156, 0.15);
   padding: 2rem;
   background-color: #ffffff;
 }
-
-/* Cabeçalho da página */
 .page-header {
-  border-bottom: 2px solid #e9f0ff;
+  border-bottom: 2px solid #d6e3ff;
   padding-bottom: 1.2rem;
   margin-bottom: 1.5rem;
 }
 
 .header-title {
-  color: #1a56db;
+  color: #3a80df;
   font-weight: 600;
   margin: 0;
 }
@@ -31,45 +51,44 @@
   font-weight: 500;
   margin-top: 0.5rem;
 }
-
-/* Informações sobre prazo e objetivo */
 .deadline-info {
-  background-color: #e0e7ff;
+  background-color: #e8f0ff;
   padding: 1rem;
   border-radius: 8px;
   margin-bottom: 1.5rem;
   display: flex;
   align-items: flex-start;
-  color: #1e40af;
+  color: #2a4a7a;
+  border-left: 4px solid #0D6EFD;
 }
 
 .deadline-icon {
   margin-right: 0.8rem;
-  color: #1d4ed8;
+  color: #39639C;
   margin-top: 0.2rem;
 }
 
-/* Título da seção de avaliação */
+
 .section-title {
   display: flex;
   align-items: center;
-  color: #1a56db;
+  color: #39639C;
   margin: 1.5rem 0 1rem 0;
 }
 
 .title-icon {
-  color: #1a56db;
+  color: #39639C;
   margin-right: 0.8rem;
 }
 
 .divider {
   height: 1px;
   width: 100%;
-  background-color: #e9f0ff;
+  background-color: #d6e3ff;
   margin: 1rem 0 1.5rem 0;
 }
 
-/* Cartões de formandos */
+
 .formandos-container {
   display: flex;
   flex-direction: column;
@@ -77,19 +96,23 @@
 }
 
 .student-card {
-  border-left: 4px solid #3b82f6;
-  border-radius: 8px;
-  background-color: #f9faff;
-  padding: 1rem;
+  border: 1px solid #d6e3ff;
+  border-left: 4px solid #0D6EFD;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #f8faff 0%, #f0f7ff 100%);
+  padding: 1.2rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
+  margin-bottom: 0.5rem;
 }
 
 .student-card:hover {
-  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.1);
-  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(57, 99, 156, 0.2);
+  transform: translateY(-3px);
+  background: linear-gradient(135deg, #f0f7ff 0%, #e8f0ff 100%);
+  border-left-width: 6px;
 }
 
 .student-info {
@@ -98,24 +121,24 @@
 }
 
 .avatar-icon {
-  background-color: #e0e7ff;
-  color: #3b82f6;
-  padding: 0.5rem;
+  background: linear-gradient(135deg, #e8f0ff 0%, #d6e3ff 100%);
+  color: #39639C;
+  padding: 0.7rem;
   border-radius: 50%;
-  margin-right: 0.8rem;
+  margin-right: 1rem;
   display: flex;
   align-items: center;
   justify-content: center;
+  border: 2px solid #39639C;
 }
 
 .student-name {
-  color: #1e3a8a;
+  color: #39639C;
   font-weight: 600;
   font-size: 1.05rem;
   margin-bottom: 0.2rem;
 }
 
-/* Badges de status */
 .badge-success {
   background-color: #059669 !important;
   font-weight: 500;
@@ -129,45 +152,104 @@
   padding: 0.3rem 0.6rem;
   border-radius: 4px;
 }
-
-/* Botões de ação */
 .action-buttons {
   display: flex;
   gap: 0.5rem;
 }
 
 .action-button {
-  background-color: #1d4ed8 !important;
+  background: linear-gradient(135deg, #0D6EFD 0%, #39639C 100%) !important;
   border: none !important;
-  border-radius: 6px !important;
-  padding: 0.4rem 0.8rem !important;
-  transition: all 0.2s ease;
-  font-weight: 500 !important;
+  border-radius: 8px !important;
+  padding: 0.5rem 1rem !important;
+  transition: all 0.3s ease;
+  font-weight: 600 !important;
+  box-shadow: 0 4px 12px rgba(57, 99, 156, 0.3);
 }
 
 .action-button:hover {
-  background-color: #1e40af !important;
-  transform: translateY(-1px);
+  background: linear-gradient(135deg, #39639C 0%, #2e5992 100%) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(57, 99, 156, 0.4);
 }
 
 .secondary-button {
-  background-color: #e0e7ff !important;
-  border: none !important;
-  color: #1d4ed8 !important;
-  border-radius: 6px !important;
-  padding: 0.4rem 0.8rem !important;
-  transition: all 0.2s ease;
-  font-weight: 500 !important;
+  background: linear-gradient(135deg, #e8f0ff 0%, #d6e3ff 100%) !important;
+  border: 2px solid #39639C !important;
+  color: #39639C !important;
+  border-radius: 8px !important;
+  padding: 0.5rem 1rem !important;
+  transition: all 0.3s ease;
+  font-weight: 600 !important;
 }
 
 .secondary-button:hover {
-  background-color: #c7d2fe !important;
-  transform: translateY(-1px);
+  background: linear-gradient(135deg, #d6e3ff 0%, #c4d7ff 100%) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(57, 99, 156, 0.2);
 }
 
-.button-content {
+.modal-avaliacao .modal-header {
+  background: linear-gradient(135deg, #39639C 0%, #2a4a7a 100%);
+  color: white;
+  border-radius: 15px 15px 0 0;
+}
+
+.modal-body-custom {
+  background-color: #f8faff;
+  padding: 2rem;
+  border-radius: 0 0 15px 15px;
+}
+
+.form-label-custom {
+  color: #2a4a7a;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.form-input-custom, .form-textarea-custom {
+  border: 2px solid #d6e3ff;
+  border-radius: 8px;
+  padding: 0.75rem;
+  transition: all 0.3s ease;
+  background-color: white;
+}
+
+.form-input-custom:focus, .form-textarea-custom:focus {
+  border-color: #39639C;
+  box-shadow: 0 0 0 0.2rem rgba(57, 99, 156, 0.25);
+  outline: none;
+}
+
+.error-message {
+  color: #dc3545;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+  font-weight: 500;
+}
+
+.modal-footer-custom {
   display: flex;
-  align-items: center;
-  gap: 0.4rem;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #d6e3ff;
 }
+@media (max-width: 576px) {
+  .student-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
 
+  .action-buttons {
+    width: 100%;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+
+  .action-buttons .btn {
+    flex: 1 1 48%;
+  }
+}
