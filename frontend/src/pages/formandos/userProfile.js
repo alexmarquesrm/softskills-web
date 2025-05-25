@@ -24,8 +24,7 @@ export default function EditColab() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     primeiroNome: "", ultimoNome: "", username: "", dataNasc: "", email: "", telefone: "", departamento: "",
-    cargo: "", sobre_mim: "", novaPassword: "", confirmarPassword: "", receberEmails: false, notificacoesForum: false,
-    fotoPerfilUrl: "", funcao_id: ""
+    cargo: "", sobre_mim: "", novaPassword: "", confirmarPassword: "", fotoPerfilUrl: "", funcao_id: ""
   });
   
   // Keep original name for display until save
@@ -171,8 +170,6 @@ export default function EditColab() {
         novaPassword: "",
         confirmarPassword: "",
         fotoPerfilUrl: utilizador.fotoPerfilUrl || "",
-        receberEmails: utilizador.receberEmails || false,
-        notificacoesForum: utilizador.notificacoesForum || false,
         funcao_id: utilizador.funcao_id || ""
       });
       
@@ -252,8 +249,6 @@ export default function EditColab() {
         telefone: parseInt(formData.telefone),
         funcao_id: parseInt(formData.funcao_id),
         sobre_mim: formData.sobre_mim || '',
-        receberEmails: formData.receberEmails,
-        notificacoesForum: formData.notificacoesForum
       };
 
       // Adicionar foto de perfil se alterada
