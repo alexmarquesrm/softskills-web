@@ -1,262 +1,297 @@
-import React, { useState, useEffect } from "react";
-import axios from "../config/configAxios";
-import { Col, Row, Card, Alert, Spinner } from "react-bootstrap";
-/* COMPONENTES */
-import Guardar from "../components/buttons/saveButton";
-import InputField from "../components/textFields/basic";
-import Cancelar from "../components/buttons/cancelButton";
-/* MODALS */
-import ModalCustom from "./modalCustom";
-/* ICONS */
-import { FaRegSave, FaMobileAlt } from "react-icons/fa";
-import { MdEmail } from "react-icons/md";
-import { IoCalendarNumberSharp } from "react-icons/io5";
-import { BsArrowReturnLeft } from "react-icons/bs";
+import React, { useState, useEffect } from 'react';
+import { Modal, Form, Button, Alert, Row, Col, Container } from 'react-bootstrap';
+import { FaUser, FaEnvelope, FaLock, FaPhone, FaCalendarAlt, FaEye, FaEyeSlash } from 'react-icons/fa';
+import axios from '../config/configAxios';
+import './registerUser.css';
 
-const ModalRegisterUser = ({ show, onClose }) => {
-  const [formData, setFormData] = useState({
-    Pnome: '',
-    Unome: '',
-    username: '',
-    data: '',
-    email: '',
-    telemovel: '',
-    password: '',
-  });
-
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(false);
-  const [validationErrors, setValidationErrors] = useState({});
-
-  useEffect(() => {
-    const p = formData.Pnome.trim();
-    const u = formData.Unome.trim();
-
-    if (p && u) {
-      const usernameSugerido = `${p}.${u}`.replace(/\s+/g, '').toLowerCase();
-      setFormData((prev) => ({
-        ...prev,
-        username: usernameSugerido,
-      }));
-    }
-  }, [formData.Pnome, formData.Unome]);
-
-  const validateForm = () => {
-    const errors = {};
-
-    // Primeiro nome obrigatório
-    if (!formData.Pnome.trim()) errors.Pnome = "Primeiro nome é obrigatório";
-
-    // Último nome obrigatório
-    if (!formData.Unome.trim()) errors.Unome = "Último nome é obrigatório";
-
-    // Email obrigatório e formato válido
-    if (!formData.email.trim()) errors.email = "Email é obrigatório";
-    else if (!/\S+@\S+\.\S+/.test(formData.email)) errors.email = "Email inválido";
-
-    // Data de nascimento obrigatória
-    if (!formData.data) errors.data = "Data de nascimento é obrigatória";
-
-    // Password obrigatório e com um mínimo de 6 caracteres (ajusta conforme quiseres)
-    if (!formData.password.trim()) errors.password = "Password é obrigatória";
-    else if (formData.password.length <= 2) errors.password = "Password deve ter pelo menos 3 caracteres";
-
-    // Telemóvel obrigatório e válido (ex: mínimo 9 dígitos)
-    const telefone = formData.telemovel.trim();
-    if (!telefone) errors.telemovel = "Número de telemóvel é obrigatório";
-    else if (!/^\d{9,}$/.test(telefone)) errors.telemovel = "Número de telemóvel inválido";
-
-    setValidationErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
-
-
-  const handleSave = async () => {
-    if (!validateForm()) return;
-
-    setLoading(true);
-    setError(null);
-    setSuccess(false);
-
-    try {
-      const token = sessionStorage.getItem("token");
-      const nomeCompleto = `${formData.Pnome} ${formData.Unome}`;
-
-      // Preparar o payload conforme esperado pelo backend
-      const novoColaborador = {
-        nome: nomeCompleto,
-        username: formData.username,
-        data_nasc: formData.data,
-        email: formData.email,
-        telefone: parseInt(formData.telemovel),
-        sobre_mim: '',
-        score: 0,
-        password: formData.password,
-      };
-
-      await axios.post(`/colaborador/registo`, novoColaborador, {
-        headers: {
-          Authorization: `${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      setSuccess(true);
-      setTimeout(() => {
-        resetForm();
-        onClose();
-      }, 1500);
-    } catch (error) {
-      console.error("Erro ao criar perfil", error);
-      console.error("Detalhes do erro:", error.response?.data);
-      console.error("Stack trace:", error.stack);
-      if (error.response?.data?.message) {
-        setError(error.response.data.message);
-      } else {
-        setError("Erro ao criar perfil. Por favor, tente novamente.");
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const resetForm = () => {
-    setFormData({
-      Pnome: '',
-      Unome: '',
-      username: '',
-      data: '',
-      email: '',
-      telemovel: '',
+const RegisterUser = ({ show, onClose }) => {
+    const [formData, setFormData] = useState({
+        primeiro_nome: '',
+        ultimo_nome: '',
+        username: '',
+        email: '',
+        password: '',
+        confirmPassword: '',
+        telefone: '',
+        data_nasc: ''
     });
-    setValidationErrors({});
-    setError(null);
-    setSuccess(false);
-  };
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const handleCancel = () => {
-    resetForm();
-    onClose();
-  };
+    useEffect(() => {
+        const p = formData.primeiro_nome.trim();
+        const u = formData.ultimo_nome.trim();
 
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value
-    }));
-    // Clear validation error when field is modified
-    if (validationErrors[name]) {
-      setValidationErrors(prev => ({
-        ...prev,
-        [name]: undefined
-      }));
-    }
-  };
+        if (p && u) {
+            const usernameSugerido = `${p}.${u}`.replace(/\s+/g, '').toLowerCase();
+            setFormData(prev => ({
+                ...prev,
+                username: usernameSugerido
+            }));
+        }
+    }, [formData.primeiro_nome, formData.ultimo_nome]);
 
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]: value
+        }));
+    };
 
-  return (
-    <ModalCustom show={show} handleClose={onClose} title="Adicionar Utilizador" size="xl">
-      <Card className="border-0 shadow-sm">
-        <Card.Body className="p-4">
-          {error && <Alert variant="danger" className="mb-4">{error}</Alert>}
-          {success && <Alert variant="success" className="mb-4">Utilizador criado com sucesso!</Alert>}
+    const handleClose = () => {
+        setFormData({
+            primeiro_nome: '',
+            ultimo_nome: '',
+            username: '',
+            email: '',
+            password: '',
+            confirmPassword: '',
+            telefone: '',
+            data_nasc: ''
+        });
+        setError('');
+        setSuccess('');
+        onClose();
+    };
 
-          <Row className="mb-4">
-            <Col md={12}>
-              <h5 className="text-primary mb-3">Informações Pessoais</h5>
-              <Row className="mb-3">
-                <InputField
-                  label="Primeiro Nome"
-                  type="text"
-                  name="Pnome"
-                  value={formData.Pnome}
-                  onChange={handleChange}
-                  error={validationErrors.Pnome}
-                  colSize={6}
-                />
-                <InputField
-                  label="Último Nome"
-                  type="text"
-                  name="Unome"
-                  value={formData.Unome}
-                  onChange={handleChange}
-                  error={validationErrors.Unome}
-                  colSize={6}
-                />
-              </Row>
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError('');
+        setSuccess('');
+        setLoading(true);
 
-              <Row className="mb-3">
-                <InputField
-                  label="Password"
-                  type="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  error={validationErrors.password}
-                  colSize={6}
-                />
-                <InputField
-                  label="Data Nascimento"
-                  type="date"
-                  name="data"
-                  value={formData.data}
-                  onChange={handleChange}
-                  error={validationErrors.data}
-                  icon={<IoCalendarNumberSharp />}
-                  colSize={6}
-                />
-              </Row>
-            </Col>
-          </Row>
+        if (formData.password !== formData.confirmPassword) {
+            setError('As palavras-passe não coincidem');
+            setLoading(false);
+            return;
+        }
 
-          <Row className="mb-4">
-            <Col md={12}>
-              <h5 className="text-primary mb-3">Informações de Contacto</h5>
-              <Row className="mb-3">
-                <InputField
-                  label="Email"
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  error={validationErrors.email}
-                  icon={<MdEmail />}
-                  colSize={6}
-                />
-                <InputField
-                  label="Número Telemóvel"
-                  type="tel"
-                  name="telemovel"
-                  value={formData.telemovel}
-                  onChange={handleChange}
-                  error={validationErrors.telemovel}
-                  icon={<FaMobileAlt />}
-                  colSize={6}
-                />
-              </Row>
-            </Col>
-          </Row>
+        try {
+            const token = sessionStorage.getItem("token");
+            const response = await axios.post('/colaborador/registo', {
+                nome: `${formData.primeiro_nome} ${formData.ultimo_nome}`,
+                username: formData.username,
+                email: formData.email,
+                password: formData.password,
+                telefone: parseInt(formData.telefone),
+                data_nasc: formData.data_nasc,
+                sobre_mim: '',
+                score: 0
+            }, {
+                headers: {
+                    Authorization: `${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
 
-          <div className="d-flex justify-content-end gap-3 mt-4">
-            <Cancelar text="Cancelar" onClick={handleCancel} Icon={BsArrowReturnLeft} inline={true} />
-            <Guardar
-              text={loading ? (
-                <>
-                  <Spinner as="span" animation="border" size="sm" className="me-2" />
-                  A criar...
-                </>
-              ) : "Criar Utilizador"}
-              onClick={handleSave}
-              Icon={FaRegSave}
-              disabled={loading}
-            />
-          </div>
-        </Card.Body>
-      </Card>
-    </ModalCustom>
-  );
+            setSuccess('Registo realizado com sucesso!');
+            setTimeout(() => {
+                handleClose();
+            }, 2000);
+        } catch (err) {
+            console.error('Erro ao registar:', err);
+            setError(err.response?.data?.message || 'Erro ao registar utilizador');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const togglePasswordVisibility = () => {
+        setShowPassword(!showPassword);
+    };
+
+    const toggleConfirmPasswordVisibility = () => {
+        setShowConfirmPassword(!showConfirmPassword);
+    };
+
+    return (
+        <Modal show={show} onHide={handleClose} centered className="register-modal" size="xl">
+            <Modal.Header closeButton className="border-0 pb-0 position-relative">
+                <div className="logo-container w-100 text-center">
+                    <h2 className="app-logo mb-0">
+                        <span className="logo-first">Soft</span>
+                        <span className="logo-second">Skills</span>
+                    </h2>
+                </div>
+            </Modal.Header>
+            <Modal.Body className="pt-0">
+                <Container>
+                    <Row className="justify-content-center">
+                        <Col xs={12} md={10}>
+                            <div className="text-center mb-4">
+                                <h4 className="welcome-title">Criar Nova Conta</h4>
+                                <p className="welcome-subtitle">Preencha os dados para se registar</p>
+                            </div>
+
+                            {error && <Alert variant="danger" className="register-form-alert register-form-alert-danger">{error}</Alert>}
+                            {success && <Alert variant="success" className="register-form-alert register-form-alert-success">{success}</Alert>}
+
+                            <Form onSubmit={handleSubmit}>
+                                <Row>
+                                    <Col md={6}>
+                                        <Form.Group className="mb-3">
+                                            <Form.Label className="register-form-label">Primeiro Nome</Form.Label>
+                                            <div className="register-form-input-group">
+                                                <div className="register-form-input-icon">
+                                                    <FaUser />
+                                                </div>
+                                                <Form.Control
+                                                    type="text"
+                                                    name="primeiro_nome"
+                                                    value={formData.primeiro_nome}
+                                                    onChange={handleChange}
+                                                    required
+                                                    placeholder="Primeiro nome"
+                                                />
+                                            </div>
+                                        </Form.Group>
+                                    </Col>
+                                    <Col md={6}>
+                                        <Form.Group className="mb-3">
+                                            <Form.Label className="register-form-label">Último Nome</Form.Label>
+                                            <div className="register-form-input-group">
+                                                <div className="register-form-input-icon">
+                                                    <FaUser />
+                                                </div>
+                                                <Form.Control
+                                                    type="text"
+                                                    name="ultimo_nome"
+                                                    value={formData.ultimo_nome}
+                                                    onChange={handleChange}
+                                                    required
+                                                    placeholder="Último nome"
+                                                />
+                                            </div>
+                                        </Form.Group>
+                                    </Col>
+                                </Row>
+
+                                <Form.Group className="mb-3">
+                                    <Form.Label className="register-form-label">Email</Form.Label>
+                                    <div className="register-form-input-group">
+                                        <div className="register-form-input-icon">
+                                            <FaEnvelope />
+                                        </div>
+                                        <Form.Control
+                                            type="email"
+                                            name="email"
+                                            value={formData.email}
+                                            onChange={handleChange}
+                                            required
+                                            placeholder="Email"
+                                        />
+                                    </div>
+                                </Form.Group>
+
+                                <Row>
+                                    <Col md={6}>
+                                        <Form.Group className="mb-3">
+                                            <Form.Label className="register-form-label">Palavra-passe</Form.Label>
+                                            <div className="register-form-input-group">
+                                                <div className="register-form-input-icon">
+                                                    <FaLock />
+                                                </div>
+                                                <Form.Control
+                                                    type={showPassword ? "text" : "password"}
+                                                    name="password"
+                                                    value={formData.password}
+                                                    onChange={handleChange}
+                                                    required
+                                                    placeholder="Palavra-passe"
+                                                />
+                                                <div className="register-form-password-toggle" onClick={togglePasswordVisibility}>
+                                                    {showPassword ? <FaEyeSlash /> : <FaEye />}
+                                                </div>
+                                            </div>
+                                        </Form.Group>
+                                    </Col>
+                                    <Col md={6}>
+                                        <Form.Group className="mb-3">
+                                            <Form.Label className="register-form-label">Confirmar Palavra-passe</Form.Label>
+                                            <div className="register-form-input-group">
+                                                <div className="register-form-input-icon">
+                                                    <FaLock />
+                                                </div>
+                                                <Form.Control
+                                                    type={showConfirmPassword ? "text" : "password"}
+                                                    name="confirmPassword"
+                                                    value={formData.confirmPassword}
+                                                    onChange={handleChange}
+                                                    required
+                                                    placeholder="Confirmar palavra-passe"
+                                                />
+                                                <div className="register-form-password-toggle" onClick={toggleConfirmPasswordVisibility}>
+                                                    {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+                                                </div>
+                                            </div>
+                                        </Form.Group>
+                                    </Col>
+                                </Row>
+
+                                <Row>
+                                    <Col md={6}>
+                                        <Form.Group className="mb-3">
+                                            <Form.Label className="register-form-label">Telemóvel</Form.Label>
+                                            <div className="register-form-input-group">
+                                                <div className="register-form-input-icon">
+                                                    <FaPhone />
+                                                </div>
+                                                <Form.Control
+                                                    type="tel"
+                                                    name="telefone"
+                                                    value={formData.telefone}
+                                                    onChange={handleChange}
+                                                    placeholder="Telemóvel"
+                                                />
+                                            </div>
+                                        </Form.Group>
+                                    </Col>
+                                    <Col md={6}>
+                                        <Form.Group className="mb-3">
+                                            <Form.Label className="register-form-label">Data de Nascimento</Form.Label>
+                                            <div className="register-form-input-group">
+                                                <div className="register-form-input-icon">
+                                                    <FaCalendarAlt />
+                                                </div>
+                                                <Form.Control
+                                                    type="date"
+                                                    name="data_nasc"
+                                                    value={formData.data_nasc}
+                                                    onChange={handleChange}
+                                                    required
+                                                />
+                                            </div>
+                                        </Form.Group>
+                                    </Col>
+                                </Row>
+
+                                <Button
+                                    type="submit"
+                                    className="register-form-button w-100"
+                                    disabled={loading}
+                                >
+                                    {loading ? (
+                                        <div className="d-flex align-items-center justify-content-center">
+                                            <div className="spinner-border spinner-border-sm me-2" role="status">
+                                                <span className="visually-hidden">Carregando...</span>
+                                            </div>
+                                            A registar...
+                                        </div>
+                                    ) : (
+                                        'Registrar'
+                                    )}
+                                </Button>
+                            </Form>
+                        </Col>
+                    </Row>
+                </Container>
+            </Modal.Body>
+        </Modal>
+    );
 };
 
-export default ModalRegisterUser;
+export default RegisterUser;
