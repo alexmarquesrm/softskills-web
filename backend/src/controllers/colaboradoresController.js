@@ -5,6 +5,7 @@ const models = initModels(sequelizeConn);
 const ficheirosController = require('./ficheiros');
 const bcrypt = require('bcrypt');
 const e = require("express");
+const { sendRegistrationEmail } = require('../services/emailService');
 
 const controladorUtilizadores = {
   // Função para obter o próprio perfil do usuário autenticado
@@ -282,9 +283,11 @@ const controladorUtilizadores = {
   },
 
   registarNovoColaborador: async (req, res) => {
+    console.log(req.body);
     try {
       const { nome, email, data_nasc, telefone, score, sobre_mim, username, password } = req.body;
       const funcao_id = null;
+
       // Verificar se username já existe
       const existingUser = await models.colaborador.findOne({
         where: { username }
@@ -307,7 +310,7 @@ const controladorUtilizadores = {
       }
       
       if (existingTelefone) {
-        return res.status(400).json({ message: "Telefone já está em uso" });
+        return res.status(500).json({ message: "Telefone já está em uso" });
       }
 
       const hashedPassword = await bcrypt.hash(password, 10);
@@ -341,10 +344,18 @@ const controladorUtilizadores = {
         type: sequelizeConn.QueryTypes.SELECT
       });
 
-      res.status(201).json({ message: "Colaborador e formando default criados com sucesso." });
+      // Tentar enviar email, mas não bloquear o registo se falhar
+      try {
+        await sendRegistrationEmail(email, username, password);
+      } catch (emailError) {
+        console.warn('Não foi possível enviar o email com as credenciais para:', email, emailError);
+      }
+      // EMAIL
+      console.log("Email enviado com sucesso");
 
+      res.status(201).json({ message: "Colaborador e formando default criados com sucesso." });
     } catch (error) {
-      console.error(error);
+      console.error('Erro ao criar colaborador:', error);
       res.status(500).json({ message: "Erro ao criar colaborador." });
     }
   },
@@ -370,7 +381,9 @@ const controladorUtilizadores = {
         return res.status(400).json({ message: "Username já está em uso" });
       }
 
-      const hashedPassword = await bcrypt.hash("123", 10);
+      // Gerar uma password aleatória
+      const tempPassword = Math.random().toString(36).slice(-8);
+      const hashedPassword = await bcrypt.hash(tempPassword, 10);
       let novoColaborador;
 
       // Se for Formando, usar a função do banco
@@ -427,18 +440,22 @@ const controladorUtilizadores = {
           gestor_id: novoColaborador.colaborador_id
         });
       }
-
-      return res.status(201).json({
-        message: "Colaborador criado com sucesso",
-        colaborador: {
-          id: novoColaborador.colaborador_id,
-          tipos: tipos || [tipo]
-        }
+      
+      // Enviar email com as credenciais
+      const emailSent = await sendRegistrationEmail(email, username, tempPassword);
+      
+      if (!emailSent) {
+        console.warn('Não foi possível enviar o email com as credenciais para:', email);
+      }
+      
+      res.status(201).json({ 
+        message: "Colaborador criado com sucesso.",
+        emailSent: emailSent
       });
 
     } catch (error) {
       console.error(error);
-      return res.status(500).json({ message: "Erro ao criar colaborador" });
+      res.status(500).json({ message: "Erro ao criar colaborador." });
     }
   },
 
