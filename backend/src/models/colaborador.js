@@ -55,6 +55,10 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: false
+    },
+    last_login: {
+      type: DataTypes.DATE,
+      allowNull: true
     }
   }, {
     sequelize,

@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import RegisterUser from './registerUser';
 import 'react-toastify/dist/ReactToastify.css';
 import './loginModal.css';
+import ChangePasswordModal from './changePasswordModal';
 
 const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
     const [login, setLogin] = useState('');
@@ -17,6 +18,7 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
     const [passError, setPassError] = useState(false);
     const [passErrorMessage, setPassErrorMessage] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [showChangePassword, setShowChangePassword] = useState(false);
     
     const navigate = useNavigate();
 
@@ -75,7 +77,6 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
         }
 
         try {
-            // Login único que retorna token e dados do usuário
             const response = await axios.post('/colaborador/login', {
                 username: login,
                 password: password
@@ -100,7 +101,7 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
             sessionStorage.setItem('colaboradorid', utilizador.colaboradorid);
             sessionStorage.setItem('nome', utilizador.nome);
             sessionStorage.setItem('email', utilizador.email);
-            sessionStorage.setItem('primeirologin', utilizador.ultimologin === null ? "true" : "false");
+            sessionStorage.setItem('primeirologin', utilizador.isFirstLogin ? "true" : "false");
             sessionStorage.setItem('tipo', currentType);
             sessionStorage.setItem('saudacao', saudacao);
             
@@ -114,24 +115,30 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
             // Configurar o token para todas as requisições futuras
             axios.defaults.headers.common['Authorization'] = token;
 
-            // Determinar a rota de redirecionamento baseada nas roles
-            let redirectPath = '/';
-            if (isGestor) {
-                redirectPath = '/gestor/dashboard';
-            } else if (userType === 'Formando' || allUserTypes.includes('Formando')) {
-                redirectPath = '/utilizadores/dashboard';
-            } else if (userType === 'Formador' || allUserTypes.includes('Formador')) {
-                redirectPath = '/formador/dashboard';
-            }
-
-            // Fechar o modal e redirecionar com a mensagem de boas-vindas
-            handleClose();
-            navigate(redirectPath, { 
-                state: { 
-                    welcomeMessage: `${saudacao}, ${utilizador.nome}! Bem-vindo(a) à plataforma de cursos.`
+            // Se for primeiro login, mostrar o modal de alteração de senha
+            if (utilizador.isFirstLogin) {
+                handleClose();
+                setShowChangePassword(true);
+            } else {
+                // Determinar a rota de redirecionamento baseada nas roles
+                let redirectPath = '/';
+                if (isGestor) {
+                    redirectPath = '/gestor/dashboard';
+                } else if (userType === 'Formando' || allUserTypes.includes('Formando')) {
+                    redirectPath = '/utilizadores/dashboard';
+                } else if (userType === 'Formador' || allUserTypes.includes('Formador')) {
+                    redirectPath = '/formador/dashboard';
                 }
-            });
-            onLoginSuccess();
+
+                // Fechar o modal e redirecionar com a mensagem de boas-vindas
+                handleClose();
+                navigate(redirectPath, { 
+                    state: { 
+                        welcomeMessage: `${saudacao}, ${utilizador.nome}! Bem-vindo(a) à plataforma de cursos.`
+                    }
+                });
+                onLoginSuccess();
+            }
         } catch (error) {
             console.error('Erro no login:', error);
             if (error.response?.status === 404) {
@@ -147,6 +154,26 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
         } finally {
             setIsLoading(false);
         }
+    };
+
+    const handleChangePasswordSuccess = () => {
+        const userType = sessionStorage.getItem('tipo');
+        let redirectPath = '/';
+        
+        if (userType === 'Gestor') {
+            redirectPath = '/gestor/dashboard';
+        } else if (userType === 'Formando') {
+            redirectPath = '/utilizadores/dashboard';
+        } else if (userType === 'Formador') {
+            redirectPath = '/formador/dashboard';
+        }
+
+        navigate(redirectPath, { 
+            state: { 
+                welcomeMessage: `${sessionStorage.getItem('saudacao')}, ${sessionStorage.getItem('nome')}! Bem-vindo(a) à plataforma de cursos.`
+            }
+        });
+        onLoginSuccess();
     };
 
     const resetForm = () => {
@@ -175,91 +202,99 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
     };
 
     return (
-        <Modal show={open} onHide={handleCancel} centered className="login-modal">
-            <Modal.Header closeButton className="border-0 pb-0 position-relative">
-                <div className="logo-container w-100 text-center">
-                    <h2 className="app-logo mb-0">
-                        <span className="logo-first">Soft</span>
-                        <span className="logo-second">Skills</span>
-                    </h2>
-                </div>
-            </Modal.Header>
-            <Modal.Body className="pt-0">
-                <Container>
-                    <Row className="justify-content-center">
-                        <Col xs={12} md={10}>
-                            <div className="text-center mb-4">
-                                <h4 className="welcome-title">Bem-vindo de volta!</h4>
-                                <p className="welcome-subtitle">Introduza os seus dados para continuar</p>
-                            </div>
-
-                            <Form onSubmit={handleSubmit}>
-                                <Form.Group className="mb-4">
-                                    <InputGroup className="input-group-custom">
-                                        <InputGroup.Text>
-                                            <PersonFill />
-                                        </InputGroup.Text>
-                                        <Form.Control
-                                            type="text"
-                                            placeholder="Nome de utilizador"
-                                            value={login}
-                                            onChange={(e) => setLogin(e.target.value)}
-                                            isInvalid={loginError}
-                                            autoFocus
-                                            onKeyDown={handleKeyPress}
-                                        />
-                                    </InputGroup>
-                                    {loginError && (
-                                        <div className="error-message">
-                                            <small>{loginErrorMessage}</small>
-                                        </div>
-                                    )}
-                                </Form.Group>
-
-                                <Form.Group className="mb-4">
-                                    <InputGroup className="input-group-custom">
-                                        <InputGroup.Text>
-                                            <KeyFill />
-                                        </InputGroup.Text>
-                                        <Form.Control type={showPassword ? "text" : "password"} placeholder="Password"
-                                            value={password} onChange={(e) => setPassword(e.target.value)}
-                                            isInvalid={passError} onKeyDown={handleKeyPress} />
-                                        <InputGroup.Text onClick={handleClickShowPassword} className="password-toggle">
-                                            {showPassword ? <EyeSlashFill /> : <EyeFill />}
-                                        </InputGroup.Text>
-                                    </InputGroup>
-                                    {passError && (
-                                        <div className="error-message">
-                                            <small>{passErrorMessage}</small>
-                                        </div>
-                                    )}
-                                </Form.Group>
-
-                                <div className="d-flex justify-content-end mb-3">
-                                    <Button variant="link" className="forgot-password p-0">
-                                        Esqueceu a password?
-                                    </Button>
+        <>
+            <Modal show={open} onHide={handleCancel} centered className="login-modal">
+                <Modal.Header closeButton className="border-0 pb-0 position-relative">
+                    <div className="logo-container w-100 text-center">
+                        <h2 className="app-logo mb-0">
+                            <span className="logo-first">Soft</span>
+                            <span className="logo-second">Skills</span>
+                        </h2>
+                    </div>
+                </Modal.Header>
+                <Modal.Body className="pt-0">
+                    <Container>
+                        <Row className="justify-content-center">
+                            <Col xs={12} md={10}>
+                                <div className="text-center mb-4">
+                                    <h4 className="welcome-title">Bem-vindo de volta!</h4>
+                                    <p className="welcome-subtitle">Introduza os seus dados para continuar</p>
                                 </div>
 
-                                <Button variant="primary" className="login-button w-100" type="submit" disabled={isLoading}>
-                                    {isLoading ? 'A processar...' : 'Entrar'}
-                                </Button>
+                                <Form onSubmit={handleSubmit}>
+                                    <Form.Group className="mb-4">
+                                        <InputGroup className="input-group-custom">
+                                            <InputGroup.Text>
+                                                <PersonFill />
+                                            </InputGroup.Text>
+                                            <Form.Control
+                                                type="text"
+                                                placeholder="Nome de utilizador"
+                                                value={login}
+                                                onChange={(e) => setLogin(e.target.value)}
+                                                isInvalid={loginError}
+                                                autoFocus
+                                                onKeyDown={handleKeyPress}
+                                            />
+                                        </InputGroup>
+                                        {loginError && (
+                                            <div className="error-message">
+                                                <small>{loginErrorMessage}</small>
+                                            </div>
+                                        )}
+                                    </Form.Group>
 
-                                <div className="text-center mt-4 mb-2">
-                                    <p className="register-prompt mb-0">
-                                        Não tem uma conta?{' '}
-                                        <RegisterUser show={ModalRegisterOpen} onClose={() => setModalRegisterOpen(false)} />
-                                        <Button variant="link" className="register-link p-0" onClick={() => setModalRegisterOpen(true)}>
-                                            Registrar
+                                    <Form.Group className="mb-4">
+                                        <InputGroup className="input-group-custom">
+                                            <InputGroup.Text>
+                                                <KeyFill />
+                                            </InputGroup.Text>
+                                            <Form.Control type={showPassword ? "text" : "password"} placeholder="Password"
+                                                value={password} onChange={(e) => setPassword(e.target.value)}
+                                                isInvalid={passError} onKeyDown={handleKeyPress} />
+                                            <InputGroup.Text onClick={handleClickShowPassword} className="password-toggle">
+                                                {showPassword ? <EyeSlashFill /> : <EyeFill />}
+                                            </InputGroup.Text>
+                                        </InputGroup>
+                                        {passError && (
+                                            <div className="error-message">
+                                                <small>{passErrorMessage}</small>
+                                            </div>
+                                        )}
+                                    </Form.Group>
+
+                                    <div className="d-flex justify-content-end mb-3">
+                                        <Button variant="link" className="forgot-password p-0">
+                                            Esqueceu a password?
                                         </Button>
-                                    </p>
-                                </div>
-                            </Form>
-                        </Col>
-                    </Row>
-                </Container>
-            </Modal.Body>
-        </Modal>
+                                    </div>
+
+                                    <Button variant="primary" className="login-button w-100" type="submit" disabled={isLoading}>
+                                        {isLoading ? 'A processar...' : 'Entrar'}
+                                    </Button>
+
+                                    <div className="text-center mt-4 mb-2">
+                                        <p className="register-prompt mb-0">
+                                            Não tem uma conta?{' '}
+                                            <RegisterUser show={ModalRegisterOpen} onClose={() => setModalRegisterOpen(false)} />
+                                            <Button variant="link" className="register-link p-0" onClick={() => setModalRegisterOpen(true)}>
+                                                Registrar
+                                            </Button>
+                                        </p>
+                                    </div>
+                                </Form>
+                            </Col>
+                        </Row>
+                    </Container>
+                </Modal.Body>
+            </Modal>
+
+            <ChangePasswordModal 
+                show={showChangePassword}
+                onHide={() => setShowChangePassword(false)}
+                onSuccess={handleChangePasswordSuccess}
+            />
+        </>
     );
 };
 

@@ -399,17 +399,6 @@ export default function EditColab() {
                         >
                           <FaCamera color="white" size={20} />
                         </div>
-                        
-                        {previewFoto !== profilePic && (
-                          <div 
-                            className="bg-danger p-2 rounded-circle mx-1" 
-                            style={{ cursor: "pointer" }}
-                            onClick={handleRemoveFoto}
-                            title="Remover foto"
-                          >
-                            <FaTrash color="white" size={20} />
-                          </div>
-                        )}
                       </div>
                     </div>
                   )}

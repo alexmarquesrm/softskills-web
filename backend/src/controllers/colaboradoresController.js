@@ -200,20 +200,19 @@ const controladorUtilizadores = {
       // Set default active type (first available role)
       const activeType = userTypes[0];
 
+      // Verificar se é o primeiro login
+      const isFirstLogin = !user.last_login;
+
       const userData = {
         colaboradorid: user.colaborador_id,
         nome: user.nome,
         username: user.username,
         email: user.email,
-        ultimologin: user.ultimologin,
+        ultimologin: user.last_login,
         tipo: activeType,           // For backward compatibility
-        allUserTypes: userTypes     // All available user types
+        allUserTypes: userTypes,    // All available user types
+        isFirstLogin               // Flag para indicar se é o primeiro login
       };
-
-      // Atualizar último login
-      await user.update({
-        ultimologin: new Date()
-      });
 
       // Gerar token JWT com os dados do usuário
       const token = generateToken({
@@ -328,7 +327,8 @@ const controladorUtilizadores = {
           :score,
           :sobre_mim,
           :username,
-          :hashedPassword
+          :hashedPassword,
+          :last_login
         )
       `;
 
@@ -342,7 +342,8 @@ const controladorUtilizadores = {
           score,
           sobre_mim,
           username,
-          hashedPassword
+          hashedPassword,
+          last_login: new Date()
         },
         type: sequelizeConn.QueryTypes.SELECT
       });
@@ -356,8 +357,6 @@ const controladorUtilizadores = {
           
           Nome de utilizador: ${username}
           Password: ${password}
-          
-          Por motivos de segurança, recomendamos que altere a sua password após o primeiro login.
           
           Se tiver alguma dúvida, não hesite em contactar-nos.
           
@@ -640,6 +639,40 @@ const controladorUtilizadores = {
     } catch (error) {
       console.error('Erro ao obter saudação:', error);
       res.status(500).json({ message: "Erro ao obter saudação" });
+    }
+  },
+
+  changePassword: async (req, res) => {
+    try {
+      const { currentPassword, newPassword } = req.body;
+      const userId = req.user.id;
+
+      // Buscar o usuário
+      const user = await models.colaborador.findByPk(userId);
+
+      if (!user) {
+        return res.status(404).json({ message: "Utilizador não encontrado" });
+      }
+
+      // Verificar a senha atual
+      const passwordMatch = await bcrypt.compare(currentPassword, user.pssword);
+      if (!passwordMatch) {
+        return res.status(401).json({ message: "Password atual incorreta" });
+      }
+
+      // Hash da nova senha
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+      // Atualizar a senha e o último login
+      await user.update({
+        pssword: hashedPassword,
+        last_login: new Date()
+      });
+
+      res.json({ message: "Password alterada com sucesso" });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Erro ao alterar password" });
     }
   },
 };
