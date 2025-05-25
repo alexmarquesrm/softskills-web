@@ -134,7 +134,6 @@ export default function ViewPedido() {
         );
     }
 
-    console.log(pedido);
     const getStatusBadge = (pedido) => {
         if (pedido?.ped_curso?.pendente === true && pedido?.ped_curso?.aprovado === false) {
             return <span className="badge bg-warning">Pendente</span>;

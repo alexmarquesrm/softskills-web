@@ -24,14 +24,18 @@ const controladorUtilizadores = {
         return res.status(404).json({ message: "Usuário não encontrado" });
       }
 
-      const files = await ficheirosController.getFilesFromBucketOnly(userId, 'colaborador');
-
-      const colaboradorData = colaborador.toJSON();
-      if (files.length > 0) {
-        colaboradorData.fotoPerfilUrl = files[0].url;
+      try {
+        const files = await ficheirosController.getFilesFromBucketOnly(userId, 'colaborador');
+        const colaboradorData = colaborador.toJSON();
+        if (files && files.length > 0) {
+          colaboradorData.fotoPerfilUrl = files[0].url;
+        }
+        res.json(colaboradorData);
+      } catch (bucketError) {
+        // Se houver erro ao buscar arquivos (bucket não existe), retornar dados sem foto
+        const colaboradorData = colaborador.toJSON();
+        res.json(colaboradorData);
       }
-
-      res.json(colaboradorData);
     } catch (error) {
       console.error('Erro ao obter perfil do usuário:', error);
       res.status(500).json({ message: "Erro ao obter perfil do usuário" });
@@ -283,7 +287,6 @@ const controladorUtilizadores = {
   },
 
   registarNovoColaborador: async (req, res) => {
-    console.log(req.body);
     try {
       const { nome, email, data_nasc, telefone, score, sobre_mim, username, password } = req.body;
       const funcao_id = null;
@@ -363,7 +366,6 @@ const controladorUtilizadores = {
         `;
 
         await sendEmail(email, 'Bem-vindo à Plataforma SoftSkills', emailText);
-        console.log("Email enviado com sucesso para:", email);
       } catch (emailError) {
         console.warn('Erro ao enviar email:', emailError);
       }
@@ -494,7 +496,6 @@ const controladorUtilizadores = {
 
   updateColaborador: async (req, res) => {
     const id = req.params.id;
-
     try {
       // Verificar se o usuário está atualizando seu próprio perfil
       // ou se tem permissão administrativa

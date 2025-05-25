@@ -126,7 +126,6 @@ export default function PaginaGestor() {
       const response = await axios.get(`/pedido`, {
         headers: { Authorization: `${token}` }
       });
-      console.log(response.data);
       setPedidos(response.data);
     } catch (error) {
       setError(error);

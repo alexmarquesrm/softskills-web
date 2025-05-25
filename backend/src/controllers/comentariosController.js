@@ -114,7 +114,6 @@ const controladorComentarios = {
   async getComentariosByThread(req, res) {
     try {
       const { thread_id } = req.params;
-      console.log('A procurar comentários para thread:', thread_id);
 
       // Verificar se a thread existe
       const thread = await models.threads.findByPk(thread_id);
@@ -160,7 +159,6 @@ const controladorComentarios = {
         return comentarioJSON;
       }));
 
-      console.log('Comentários com respostas:', comentariosComRespostas.length);
       res.json(comentariosComRespostas);
     } catch (error) {
       console.error('Erro ao procurar comentários:', error);

@@ -278,7 +278,6 @@ export default function EditColab() {
       delete payload.departamento;
       delete payload.cargo;
 
-      console.log(payload);
       // Enviar atualização ao servidor
       await axios.put(`/colaborador/atualizar/${id}`, payload);
 

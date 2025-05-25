@@ -29,7 +29,6 @@ const CreateThread = () => {
     try {
       // Get the current user's ID from localStorage or your auth context
       const colaborador_id = sessionStorage.getItem('colaboradorid');
-      console.log(colaborador_id);
       if (!colaborador_id) {
         throw new Error('Utilizador não autenticado');
       }
@@ -39,7 +38,6 @@ const CreateThread = () => {
         forum_id: parseInt(id),
         colaborador_id: parseInt(colaborador_id)
       };
-      console.log(threadData);
 
       await axios.post('/thread/criar', threadData);
       navigate(`/forum/${id}`);

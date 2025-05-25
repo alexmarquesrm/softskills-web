@@ -74,7 +74,6 @@ const controladorCategorias = {
   updateCategoria: async (req, res) => {
     const { id } = req.params;
     const { descricao } = req.body;
-    console.log(id, descricao);
     try {
       const categoria = await models.categoria.findByPk(id);
       if (!categoria) {
