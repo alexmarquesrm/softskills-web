@@ -43,9 +43,24 @@ function NotificationDropdown() {
 
   const markAllAsRead = async () => {
     try {
-      await axios.put('/notificacao/marcar-todas-lidas');
-      setNotifications(notifications.map(n => ({ ...n, lida: true })));
+      const formandoId = sessionStorage.getItem('colaboradorid');
+      if (!formandoId) {
+        console.error('ID do formando não encontrado');
+        return;
+      }
+
+      await axios.put('/notificacao/marcar-todas-lidas', {
+        colaboradorid: formandoId
+      });
+      
+      // Atualizar o estado local
+      setNotifications(prevNotifications => 
+        prevNotifications.map(n => ({ ...n, lida: true }))
+      );
       setUnreadCount(0);
+      
+      // Recarregar as notificações para garantir sincronização
+      await fetchNotifications();
     } catch (error) {
       console.error('Erro ao marcar todas notificações como lidas:', error);
     }
@@ -104,7 +119,11 @@ function NotificationDropdown() {
             {unreadCount > 0 && (
               <button 
                 className="btn btn-link btn-sm p-0"
-                onClick={markAllAsRead}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  markAllAsRead();
+                }}
               >
                 Marcar todas como lidas
               </button>

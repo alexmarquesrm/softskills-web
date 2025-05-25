@@ -42,20 +42,24 @@ const notificacaoController = {
   // Marcar todas as notificações como lidas
   marcarTodasNotificacoesComoLidas: async (req, res) => {
     try {
-      const formandoId = req.user.colaboradorid;
+      const { colaboradorid } = req.body;
+      
+      if (!colaboradorid) {
+        return res.status(400).json({ error: 'ID do formando não fornecido' });
+      }
 
       await models.notificacao.update(
         { lida: true },
         { 
           where: { 
-            formando_id: formandoId,
+            formando_id: colaboradorid,
             lida: false
           }
         }
       );
 
       const notificacoes = await models.notificacao.findAll({
-        where: { formando_id: formandoId }
+        where: { formando_id: colaboradorid }
       });
 
       res.json(notificacoes);
