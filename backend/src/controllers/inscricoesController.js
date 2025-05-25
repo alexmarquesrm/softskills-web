@@ -3,6 +3,7 @@ const sequelizeConn = require("../bdConexao");
 const formando = require("../models/formando");
 const curso = require("../models/curso");
 const models = initModels(sequelizeConn);
+const { sendEmail } = require('../services/emailService');
 
 const controladorInscricoes = {
   // Criar uma nova inscrição
@@ -33,16 +34,65 @@ const controladorInscricoes = {
         include: [
           {
             model: models.curso,
-            as: "inscricao_curso"
+            as: "inscricao_curso",
+            include: [
+              {
+                model: models.sincrono,
+                as: "curso_sincrono",
+                attributes: ["curso_id", "data_inicio", "data_fim"]
+              }
+            ]
+          },
+          {
+            model: models.formando,
+            as: "inscricao_formando",
+            include: [
+              {
+                model: models.colaborador,
+                as: "formando_colab",
+                attributes: ["nome", "email"]
+              }
+            ]
           }
         ],
         transaction
       });
 
+      // Enviar email de confirmação
+      const emailSent = await sendEmail(
+        novaInscricao.inscricao_formando.formando_colab.email,
+        'Confirmação de Inscrição - SoftSkills',
+        `
+          Olá ${novaInscricao.inscricao_formando.formando_colab.nome},
+
+          A sua inscrição no curso "${novaInscricao.inscricao_curso.titulo}" foi realizada com sucesso!
+
+          Detalhes do curso:
+          - Título: ${novaInscricao.inscricao_curso.titulo}
+          - Descrição: ${novaInscricao.inscricao_curso.descricao}
+          ${novaInscricao.inscricao_curso.tipo === 'S' && novaInscricao.inscricao_curso.curso_sincrono ? `
+          - Data de início: ${new Date(novaInscricao.inscricao_curso.curso_sincrono.data_inicio).toLocaleDateString('pt-PT')}
+          - Data de fim: ${new Date(novaInscricao.inscricao_curso.curso_sincrono.data_fim).toLocaleDateString('pt-PT')}
+          ` : ''}
+
+          Acompanhe o seu progresso na plataforma e não hesite em contactar-nos se tiver alguma dúvida.
+
+          Atenciosamente,
+          Equipa SoftSkills
+        `
+      );
+
+      if (!emailSent) {
+        console.warn('Não foi possível enviar o email de confirmação para:', novaInscricao.inscricao_formando.formando_colab.email);
+      }
+
       // Commit da transação
       await transaction.commit();
 
-      res.status(201).json(novaInscricao);
+      res.status(201).json({
+        ...novaInscricao.toJSON(),
+        emailSent
+      });
     } catch (error) {
       // Rollback da transação em caso de erro
       await transaction.rollback();
