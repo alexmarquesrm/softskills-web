@@ -7,7 +7,7 @@ exports.sendEmail = async (to, subject, text) => {
         host: process.env.SMTP_HOST,
         port: process.env.SMTP_PORT,
         user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS ? '***' : 'undefined' // Não logar a senha real
+        pass: process.env.SMTP_PASS
     });
 
     // Criar transporter 
