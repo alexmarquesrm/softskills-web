@@ -37,6 +37,7 @@ const controladorFormandos = {
 
   getFormandoById: async (req, res) => {
     const { id } = req.params;
+    console.log(id);
     try {
       const formando = await models.formando.findOne({
         where: { formando_id: id },

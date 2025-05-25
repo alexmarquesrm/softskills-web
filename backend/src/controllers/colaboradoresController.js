@@ -418,11 +418,23 @@ const controladorUtilizadores = {
             :score,
             :sobre_mim,
             :username,
-            :hashedPassword
+            :hashedPassword,
+            :last_login
           )`;
 
         await sequelizeConn.query(sql, {
-          replacements: { nome, email, data_nasc, funcao_id, telefone, score, sobre_mim, username, hashedPassword },
+          replacements: { 
+            nome, 
+            email, 
+            data_nasc, 
+            funcao_id, 
+            telefone, 
+            score, 
+            sobre_mim, 
+            username, 
+            hashedPassword,
+            last_login: new Date()
+          },
           type: sequelizeConn.QueryTypes.SELECT,
         });
 
