@@ -20,6 +20,7 @@ const RegisterUser = ({ show, onClose }) => {
     const [success, setSuccess] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [validationErrors, setValidationErrors] = useState({});
 
     useEffect(() => {
         const p = formData.primeiro_nome.trim();
@@ -55,7 +56,56 @@ const RegisterUser = ({ show, onClose }) => {
         });
         setError('');
         setSuccess('');
+        setValidationErrors({});
         onClose();
+    };
+
+    const validateForm = () => {
+        const errors = {};
+        
+        // Check empty fields
+        if (!formData.primeiro_nome.trim()) errors.primeiro_nome = "Primeiro nome é obrigatório";
+        if (!formData.ultimo_nome.trim()) errors.ultimo_nome = "Último nome é obrigatório";
+        if (!formData.username.trim()) errors.username = "Nome de utilizador é obrigatório";
+        if (!formData.email.trim()) errors.email = "Email é obrigatório";
+        if (!formData.password) errors.password = "Palavra-passe é obrigatória";
+        if (!formData.confirmPassword) errors.confirmPassword = "Confirmação da palavra-passe é obrigatória";
+        if (!formData.telefone) errors.telefone = "Telemóvel é obrigatório";
+        if (!formData.data_nasc) errors.data_nasc = "Data de nascimento é obrigatória";
+
+        // Email format validation
+        if (formData.email && !/\S+@\S+\.\S+/.test(formData.email)) {
+            errors.email = "Email inválido";
+        }
+
+        // Password match validation
+        if (formData.password && formData.confirmPassword && formData.password !== formData.confirmPassword) {
+            errors.confirmPassword = "As palavras-passe não coincidem";
+        }
+
+        // Phone number validation (9 digits starting with 9)
+        if (formData.telefone && !/^9\d{8}$/.test(formData.telefone)) {
+            errors.telefone = "Telemóvel deve ter 9 dígitos e começar por 9";
+        }
+
+        // Age validation (must be at least 18 years old)
+        if (formData.data_nasc) {
+            const birthDate = new Date(formData.data_nasc);
+            const today = new Date();
+            const age = today.getFullYear() - birthDate.getFullYear();
+            const monthDiff = today.getMonth() - birthDate.getMonth();
+            
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                age--;
+            }
+            
+            if (age < 18) {
+                errors.data_nasc = "Deve ter pelo menos 18 anos";
+            }
+        }
+
+        setValidationErrors(errors);
+        return Object.keys(errors).length === 0;
     };
 
     const handleSubmit = async (e) => {
@@ -64,8 +114,7 @@ const RegisterUser = ({ show, onClose }) => {
         setSuccess('');
         setLoading(true);
 
-        if (formData.password !== formData.confirmPassword) {
-            setError('As palavras-passe não coincidem');
+        if (!validateForm()) {
             setLoading(false);
             return;
         }
@@ -144,10 +193,15 @@ const RegisterUser = ({ show, onClose }) => {
                                                     name="primeiro_nome"
                                                     value={formData.primeiro_nome}
                                                     onChange={handleChange}
-                                                    required
                                                     placeholder="Primeiro nome"
+                                                    isInvalid={!!validationErrors.primeiro_nome}
                                                 />
                                             </div>
+                                            {validationErrors.primeiro_nome && (
+                                                <div className="register-form-error-message">
+                                                    {validationErrors.primeiro_nome}
+                                                </div>
+                                            )}
                                         </Form.Group>
                                     </Col>
                                     <Col md={6}>
@@ -162,10 +216,15 @@ const RegisterUser = ({ show, onClose }) => {
                                                     name="ultimo_nome"
                                                     value={formData.ultimo_nome}
                                                     onChange={handleChange}
-                                                    required
                                                     placeholder="Último nome"
+                                                    isInvalid={!!validationErrors.ultimo_nome}
                                                 />
                                             </div>
+                                            {validationErrors.ultimo_nome && (
+                                                <div className="register-form-error-message">
+                                                    {validationErrors.ultimo_nome}
+                                                </div>
+                                            )}
                                         </Form.Group>
                                     </Col>
                                 </Row>
@@ -181,10 +240,15 @@ const RegisterUser = ({ show, onClose }) => {
                                             name="email"
                                             value={formData.email}
                                             onChange={handleChange}
-                                            required
                                             placeholder="Email"
+                                            isInvalid={!!validationErrors.email}
                                         />
                                     </div>
+                                    {validationErrors.email && (
+                                        <div className="register-form-error-message">
+                                            {validationErrors.email}
+                                        </div>
+                                    )}
                                 </Form.Group>
 
                                 <Row>
@@ -200,13 +264,18 @@ const RegisterUser = ({ show, onClose }) => {
                                                     name="password"
                                                     value={formData.password}
                                                     onChange={handleChange}
-                                                    required
                                                     placeholder="Palavra-passe"
+                                                    isInvalid={!!validationErrors.password}
                                                 />
                                                 <div className="register-form-password-toggle" onClick={togglePasswordVisibility}>
                                                     {showPassword ? <FaEyeSlash /> : <FaEye />}
                                                 </div>
                                             </div>
+                                            {validationErrors.password && (
+                                                <div className="register-form-error-message">
+                                                    {validationErrors.password}
+                                                </div>
+                                            )}
                                         </Form.Group>
                                     </Col>
                                     <Col md={6}>
@@ -221,13 +290,18 @@ const RegisterUser = ({ show, onClose }) => {
                                                     name="confirmPassword"
                                                     value={formData.confirmPassword}
                                                     onChange={handleChange}
-                                                    required
                                                     placeholder="Confirmar palavra-passe"
+                                                    isInvalid={!!validationErrors.confirmPassword}
                                                 />
                                                 <div className="register-form-password-toggle" onClick={toggleConfirmPasswordVisibility}>
                                                     {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
                                                 </div>
                                             </div>
+                                            {validationErrors.confirmPassword && (
+                                                <div className="register-form-error-message">
+                                                    {validationErrors.confirmPassword}
+                                                </div>
+                                            )}
                                         </Form.Group>
                                     </Col>
                                 </Row>
@@ -246,8 +320,14 @@ const RegisterUser = ({ show, onClose }) => {
                                                     value={formData.telefone}
                                                     onChange={handleChange}
                                                     placeholder="Telemóvel"
+                                                    isInvalid={!!validationErrors.telefone}
                                                 />
                                             </div>
+                                            {validationErrors.telefone && (
+                                                <div className="register-form-error-message">
+                                                    {validationErrors.telefone}
+                                                </div>
+                                            )}
                                         </Form.Group>
                                     </Col>
                                     <Col md={6}>
@@ -262,9 +342,14 @@ const RegisterUser = ({ show, onClose }) => {
                                                     name="data_nasc"
                                                     value={formData.data_nasc}
                                                     onChange={handleChange}
-                                                    required
+                                                    isInvalid={!!validationErrors.data_nasc}
                                                 />
                                             </div>
+                                            {validationErrors.data_nasc && (
+                                                <div className="register-form-error-message">
+                                                    {validationErrors.data_nasc}
+                                                </div>
+                                            )}
                                         </Form.Group>
                                     </Col>
                                 </Row>
