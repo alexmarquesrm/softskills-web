@@ -457,22 +457,6 @@ export default function EditColab() {
                 endIcon={showConfirmPassword ? <FaEyeSlash /> : <FaEye />} onEndIconClick={() => setShowConfirmPassword(!showConfirmPassword)} />
             </Row>
 
-            <Row className="mb-3">
-              <Col md={12}>
-                <Form.Group>
-                  <strong>Notificações</strong>
-                  <Form.Check type="switch" id="receberEmails" label="Receber e-mails promocionais"
-                    name="receberEmails" checked={formData.receberEmails} onChange={handleChange} className="form-switch" />
-                </Form.Group>
-              </Col>
-
-              <Col md={12}>
-                <Form.Group>
-                  <Form.Check type="switch" id="notificacoesForum" label="Notificações do Fórum"
-                    name="notificacoesForum" checked={formData.notificacoesForum} onChange={handleChange} className="form-switch" />
-                </Form.Group>
-              </Col>
-            </Row>
             <div className="d-flex justify-content-center mt-4">
               <Cancelar text={"Cancelar"} onClick={() => navigate("/")} Icon={BsArrowReturnLeft} inline={true} />
               <Guardar text={"Guardar"} onClick={handleGuardar} Icon={FaRegSave} />
