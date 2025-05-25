@@ -16,9 +16,6 @@ const WelcomeNotification = () => {
                 closeOnClick: true,
                 pauseOnHover: true,
                 draggable: true,
-                style: {
-                    marginTop: '60px' // Adiciona margem superior para descer a notificação
-                }
             });
 
             // Marca que a notificação já foi exibida

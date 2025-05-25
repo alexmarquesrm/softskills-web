@@ -106,10 +106,10 @@ function App() {
                 newestOnTop
                 closeOnClick
                 rtl={false}
-                pauseOnFocusLoss
                 draggable
                 pauseOnHover
                 theme="light"
+                style={{ marginTop: '60px', zIndex: 1000 }}
             />
             <AppContent />
         </Router>

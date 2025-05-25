@@ -14,6 +14,7 @@ const ForumList = () => {
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [tipoSelecionado, setTipoSelecionado] = useState({ S: false, A: false });
+  const [certSelecionado, setCertSelecionado] = useState({ C: false, S: false });
   const [estadoSelecionado, setEstadoSelecionado] = useState({ emCurso: false, terminado: false });
   const [dataSelecionada, setDataSelecionada] = useState({ inicio: '', fim: '' });
   const [nivelSelecionado, setNivelSelecionado] = useState({ 1: false, 2: false, 3: false, 4: false });
@@ -37,12 +38,11 @@ const ForumList = () => {
     fetchForums();
   }, []);
 
-  console.log(forums);
-
   const filteredForum = useMemo(() => {
     return filtrarCursosOuInscricoes({
       dados: forums,
       tipoSelecionado,
+      certSelecionado,
       estadoSelecionado,
       dataSelecionada,
       nivelSelecionado,
@@ -109,10 +109,14 @@ const ForumList = () => {
             <Filtros
               tipoSelecionado={tipoSelecionado}
               setTipoSelecionado={setTipoSelecionado}
+              certSelecionado={certSelecionado}
+              setCertSelecionado={setCertSelecionado}
               estadoSelecionado={estadoSelecionado}
               setEstadoSelecionado={setEstadoSelecionado}
               dataSelecionada={dataSelecionada}
               setDataSelecionada={setDataSelecionada}
+              nivelSelecionado={nivelSelecionado}
+              setNivelSelecionado={setNivelSelecionado}
               categoriaSelecionada={categoriaSelecionada}
               setCategoriaSelecionada={setCategoriaSelecionada}
               areaSelecionada={areaSelecionada}

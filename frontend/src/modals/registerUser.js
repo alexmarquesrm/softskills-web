@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "../config/configAxios";
-import { Form, Col, Row, Card, Alert, Spinner } from "react-bootstrap";
+import { Col, Row, Card, Alert, Spinner } from "react-bootstrap";
 /* COMPONENTES */
 import Guardar from "../components/buttons/saveButton";
 import InputField from "../components/textFields/basic";
@@ -8,7 +8,7 @@ import Cancelar from "../components/buttons/cancelButton";
 /* MODALS */
 import ModalCustom from "./modalCustom";
 /* ICONS */
-import { FaRegSave, FaMobileAlt, FaUser } from "react-icons/fa";
+import { FaRegSave, FaMobileAlt } from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
 import { IoCalendarNumberSharp } from "react-icons/io5";
 import { BsArrowReturnLeft } from "react-icons/bs";
@@ -30,48 +30,46 @@ const ModalRegisterUser = ({ show, onClose }) => {
   const [validationErrors, setValidationErrors] = useState({});
 
   useEffect(() => {
-  const p = formData.Pnome.trim();
-  const u = formData.Unome.trim();
+    const p = formData.Pnome.trim();
+    const u = formData.Unome.trim();
 
-  if (p && u) {
-    const usernameSugerido = `${p}.${u}`.replace(/\s+/g, '').toLowerCase();
-    setFormData((prev) => ({
-      ...prev,
-      username: usernameSugerido,
-    }));
-  }
-}, [formData.Pnome, formData.Unome]);
-
-
+    if (p && u) {
+      const usernameSugerido = `${p}.${u}`.replace(/\s+/g, '').toLowerCase();
+      setFormData((prev) => ({
+        ...prev,
+        username: usernameSugerido,
+      }));
+    }
+  }, [formData.Pnome, formData.Unome]);
 
   const validateForm = () => {
-  const errors = {};
+    const errors = {};
 
-  // Primeiro nome obrigatório
-  if (!formData.Pnome.trim()) errors.Pnome = "Primeiro nome é obrigatório";
+    // Primeiro nome obrigatório
+    if (!formData.Pnome.trim()) errors.Pnome = "Primeiro nome é obrigatório";
 
-  // Último nome obrigatório
-  if (!formData.Unome.trim()) errors.Unome = "Último nome é obrigatório";
+    // Último nome obrigatório
+    if (!formData.Unome.trim()) errors.Unome = "Último nome é obrigatório";
 
-  // Email obrigatório e formato válido
-  if (!formData.email.trim()) errors.email = "Email é obrigatório";
-  else if (!/\S+@\S+\.\S+/.test(formData.email)) errors.email = "Email inválido";
+    // Email obrigatório e formato válido
+    if (!formData.email.trim()) errors.email = "Email é obrigatório";
+    else if (!/\S+@\S+\.\S+/.test(formData.email)) errors.email = "Email inválido";
 
-  // Data de nascimento obrigatória
-  if (!formData.data) errors.data = "Data de nascimento é obrigatória";
+    // Data de nascimento obrigatória
+    if (!formData.data) errors.data = "Data de nascimento é obrigatória";
 
-  // Password obrigatório e com um mínimo de 6 caracteres (ajusta conforme quiseres)
-  if (!formData.password.trim()) errors.password = "Password é obrigatória";
-  else if (formData.password.length <= 2) errors.password = "Password deve ter pelo menos 3 caracteres";
+    // Password obrigatório e com um mínimo de 6 caracteres (ajusta conforme quiseres)
+    if (!formData.password.trim()) errors.password = "Password é obrigatória";
+    else if (formData.password.length <= 2) errors.password = "Password deve ter pelo menos 3 caracteres";
 
-  // Telemóvel obrigatório e válido (ex: mínimo 9 dígitos)
-  const telefone = formData.telemovel.trim();
-  if (!telefone) errors.telemovel = "Número de telemóvel é obrigatório";
-  else if (!/^\d{9,}$/.test(telefone)) errors.telemovel = "Número de telemóvel inválido";
+    // Telemóvel obrigatório e válido (ex: mínimo 9 dígitos)
+    const telefone = formData.telemovel.trim();
+    if (!telefone) errors.telemovel = "Número de telemóvel é obrigatório";
+    else if (!/^\d{9,}$/.test(telefone)) errors.telemovel = "Número de telemóvel inválido";
 
-  setValidationErrors(errors);
-  return Object.keys(errors).length === 0;
-};
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
 
 
   const handleSave = async () => {
