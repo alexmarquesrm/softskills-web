@@ -5,7 +5,7 @@ const models = initModels(sequelizeConn);
 const ficheirosController = require('./ficheiros');
 const bcrypt = require('bcrypt');
 const e = require("express");
-const { sendRegistrationEmail } = require('../services/emailService');
+const { sendEmail } = require('../services/emailService');
 
 const controladorUtilizadores = {
   // Função para obter o próprio perfil do usuário autenticado
@@ -346,14 +346,33 @@ const controladorUtilizadores = {
 
       // Tentar enviar email, mas não bloquear o registo se falhar
       try {
-        await sendRegistrationEmail(email, username, password);
-      } catch (emailError) {
-        console.warn('Não foi possível enviar o email com as credenciais para:', email, emailError);
-      }
-      // EMAIL
-      console.log("Email enviado com sucesso");
+        const emailText = `
+          Bem-vindo à Plataforma SoftSkills!
+          
+          A sua conta foi criada com sucesso. Aqui estão os seus dados de acesso:
+          
+          Nome de utilizador: ${username}
+          Password: ${password}
+          
+          Por motivos de segurança, recomendamos que altere a sua password após o primeiro login.
+          
+          Se tiver alguma dúvida, não hesite em contactar-nos.
+          
+          Atenciosamente,
+          Equipa SoftSkills
+        `;
 
-      res.status(201).json({ message: "Colaborador e formando default criados com sucesso." });
+        await sendEmail(email, 'Bem-vindo à Plataforma SoftSkills', emailText);
+        console.log("Email enviado com sucesso para:", email);
+      } catch (emailError) {
+        console.warn('Erro ao enviar email:', emailError);
+      }
+
+      res.status(201).json({ 
+        message: "Colaborador e formando default criados com sucesso.",
+        emailSent: false // Indicar que o email não foi enviado
+      });
+
     } catch (error) {
       console.error('Erro ao criar colaborador:', error);
       res.status(500).json({ message: "Erro ao criar colaborador." });
@@ -442,7 +461,21 @@ const controladorUtilizadores = {
       }
       
       // Enviar email com as credenciais
-      const emailSent = await sendRegistrationEmail(email, username, tempPassword);
+      const emailSent = await sendEmail(email, 'Bem-vindo à Plataforma SoftSkills', `
+        Bem-vindo à Plataforma SoftSkills!
+        
+        A sua conta foi criada com sucesso. Aqui estão os seus dados de acesso:
+        
+        Nome de utilizador: ${username}
+        Password: ${tempPassword}
+        
+        Por motivos de segurança, recomendamos que altere a sua password após o primeiro login.
+        
+        Se tiver alguma dúvida, não hesite em contactar-nos.
+        
+        Atenciosamente,
+        Equipa SoftSkills
+      `);
       
       if (!emailSent) {
         console.warn('Não foi possível enviar o email com as credenciais para:', email);

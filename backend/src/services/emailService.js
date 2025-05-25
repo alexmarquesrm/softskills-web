@@ -1,45 +1,48 @@
 const nodemailer = require('nodemailer');
 require('dotenv').config();
 
-// Create a transporter using SMTP
-const transporter = nodemailer.createTransport({
-  service: process.env.EMAIL_SERVICE || 'gmail',
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASSWORD
-  }
-});
+exports.sendEmail = async (to, subject, text) => {
+    // Criar transporter 
+    let transporter = nodemailer.createTransport({
+        host: process.env.SMTP_HOST,
+        port: process.env.SMTP_PORT,
+        secure: false, // true for 465, false for other ports
+        auth: {
+            user: process.env.SMTP_USER,
+            pass: process.env.SMTP_PASS,
+        },
+        debug: true, // Habilitar logs de debug
+        logger: true // Habilitar logs do nodemailer
+    });
 
-const sendRegistrationEmail = async (email, username, password) => {
-  try {
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: email,
-      subject: 'Bem-vindo à Plataforma SoftSkills',
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #39639C;">Bem-vindo à Plataforma SoftSkills!</h2>
-          <p>Olá,</p>
-          <p>A sua conta foi criada com sucesso. Aqui estão os seus dados de acesso:</p>
-          <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0;">
-            <p><strong>Nome de utilizador:</strong> ${username}</p>
-            <p><strong>Password:</strong> ${password}</p>
-          </div>
-          <p>Por motivos de segurança, recomendamos que altere a sua password após o primeiro login.</p>
-          <p>Se tiver alguma dúvida, não hesite em contactar-nos.</p>
-          <p>Atenciosamente,<br>Equipa SoftSkills</p>
-        </div>
-      `
+    // Verificar a conexão com o servidor SMTP
+    try {
+        await transporter.verify();
+    } catch (error) {
+        throw error;
+    }
+
+    // Configurar
+    let mailOptions = {
+        from: process.env.EMAIL_SENDER,
+        to: to,
+        subject: subject,
+        text: text,
     };
 
-    await transporter.sendMail(mailOptions);
-    return true;
-  } catch (error) {
-    console.error('Erro ao enviar email:', error);
-    return false;
-  }
+    // Envio
+    try {
+        return true;
+    } catch (error) {
+        console.error('Erro detalhado ao enviar email:', {
+            message: error.message,
+            code: error.code,
+            command: error.command,
+            response: error.response,
+            responseCode: error.responseCode,
+            stack: error.stack
+        });
+        return false;
+    } finally {
+    }
 };
-
-module.exports = {
-  sendRegistrationEmail
-}; 
