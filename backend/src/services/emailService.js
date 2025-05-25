@@ -2,6 +2,14 @@ const nodemailer = require('nodemailer');
 require('dotenv').config();
 
 exports.sendEmail = async (to, subject, text) => {
+    // Log temporário para debug
+    console.log('Configurações SMTP:', {
+        host: process.env.SMTP_HOST,
+        port: process.env.SMTP_PORT,
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS ? '***' : 'undefined' // Não logar a senha real
+    });
+
     // Criar transporter 
     let transporter = nodemailer.createTransport({
         host: process.env.SMTP_HOST,
