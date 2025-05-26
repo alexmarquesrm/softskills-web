@@ -11,9 +11,9 @@ import { FaRegSave, FaTrashAlt } from "react-icons/fa";
 import { FiFile, FiVideo, FiFileText, FiUploadCloud } from 'react-icons/fi';
 import axios from "../config/configAxios";
 
-const ModalAdicionarFicheiro = ({ 
-  show, 
-  handleClose, 
+const ModalAdicionarFicheiro = ({
+  show,
+  handleClose,
   tiposPermitidos = ['documento', 'video', 'entrega'],
   tipoInicial = 'documento',
   onUploadSuccess = null,
@@ -27,7 +27,7 @@ const ModalAdicionarFicheiro = ({
   const [uploading, setUploading] = useState(false);
   const [feedbackMsg, setFeedbackMsg] = useState({ show: false, message: '', type: '' });
   const [secoes, setSecoes] = useState([]);
-
+  const [erroDataEntrega, setErroDataEntrega] = useState('');
   // Adicionar useEffect para carregar as seções existentes quando o modal abrir
   useEffect(() => {
     const fetchSecoes = async () => {
@@ -139,7 +139,7 @@ const ModalAdicionarFicheiro = ({
     const arquivosValidos = acceptedFiles.filter(
       file => file.size <= configAtual.maxSize
     );
-    
+
     if (arquivosValidos.length > 0) {
       setFicheirosCarregados([...ficheirosCarregados, ...arquivosValidos]);
       setFeedbackMsg({
@@ -147,19 +147,19 @@ const ModalAdicionarFicheiro = ({
         message: 'Arquivo(s) adicionado(s) com sucesso!',
         type: 'success'
       });
-      
+
       setTimeout(() => {
         setFeedbackMsg({ show: false, message: '', type: '' });
       }, 3000);
     }
-    
+
     if (arquivosValidos.length !== acceptedFiles.length) {
       setFeedbackMsg({
         show: true,
         message: `Alguns arquivos excedem o tamanho máximo de ${configAtual.maxSize / (1024 * 1024)}MB e foram ignorados.`,
         type: 'warning'
       });
-      
+
       setTimeout(() => {
         setFeedbackMsg({ show: false, message: '', type: '' });
       }, 5000);
@@ -192,6 +192,15 @@ const ModalAdicionarFicheiro = ({
     setFicheirosCarregados([]);
   };
 
+  const isDataEntregaValida = (data) => {
+    if (!data) return false;
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
+    const dataEntrega = new Date(data);
+    dataEntrega.setHours(0, 0, 0, 0);
+    return dataEntrega > hoje;
+  };
+
   const handleSubmit = async () => {
     // Validação básica
     if (!courseId) {
@@ -222,19 +231,31 @@ const ModalAdicionarFicheiro = ({
       return;
     }
 
-    if (tipoFicheiro === 'entrega' && !formData.dataentrega) {
-      setFeedbackMsg({
-        show: true,
-        message: 'Por favor, defina uma data de entrega.',
-        type: 'danger'
-      });
-      return;
+    if (tipoFicheiro === 'entrega') {
+      if (!formData.dataentrega) {
+        setFeedbackMsg({
+          show: true,
+          message: 'Por favor, defina uma data de entrega.',
+          type: 'danger'
+        });
+        return;
+      }
+
+      if (!isDataEntregaValida(formData.dataentrega)) {
+        setErroDataEntrega('A data de entrega deve ser superior à data de hoje.');
+        setFeedbackMsg({
+          show: true,
+          message: 'A data de entrega deve ser superior à data de hoje.',
+          type: 'danger'
+        });
+        return;
+      }
     }
 
     try {
       setUploading(true);
       const token = sessionStorage.getItem('token');
-      
+
       // Preparar os arquivos para upload
       const filesPromises = ficheirosCarregados.map(file => {
         return new Promise((resolve, reject) => {
@@ -251,9 +272,9 @@ const ModalAdicionarFicheiro = ({
           reader.readAsDataURL(file);
         });
       });
-      
+
       const filesData = await Promise.all(filesPromises);
-      
+
       // Preparar dados para a API
       const dadosEnvio = {
         titulo: formData.titulo,
@@ -263,7 +284,7 @@ const ModalAdicionarFicheiro = ({
         ficheiros: filesData,
         secao: formData.secao || null
       };
-      
+
       // Enviar para a API
       const response = await axios.post(`/material/curso/${courseId}/materiais`, dadosEnvio, {
         headers: { Authorization: `${token}` }
@@ -275,7 +296,7 @@ const ModalAdicionarFicheiro = ({
           message: 'Material adicionado com sucesso!',
           type: 'success'
         });
-        
+
         // Limpar formulário e fechar modal após sucesso
         limparFormulario();
         if (onUploadSuccess) {
@@ -312,10 +333,10 @@ const ModalAdicionarFicheiro = ({
     .filter(([tipo]) => tiposPermitidos.includes(tipo));
 
   return (
-    <ModalCustom 
-      show={show} 
-      handleClose={handleClose} 
-      title="Adicionar Material" 
+    <ModalCustom
+      show={show}
+      handleClose={handleClose}
+      title="Adicionar Material"
       onSubmit={handleSubmit}
       size="lg"
     >
@@ -332,7 +353,7 @@ const ModalAdicionarFicheiro = ({
           {feedbackMsg.message}
         </Alert>
       )}
-      
+
       <Card className="border-0 shadow-sm">
         <Card.Body>
           {/* Seleção de tipo de arquivo - só mostra se houver mais de um tipo permitido */}
@@ -342,10 +363,10 @@ const ModalAdicionarFicheiro = ({
               <Row className="g-3">
                 {tiposConfiguradosPermitidos.map(([tipo, config]) => (
                   <Col xs={12} md={4} key={tipo}>
-                    <Card 
+                    <Card
                       onClick={() => setTipoFicheiro(tipo)}
                       className={`h-100 ${tipoFicheiro === tipo ? 'border-' + config.cor : ''}`}
-                      style={{ 
+                      style={{
                         cursor: 'pointer',
                         backgroundColor: tipoFicheiro === tipo ? `rgba(var(--bs-${config.cor}-rgb), 0.1)` : '',
                         transform: tipoFicheiro === tipo ? 'translateY(-3px)' : '',
@@ -368,27 +389,15 @@ const ModalAdicionarFicheiro = ({
           )}
 
           <Row className="mb-4">
-            <InputField 
-              label="Título" 
-              type="text" 
-              placeholder="Nome do material" 
-              name="titulo" 
-              value={formData.titulo || ''} 
-              onChange={handleChange} 
-              colSize={configAtual.requerData && allowDueDate ? 6 : 12}
-            />
-            
+            <InputField label="Título" type="text" placeholder="Nome do material" name="titulo" value={formData.titulo || ''} onChange={handleChange} colSize={configAtual.requerData && allowDueDate ? 6 : 12} />
+
             {configAtual.requerData && allowDueDate && (
-              <InputField 
-                label="Data Entrega" 
-                type="datetime-local" 
-                placeholder="" 
-                name="dataentrega" 
-                value={formData.dataentrega || ''} 
-                onChange={handleChange} 
-                icon={<IoCalendarNumberSharp />} 
-                colSize={6}
-              />
+              <>
+                <InputField label="Data Entrega" type="datetime-local" placeholder="" name="dataentrega" value={formData.dataentrega || ''} onChange={(e) => { handleChange(e); setErroDataEntrega(''); }} icon={<IoCalendarNumberSharp />} colSize={6} />
+                {erroDataEntrega && (
+                  <div className="text-danger mt-1">{erroDataEntrega}</div>
+                )}
+              </>
             )}
           </Row>
 
@@ -409,14 +418,7 @@ const ModalAdicionarFicheiro = ({
                     ))}
                   </Form.Select>
                   {(!secoes.includes(formData.secao)) && (
-                    <Form.Control
-                      type="text"
-                      placeholder="Nome da nova seção"
-                      name="secao"
-                      value={formData.secao || ''}
-                      onChange={handleChange}
-                      style={{ flex: 1 }}
-                    />
+                    <Form.Control type="text" placeholder="Nome da nova seção" name="secao" value={formData.secao || ''} onChange={handleChange} style={{ flex: 1 }} />
                   )}
                 </div>
                 <Form.Text className="text-muted">
@@ -427,17 +429,7 @@ const ModalAdicionarFicheiro = ({
           </Row>
 
           <Row className="mb-4">
-            <InputField 
-              label="Descrição" 
-              type="textarea" 
-              placeholder="Descrição do material (opcional)" 
-              name="descricao" 
-              value={formData.descricao || ''} 
-              onChange={handleChange} 
-              colSize={12} 
-              rows={3} 
-              style={{ resize: 'none' }}
-            />
+            <InputField label="Descrição" type="textarea" placeholder="Descrição do material (opcional)" name="descricao" value={formData.descricao || ''} onChange={handleChange} colSize={12} rows={3} style={{ resize: 'none' }}/>
           </Row>
 
           {/* Upload de Arquivos - Mostrar para todos os tipos exceto entrega */}
@@ -445,8 +437,8 @@ const ModalAdicionarFicheiro = ({
             <Row className="mb-4">
               <Col md={12}>
                 <Form.Label className="fw-bold mb-2">Upload de Arquivo</Form.Label>
-                <div 
-                  {...getRootProps()} 
+                <div
+                  {...getRootProps()}
                   className={`text-center p-4 rounded ${isDragActive ? 'bg-light' : 'bg-light'}`}
                   style={{
                     border: `2px dashed ${isDragActive ? '#0d6efd' : '#4a6baf'}`,
@@ -480,7 +472,7 @@ const ModalAdicionarFicheiro = ({
                         <ListGroup.Item
                           key={index}
                           className="d-flex justify-content-between align-items-center mb-2 bg-white"
-                          style={{ 
+                          style={{
                             borderLeft: `3px solid var(--bs-${configAtual.cor})`,
                             borderRadius: '6px',
                             transition: 'all 0.2s ease'
@@ -497,9 +489,9 @@ const ModalAdicionarFicheiro = ({
                               </small>
                             </div>
                           </div>
-                          <Button 
-                            variant="outline-danger" 
-                            size="sm" 
+                          <Button
+                            variant="outline-danger"
+                            size="sm"
                             onClick={() => removerFicheiro(index)}
                           >
                             <FaTrashAlt size={14} />
@@ -514,21 +506,21 @@ const ModalAdicionarFicheiro = ({
           )}
 
           <div className="d-flex justify-content-center mt-4">
-            <Cancelar 
-              text="Cancelar" 
-              onClick={handleClose} 
-              Icon={BsArrowReturnLeft} 
-              inline={true} 
+            <Cancelar
+              text="Cancelar"
+              onClick={handleClose}
+              Icon={BsArrowReturnLeft}
+              inline={true}
               className="me-2"
               disabled={uploading}
             />
-            <Guardar 
+            <Guardar
               text={
-                uploading ? "Adicionando..." : 
-                ficheirosCarregados.length > 0 ? "Adicionar Material" : "Selecione um arquivo"
-              } 
-              onClick={handleSubmit} 
-              Icon={uploading ? null : FaRegSave} 
+                uploading ? "Adicionando..." :
+                  ficheirosCarregados.length > 0 ? "Adicionar Material" : "Selecione um arquivo"
+              }
+              onClick={handleSubmit}
+              Icon={uploading ? null : FaRegSave}
               disabled={ficheirosCarregados.length === 0 || !formData.titulo || uploading}
               loading={uploading}
             />
