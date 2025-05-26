@@ -69,7 +69,7 @@ const RegisterUser = ({ show, onClose }) => {
     };
 
     const validateForm = () => {
-        const errors = {};
+        let errors = {};
         
         // Check empty fields
         if (!formData.primeiro_nome.trim()) errors.primeiro_nome = "Primeiro nome é obrigatório";
