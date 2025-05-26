@@ -108,52 +108,60 @@ const ListaPedidos = () => {
   }, [pedidos, colaboradores, cursos, topicos, filtro]);
 
   const columns = [
-    {
-      field: "colaboradorNome",
-      headerName: "Colaborador",
-      sortable: true,
-      searchable: true
-    },
-    {
-      field: "tipo",
-      headerName: "Tipo",
-      sortable: true,
-      searchable: true,
-      renderCell: ({ row }) => row.tipo === "CURSO" ? "Curso" : "Fórum"
-    },
-    {
-      field: "referenciaNome",
-      headerName: "Referência",
-      sortable: true,
-      searchable: true
-    },
-    {
-      field: "data",
-      headerName: "Data do Pedido",
-      sortable: true,
-      type: "date",
-      renderCell: ({ row }) => new Date(row.data).toLocaleString(),
-    },
-
-    {
-      field: "actions",
-      headerName: "Ações",
-      sortable: false,
-      searchable: false,
-      renderCell: ({ row }) => (
-        <>
-          <button
-            className="btn btn-sm btn-outline-primary me-2"
-            onClick={() => handleVerPedido(row.pedido_id)}
-            title="Ver detalhes do pedido"
-          >
-            <Eye size={18} />
-          </button>
-        </>
-      ),
-    },
-  ];
-
+  {
+    field: "colaboradorNome",
+    headerName: "Colaborador",
+    sortable: true,
+    searchable: true,
+    width: 200, 
+    minWidth: 200
+  },
+  {
+    field: "tipo",
+    headerName: "Tipo",
+    sortable: true,
+    searchable: true,
+    width: 120, 
+    minWidth: 120,
+    renderCell: ({ row }) => row.tipo === "CURSO" ? "Curso" : "Fórum"
+  },
+  {
+    field: "referenciaNome",
+    headerName: "Referência",
+    sortable: true,
+    searchable: true,
+    width: 300, 
+    minWidth: 300
+  },
+  {
+    field: "data",
+    headerName: "Data do Pedido",
+    sortable: true,
+    type: "date",
+    width: 180, 
+    minWidth: 180,
+    renderCell: ({ row }) => new Date(row.data).toLocaleString(),
+  },
+  {
+    field: "actions",
+    headerName: "Ações",
+    sortable: false,
+    searchable: false,
+    width: 100, 
+    minWidth: 100,
+    renderCell: ({ row }) => (
+      <>
+        <button
+          className="btn btn-sm btn-outline-primary me-2"
+          onClick={() => handleVerPedido(row.pedido_id)}
+          title="Ver detalhes do pedido"
+        >
+          <Eye size={18} />
+        </button>
+      </>
+    ),
+  },
+];
   return (
     <Container fluid className="lista-pedidos-container">
       <div className="page-header">
