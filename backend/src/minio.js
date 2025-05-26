@@ -6,17 +6,17 @@ require('dotenv').config();
 var minioClient = new minio.Client({
     endPoint: process.env[`MINIO_ENDPOINT`],
     port: parseInt(process.env[`MINIO_PORT`]),
-    useSSL: process.env[`MINIO_USE_SSL`] === 'true',
+    useSSL: false,
     accessKey: process.env[`MINIO_ROOT_USER`],
     secretKey: process.env[`MINIO_ROOT_PASSWORD`],
 })
 
-// Log MinIO configuration (for debugging)
+/*
 console.log('MinIO Client configurado com:', {
     endPoint: process.env[`MINIO_ENDPOINT`],
-    port: parseInt(process.env[`MINIO_PORT`]),
-    useSSL: process.env[`MINIO_USE_SSL`] === 'true'
+    port: parseInt(process.env[`MINIO_PORT`])
 });
+*/
 
 // Listar todos os buckets
 minioClient.listBuckets(function (err, buckets) {
