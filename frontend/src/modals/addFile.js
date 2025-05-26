@@ -56,6 +56,9 @@ const ModalAdicionarFicheiro = ({
 
   // Redefine o tipo de ficheiro quando os tipos permitidos mudam
   useEffect(() => {
+    if (show) {
+    limparFormulario();
+  }
     if (!tiposPermitidos.includes(tipoFicheiro) && tiposPermitidos.length > 0) {
       setTipoFicheiro(tiposPermitidos[0]);
     }
@@ -190,6 +193,7 @@ const ModalAdicionarFicheiro = ({
   const limparFormulario = () => {
     setFormData({});
     setFicheirosCarregados([]);
+     setFeedbackMsg({ show: false, message: '', type: '' });
   };
 
   const isDataEntregaValida = (data) => {
@@ -244,7 +248,7 @@ const ModalAdicionarFicheiro = ({
       if (!isDataEntregaValida(formData.dataentrega)) {
         setErroDataEntrega('A data de entrega deve ser superior à data de hoje.');
         setFeedbackMsg({
-          show: true,
+          show: false,
           message: 'A data de entrega deve ser superior à data de hoje.',
           type: 'danger'
         });
