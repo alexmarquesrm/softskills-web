@@ -87,11 +87,11 @@ const RegisterUser = ({ show, onClose }) => {
         if (formData.data_nasc) {
             const birthDate = new Date(formData.data_nasc);
             const today = new Date();
-            const age = today.getFullYear() - birthDate.getFullYear();
+            let age = today.getFullYear() - birthDate.getFullYear(); // Changed const to let
             const monthDiff = today.getMonth() - birthDate.getMonth();
             
             if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-                age--;
+                age--; // Now this works because age is declared with let
             }
             
             if (age < 18) {
