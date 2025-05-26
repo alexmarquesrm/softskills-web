@@ -1,37 +1,42 @@
 const Sequelize = require('sequelize');
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('questoes_quizz', {
-    questao_id: {
+  return sequelize.define('opcoes_quizz', {
+    opcao_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true,
       autoIncrement: true
     },
-    quizz_id: {
+    questao_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'quizz',
-        key: 'quizz_id'
+        model: 'questoes_quizz',
+        key: 'questao_id'
       }
     },
-    pergunta: {
+    texto: {
       type: DataTypes.TEXT,
       allowNull: false
+    },
+    correta: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false
     }
   }, {
     sequelize,
-    tableName: 'questoes_quizz',
+    tableName: 'opcoes_quizz',
     schema: 'public',
     timestamps: false,
     indexes: [
       {
-        name: "pk_questoes_quizz",
+        name: "pk_opcoes_quizz",
         unique: true,
         fields: [
-          { name: "questao_id" },
+          { name: "opcao_id" },
         ]
       },
     ]
   });
-};
+}; 

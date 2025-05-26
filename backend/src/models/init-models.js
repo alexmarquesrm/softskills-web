@@ -34,6 +34,7 @@ var _topico = require("./topico");
 var _trabalho = require("./trabalho");
 var _departamento = require("./departamento");
 var _funcao = require("./funcao");
+var _opcoes_quizz = require("./opcoes_quizz");
 
 function initModels(sequelize) {
   var area = _area(sequelize, DataTypes);
@@ -71,6 +72,7 @@ function initModels(sequelize) {
   var trabalho = _trabalho(sequelize, DataTypes);
   var departamento = _departamento(sequelize, DataTypes);
   var funcao = _funcao(sequelize, DataTypes);
+  var opcoes_quizz = _opcoes_quizz(sequelize, DataTypes);
 
   aula.belongsToMany(formando, { as: 'formando_id_formando_presenca_form_sincs', through: presenca_form_sinc, foreignKey: "aula_id", otherKey: "formando_id" });
   comentarios.belongsToMany(comentarios, { as: 'resposta_id_comentarios', through: comentario_resposta, foreignKey: "comentariopai_id", otherKey: "resposta_id" });
@@ -158,8 +160,8 @@ function initModels(sequelize) {
   notificacao.hasMany(notificacoes_formando, { as: "notificacoes_formandos", foreignKey: "notificacao_id"});
   ficheiro.belongsTo(objeto, { as: "ficheiro_objeto", foreignKey: "objeto_id"});
   objeto.hasMany(ficheiro, { as: "objeto_ficheiros", foreignKey: "objeto_id"});
-  respostas_quizz.belongsTo(questoes_quizz, { as: "questao", foreignKey: "questao_id"});
-  questoes_quizz.hasMany(respostas_quizz, { as: "respostas_quizzs", foreignKey: "questao_id"});
+  questoes_quizz.hasMany(opcoes_quizz, { as: 'opcoes', foreignKey: 'questao_id'});
+  opcoes_quizz.belongsTo(questoes_quizz, { as: 'questao', foreignKey: 'questao_id'});
   avaliacao_quizz.belongsTo(quizz, { as: "quizz", foreignKey: "quizz_id"});
   quizz.hasMany(avaliacao_quizz, { as: "avaliacao_quizzs", foreignKey: "quizz_id"});
   questoes_quizz.belongsTo(quizz, { as: "quizz", foreignKey: "quizz_id"});
@@ -225,6 +227,7 @@ function initModels(sequelize) {
     trabalho,
     departamento,
     funcao,
+    opcoes_quizz,
   };
 }
 module.exports = initModels;

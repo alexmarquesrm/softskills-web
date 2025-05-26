@@ -18,6 +18,7 @@ import EditButton from "../../components/buttons/editButton";
 /* MODALS */
 import ModalAdicionarFicheiro from "../../modals/addFile";
 import ModalEditarFicheiro from "../../modals/edditFile";
+import ModalAdicionarQuiz from "../../modals/addQuiz";
 
 export default function CursoDetalhesGestor() {
     const { id } = useParams();
@@ -37,6 +38,9 @@ export default function CursoDetalhesGestor() {
     const [selectedVideo, setSelectedVideo] = useState(null);
     const [alunos, setAlunos] = useState([]);
     const [alunosLoading, setAlunosLoading] = useState(false);
+    const [addQuiz, setAddQuiz] = useState(false);
+    const [quizzes, setQuizzes] = useState([]);
+    const [quizLoading, setQuizLoading] = useState(false);
 
     useEffect(() => {
         const fetchCursoData = async () => {
@@ -131,6 +135,27 @@ export default function CursoDetalhesGestor() {
         }
     }, [cursoId, activeSection, curso?.tipo]);
 
+    // Add this useEffect to fetch quizzes when the active section changes to "materiais"
+    useEffect(() => {
+        const fetchQuizzes = async () => {
+            if (activeSection === 'materiais' && cursoId && curso?.tipo === 'A') {
+                setQuizLoading(true);
+                try {
+                    const response = await axios.get(`/quizz/curso/${cursoId}`);
+                    if (response.data.success) {
+                        setQuizzes(response.data.data);
+                    }
+                } catch (error) {
+                    console.error('Erro ao buscar quizzes:', error);
+                } finally {
+                    setQuizLoading(false);
+                }
+            }
+        };
+
+        fetchQuizzes();
+    }, [activeSection, cursoId, curso?.tipo]);
+
     const handleSectionChange = (section) => {
         setActiveSection(section);
     };
@@ -150,6 +175,21 @@ export default function CursoDetalhesGestor() {
 
     const handleUpdateSuccess = (updatedMaterial, isDeleted = false) => {
         setRefreshTrigger(prev => prev + 1);
+    };
+
+    const handleAddQuiz = () => {
+        setAddQuiz(true);
+    };
+
+    const handleQuizSuccess = async () => {
+        try {
+            const response = await axios.get(`/quizz/curso/${cursoId}`);
+            if (response.data.success) {
+                setQuizzes(response.data.data);
+            }
+        } catch (error) {
+            console.error('Erro ao atualizar lista de quizzes:', error);
+        }
     };
 
     // Group materials by type
@@ -505,8 +545,9 @@ export default function CursoDetalhesGestor() {
                                         />
                                         {curso?.tipo === 'A' && (
                                             <AddButton
-                                                text="Adicionar Quizz"
+                                                text="Adicionar Quiz"
                                                 Icon={BsPlusCircle}
+                                                onClick={handleAddQuiz}
                                                 inline={true}
                                                 className="btn-action"
                                             />
@@ -745,6 +786,65 @@ export default function CursoDetalhesGestor() {
                                         </Accordion.Item>
                                     </Accordion>
                                 )}
+
+                                {/* Quizzes section for asynchronous courses */}
+                                {curso?.tipo === 'A' && (
+                                    <div className="mt-4">
+                                        <h5 className="mb-3">
+                                            <BsFileText className="me-2 text-primary" />
+                                            Quizzes
+                                        </h5>
+
+                                        {quizLoading ? (
+                                            <div className="text-center py-4">
+                                                <Spinner animation="border" role="status" variant="primary">
+                                                    <span className="visually-hidden">A carregar quizzes...</span>
+                                                </Spinner>
+                                                <p className="mt-2">A carregar quizzes do curso...</p>
+                                            </div>
+                                        ) : quizzes.length === 0 ? (
+                                            <Alert variant="light" className="text-center">
+                                                <BsInfoCircle className="me-2" />
+                                                Nenhum quiz foi adicionado a este curso ainda.
+                                                <div className="mt-3">
+                                                    <Button
+                                                        variant="primary"
+                                                        size="sm"
+                                                        onClick={handleAddQuiz}
+                                                        className="d-inline-flex align-items-center"
+                                                    >
+                                                        <BsPlusCircle className="me-2" />
+                                                        Adicionar Primeiro Quiz
+                                                    </Button>
+                                                </div>
+                                            </Alert>
+                                        ) : (
+                                            <ListGroup variant="flush" className="material-list">
+                                                {quizzes.map((quiz) => (
+                                                    <ListGroup.Item key={quiz.quizz_id} className="material-item py-3">
+                                                        <div className="d-flex justify-content-between align-items-center">
+                                                            <div className="d-flex align-items-start">
+                                                                <div className="me-3 text-primary">
+                                                                    <BsFileText size={24} />
+                                                                </div>
+                                                                <div>
+                                                                    <div className="fw-bold">{quiz.descricao}</div>
+                                                                </div>
+                                                            </div>
+                                                            <EditButton
+                                                                text=""
+                                                                Icon={BsPencilSquare}
+                                                                onClick={() => handleEditFile(quiz.quizz_id)}
+                                                                inline={true}
+                                                                className="btn-edit-small"
+                                                            />
+                                                        </div>
+                                                    </ListGroup.Item>
+                                                ))}
+                                            </ListGroup>
+                                        )}
+                                    </div>
+                                )}
                             </Card.Body>
                         </Card>
                     )}
@@ -889,6 +989,13 @@ export default function CursoDetalhesGestor() {
                 fileId={selectedFileId}
                 cursoId={cursoId}
                 onUpdateSuccess={handleUpdateSuccess}
+            />
+
+            <ModalAdicionarQuiz
+                show={addQuiz}
+                onHide={() => setAddQuiz(false)}
+                cursoId={cursoId}
+                onSuccess={handleQuizSuccess}
             />
         </div>
     );

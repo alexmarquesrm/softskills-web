@@ -2,6 +2,7 @@
 DROP TABLE IF EXISTS AVALIACAO_FORMADOR;
 DROP TABLE IF EXISTS AVALIACAO_QUIZZ;
 DROP TABLE IF EXISTS RESPOSTAS_QUIZZ;
+DROP TABLE IF EXISTS OPCOES_QUIZZ;
 DROP TABLE IF EXISTS QUESTOES_QUIZZ;
 DROP TABLE IF EXISTS QUIZZ;
 DROP TABLE IF EXISTS NOTIFICACOES_FORMANDO;
@@ -462,12 +463,11 @@ CREATE TABLE NOTIFICACOES_FORMANDO (
 /* Table: QUIZZ                                                 */
 /*==============================================================*/
 CREATE TABLE QUIZZ (
-   QUIZZ_ID             INTEGER NOT NULL UNIQUE,
+   QUIZZ_ID             SERIAL NOT NULL UNIQUE,
    CURSO_ID             INTEGER NOT NULL,
    GESTOR_ID            INTEGER NOT NULL,
    DESCRICAO            TEXT NOT NULL,
-   TIPO                 TEXT NULL,
-   LIMITE_TEMPO         INTEGER NOT NULL,
+   NOTA                 FLOAT NOT NULL,
    CONSTRAINT PK_QUIZZ PRIMARY KEY (QUIZZ_ID),
    CONSTRAINT FK_QUIZZ_CURSO FOREIGN KEY (CURSO_ID)
       REFERENCES CURSO (CURSO_ID),
@@ -479,7 +479,7 @@ CREATE TABLE QUIZZ (
 /* Table: QUESTOES_QUIZZ                                        */
 /*==============================================================*/
 CREATE TABLE QUESTOES_QUIZZ (
-   QUESTAO_ID           INTEGER NOT NULL UNIQUE,
+   QUESTAO_ID           SERIAL NOT NULL UNIQUE,
    QUIZZ_ID             INTEGER NOT NULL,
    PERGUNTA             TEXT NOT NULL,
    CONSTRAINT PK_QUESTOES_QUIZZ PRIMARY KEY (QUESTAO_ID),
@@ -488,17 +488,32 @@ CREATE TABLE QUESTOES_QUIZZ (
 );
 
 /*==============================================================*/
+/* Table: OPCOES_QUIZZ                                          */
+/*==============================================================*/
+CREATE TABLE OPCOES_QUIZZ (
+   OPCAO_ID             SERIAL NOT NULL UNIQUE,
+   QUESTAO_ID           INTEGER NOT NULL,
+   TEXTO                TEXT NOT NULL,
+   CORRETA              BOOLEAN NOT NULL DEFAULT FALSE,
+   CONSTRAINT PK_OPCOES_QUIZZ PRIMARY KEY (OPCAO_ID),
+   CONSTRAINT FK_OPCOES_QUESTAO FOREIGN KEY (QUESTAO_ID)
+      REFERENCES QUESTOES_QUIZZ (QUESTAO_ID)
+);
+
+/*==============================================================*/
 /* Table: RESPOSTAS_QUIZZ                                       */
 /*==============================================================*/
 CREATE TABLE RESPOSTAS_QUIZZ (
    FORMANDO_ID          INTEGER NOT NULL,
    QUESTAO_ID           INTEGER NOT NULL,
-   RESPOSTA             TEXT NOT NULL,
+   OPCAO_ID             INTEGER NOT NULL,
    CONSTRAINT PK_RESPOSTAS_QUIZZ PRIMARY KEY (FORMANDO_ID, QUESTAO_ID),
    CONSTRAINT FK_RESPOSTAS_FORMANDO FOREIGN KEY (FORMANDO_ID)
       REFERENCES FORMANDO (FORMANDO_ID),
    CONSTRAINT FK_RESPOSTAS_QUESTAO FOREIGN KEY (QUESTAO_ID)
-      REFERENCES QUESTOES_QUIZZ (QUESTAO_ID)
+      REFERENCES QUESTOES_QUIZZ (QUESTAO_ID),
+   CONSTRAINT FK_RESPOSTAS_OPCAO FOREIGN KEY (OPCAO_ID)
+      REFERENCES OPCOES_QUIZZ (OPCAO_ID)
 );
 
 /*==============================================================*/

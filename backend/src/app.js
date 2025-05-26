@@ -23,6 +23,7 @@ const avaliacaoFormadorRoutes = require('./routes/avaliacao_formador.routes');
 const departamentosRoutes = require('./routes/departamentosRoutes');
 const funcoesRoutes = require('./routes/funcoesRoutes');
 const trabalhosRoutes = require('./routes/trabalhosRoutes');
+const quizzRoutes = require('./routes/quizz');
 
 // Use CORS middleware
 app.use(cors({
@@ -55,6 +56,7 @@ app.use('/avaliacao-formador', avaliacaoFormadorRoutes);
 app.use('/departamento', departamentosRoutes);
 app.use('/funcao', funcoesRoutes);
 app.use('/trabalhos', authenticate, trabalhosRoutes);
+app.use('/quizz', quizzRoutes);
 
 app.listen(8000, () => {
   console.log("Servidor na porta 8000");

@@ -19,9 +19,13 @@ module.exports = function(sequelize, DataTypes) {
         key: 'questao_id'
       }
     },
-    resposta: {
-      type: DataTypes.TEXT,
-      allowNull: false
+    opcao_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'opcoes_quizz',
+        key: 'opcao_id'
+      }
     }
   }, {
     sequelize,

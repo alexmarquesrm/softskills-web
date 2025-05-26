@@ -13,6 +13,7 @@ import jsPDF from 'jspdf';
 import Inscrever from "../../components/buttons/saveButton";
 import Cancelar from "../../components/buttons/cancelButton";
 import ModalSubmeterTrabalho from '../../modals/formandos/submeterFicheiro';
+import QuizModal from '../../modals/formandos/QuizModal';
 // ICONS
 import { BsArrowReturnLeft } from "react-icons/bs";
 import { FaRegCheckCircle } from "react-icons/fa";
@@ -38,6 +39,10 @@ export default function CursoFormando() {
   const [avaliacaoFormador, setAvaliacaoFormador] = useState(0);
   const [errorAvaliacao, setErrorAvaliacao] = useState("");
   const [formadorJaAvaliado, setFormadorJaAvaliado] = useState(false);
+  const [quizzes, setQuizzes] = useState([]);
+  const [quizLoading, setQuizLoading] = useState(false);
+  const [showQuizModal, setShowQuizModal] = useState(false);
+  const [selectedQuizId, setSelectedQuizId] = useState(null);
 
   const breadcrumbItems = [
     { label: 'Formando', path: '/formando' },
@@ -187,6 +192,43 @@ export default function CursoFormando() {
       fetchMaterials();
     }
   }, [id, activeSection, refreshTrigger]);
+
+  // Add this new useEffect to fetch quizzes
+  useEffect(() => {
+    const fetchQuizzes = async () => {
+      console.log('Fetching quizzes...', { id, curso });
+      if (!id || !curso) {
+        console.log('Missing id or curso, skipping quiz fetch');
+        return;
+      }
+
+      try {
+        setQuizLoading(true);
+        const token = sessionStorage.getItem('token');
+        console.log('Making API call to fetch quizzes...');
+        const response = await axios.get(`/quizz/curso/${id}`, {
+          headers: { Authorization: `${token}` }
+        });
+
+        if (response.data.success) {
+          console.log('Quizzes loaded successfully:', response.data.data);
+          setQuizzes(response.data.data);
+        } else {
+          console.log('Failed to load quizzes:', response.data);
+        }
+      } catch (err) {
+        console.error("Error loading quizzes:", err);
+        toast.error("Erro ao carregar os quizzes");
+      } finally {
+        setQuizLoading(false);
+      }
+    };
+
+    if (activeSection === "materiais") {
+      console.log('Active section is materiais, fetching quizzes...');
+      fetchQuizzes();
+    }
+  }, [id, activeSection, curso]);
 
   const handleInscricao = async (e) => {
     try {
@@ -494,6 +536,12 @@ export default function CursoFormando() {
     }
   };
 
+  // Add this new function to handle quiz start
+  const handleStartQuiz = (quizId) => {
+    setSelectedQuizId(quizId);
+    setShowQuizModal(true);
+  };
+
   if (loading) {
     return (
       <div className="loading-container d-flex justify-content-center align-items-center" style={{ height: "80vh" }}>
@@ -766,13 +814,7 @@ export default function CursoFormando() {
                         <Spinner animation="border" variant="primary" />
                         <p className="mt-2">A carregar materiais do curso...</p>
                       </div>
-                    ) : materials.length === 0 ? (
-                      <Alert variant="light" className="text-center">
-                        <BsInfoCircle className="me-2" />
-                        Nenhum material disponível para este curso ainda.
-                      </Alert>
-                    ) : (
-                      // Organizando materiais por tipo
+                    ) : (materials.length > 0 || (curso?.tipo === 'A' && quizzes.length > 0)) ? (
                       <Accordion defaultActiveKey={[]} alwaysOpen className="material-accordion">
                         {/* Vídeos */}
                         <Accordion.Item eventKey="0">
@@ -951,7 +993,7 @@ export default function CursoFormando() {
                           </Accordion.Body>
                         </Accordion.Item>
 
-                        {/* Entregas e Trabalhos */}
+                        {/* Entregas e Avaliações */}
                         <Accordion.Item eventKey="2">
                           <Accordion.Header>
                             <div className="d-flex align-items-center">
@@ -1041,7 +1083,74 @@ export default function CursoFormando() {
                             )}
                           </Accordion.Body>
                         </Accordion.Item>
+
+                        {/* Quizzes */}
+                        {curso?.tipo === 'A' && (
+                          <Accordion.Item eventKey="3">
+                            <Accordion.Header>
+                              <div className="d-flex align-items-center">
+                                <BsQuestionCircle className="me-2 text-success" />
+                                <span>Quizzes</span>
+                                <Badge bg="success" className="ms-2">
+                                  {quizzes?.length || 0}
+                                </Badge>
+                              </div>
+                            </Accordion.Header>
+                            <Accordion.Body>
+                              {quizLoading ? (
+                                <div className="text-center py-4">
+                                  <Spinner animation="border" variant="success" />
+                                  <p className="mt-2">A carregar quizzes...</p>
+                                </div>
+                              ) : !quizzes || quizzes.length === 0 ? (
+                                <Alert variant="light" className="text-center">
+                                  <BsInfoCircle className="me-2" />
+                                  Nenhum quiz disponível para este curso ainda.
+                                </Alert>
+                              ) : (
+                                <ListGroup variant="flush" className="material-list">
+                                  {quizzes.map((quiz) => (
+                                    <ListGroup.Item key={quiz.quizz_id} className="material-item py-3">
+                                      <div className="d-flex justify-content-between align-items-center">
+                                        <div className="d-flex align-items-start">
+                                          <div className="me-3 text-success">
+                                            <BsQuestionCircle size={24} />
+                                          </div>
+                                          <div>
+                                            <div className="fw-bold">{quiz.descricao}</div>
+                                            <div className="mt-2">
+                                              <Badge bg="light" text="success" className="me-2">
+                                                <BsClock className="me-1" /> Limite: {quiz.limite_tempo} minutos
+                                              </Badge>
+                                              <Badge bg="light" text="success">
+                                                {quiz.questoes_quizzs?.length || 0} questões
+                                              </Badge>
+                                            </div>
+                                          </div>
+                                        </div>
+                                        <div>
+                                          <Button
+                                            variant="success"
+                                            size="sm"
+                                            onClick={() => handleStartQuiz(quiz.quizz_id)}
+                                          >
+                                            <BsPlayFill className="me-1" /> Iniciar Quiz
+                                          </Button>
+                                        </div>
+                                      </div>
+                                    </ListGroup.Item>
+                                  ))}
+                                </ListGroup>
+                              )}
+                            </Accordion.Body>
+                          </Accordion.Item>
+                        )}
                       </Accordion>
+                    ) : (
+                      <Alert variant="light" className="text-center">
+                        <BsInfoCircle className="me-2" />
+                        Nenhum material disponível para este curso ainda.
+                      </Alert>
                     )}
                   </Card.Body>
                 </Card>
@@ -1187,6 +1296,9 @@ export default function CursoFormando() {
               </Button>
             </Modal.Footer>
           </Modal>
+
+          {/* Quiz Modal */}
+          <QuizModal show={showQuizModal} onHide={() => setShowQuizModal(false)} quizId={selectedQuizId} />
         </div>
       </Container>
     </div>

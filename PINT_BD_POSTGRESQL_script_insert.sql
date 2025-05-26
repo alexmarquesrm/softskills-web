@@ -404,39 +404,101 @@ INSERT INTO COMENTARIO_RESPOSTA (COMENTARIOPAI_ID, RESPOSTA_ID) VALUES
 (10, 20); -- Resposta ao comentário 10
 
 -- Inserção na Tabela QUIZZ
-INSERT INTO QUIZZ (QUIZZ_ID, CURSO_ID, GESTOR_ID, DESCRICAO, TIPO, LIMITE_TEMPO) VALUES
-(1, 1, 1, 'Quiz Final de SQL', 'Teórico', 30),
-(2, 3, 1, 'Quiz Java Básico', 'Teórico', 45),
-(3, 1, 1, 'Quiz de Consultas SQL', 'Prático', 40),
-(4, 3, 1, 'Quiz Spring Framework', 'Teórico', 35),
-(5, 1, 1, 'Quiz de Otimização', 'Prático', 50),
-(6, 3, 1, 'Quiz Hibernate', 'Teórico', 40);
+INSERT INTO QUIZZ (CURSO_ID, GESTOR_ID, DESCRICAO, NOTA) VALUES
+(1, 1, 'Quiz Final de SQL', 10),
+(3, 1, 'Quiz Java Básico', 10),
+(1, 1, 'Quiz de Consultas SQL', 10),
+(3, 1, 'Quiz Spring Framework', 10),
+(1, 1, 'Quiz de Otimização', 10),
+(3, 1, 'Quiz Hibernate', 10);
 
 -- Inserção na Tabela QUESTOES_QUIZZ
-INSERT INTO QUESTOES_QUIZZ (QUESTAO_ID, QUIZZ_ID, PERGUNTA) VALUES
-(1, 1, 'O que é uma chave primária?'),
-(2, 2, 'O que é uma classe em Java?'),
-(3, 3, 'Como fazer um JOIN em SQL?'),
-(4, 4, 'O que é Injeção de Dependência?'),
-(5, 5, 'Como otimizar uma query SQL?'),
-(6, 6, 'O que é o Hibernate?'),
-(7, 1, 'Diferença entre INNER e OUTER JOIN'),
-(8, 2, 'O que é polimorfismo?'),
-(9, 3, 'Como usar GROUP BY?'),
-(10, 4, 'O que é um Bean no Spring?');
+INSERT INTO QUESTOES_QUIZZ (QUIZZ_ID, PERGUNTA) VALUES
+(1, 'O que é uma chave primária?'),
+(2, 'O que é uma classe em Java?'),
+(3, 'Como fazer um JOIN em SQL?'),
+(4, 'O que é Injeção de Dependência?'),
+(5, 'Como otimizar uma query SQL?'),
+(6, 'O que é o Hibernate?'),
+(1, 'Diferença entre INNER e OUTER JOIN'),
+(2, 'O que é polimorfismo?'),
+(3, 'Como usar GROUP BY?'),
+(4, 'O que é um Bean no Spring?');
+
+-- Inserção na Tabela OPCOES_QUIZZ
+INSERT INTO OPCOES_QUIZZ (QUESTAO_ID, TEXTO, CORRETA) VALUES
+-- Opções para a questão "O que é uma chave primária?"
+(1, 'Uma coluna que identifica unicamente uma linha na tabela', TRUE),
+(1, 'Uma coluna que pode ter valores duplicados', FALSE),
+(1, 'Uma coluna que armazena apenas números', FALSE),
+(1, 'Uma coluna que não pode ser nula', FALSE),
+
+-- Opções para a questão "O que é uma classe em Java?"
+(2, 'É um molde para criar objetos', TRUE),
+(2, 'É um método que retorna um valor', FALSE),
+(2, 'É uma variável global', FALSE),
+(2, 'É um tipo de loop', FALSE),
+
+-- Opções para a questão "Como fazer um JOIN em SQL?"
+(3, 'Usando a cláusula JOIN com a condição ON', TRUE),
+(3, 'Usando a cláusula WHERE com AND', FALSE),
+(3, 'Usando a cláusula FROM com vírgula', FALSE),
+(3, 'Usando a cláusula SELECT com asterisco', FALSE),
+
+-- Opções para a questão "O que é Injeção de Dependência?"
+(4, 'É um padrão de design que permite injeção de dependências', TRUE),
+(4, 'É um método de criptografia', FALSE),
+(4, 'É um tipo de banco de dados', FALSE),
+(4, 'É um padrão de interface gráfica', FALSE),
+
+-- Opções para a questão "Como otimizar uma query SQL?"
+(5, 'Usando índices e otimizando a estrutura da query', TRUE),
+(5, 'Aumentando o tamanho do banco de dados', FALSE),
+(5, 'Usando mais JOINs', FALSE),
+(5, 'Adicionando mais colunas', FALSE),
+
+-- Opções para a questão "O que é o Hibernate?"
+(6, 'É um framework ORM para Java', TRUE),
+(6, 'É um servidor web', FALSE),
+(6, 'É um banco de dados', FALSE),
+(6, 'É um framework frontend', FALSE),
+
+-- Opções para a questão "Diferença entre INNER e OUTER JOIN"
+(7, 'INNER retorna apenas matches, OUTER retorna todos os registros', TRUE),
+(7, 'INNER é mais rápido que OUTER', FALSE),
+(7, 'OUTER só funciona com chaves primárias', FALSE),
+(7, 'INNER só funciona com chaves estrangeiras', FALSE),
+
+-- Opções para a questão "O que é polimorfismo?"
+(8, 'É a capacidade de um objeto se comportar de diferentes formas', TRUE),
+(8, 'É um tipo de loop', FALSE),
+(8, 'É um método de ordenação', FALSE),
+(8, 'É um padrão de design', FALSE),
+
+-- Opções para a questão "Como usar GROUP BY?"
+(9, 'Usando GROUP BY com funções de agregação', TRUE),
+(9, 'Usando GROUP BY com ORDER BY', FALSE),
+(9, 'Usando GROUP BY com WHERE', FALSE),
+(9, 'Usando GROUP BY com JOIN', FALSE),
+
+-- Opções para a questão "O que é um Bean no Spring?"
+(10, 'É um objeto gerenciado pelo container Spring', TRUE),
+(10, 'É um tipo de banco de dados', FALSE),
+(10, 'É um padrão de interface', FALSE),
+(10, 'É um método de autenticação', FALSE);
 
 -- Inserção na Tabela RESPOSTAS_QUIZZ
-INSERT INTO RESPOSTAS_QUIZZ (FORMANDO_ID, QUESTAO_ID, RESPOSTA) VALUES
-(1, 1, 'Uma coluna que identifica unicamente uma linha.'),
-(3, 2, 'É um molde para objetos.'),
-(2, 3, 'Usando a cláusula JOIN com a condição ON.'),
-(4, 4, 'É um padrão de design que permite injeção de dependências.'),
-(5, 5, 'Usando índices e otimizando a estrutura da query.'),
-(6, 6, 'É um framework ORM para Java.'),
-(7, 7, 'INNER retorna apenas matches, OUTER retorna todos os registros.'),
-(8, 8, 'É a capacidade de um objeto se comportar de diferentes formas.'),
-(9, 9, 'Usando GROUP BY com funções de agregação.'),
-(10, 10, 'É um objeto gerenciado pelo container Spring.');
+INSERT INTO RESPOSTAS_QUIZZ (FORMANDO_ID, QUESTAO_ID, OPCAO_ID) VALUES
+(1, 1, 1),  -- Formando 1 respondeu corretamente à questão 1
+(3, 2, 5),  -- Formando 3 respondeu corretamente à questão 2
+(2, 3, 9),  -- Formando 2 respondeu corretamente à questão 3
+(4, 4, 13), -- Formando 4 respondeu corretamente à questão 4
+(5, 5, 17), -- Formando 5 respondeu corretamente à questão 5
+(6, 6, 21), -- Formando 6 respondeu corretamente à questão 6
+(7, 7, 25), -- Formando 7 respondeu corretamente à questão 7
+(8, 8, 29), -- Formando 8 respondeu corretamente à questão 8
+(9, 9, 33), -- Formando 9 respondeu corretamente à questão 9
+(10, 10, 37); -- Formando 10 respondeu corretamente à questão 10
 
 -- Inserção na Tabela AVALIACAO_QUIZZ
 INSERT INTO AVALIACAO_QUIZZ (QUIZZ_ID, FORMANDO_ID, NOTA) VALUES
