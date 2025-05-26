@@ -42,8 +42,6 @@ export default function EditColab() {
   const [imageSize, setImageSize] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [showPhotoOptions, setShowPhotoOptions] = useState(false);
-  const [retryCount, setRetryCount] = useState(0);
-  const MAX_RETRIES = 3;
 
   const fileInputRef = React.createRef();
 
@@ -312,23 +310,6 @@ export default function EditColab() {
     });
   };
 
-  const handleImageError = (e) => {
-    console.error("Error loading profile image");
-    e.target.src = profilePic;
-    
-    // Implement retry logic
-    if (retryCount < MAX_RETRIES) {
-      setRetryCount(prev => prev + 1);
-      setTimeout(() => {
-        if (formData.fotoPerfilUrl) {
-          setPreviewFoto(formData.fotoPerfilUrl);
-        }
-      }, 2000 * (retryCount + 1)); // Exponential backoff
-    } else {
-      setRetryCount(0);
-    }
-  };
-
   if (isLoading) {
     return (
       <Container className="mt-5">
@@ -381,7 +362,10 @@ export default function EditColab() {
                     width="120"
                     height="120"
                     style={{ objectFit: "cover" }}
-                    onError={handleImageError}
+                    onError={(e) => {
+                      console.error("Error loading profile image");
+                      e.target.src = profilePic;
+                    }}
                   />
                   
                   {/* Hidden file input */}

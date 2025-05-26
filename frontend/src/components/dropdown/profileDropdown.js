@@ -19,10 +19,6 @@ function ProfileDropdown({ onLogout }) {
   const [activeType, setActiveType] = useState(currentUserType);
   const [show, setShow] = useState(false);
 
-  // Add retry logic for image loading
-  const [retryCount, setRetryCount] = useState(0);
-  const MAX_RETRIES = 3;
-
   // Function to fetch user profile data including the profile photo
   const fetchUserProfileData = async () => {
     try {
@@ -49,16 +45,7 @@ function ProfileDropdown({ onLogout }) {
         try {
           const url = new URL(userData.fotoPerfilUrl);
           if (url.protocol === 'https:' || url.protocol === 'http:') {
-            // Try to preload the image to check if it's accessible
-            const img = new Image();
-            img.onload = () => {
-              setProfilePhoto(userData.fotoPerfilUrl);
-            };
-            img.onerror = () => {
-              console.error("Failed to load profile image, using default");
-              setProfilePhoto(null);
-            };
-            img.src = userData.fotoPerfilUrl;
+            setProfilePhoto(userData.fotoPerfilUrl);
           } else {
             console.error("Invalid URL protocol:", url.protocol);
             setProfilePhoto(null);
@@ -78,23 +65,6 @@ function ProfileDropdown({ onLogout }) {
       if (error.response && error.response.status === 401) {
         onLogout();
       }
-    }
-  };
-
-  // Add retry logic for image loading
-  const handleImageError = (e) => {
-    console.error("Error loading profile image:", e);
-    e.target.src = defaultProfilePic;
-    
-    // Implement retry logic
-    if (retryCount < MAX_RETRIES) {
-      setRetryCount(prev => prev + 1);
-      setTimeout(() => {
-        fetchUserProfileData();
-      }, 2000 * (retryCount + 1)); // Exponential backoff
-    } else {
-      setProfilePhoto(null);
-      setRetryCount(0);
     }
   };
 
@@ -175,7 +145,13 @@ function ProfileDropdown({ onLogout }) {
             alt="Perfil" 
             roundedCircle 
             className="profile-image"
-            onError={handleImageError}
+            onError={(e) => {
+              console.error("Error loading profile image:", e);
+              e.target.src = defaultProfilePic;
+              setProfilePhoto(null);
+              // Tentar recarregar a foto após um erro
+              setTimeout(fetchUserProfileData, 5000);
+            }}
           />
         ) : (
           <BsPersonCircle size={22} />
@@ -231,7 +207,13 @@ function ProfileDropdown({ onLogout }) {
                     alt="Perfil" 
                     roundedCircle 
                     className="dropdown-profile-image"
-                    onError={handleImageError}
+                    onError={(e) => {
+                      console.error("Error loading profile image:", e);
+                      e.target.src = defaultProfilePic;
+                      setProfilePhoto(null);
+                      // Tentar recarregar a foto após um erro
+                      setTimeout(fetchUserProfileData, 5000);
+                    }}
                   />
                 </div>
               ) : (

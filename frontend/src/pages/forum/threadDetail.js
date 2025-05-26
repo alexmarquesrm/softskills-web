@@ -36,8 +36,6 @@ const ThreadDetail = () => {
   const [imagePreview, setImagePreview] = useState(null);
   const [replyImage, setReplyImage] = useState(null);
   const [replyImagePreview, setReplyImagePreview] = useState(null);
-  const [retryCount, setRetryCount] = useState(0);
-  const MAX_RETRIES = 3;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -269,21 +267,6 @@ const ThreadDetail = () => {
     }
   };
 
-  const handleImageError = (e, imageUrl) => {
-    console.error("Error loading image:", e);
-    e.target.src = '/default-profile.png';
-    
-    // Implement retry logic
-    if (retryCount < MAX_RETRIES && imageUrl) {
-      setRetryCount(prev => prev + 1);
-      setTimeout(() => {
-        e.target.src = imageUrl;
-      }, 2000 * (retryCount + 1)); // Exponential backoff
-    } else {
-      setRetryCount(0);
-    }
-  };
-
   const renderComment = (comment) => {
     return (
       <div key={comment.comentario_id} className="comment-card">
@@ -395,7 +378,7 @@ const ThreadDetail = () => {
                       alt={thread.user.nome}
                       className="author-avatar-img"
                       style={{ width: 28, height: 28, borderRadius: '50%', objectFit: 'cover', border: '1.5px solid #d0d8e8', marginRight: 6, verticalAlign: 'middle' }}
-                      onError={(e) => handleImageError(e, thread.user.fotoPerfilUrl)}
+                      onError={e => { e.target.src = '/default-profile.png'; }}
                     />
                   ) : null}
                   {thread.user?.nome || 'Anônimo'}
