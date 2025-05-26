@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import axios from "../../config/configAxios";
-import { Container } from "react-bootstrap";
-import { FileEarmarkText, ExclamationTriangle, ArrowRightCircle, } from 'react-bootstrap-icons';
+import { Container, Card, Row, Col, Badge } from "react-bootstrap";
+import { FileEarmarkText, ExclamationTriangle, ArrowRightCircle, StarFill } from 'react-bootstrap-icons';
 import { useNavigate } from 'react-router-dom';
 /* COMPONENTES */
 import CardInfo from "../../components/cards/cardDestaque";
@@ -15,6 +15,8 @@ export default function PaginaGestor() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [saudacao, setSaudacao] = useState('');
+  const [avaliacoes, setAvaliacoes] = useState([]);
+  const [mediaGeral, setMediaGeral] = useState(0);
   const nome = sessionStorage.getItem('nome');
   const navigate = useNavigate();
   const navToPage = (url) => {
@@ -51,9 +53,33 @@ export default function PaginaGestor() {
       setLoading(false);
     }
   };
+
+  const fetchAvaliacoes = async () => {
+    try {
+      const token = sessionStorage.getItem('token');
+      const formadorId = sessionStorage.getItem('colaboradorid');
+
+      const response = await axios.get(`/avaliacao-formador?formador_id=${formadorId}`, {
+        headers: { Authorization: `${token}` }
+      });
+
+      setAvaliacoes(response.data);
+
+      // Calcular média geral
+      if (response.data.length > 0) {
+        const soma = response.data.reduce((acc, curr) => acc + curr.avaliacao, 0);
+        setMediaGeral(soma / response.data.length);
+      }
+
+    } catch (error) {
+      console.error("Erro ao carregar avaliações:", error);
+    }
+  };
+
   useEffect(() => {
     fetchCursos();
     fetchSaudacao();
+    fetchAvaliacoes();
   }, []);
 
   const filteredCurso = useMemo(() => {
@@ -90,6 +116,15 @@ export default function PaginaGestor() {
       return jaComecou && naoTerminado;
     });
   }, [curso]);
+
+  // Função para calcular a média por curso
+  const getMediaPorCurso = (cursoId) => {
+    const avaliacoesDoCurso = avaliacoes.filter(a => a.curso_id === cursoId);
+    if (avaliacoesDoCurso.length === 0) return 0;
+    
+    const soma = avaliacoesDoCurso.reduce((acc, curr) => acc + curr.avaliacao, 0);
+    return soma / avaliacoesDoCurso.length;
+  };
 
   const renderPedidoCard = (curso, index) => {
     if (!curso) return null;
@@ -208,6 +243,102 @@ export default function PaginaGestor() {
               <p>Não há cursos ativos neste momento.</p>
             </div>
           )}
+        </div>
+      </div>
+
+      {/* Seção de avaliações movida para o final */}
+      <div className="section-wrapper">
+        <div className="section-header">
+          <h2 className="section-title">
+            <StarFill className="section-icon" />
+            Avaliações
+          </h2>
+        </div>
+
+        <div className="section-content">
+          <Card className="mb-4">
+            <Card.Body>
+              <Row>
+                <Col md={6}>
+                  <h5>Média Geral</h5>
+                  <div className="d-flex align-items-center">
+                    <div className="display-4 me-3">{mediaGeral.toFixed(1)}</div>
+                    <div className="stars">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <StarFill
+                          key={star}
+                          className={star <= Math.round(mediaGeral) ? "text-warning" : "text-muted"}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                  <p className="text-muted mt-2">
+                    Baseado em {avaliacoes.length} avaliações
+                  </p>
+                </Col>
+                <Col md={6}>
+                  <h5>Distribuição de Avaliações</h5>
+                  {[5, 4, 3, 2, 1].map((rating) => {
+                    const count = avaliacoes.filter(a => a.avaliacao === rating).length;
+                    const percentage = avaliacoes.length > 0 ? (count / avaliacoes.length) * 100 : 0;
+                    
+                    return (
+                      <div key={rating} className="d-flex align-items-center mb-2">
+                        <div className="me-2" style={{ width: '60px' }}>
+                          {rating} <StarFill className="text-warning" />
+                        </div>
+                        <div className="progress flex-grow-1" style={{ height: '8px' }}>
+                          <div
+                            className="progress-bar bg-warning"
+                            role="progressbar"
+                            style={{ width: `${percentage}%` }}
+                          />
+                        </div>
+                        <div className="ms-2" style={{ width: '40px' }}>
+                          {count}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </Col>
+              </Row>
+            </Card.Body>
+          </Card>
+
+          <h5 className="mb-3">Avaliações por Curso</h5>
+          <Row>
+            {curso.map((cursoItem) => {
+              const media = getMediaPorCurso(cursoItem.curso_id);
+              const avaliacoesDoCurso = avaliacoes.filter(a => a.curso_id === cursoItem.curso_id);
+
+              if (avaliacoesDoCurso.length === 0) return null;
+
+              return (
+                <Col md={4} key={cursoItem.curso_id} className="mb-3">
+                  <Card>
+                    <Card.Body>
+                      <h6 className="mb-2">{cursoItem.titulo}</h6>
+                      <div className="d-flex align-items-center mb-2">
+                        <div className="h4 mb-0 me-2">{media.toFixed(1)}</div>
+                        <div className="stars">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <StarFill
+                              key={star}
+                              className={star <= Math.round(media) ? "text-warning" : "text-muted"}
+                              size={14}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                      <Badge bg="light" text="dark">
+                        {avaliacoesDoCurso.length} avaliações
+                      </Badge>
+                    </Card.Body>
+                  </Card>
+                </Col>
+              );
+            })}
+          </Row>
         </div>
       </div>
     </Container>

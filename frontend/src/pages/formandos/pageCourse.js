@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Container, Row, Col, Card, ListGroup, Spinner, Badge, Accordion, Button, Alert } from "react-bootstrap";
+import { Container, Row, Col, Card, ListGroup, Spinner, Badge, Accordion, Button, Alert, Modal } from "react-bootstrap";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   BsFillPeopleFill, BsCalendarCheck, BsFileText, BsCameraVideo, BsBook,
   BsTools, BsUpload, BsInfoCircle, BsExclamationTriangle, BsCheckCircle,
-  BsQuestionCircle, BsTrophy, BsClock, BsDownload, BsFlag, BsPlayFill, BsAward
+  BsQuestionCircle, BsTrophy, BsClock, BsDownload, BsFlag, BsPlayFill, BsAward, BsStarFill
 } from "react-icons/bs";
 import axios from "../../config/configAxios";
 import { toast } from 'react-toastify';
@@ -34,6 +34,10 @@ export default function CursoFormando() {
   const [materialLoading, setMaterialLoading] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [loadingFileId] = useState(null);
+  const [showAvaliarFormadorModal, setShowAvaliarFormadorModal] = useState(false);
+  const [avaliacaoFormador, setAvaliacaoFormador] = useState(0);
+  const [errorAvaliacao, setErrorAvaliacao] = useState("");
+  const [formadorJaAvaliado, setFormadorJaAvaliado] = useState(false);
 
   const breadcrumbItems = [
     { label: 'Formando', path: '/formando' },
@@ -85,6 +89,29 @@ export default function CursoFormando() {
           setInscricao(null);
         }
 
+        // Verificar se o formador já foi avaliado
+        if (inscricaoDoCurso?.nota !== null && curso?.tipo === "S") {
+          try {
+            const token = sessionStorage.getItem('token');
+            const formadorId = curso?.curso_sincrono?.formador_id;
+            
+            console.log('Verificando avaliação do formador:', {
+              cursoId: id,
+              formadorId: formadorId
+            });
+            
+            if (formadorId) {
+              const avaliacoesResponse = await axios.get(`/avaliacao-formador?curso_id=${id}&formador_id=${formadorId}`, {
+                headers: { Authorization: `${token}` }
+              });
+              
+              setFormadorJaAvaliado(avaliacoesResponse.data.length > 0);
+            }
+          } catch (error) {
+            console.error("Erro ao verificar avaliação do formador:", error);
+          }
+        }
+
       } catch (err) {
         console.error("Erro ao carregar curso:", err);
         setError("Erro ao carregar os dados do curso");
@@ -93,7 +120,7 @@ export default function CursoFormando() {
     };
 
     fetchDataInscricao();
-  }, [id]);
+  }, [id, curso]);
 
   // 1. First, update your material fetching function in the course page component
   // to match the structure used in the modal
@@ -429,6 +456,44 @@ export default function CursoFormando() {
     }
   };
 
+  const handleAvaliarFormador = async () => {
+    if (!avaliacaoFormador) {
+      setErrorAvaliacao("Por favor, selecione uma avaliação");
+      return;
+    }
+
+    try {
+      const token = sessionStorage.getItem('token');
+      // Corrigindo a forma de obter o ID do formador baseado na estrutura real
+      const formadorId = curso?.curso_sincrono?.formador_id;
+
+      console.log('Dados do curso:', curso);
+      console.log('ID do formador:', formadorId);
+
+      if (!formadorId) {
+        toast.error("Não foi possível identificar o formador");
+        return;
+      }
+
+      await axios.post('/avaliacao-formador', {
+        curso_id: id,
+        formador_id: formadorId,
+        avaliacao: avaliacaoFormador
+      }, {
+        headers: { Authorization: `${token}` }
+      });
+
+      toast.success("Avaliação enviada com sucesso!");
+      setShowAvaliarFormadorModal(false);
+      setAvaliacaoFormador(0);
+      setErrorAvaliacao("");
+      setFormadorJaAvaliado(true);
+    } catch (error) {
+      console.error("Erro ao enviar avaliação:", error);
+      toast.error("Não foi possível enviar a avaliação. Por favor, tente novamente.");
+    }
+  };
+
   if (loading) {
     return (
       <div className="loading-container d-flex justify-content-center align-items-center" style={{ height: "80vh" }}>
@@ -635,14 +700,36 @@ export default function CursoFormando() {
                               {/* Adicionar botão de certificado quando o curso estiver concluído */}
                               {inscricao && inscricao.nota != null && (
                                 <li className="mt-3">
-                                  <Button
-                                    variant="success"
-                                    className="certificate-button w-100"
-                                    onClick={handleCertificateDownload}
-                                  >
-                                    <BsAward className="me-2" />
-                                    Gerar Certificado
-                                  </Button>
+                                  <div className="d-flex flex-column gap-2">
+                                    <Button
+                                      variant="success"
+                                      className="certificate-button w-100"
+                                      onClick={handleCertificateDownload}
+                                    >
+                                      <BsAward className="me-2" />
+                                      Gerar Certificado
+                                    </Button>
+                                    
+                                    {/* Botão de avaliar formador */}
+                                    {curso?.tipo === "S" && !formadorJaAvaliado && (
+                                      <Button
+                                        variant="primary"
+                                        className="w-100"
+                                        onClick={() => setShowAvaliarFormadorModal(true)}
+                                      >
+                                        <BsStarFill className="me-2" />
+                                        Avaliar Formador
+                                      </Button>
+                                    )}
+                                    
+                                    {/* Mensagem quando o formador já foi avaliado */}
+                                    {curso?.tipo === "S" && formadorJaAvaliado && (
+                                      <div className="text-success d-flex align-items-center">
+                                        <BsCheckCircle className="me-2" />
+                                        Formador já avaliado
+                                      </div>
+                                    )}
+                                  </div>
                                 </li>
                               )}
                             </ul>
@@ -1063,6 +1150,43 @@ export default function CursoFormando() {
             cursoId={id}
             moduloId={null} // Adicionar moduloId se necessário
           />
+
+          {/* Modal de Avaliação do Formador */}
+          <Modal show={showAvaliarFormadorModal} onHide={() => setShowAvaliarFormadorModal(false)} centered>
+            <Modal.Header closeButton>
+              <Modal.Title>Avaliar Formador</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              <p className="mb-4">Por favor, avalie o desempenho do formador neste curso:</p>
+              
+              <div className="d-flex justify-content-center gap-2 mb-3">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <Button
+                    key={star}
+                    variant={avaliacaoFormador >= star ? "warning" : "outline-warning"}
+                    onClick={() => setAvaliacaoFormador(star)}
+                    className="star-button"
+                  >
+                    <BsStarFill />
+                  </Button>
+                ))}
+              </div>
+              
+              {errorAvaliacao && (
+                <Alert variant="danger" className="mt-3">
+                  {errorAvaliacao}
+                </Alert>
+              )}
+            </Modal.Body>
+            <Modal.Footer>
+              <Button variant="secondary" onClick={() => setShowAvaliarFormadorModal(false)}>
+                Cancelar
+              </Button>
+              <Button variant="primary" onClick={handleAvaliarFormador}>
+                Enviar Avaliação
+              </Button>
+            </Modal.Footer>
+          </Modal>
         </div>
       </Container>
     </div>
