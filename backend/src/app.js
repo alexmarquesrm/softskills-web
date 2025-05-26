@@ -1,8 +1,5 @@
 const express = require("express");
 const cors = require("cors");
-const https = require('https');
-const fs = require('fs');
-const path = require('path');
 const app = express();
 const { authenticate } = require("./tokenUtils");
 const colaboradorRoutes = require("./routes/colaboradoresRoutes");
@@ -61,19 +58,8 @@ app.use('/funcao', funcoesRoutes);
 app.use('/trabalhos', authenticate, trabalhosRoutes);
 app.use('/quizz', quizzRoutes);
 
-// HTTPS configuration
-const httpsOptions = {
-  key: fs.readFileSync(path.join(__dirname, '../certificates/private.key')),
-  cert: fs.readFileSync(path.join(__dirname, '../certificates/certificate.crt'))
-};
-
-// Replace the app.listen with https server
-https.createServer(httpsOptions, app).listen(8000, '0.0.0.0', (error) => {
-  if (error) {
-    console.error('Erro ao iniciar o servidor HTTPS:', error);
-    return;
-  }
-  console.log("Servidor HTTPS rodando em https://0.0.0.0:8000");
+app.listen(8000, () => {
+  console.log("Servidor na porta 8000");
 });
 
 module.exports = app;
