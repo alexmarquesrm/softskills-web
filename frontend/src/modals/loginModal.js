@@ -250,20 +250,20 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
             </Modal.Header>
             <Modal.Body>
                 {error && (
-                    <Alert variant="danger" className="register-form-alert register-form-alert-danger">
+                    <Alert variant="danger" className="login-form-alert login-form-alert-danger">
                         {error}
                     </Alert>
                 )}
                 {success && (
-                    <Alert variant="success" className="register-form-alert register-form-alert-success">
+                    <Alert variant="success" className="login-form-alert login-form-alert-success">
                         {success}
                     </Alert>
                 )}
                 <Form onSubmit={handleSubmit}>
                     <Form.Group className="mb-3">
-                        <Form.Label className="register-form-label">Nome de Utilizador</Form.Label>
-                        <div className={`register-form-input-group ${validationErrors.login ? 'is-invalid' : ''}`}>
-                            <div className="register-form-input-icon">
+                        <Form.Label className="login-form-label">Nome de Utilizador</Form.Label>
+                        <div className={`login-form-input-group ${validationErrors.login ? 'is-invalid' : ''}`}>
+                            <div className="login-form-input-icon">
                                 <PersonFill />
                             </div>
                             <Form.Control
@@ -274,14 +274,14 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
                             />
                         </div>
                         {validationErrors.login && (
-                            <div className="register-form-error-message">{validationErrors.login}</div>
+                            <div className="login-form-error-message">{validationErrors.login}</div>
                         )}
                     </Form.Group>
 
                     <Form.Group className="mb-3">
-                        <Form.Label className="register-form-label">Senha</Form.Label>
-                        <div className={`register-form-input-group ${validationErrors.password ? 'is-invalid' : ''}`}>
-                            <div className="register-form-input-icon">
+                        <Form.Label className="login-form-label">Senha</Form.Label>
+                        <div className={`login-form-input-group ${validationErrors.password ? 'is-invalid' : ''}`}>
+                            <div className="login-form-input-icon">
                                 <KeyFill />
                             </div>
                             <Form.Control
@@ -292,17 +292,17 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
                                 className={passError ? 'is-invalid' : ''}
                             />
                             <div 
-                                className="register-form-password-toggle"
+                                className="login-form-password-toggle"
                                 onClick={() => setShowPassword(!showPassword)}
                             >
                                 {showPassword ? <EyeSlashFill /> : <EyeFill />}
                             </div>
                         </div>
                         {passError && (
-                            <div className="register-form-error-message">{passErrorMessage}</div>
+                            <div className="login-form-error-message">{passErrorMessage}</div>
                         )}
                         {validationErrors.password && (
-                            <div className="register-form-error-message">{validationErrors.password}</div>
+                            <div className="login-form-error-message">{validationErrors.password}</div>
                         )}
                     </Form.Group>
 
@@ -322,7 +322,7 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
 
                     <Button 
                         type="submit" 
-                        className="register-form-button w-100 mb-3"
+                        className="login-form-button w-100 mb-3"
                         disabled={isLoading}
                     >
                         {isLoading ? (

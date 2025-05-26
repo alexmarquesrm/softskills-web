@@ -16,39 +16,39 @@
     padding: 1rem 2rem 2rem;
 }
 
-.logo-container {
+.login-modal .logo-container {
     width: 100%;
     text-align: center;
 }
 
-.app-logo {
+.login-modal .app-logo {
     font-size: 2.5rem;
     font-weight: 700;
     margin-bottom: 1rem;
 }
 
-.logo-first {
+.login-modal .logo-first {
     color: #2c3e50;
 }
 
-.logo-second {
+.login-modal .logo-second {
     color: #3498db;
 }
 
-.welcome-title {
+.login-modal .welcome-title {
     color: #2c3e50;
     font-size: 1.5rem;
     font-weight: 600;
     margin-bottom: 0.5rem;
 }
 
-.welcome-subtitle {
+.login-modal .welcome-subtitle {
     color: #7f8c8d;
     font-size: 1rem;
     margin-bottom: 0;
 }
 
-.register-form-label {
+.login-modal .login-form-label {
     color: #2c3e50;
     font-weight: 500;
     margin-bottom: 0.5rem;
@@ -58,7 +58,7 @@
     display: block;
 }
 
-.register-form-input-group {
+.login-modal .login-form-input-group {
     position: relative;
     display: flex;
     align-items: center;
@@ -71,20 +71,20 @@
     margin: 0 auto;
 }
 
-.register-form-input-group:focus-within {
+.login-modal .login-form-input-group:focus-within {
     border-color: #3498db;
     box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
 }
 
-.register-form-input-group.is-invalid {
+.login-modal .login-form-input-group.is-invalid {
     border-color: #e74c3c;
 }
 
-.register-form-input-group.is-invalid:focus-within {
+.login-modal .login-form-input-group.is-invalid:focus-within {
     box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.2);
 }
 
-.register-form-input-icon {
+.login-modal .login-form-input-icon {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -94,7 +94,7 @@
     border-right: 1px solid #e0e0e0;
 }
 
-.register-form-input-group .form-control {
+.login-modal .login-form-input-group .form-control {
     border: none;
     padding: 0.7rem 1rem;
     font-size: 0.95rem;
@@ -102,11 +102,11 @@
     flex: 1;
 }
 
-.register-form-input-group .form-control:focus {
+.login-modal .login-form-input-group .form-control:focus {
     box-shadow: none;
 }
 
-.register-form-password-toggle {
+.login-modal .login-form-password-toggle {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -116,11 +116,11 @@
     transition: color 0.2s ease;
 }
 
-.register-form-password-toggle:hover {
+.login-modal .login-form-password-toggle:hover {
     color: #3498db;
 }
 
-.register-form-error-message {
+.login-modal .login-form-error-message {
     color: #e74c3c;
     font-size: 0.85rem;
     margin-top: 0.25rem;
@@ -130,13 +130,14 @@
     display: block;
 }
 
-.login-modal .register-form-button {
-    background-color: #3498db !important;
+.login-modal .login-form-button {
+    background: linear-gradient(135deg, #00bfff, #0077ff) !important;
     border: none !important;
     border-radius: 8px !important;
-    padding: 0.6rem !important;
-    font-weight: 600 !important;
+    padding: 0.7rem !important;
+    font-weight: 500 !important;
     transition: all 0.3s ease !important;
+    box-shadow: 0 4px 12px rgba(0, 191, 255, 0.3) !important;
     margin-top: 1rem !important;
     width: 80% !important;
     margin-left: auto !important;
@@ -145,25 +146,24 @@
     font-size: 1rem !important;
 }
 
-.login-modal .register-form-button:hover {
-    background-color: #2980b9 !important;
-    transform: translateY(-1px) !important;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1) !important;
+.login-modal .login-form-button:hover:not(:disabled) {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 16px rgba(0, 191, 255, 0.4) !important;
 }
 
-.login-modal .register-form-button:active {
+.login-modal .login-form-button:active:not(:disabled) {
     transform: translateY(0) !important;
     box-shadow: none !important;
 }
 
-.login-modal .register-form-button:disabled {
-    background-color: #bdc3c7 !important;
+.login-modal .login-form-button:disabled {
+    background: linear-gradient(135deg, #83d9ff, #6eb9ff) !important;
     cursor: not-allowed !important;
     transform: none !important;
     box-shadow: none !important;
 }
 
-.register-link {
+.login-modal .register-link {
     color: #3498db;
     text-decoration: none;
     font-weight: 500;
@@ -174,12 +174,12 @@
     text-align: center;
 }
 
-.register-link:hover {
+.login-modal .register-link:hover {
     color: #2980b9;
     text-decoration: underline;
 }
 
-.forgot-password-link {
+.login-modal .forgot-password-link {
     color: #7f8c8d;
     text-decoration: none;
     font-size: 0.9rem;
@@ -191,12 +191,12 @@
     text-align: right;
 }
 
-.forgot-password-link:hover {
+.login-modal .forgot-password-link:hover {
     color: #3498db;
     text-decoration: underline;
 }
 
-.register-form-alert {
+.login-modal .login-form-alert {
     border: none;
     border-radius: 8px;
     padding: 1rem;
@@ -207,12 +207,12 @@
     margin-right: auto;
 }
 
-.register-form-alert-danger {
+.login-modal .login-form-alert-danger {
     background-color: #fde8e8;
     color: #e74c3c;
 }
 
-.register-form-alert-success {
+.login-modal .login-form-alert-success {
     background-color: #e8f8e8;
     color: #27ae60;
 }
@@ -222,26 +222,6 @@
         opacity: 0;
         transform: translateY(-10px);
     }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Modal close button styling */
-.login-modal .modal-header .close {
-    font-size: 1.5rem;
-    padding: 1rem;
-    margin: -1rem;
-}
-
-/* Animation effects */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-
     to {
         opacity: 1;
         transform: translateY(0);
@@ -264,47 +244,8 @@
     z-index: 10;
 }
 
-/* Reset Password Modal specific styles */
-.reset-password-modal {
-    z-index: 1060;
-}
-
-.reset-password-modal .modal-content {
-    z-index: 1061;
-}
-
-.reset-password-modal .modal-header .btn-close {
-    z-index: 1062;
-}
-
-/* Change Password Modal specific styles */
-.change-password-modal {
-    z-index: 1060 !important;
-}
-
-.change-password-modal .modal-content {
-    z-index: 1061 !important;
-}
-
-/* Ensure proper backdrop stacking */
-.modal-backdrop {
-    z-index: 1050;
-}
-
-.modal-backdrop + .modal-backdrop {
-    z-index: 1051;
-}
-
-/* Ensure modals stack properly */
-.modal {
-    z-index: 1050;
-}
-
-.modal + .modal {
-    z-index: 1051;
-}
-
-.google-login-button {
+/* Google login button styles */
+.login-modal .google-login-button {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -314,46 +255,68 @@
     color: #757575;
     font-weight: 500;
     transition: background-color 0.3s ease;
+    width: 80%;
+    margin: 0 auto;
+    display: block;
+    max-width: 80%;
 }
 
-.google-login-button:hover {
+.login-modal .google-login-button .btn {
+    width: 100%;
+}
+
+.login-modal .google-login-button:hover {
     background-color: #f8f9fa;
     border-color: #ddd;
     color: #757575;
 }
 
-.google-icon {
+.login-modal .google-icon {
     width: 18px;
     height: 18px;
 }
 
-.divider {
+.login-modal .divider {
     position: relative;
     text-align: center;
-    margin: 20px 0;
+    margin: 20px auto;
+    width: 80%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.divider::before,
-.divider::after {
+.login-modal .divider::before,
+.login-modal .divider::after {
     content: "";
-    position: absolute;
-    top: 50%;
-    width: 45%;
+    flex: 1;
     height: 1px;
     background-color: #ddd;
+    margin: 0 10px;
 }
 
-.divider::before {
-    left: 0;
-}
-
-.divider::after {
-    right: 0;
-}
-
-.divider span {
+.login-modal .divider span {
     background-color: white;
     padding: 0 10px;
     color: #757575;
     font-size: 14px;
+    position: relative;
+    z-index: 1;
+}
+
+/* Modal z-index management */
+.login-modal {
+    z-index: 1050;
+}
+
+.login-modal .modal-backdrop {
+    z-index: 1040;
+}
+
+.login-modal .modal-backdrop + .modal-backdrop {
+    z-index: 1041;
+}
+
+.login-modal + .modal {
+    z-index: 1051;
 }

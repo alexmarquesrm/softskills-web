@@ -12,21 +12,21 @@
     margin: 1.75rem auto;
 }
 
-.logo-container {
+.register-modal .logo-container {
     text-align: center;
     padding: 1.5rem 0 0.5rem;
 }
 
-.app-logo {
+.register-modal .app-logo {
     font-weight: 700;
     letter-spacing: -0.5px;
 }
 
-.logo-first {
+.register-modal .logo-first {
     color: #4a4a4a;
 }
 
-.logo-second {
+.register-modal .logo-second {
     color: #00bfff;
     background: linear-gradient(135deg, #00bfff, #0077ff);
     background-clip: text;
@@ -34,18 +34,18 @@
     -webkit-text-fill-color: transparent;
 }
 
-.welcome-title {
+.register-modal .welcome-title {
     font-weight: 600;
     color: #2d3748;
     margin-bottom: 0.5rem;
 }
 
-.welcome-subtitle {
+.register-modal .welcome-subtitle {
     color: #718096;
     font-size: 0.95rem;
 }
 
-.register-form-input-group {
+.register-modal .register-form-input-group {
     border-radius: 8px;
     overflow: hidden;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
@@ -57,12 +57,12 @@
     height: 42px;
 }
 
-.register-form-input-group:focus-within {
+.register-modal .register-form-input-group:focus-within {
     box-shadow: 0 3px 12px rgba(0, 191, 255, 0.15);
     border-color: #00bfff;
 }
 
-.register-form-input-icon {
+.register-modal .register-form-input-icon {
     padding: 0.7rem 1rem;
     color: #718096;
     background-color: #f8f9fa;
@@ -73,7 +73,7 @@
     min-width: 42px;
 }
 
-.register-form-input-group .form-control {
+.register-modal .register-form-input-group .form-control {
     border: none;
     padding: 0.7rem 1rem;
     flex-grow: 1;
@@ -81,29 +81,29 @@
     font-size: 0.95rem;
 }
 
-.register-form-input-group .form-control:focus {
+.register-modal .register-form-input-group .form-control:focus {
     box-shadow: none;
     border-color: #00bfff;
 }
 
-.register-form-input-group textarea.form-control {
+.register-modal .register-form-input-group textarea.form-control {
     height: auto;
     min-height: 100px;
     resize: vertical;
 }
 
-.register-form-password-toggle {
+.register-modal .register-form-password-toggle {
     padding: 0.7rem 1rem;
     color: #718096;
     cursor: pointer;
     transition: color 0.2s ease;
 }
 
-.register-form-password-toggle:hover {
+.register-modal .register-form-password-toggle:hover {
     color: #00bfff;
 }
 
-.register-form-button {
+.register-modal .register-form-button {
     background: linear-gradient(135deg, #00bfff, #0077ff);
     border: none;
     padding: 0.7rem;
@@ -114,44 +114,44 @@
     margin-top: 1rem;
 }
 
-.register-form-button:hover:not(:disabled) {
+.register-modal .register-form-button:hover:not(:disabled) {
     transform: translateY(-2px);
     box-shadow: 0 6px 16px rgba(0, 191, 255, 0.4);
 }
 
-.register-form-button:active:not(:disabled) {
+.register-modal .register-form-button:active:not(:disabled) {
     transform: translateY(0);
 }
 
-.register-form-button:disabled {
+.register-modal .register-form-button:disabled {
     background: linear-gradient(135deg, #83d9ff, #6eb9ff);
     cursor: not-allowed;
 }
 
-.register-form-alert {
+.register-modal .register-form-alert {
     border-radius: 8px;
     margin-bottom: 1.5rem;
 }
 
-.register-form-alert-danger {
+.register-modal .register-form-alert-danger {
     background-color: #fff5f5;
     border-color: #feb2b2;
     color: #c53030;
 }
 
-.register-form-alert-success {
+.register-modal .register-form-alert-success {
     background-color: #f0fff4;
     border-color: #9ae6b4;
     color: #2f855a;
 }
 
-.register-form-label {
+.register-modal .register-form-label {
     font-weight: 500;
     color: #4a5568;
     margin-bottom: 0.5rem;
 }
 
-.register-form-error-message {
+.register-modal .register-form-error-message {
     color: #e53e3e;
     margin-top: 0.5rem;
     padding-left: 0.5rem;
@@ -188,4 +188,21 @@
 
 .register-modal .modal-body {
     padding-bottom: 2rem;
+}
+
+/* Modal z-index management */
+.register-modal {
+    z-index: 1050;
+}
+
+.register-modal .modal-backdrop {
+    z-index: 1040;
+}
+
+.register-modal .modal-backdrop + .modal-backdrop {
+    z-index: 1041;
+}
+
+.register-modal + .modal {
+    z-index: 1051;
 } 
