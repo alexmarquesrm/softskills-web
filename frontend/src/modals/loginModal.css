@@ -303,3 +303,57 @@
 .modal + .modal {
     z-index: 1051;
 }
+
+.google-login-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    border: 1px solid #ddd;
+    background-color: white;
+    color: #757575;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+}
+
+.google-login-button:hover {
+    background-color: #f8f9fa;
+    border-color: #ddd;
+    color: #757575;
+}
+
+.google-icon {
+    width: 18px;
+    height: 18px;
+}
+
+.divider {
+    position: relative;
+    text-align: center;
+    margin: 20px 0;
+}
+
+.divider::before,
+.divider::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    width: 45%;
+    height: 1px;
+    background-color: #ddd;
+}
+
+.divider::before {
+    left: 0;
+}
+
+.divider::after {
+    right: 0;
+}
+
+.divider span {
+    background-color: white;
+    padding: 0 10px;
+    color: #757575;
+    font-size: 14px;
+}

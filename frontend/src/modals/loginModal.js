@@ -3,6 +3,8 @@ import axios from '../config/configAxios';
 import { Modal, Button, Form, InputGroup, Container, Row, Col, Alert } from 'react-bootstrap';
 import { EyeFill, EyeSlashFill, PersonFill, KeyFill } from 'react-bootstrap-icons';
 import { useNavigate } from 'react-router-dom';
+import { signInWithPopup } from 'firebase/auth';
+import { auth, googleProvider } from '../config/firebase';
 import RegisterUser from './registerUser';
 import ResetPasswordModal from './resetPasswordModal';
 import 'react-toastify/dist/ReactToastify.css';
@@ -145,6 +147,81 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
         }
     };
 
+    const handleGoogleLogin = async () => {
+        try {
+            setIsLoading(true);
+            const result = await signInWithPopup(auth, googleProvider);
+            const user = result.user;
+            
+            // Send the Google user data to your backend
+            const response = await axios.post('/colaborador/google-login', {
+                googleId: user.uid,
+                email: user.email,
+                name: user.displayName,
+                photoURL: user.photoURL
+            });
+
+            const utilizador = response.data.user;
+            const token = response.data.token;
+            const saudacao = response.data.saudacao;
+
+            // Store authentication data
+            sessionStorage.setItem('token', token);
+            sessionStorage.setItem('colaboradorid', utilizador.colaboradorid);
+            sessionStorage.setItem('nome', utilizador.nome);
+            sessionStorage.setItem('email', utilizador.email);
+            sessionStorage.setItem('googleId', user.uid);
+            
+            // Store user types
+            if (utilizador.allUserTypes && Array.isArray(utilizador.allUserTypes)) {
+                sessionStorage.setItem('allUserTypes', utilizador.allUserTypes.join(','));
+                let defaultType = utilizador.allUserTypes[0];
+                if (utilizador.allUserTypes.includes('Gestor')) {
+                    defaultType = 'Gestor';
+                } else if (utilizador.allUserTypes.includes('Formador')) {
+                    defaultType = 'Formador';
+                } else if (utilizador.allUserTypes.includes('Formando')) {
+                    defaultType = 'Formando';
+                }
+                sessionStorage.setItem('tipo', defaultType);
+            } else {
+                sessionStorage.setItem('allUserTypes', utilizador.tipo);
+                sessionStorage.setItem('tipo', utilizador.tipo);
+            }
+            
+            sessionStorage.setItem('saudacao', saudacao);
+            axios.defaults.headers.common['Authorization'] = token;
+
+            // Determine redirect path
+            let redirectPath = '/';
+            const userTypes = utilizador.allUserTypes || [utilizador.tipo];
+            const isGestor = userTypes.includes('Gestor');
+            const isFormando = userTypes.includes('Formando');
+            const isFormador = userTypes.includes('Formador');
+
+            if (isGestor) {
+                redirectPath = '/gestor/dashboard';
+            } else if (isFormando) {
+                redirectPath = '/utilizadores/dashboard';
+            } else if (isFormador) {
+                redirectPath = '/formador/dashboard';
+            }
+
+            handleClose();
+            navigate(redirectPath, { 
+                state: { 
+                    welcomeMessage: `${saudacao}, ${utilizador.nome}! Bem-vindo(a) à plataforma de cursos.`
+                }
+            });
+            onLoginSuccess();
+        } catch (error) {
+            console.error('Erro no login com Google:', error);
+            setError('Erro ao fazer login com Google. Tente novamente.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     const resetForm = () => {
         setLogin('');
         setPassword('');
@@ -245,7 +322,7 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
 
                     <Button 
                         type="submit" 
-                        className="register-form-button w-100"
+                        className="register-form-button w-100 mb-3"
                         disabled={isLoading}
                     >
                         {isLoading ? (
@@ -256,6 +333,26 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
                         ) : (
                             'Entrar'
                         )}
+                    </Button>
+
+                    <div className="text-center mb-3">
+                        <div className="divider">
+                            <span>ou</span>
+                        </div>
+                    </div>
+
+                    <Button 
+                        variant="outline-primary" 
+                        className="google-login-button w-100 mb-3"
+                        onClick={handleGoogleLogin}
+                        disabled={isLoading}
+                    >
+                        <img 
+                            src="https://www.google.com/favicon.ico" 
+                            alt="Google" 
+                            className="google-icon me-2"
+                        />
+                        Entrar com Google
                     </Button>
 
                     <div className="text-center mt-3">

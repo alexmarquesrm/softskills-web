@@ -6,6 +6,7 @@ const ficheirosController = require('./ficheiros');
 const bcrypt = require('bcrypt');
 const e = require("express");
 const { sendEmail } = require('../services/emailService');
+const jwt = require('jsonwebtoken');
 
 const controladorUtilizadores = {
   // Função para obter o próprio perfil do usuário autenticado
@@ -734,6 +735,127 @@ const controladorUtilizadores = {
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: "Erro ao redefinir password" });
+    }
+  },
+
+  googleLogin: async (req, res) => {
+    try {
+      const { googleId, email, name, photoURL } = req.body;
+
+      // Check if user exists with this Google ID
+      let colaborador = await models.colaborador.findOne({
+        where: { google_id: googleId }
+      });
+
+      if (!colaborador) {
+        // Check if user exists with this email
+        colaborador = await models.colaborador.findOne({
+          where: { email }
+        });
+
+        if (colaborador) {
+          // Update existing user with Google ID
+          await colaborador.update({ google_id: googleId });
+        } else {
+          // Generate username from name (firstname.lastname)
+          const nameParts = name.split(' ');
+          const firstName = nameParts[0].toLowerCase();
+          const lastName = nameParts[nameParts.length - 1].toLowerCase();
+          let username = `${firstName}.${lastName}`;
+          
+          // Check if username already exists and add a number if it does
+          let usernameExists = true;
+          let counter = 1;
+          let finalUsername = username;
+          
+          while (usernameExists) {
+            const existingUser = await models.colaborador.findOne({
+              where: { username: finalUsername }
+            });
+            
+            if (!existingUser) {
+              usernameExists = false;
+            } else {
+              finalUsername = `${username}${counter}`;
+              counter++;
+            }
+          }
+
+          // Generate a unique phone number
+          let phoneExists = true;
+          let phoneNumber;
+          while (phoneExists) {
+            // Generate a random 9-digit number starting with 9
+            phoneNumber = 900000000 + Math.floor(Math.random() * 100000000);
+            
+            // Check if phone number already exists
+            const existingPhone = await models.colaborador.findOne({
+              where: { telefone: phoneNumber }
+            });
+            
+            if (!existingPhone) {
+              phoneExists = false;
+            }
+          }
+
+          const tempPassword = Math.random().toString(36).slice(-8); // Generate random password
+          const hashedPassword = await bcrypt.hash(tempPassword, 10);
+
+          // Create new colaborador
+          colaborador = await models.colaborador.create({
+            nome: name,
+            email,
+            username: finalUsername,
+            pssword: hashedPassword,
+            google_id: googleId,
+            telefone: phoneNumber,
+            score: 0,
+            inativo: false,
+            last_login: new Date()
+          });
+
+          // Create formando by default
+          await models.formando.create({
+            formando_id: colaborador.colaborador_id
+          });
+        }
+      }
+
+      // Update last login
+      await colaborador.update({ last_login: new Date() });
+
+      // Get user types
+      const formando = await models.formando.findByPk(colaborador.colaborador_id);
+      const formador = await models.formador.findByPk(colaborador.colaborador_id);
+      const gestor = await models.gestor.findByPk(colaborador.colaborador_id);
+
+      const allUserTypes = [];
+      if (formando) allUserTypes.push('Formando');
+      if (formador) allUserTypes.push('Formador');
+      if (gestor) allUserTypes.push('Gestor');
+
+      // Generate token using the existing function
+      const token = generateToken({
+        utilizadorid: colaborador.colaborador_id,
+        email: colaborador.email,
+        tipo: allUserTypes[0] || 'Formando',
+        allUserTypes: allUserTypes.join(',')
+      });
+
+      // Get greeting
+      const [saudacao] = await sequelizeConn.query('SELECT obter_saudacao() as saudacao');
+
+      res.json({
+        user: {
+          ...colaborador.toJSON(),
+          allUserTypes
+        },
+        token,
+        saudacao: saudacao[0].saudacao
+      });
+    } catch (error) {
+      console.error('Erro no login com Google:', error);
+      res.status(500).json({ message: "Erro ao fazer login com Google" });
     }
   },
 };
