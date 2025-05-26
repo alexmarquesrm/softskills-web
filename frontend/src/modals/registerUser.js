@@ -368,7 +368,7 @@ const RegisterUser = ({ show, onClose }) => {
                                             A registar...
                                         </div>
                                     ) : (
-                                        'Registrar'
+                                        'Registar'
                                     )}
                                 </Button>
                             </Form>
