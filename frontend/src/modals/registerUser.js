@@ -69,34 +69,21 @@ const RegisterUser = ({ show, onClose }) => {
     };
 
     const validateForm = () => {
-        let errors = {};
-        
-        // Check empty fields
-        if (!formData.primeiro_nome.trim()) errors.primeiro_nome = "Primeiro nome é obrigatório";
-        if (!formData.ultimo_nome.trim()) errors.ultimo_nome = "Último nome é obrigatório";
-        if (!formData.username.trim()) errors.username = "Nome de utilizador é obrigatório";
-        if (!formData.email.trim()) errors.email = "Email é obrigatório";
-        if (!formData.password) errors.password = "Palavra-passe é obrigatória";
-        if (!formData.confirmPassword) errors.confirmPassword = "Confirmação da palavra-passe é obrigatória";
-        if (!formData.telefone) errors.telefone = "Telemóvel é obrigatório";
-        if (!formData.data_nasc) errors.data_nasc = "Data de nascimento é obrigatória";
+        const validations = [
+            [!formData.primeiro_nome.trim(), 'primeiro_nome', "Primeiro nome é obrigatório"],
+            [!formData.ultimo_nome.trim(), 'ultimo_nome', "Último nome é obrigatório"],
+            [!formData.username.trim(), 'username', "Nome de utilizador é obrigatório"],
+            [!formData.email.trim(), 'email', "Email é obrigatório"],
+            [!formData.password, 'password', "Palavra-passe é obrigatória"],
+            [!formData.confirmPassword, 'confirmPassword', "Confirmação da palavra-passe é obrigatória"],
+            [!formData.telefone, 'telefone', "Telemóvel é obrigatório"],
+            [!formData.data_nasc, 'data_nasc', "Data de nascimento é obrigatória"],
+            [formData.email && !/\S+@\S+\.\S+/.test(formData.email), 'email', "Email inválido"],
+            [formData.password && formData.confirmPassword && formData.password !== formData.confirmPassword, 'confirmPassword', "As palavras-passe não coincidem"],
+            [formData.telefone && !/^9\d{8}$/.test(formData.telefone), 'telefone', "Telemóvel deve ter 9 dígitos e começar por 9"]
+        ];
 
-        // Email format validation
-        if (formData.email && !/\S+@\S+\.\S+/.test(formData.email)) {
-            errors.email = "Email inválido";
-        }
-
-        // Password match validation
-        if (formData.password && formData.confirmPassword && formData.password !== formData.confirmPassword) {
-            errors.confirmPassword = "As palavras-passe não coincidem";
-        }
-
-        // Phone number validation (9 digits starting with 9)
-        if (formData.telefone && !/^9\d{8}$/.test(formData.telefone)) {
-            errors.telefone = "Telemóvel deve ter 9 dígitos e começar por 9";
-        }
-
-        // Age validation (must be at least 18 years old)
+        // Age validation
         if (formData.data_nasc) {
             const birthDate = new Date(formData.data_nasc);
             const today = new Date();
@@ -108,12 +95,18 @@ const RegisterUser = ({ show, onClose }) => {
             }
             
             if (age < 18) {
-                errors.data_nasc = "Deve ter pelo menos 18 anos";
+                validations.push([true, 'data_nasc', "Deve ter pelo menos 18 anos"]);
             }
         }
 
-        setValidationErrors(errors);
-        return Object.keys(errors).length === 0;
+        const newErrors = Object.fromEntries(
+            validations
+                .filter(([condition]) => condition)
+                .map(([, field, message]) => [field, message])
+        );
+
+        setValidationErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
     };
 
     const handleSubmit = async (e) => {
