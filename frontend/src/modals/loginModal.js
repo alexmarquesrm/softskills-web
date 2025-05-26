@@ -10,10 +10,8 @@ import './loginModal.css';
 import ChangePasswordModal from './changePasswordModal';
 
 const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
-    const [formData, setFormData] = useState({
-        login: '',
-        password: ''
-    });
+    const [login, setLogin] = useState('');
+    const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [ModalRegisterOpen, setModalRegisterOpen] = useState(false);
     const [validationErrors, setValidationErrors] = useState({});
@@ -22,38 +20,46 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
     const [showResetPassword, setShowResetPassword] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+    const [loginError, setLoginError] = useState(false);
+    const [loginErrorMessage, setLoginErrorMessage] = useState('');
+    const [passError, setPassError] = useState(false);
+    const [passErrorMessage, setPassErrorMessage] = useState('');
     
     const navigate = useNavigate();
 
-    const validateForm = () => {
+    const validateForm = async () => {
         const errors = {};
         
-        if (!formData.login) {
+        if (!login) {
             errors.login = 'Por favor, introduza o seu nome de utilizador';
         }
         
-        if (!formData.password) {
+        if (!password) {
             errors.password = 'Por favor, introduza a sua senha';
         }
         
         setValidationErrors(errors);
-        return Object.keys(errors).length === 0;
+        return Object.keys(errors).length === 0 ? {} : errors;
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
-        if (!validateForm()) {
+        setIsLoading(true);
+        const errors = await validateForm();
+        setLoginError(errors.loginError || false);
+        setLoginErrorMessage(errors.loginMessage || "");
+        setPassError(errors.passError || false);
+        setPassErrorMessage(errors.passMessage || "");
+
+        if (Object.keys(errors).length > 0) {
+            setIsLoading(false);
             return;
         }
-        
-        setIsLoading(true);
-        setError('');
-        
+
         try {
             const response = await axios.post('/colaborador/login', {
-                username: formData.login,
-                password: formData.password
+                username: login,
+                password: password
             });
 
             const utilizador = response.data.user;
@@ -63,64 +69,85 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
             // Armazenar token - principal fonte de autenticação
             sessionStorage.setItem('token', token);
             
-            // Determinar o tipo atual do usuário
-            const userType = utilizador.tipo;
-            const allUserTypes = utilizador.allUserTypes || [userType];
-            const isGestor = userType === 'Gestor' || allUserTypes.includes('Gestor');
-            
-            // Se for gestor, definir o tipo atual como Gestor
-            const currentType = isGestor ? 'Gestor' : userType;
-            
             // Armazenar dados para UI (estes não são usados para autorização)
             sessionStorage.setItem('colaboradorid', utilizador.colaboradorid);
             sessionStorage.setItem('nome', utilizador.nome);
             sessionStorage.setItem('email', utilizador.email);
-            sessionStorage.setItem('primeirologin', utilizador.isFirstLogin ? "true" : "false");
-            sessionStorage.setItem('tipo', currentType);
+            sessionStorage.setItem('primeirologin', utilizador.ultimologin === null ? "true" : "false");
+            
+            // Armazenar todos os tipos de usuário
+            if (utilizador.allUserTypes && Array.isArray(utilizador.allUserTypes)) {
+                sessionStorage.setItem('allUserTypes', utilizador.allUserTypes.join(','));
+                // Definir tipo predefinido seguindo a hierarquia: Gestor > Formador > Formando
+                let defaultType = utilizador.allUserTypes[0];
+                if (utilizador.allUserTypes.includes('Gestor')) {
+                    defaultType = 'Gestor';
+                } else if (utilizador.allUserTypes.includes('Formador')) {
+                    defaultType = 'Formador';
+                } else if (utilizador.allUserTypes.includes('Formando')) {
+                    defaultType = 'Formando';
+                }
+                sessionStorage.setItem('tipo', defaultType);
+            } else {
+                sessionStorage.setItem('allUserTypes', utilizador.tipo);
+                sessionStorage.setItem('tipo', utilizador.tipo);
+            }
+            
             sessionStorage.setItem('saudacao', saudacao);
+
+            // Configurar o token para todas as requisições futuras
+            axios.defaults.headers.common['Authorization'] = token;
 
             // Se o último login for null, mostrar o modal de alteração de password
             if (utilizador.ultimologin === null) {
                 resetForm();
                 setShowChangePassword(true);
-            } else {
-                // Determinar a rota de redirecionamento baseada nas roles
-                let redirectPath = '/';
-                const userType = utilizador.tipo;
-                const allUserTypes = utilizador.allUserTypes || [userType];
-                const isGestor = userType === 'Gestor' || allUserTypes.includes('Gestor');
-
-                if (isGestor) {
-                    redirectPath = '/gestor/dashboard';
-                } else if (userType === 'Formando' || allUserTypes.includes('Formando')) {
-                    redirectPath = '/utilizadores/dashboard';
-                } else if (userType === 'Formador' || allUserTypes.includes('Formador')) {
-                    redirectPath = '/formador/dashboard';
-                }
-
-                // Fechar o modal e redirecionar com a mensagem de boas-vindas
-                handleClose();
-                navigate(redirectPath, { 
-                    state: { 
-                        welcomeMessage: `${saudacao}, ${utilizador.nome}! Bem-vindo(a) à plataforma de cursos.`
-                    }
-                });
-                if (onLoginSuccess) {
-                    onLoginSuccess();
-                }
+                return;
             }
-        } catch (err) {
-            setError(err.response?.data?.message || 'Erro ao fazer login');
+
+            // Determinar a rota de redirecionamento baseada nas roles
+            let redirectPath = '/';
+            const userTypes = utilizador.allUserTypes || [utilizador.tipo];
+            const isGestor = userTypes.includes('Gestor');
+            const isFormando = userTypes.includes('Formando');
+            const isFormador = userTypes.includes('Formador');
+
+            if (isGestor) {
+                redirectPath = '/gestor/dashboard';
+            } else if (isFormando) {
+                redirectPath = '/utilizadores/dashboard';
+            } else if (isFormador) {
+                redirectPath = '/formador/dashboard';
+            }
+
+            // Fechar o modal e redirecionar com a mensagem de boas-vindas
+            handleClose();
+            navigate(redirectPath, { 
+                state: { 
+                    welcomeMessage: `${saudacao}, ${utilizador.nome}! Bem-vindo(a) à plataforma de cursos.`
+                }
+            });
+            onLoginSuccess();
+        } catch (error) {
+            console.error('Erro no login:', error);
+            if (error.response?.status === 404) {
+                setLoginError(true);
+                setLoginErrorMessage("Utilizador não encontrado");
+            } else if (error.response?.status === 401) {
+                setPassError(true);
+                setPassErrorMessage("Password incorreta");
+            } else {
+                setLoginError(true);
+                setLoginErrorMessage("Erro ao fazer login. Tente novamente.");
+            }
         } finally {
             setIsLoading(false);
         }
     };
 
     const resetForm = () => {
-        setFormData({
-            login: '',
-            password: ''
-        });
+        setLogin('');
+        setPassword('');
         setError('');
         setValidationErrors({});
         setShowPassword(false);
@@ -164,8 +191,8 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
                             </div>
                             <Form.Control
                                 type="text"
-                                value={formData.login}
-                                onChange={(e) => setFormData({...formData, login: e.target.value})}
+                                value={login}
+                                onChange={(e) => setLogin(e.target.value)}
                                 placeholder="Introduza o seu nome de utilizador"
                             />
                         </div>
@@ -182,9 +209,10 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
                             </div>
                             <Form.Control
                                 type={showPassword ? "text" : "password"}
-                                value={formData.password}
-                                onChange={(e) => setFormData({...formData, password: e.target.value})}
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
                                 placeholder="Introduza a sua senha"
+                                className={passError ? 'is-invalid' : ''}
                             />
                             <div 
                                 className="register-form-password-toggle"
@@ -193,6 +221,9 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
                                 {showPassword ? <EyeSlashFill /> : <EyeFill />}
                             </div>
                         </div>
+                        {passError && (
+                            <div className="register-form-error-message">{passErrorMessage}</div>
+                        )}
                         {validationErrors.password && (
                             <div className="register-form-error-message">{validationErrors.password}</div>
                         )}
