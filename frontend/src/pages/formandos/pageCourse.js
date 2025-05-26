@@ -4,10 +4,11 @@ import { useParams, useNavigate } from "react-router-dom";
 import {
   BsFillPeopleFill, BsCalendarCheck, BsFileText, BsCameraVideo, BsBook,
   BsTools, BsUpload, BsInfoCircle, BsExclamationTriangle, BsCheckCircle,
-  BsQuestionCircle, BsTrophy, BsClock, BsDownload, BsFlag, BsPlayFill
+  BsQuestionCircle, BsTrophy, BsClock, BsDownload, BsFlag, BsPlayFill, BsAward
 } from "react-icons/bs";
 import axios from "../../config/configAxios";
 import { toast } from 'react-toastify';
+import jsPDF from 'jspdf';
 // COMPONENTES
 import Inscrever from "../../components/buttons/saveButton";
 import Cancelar from "../../components/buttons/cancelButton";
@@ -77,8 +78,10 @@ export default function CursoFormando() {
         );
 
         if (inscricaoDoCurso !== undefined) {
+          console.log('Inscrição encontrada:', inscricaoDoCurso);
           setInscricao(inscricaoDoCurso);
         } else {
+          console.log('Nenhuma inscrição encontrada para o curso');
           setInscricao(null);
         }
 
@@ -345,6 +348,87 @@ export default function CursoFormando() {
     }, {});
   };
 
+  // Add this new function to handle certificate generation and download
+  const handleCertificateDownload = () => {
+    try {
+      // Create new PDF document
+      const doc = new jsPDF();
+      
+      // Add background color
+      doc.setFillColor(240, 240, 240);
+      doc.rect(0, 0, 210, 297, 'F');
+      
+      // Add border
+      doc.setDrawColor(40, 167, 69);
+      doc.setLineWidth(2);
+      doc.rect(10, 10, 190, 277);
+      
+      // Add title
+      doc.setFontSize(24);
+      doc.setTextColor(40, 167, 69);
+      doc.text('Certificado de Conclusão', 105, 40, { align: 'center' });
+      
+      // Add decorative line
+      doc.setDrawColor(40, 167, 69);
+      doc.setLineWidth(0.5);
+      doc.line(40, 50, 170, 50);
+      
+      // Add content
+      doc.setFontSize(12);
+      doc.setTextColor(51, 51, 51);
+      
+      const formando = sessionStorage.getItem('nome');
+      const nomeFormando = formando || 'Formando';
+      const nomeCurso = curso?.titulo || 'Curso';
+      const dataConclusao = new Date().toLocaleDateString('pt-PT');
+      const nivel = curso?.nivel || 'N/A';
+      const totalHoras = curso?.total_horas || 'N/A';
+      const formador = getFormadorNome();
+      
+      // Add certificate text
+      doc.setFontSize(14);
+      doc.text('Certificamos que', 105, 80, { align: 'center' });
+      
+      doc.setFontSize(16);
+      doc.setFont(undefined, 'bold');
+      doc.text(nomeFormando, 105, 95, { align: 'center' });
+      
+      doc.setFontSize(14);
+      doc.setFont(undefined, 'normal');
+      doc.text('concluiu com êxito o curso', 105, 110, { align: 'center' });
+      
+      doc.setFontSize(16);
+      doc.setFont(undefined, 'bold');
+      doc.text(nomeCurso, 105, 125, { align: 'center' });
+      
+      // Add course details
+      doc.setFontSize(12);
+      doc.setFont(undefined, 'normal');
+      doc.text(`Nível: ${nivel}`, 105, 150, { align: 'center' });
+      doc.text(`Carga Horária: ${totalHoras} horas`, 105, 160, { align: 'center' });
+      doc.text(`Data de Conclusão: ${dataConclusao}`, 105, 170, { align: 'center' });
+      
+      // Add formador
+      doc.text('Formador:', 105, 190, { align: 'center' });
+      doc.setFont(undefined, 'bold');
+      doc.text(formador, 105, 200, { align: 'center' });
+      
+      // Add footer
+      doc.setFontSize(10);
+      doc.setFont(undefined, 'normal');
+      doc.setTextColor(128, 128, 128);
+      doc.text('Este certificado é gerado automaticamente e não requer assinatura digital.', 105, 250, { align: 'center' });
+      
+      // Save the PDF
+      doc.save(`certificado_${nomeCurso}.pdf`);
+      
+      toast.success("Certificado gerado com sucesso!");
+    } catch (error) {
+      console.error("Erro ao gerar certificado:", error);
+      toast.error("Não foi possível gerar o certificado. Por favor, tente novamente mais tarde.");
+    }
+  };
+
   if (loading) {
     return (
       <div className="loading-container d-flex justify-content-center align-items-center" style={{ height: "80vh" }}>
@@ -545,6 +629,20 @@ export default function CursoFormando() {
                                     <strong>Carga horária:</strong><br />
                                     {curso.total_horas} horas
                                   </div>
+                                </li>
+                              )}
+
+                              {/* Adicionar botão de certificado quando o curso estiver concluído */}
+                              {inscricao && inscricao.nota != null && (
+                                <li className="mt-3">
+                                  <Button
+                                    variant="success"
+                                    className="certificate-button w-100"
+                                    onClick={handleCertificateDownload}
+                                  >
+                                    <BsAward className="me-2" />
+                                    Gerar Certificado
+                                  </Button>
                                 </li>
                               )}
                             </ul>
@@ -898,8 +996,7 @@ export default function CursoFormando() {
                           <h5 className="mb-0">Certificação</h5>
                         </div>
                         <p className="mb-0">
-                          Ao completar este curso com sucesso e obtendo uma classificação mínima de 70%,
-                          receberá um certificado digital que pode ser adicionado ao seu perfil profissional.
+                          Ao completar este curso com sucesso receberá um certificado digital que pode ser adicionado ao seu perfil profissional.
                         </p>
                       </div>
                     )}

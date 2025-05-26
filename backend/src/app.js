@@ -22,6 +22,7 @@ const notificacaoRoutes = require('./routes/notificacaoRoutes');
 const avaliacaoFormadorRoutes = require('./routes/avaliacao_formador.routes');
 const departamentosRoutes = require('./routes/departamentosRoutes');
 const funcoesRoutes = require('./routes/funcoesRoutes');
+const trabalhosRoutes = require('./routes/trabalhosRoutes');
 
 // Use CORS middleware
 app.use(cors({
@@ -53,7 +54,10 @@ app.use('/notificacao', notificacaoRoutes);
 app.use('/avaliacao-formador', avaliacaoFormadorRoutes);
 app.use('/departamento', departamentosRoutes);
 app.use('/funcao', funcoesRoutes);
+app.use('/trabalhos', authenticate, trabalhosRoutes);
 
 app.listen(8000, () => {
   console.log("Servidor na porta 8000");
 });
+
+module.exports = app;

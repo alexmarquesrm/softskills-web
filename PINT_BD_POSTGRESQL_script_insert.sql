@@ -279,48 +279,46 @@ INSERT INTO PRESENCA_FORM_SINC (FORMANDO_ID, AULA_ID) VALUES
 -- Inserção na Tabela INSCRICAO (Ajustando datas para antes do início dos cursos)
 INSERT INTO INSCRICAO (FORMANDO_ID, CURSO_ID, NOTA, DATA_CERTIFICADO, DATA_INSCRICAO, ESTADO) VALUES
 -- Inscrições do Formando 3 (5 inscrições com estados diferentes)
-(3, 1, 85.0, '2024-02-28 10:00:00+00', '2024-01-10 10:00:00+00', TRUE),  -- Curso concluído
-(3, 3, 91.0, '2024-03-15 15:00:00+00', '2024-02-01 09:15:00+00', TRUE),  -- Curso concluído
+(3, 1, 17.0, '2024-02-28 10:00:00+00', '2024-01-10 10:00:00+00', TRUE),  -- Curso concluído
+(3, 3, 18.2, '2024-03-15 15:00:00+00', '2024-02-01 09:15:00+00', TRUE),  -- Curso concluído
 (3, 17, NULL, NULL, '2025-05-01 14:30:00+00', FALSE),  -- Curso ativo
 (3, 19, NULL, NULL, '2025-06-01 11:20:00+00', FALSE),  -- Curso pendente
 (3, 21, NULL, NULL, '2025-07-01 16:45:00+00', FALSE),  -- Curso pendente
 
 -- Outras inscrições (todos com estado TRUE)
-(1, 1, 85.0, '2024-02-28 10:00:00+00', '2024-01-10 10:00:00+00', TRUE),
-(1, 2, 88.0, '2024-03-15 11:00:00+00', '2024-01-28 16:45:00+00', TRUE),
+(1, 1, 17.0, '2024-02-28 10:00:00+00', '2024-01-10 10:00:00+00', TRUE),
+(1, 2, 17.6, '2024-03-15 11:00:00+00', '2024-01-28 16:45:00+00', TRUE),
 (1, 17, NULL, NULL, '2025-05-01 14:30:00+00', TRUE),
-(2, 1, 78.5, NULL, '2024-01-12 14:30:00+00', TRUE),
-(2, 3, 92.5, '2024-03-15 14:00:00+00', '2024-01-30 11:20:00+00', TRUE),
+(2, 1, 15.7, NULL, '2024-01-12 14:30:00+00', TRUE),
+(2, 3, 18.5, '2024-03-15 14:00:00+00', '2024-01-30 11:20:00+00', TRUE),
 (2, 19, NULL, NULL, '2025-06-01 11:20:00+00', TRUE),
-(4, 2, 88.0, '2024-03-15 11:00:00+00', '2024-01-28 16:45:00+00', TRUE),
+(4, 2, 17.6, '2024-03-15 11:00:00+00', '2024-01-28 16:45:00+00', TRUE),
 (4, 21, NULL, NULL, '2025-07-01 16:45:00+00', TRUE),
-(5, 3, 92.5, '2024-03-15 14:00:00+00', '2024-01-30 11:20:00+00', TRUE),
+(5, 3, 18.5, '2024-03-15 14:00:00+00', '2024-01-30 11:20:00+00', TRUE),
 (5, 17, NULL, NULL, '2025-05-01 14:30:00+00', TRUE),
-(6, 1, 76.0, NULL, '2024-01-31 15:30:00+00', TRUE),
+(6, 1, 15.2, NULL, '2024-01-31 15:30:00+00', TRUE),
 (6, 19, NULL, NULL, '2025-06-01 11:20:00+00', TRUE),
-(7, 2, 89.0, '2024-03-15 16:00:00+00', '2024-02-01 10:15:00+00', TRUE),
+(7, 2, 17.8, '2024-03-15 16:00:00+00', '2024-02-01 10:15:00+00', TRUE),
 (7, 21, NULL, NULL, '2025-07-01 16:45:00+00', TRUE),
-(8, 3, 94.0, '2024-03-15 10:00:00+00', '2024-02-02 14:45:00+00', TRUE),
+(8, 3, 18.8, '2024-03-15 10:00:00+00', '2024-02-02 14:45:00+00', TRUE),
 (8, 17, NULL, NULL, '2025-05-01 14:30:00+00', TRUE),
-(9, 1, 87.5, NULL, '2024-02-03 09:30:00+00', TRUE),
+(9, 1, 17.5, NULL, '2024-02-03 09:30:00+00', TRUE),
 (9, 19, NULL, NULL, '2025-06-01 11:20:00+00', TRUE),
-(10, 2, 90.0, '2024-03-15 15:00:00+00', '2024-02-04 11:15:00+00', TRUE),
+(10, 2, 18.0, '2024-03-15 15:00:00+00', '2024-02-04 11:15:00+00', TRUE),
 (10, 21, NULL, NULL, '2025-07-01 16:45:00+00', TRUE);
 
 -- Inserção na Tabela TRABALHO
-INSERT INTO TRABALHO (SINCRONO_ID, DESCRICAO, NOTA, DATA) VALUES
-(1, 'Trabalho Final - SQL', 100, '2025-04-15 23:59:00+00'),
-(3, 'Projeto Java Modular', 100, '2025-04-18 23:59:00+00'),
-(1, 'Exercício de Consultas SQL', 100, '2025-04-20 23:59:00+00'),
-(3, 'Implementação Spring Boot', 100, '2025-04-22 23:59:00+00'),
-(1, 'Projeto de Banco de Dados', 100, '2025-04-25 23:59:00+00'),
-(3, 'API REST com Java', 100, '2025-04-28 23:59:00+00');
-
--- Inserção na Tabela TRABALHOS_FORMANDO
-INSERT INTO TRABALHOS_FORMANDO (FORMANDO_ID, TRABALHO_ID) VALUES
-(1, 1), (2, 1), (3, 2), (4, 2),
-(5, 3), (6, 3), (7, 4), (8, 4),
-(9, 5), (10, 5), (1, 6), (2, 6);
+INSERT INTO TRABALHO (SINCRONO_ID, FORMANDO_ID, DESCRICAO, NOTA, DATA) VALUES
+(1, 1, 'Trabalho Final - SQL', 17, '2025-04-15 23:59:00+00'),
+(3, 2, 'Projeto Java Modular', 18, '2025-04-18 23:59:00+00'),
+(1, 3, 'Exercício de Consultas SQL', 19, '2025-04-20 23:59:00+00'),
+(3, 4, 'Implementação Spring Boot', 16, '2025-04-22 23:59:00+00'),
+(1, 5, 'Projeto de Banco de Dados', 18.5, '2025-04-25 23:59:00+00'),
+(3, 6, 'API REST com Java', 15.5, '2025-04-28 23:59:00+00'),
+(1, 7, 'Trabalho Final - SQL', NULL, '2025-04-15 23:59:00+00'),
+(3, 8, 'Projeto Java Modular', NULL, '2025-04-18 23:59:00+00'),
+(1, 9, 'Exercício de Consultas SQL', NULL, '2025-04-20 23:59:00+00'),
+(3, 10, 'Implementação Spring Boot', NULL, '2025-04-22 23:59:00+00');
 
 -- Inserção na Tabela NOTIFICACAO
 INSERT INTO NOTIFICACAO (FORMANDO_ID, CURSO_ID, DESCRICAO, DATA_CRIACAO, LIDA) VALUES

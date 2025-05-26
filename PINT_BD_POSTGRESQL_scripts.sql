@@ -7,16 +7,15 @@ CREATE OR REPLACE FUNCTION criar_colaborador_default_formando(
     p_score INTEGER,
     p_sobre_mim TEXT,
     p_username TEXT,
-    p_pssword TEXT,
-    p_last_login TIMESTAMPTZ
+    p_pssword TEXT
 )
 RETURNS VOID AS $$
 DECLARE
     novo_colaborador_id INTEGER;
 BEGIN
     -- Criar colaborador
-    INSERT INTO colaborador (nome, email, data_nasc, funcao_id, telefone, score, sobre_mim, username, pssword, inativo, last_login)
-    VALUES (p_nome, p_email, p_data_nasc, p_funcao_id, p_telefone, p_score, p_sobre_mim, p_username, p_pssword, false, p_last_login)
+    INSERT INTO colaborador (nome, email, data_nasc, funcao_id, telefone, score, sobre_mim, username, pssword, inativo)
+    VALUES (p_nome, p_email, p_data_nasc, p_funcao_id, p_telefone, p_score, p_sobre_mim, p_username, p_pssword, false)
     RETURNING colaborador_id INTO novo_colaborador_id;
 
     -- Criar formando com o mesmo ID das credenciais
@@ -204,6 +203,115 @@ BEGIN
     RAISE NOTICE 'Inscrição realizada com sucesso';
 END;
 $$;
+
+
+--- First drop the existing trigger and function
+
+DROP TRIGGER IF EXISTS calculate_final_grade_trigger ON SINCRONO;
+DROP FUNCTION IF EXISTS calculate_final_grade();
+DROP FUNCTION IF EXISTS calculate_final_grade_trigger();
+
+-- Função para chamada direta
+CREATE OR REPLACE FUNCTION calculate_final_grade(p_curso_id INTEGER)
+RETURNS VOID AS $$
+DECLARE
+    total_works INTEGER;
+    submitted_works INTEGER;
+    avg_grade FLOAT;
+    formando_rec RECORD;
+BEGIN
+    -- Count total works required for the course
+    SELECT COUNT(*) INTO total_works
+    FROM MATERIAL
+    WHERE CURSO_ID = p_curso_id
+    AND TIPO = 'trabalho';
+
+    -- For each formando in the course
+    FOR formando_rec IN 
+        SELECT DISTINCT i.FORMANDO_ID
+        FROM INSCRICAO i
+        WHERE i.CURSO_ID = p_curso_id
+    LOOP
+        -- Count submitted works and calculate average grade
+        SELECT 
+            COUNT(*),
+            ROUND(AVG(t.NOTA)::NUMERIC, 2)
+        INTO 
+            submitted_works,
+            avg_grade
+        FROM TRABALHO t
+        WHERE t.FORMANDO_ID = formando_rec.FORMANDO_ID
+        AND t.SINCRONO_ID = p_curso_id
+        AND t.NOTA IS NOT NULL;
+
+        -- Update the final grade in INSCRICAO
+        IF submitted_works > 0 THEN
+            UPDATE INSCRICAO
+            SET NOTA = avg_grade,
+                DATA_CERTIFICADO = CURRENT_TIMESTAMP,
+                ESTADO = true  -- Mark as completed
+            WHERE FORMANDO_ID = formando_rec.FORMANDO_ID
+            AND CURSO_ID = p_curso_id;
+        END IF;
+    END LOOP;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Função para o trigger
+CREATE OR REPLACE FUNCTION calculate_final_grade_trigger()
+RETURNS TRIGGER AS $$
+DECLARE
+    total_works INTEGER;
+    submitted_works INTEGER;
+    avg_grade FLOAT;
+    formando_rec RECORD;
+BEGIN
+    -- Count total works required for the course
+    SELECT COUNT(*) INTO total_works
+    FROM MATERIAL
+    WHERE CURSO_ID = NEW.CURSO_ID
+    AND TIPO = 'trabalho';
+
+    -- For each formando in the course
+    FOR formando_rec IN 
+        SELECT DISTINCT i.FORMANDO_ID
+        FROM INSCRICAO i
+        WHERE i.CURSO_ID = NEW.CURSO_ID
+    LOOP
+        -- Count submitted works and calculate average grade
+        SELECT 
+            COUNT(*),
+            ROUND(AVG(t.NOTA)::NUMERIC, 2)
+        INTO 
+            submitted_works,
+            avg_grade
+        FROM TRABALHO t
+        WHERE t.FORMANDO_ID = formando_rec.FORMANDO_ID
+        AND t.SINCRONO_ID = NEW.CURSO_ID
+        AND t.NOTA IS NOT NULL;
+
+        -- Update the final grade in INSCRICAO
+        IF submitted_works > 0 THEN
+            UPDATE INSCRICAO
+            SET NOTA = avg_grade,
+                DATA_CERTIFICADO = CURRENT_TIMESTAMP,
+                ESTADO = true  -- Mark as completed
+            WHERE FORMANDO_ID = formando_rec.FORMANDO_ID
+            AND CURSO_ID = NEW.CURSO_ID;
+        END IF;
+    END LOOP;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Create trigger to run when a course ends
+CREATE TRIGGER calculate_final_grade_trigger
+AFTER UPDATE OF DATA_FIM ON SINCRONO
+FOR EACH ROW
+WHEN (NEW.DATA_FIM <= CURRENT_TIMESTAMP)
+EXECUTE FUNCTION calculate_final_grade_trigger();
+
 
 -------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------

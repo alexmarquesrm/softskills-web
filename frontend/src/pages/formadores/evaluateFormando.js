@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Container, Card, Badge, Button, Form } from "react-bootstrap";
 import { BsFillPeopleFill, BsChatDots, BsArrowReturnLeft, BsDownload, BsFileText, BsSend } from "react-icons/bs";
 import { IoPersonOutline } from "react-icons/io5";
+import axios from "../../config/configAxios";
 
 import ModalCustom from "../../modals/modalCustom";
 import AddButton from "../../components/buttons/addButton";
@@ -10,21 +11,7 @@ import Guardar from "../../components/buttons/saveButton";
 import "./evaluateFormando.css";
 
 export default function AvaliacaoTrabalho() {
-  const formandos = [
-    { nome: "Ana Silva", avaliado: true },
-    { nome: "Bruno Costa", avaliado: false },
-    { nome: "Carla Dias", avaliado: true },
-    { nome: "Daniel Fonseca", avaliado: false },
-    { nome: "Eduarda Ramos", avaliado: true },
-    { nome: "Fábio Nunes", avaliado: false },
-    { nome: "Gabriela Matos", avaliado: true },
-    { nome: "Henrique Lopes", avaliado: false },
-    { nome: "Inês Carvalho", avaliado: true },
-    { nome: "João Pereira", avaliado: false },
-    { nome: "Liliana Rocha", avaliado: true },
-    { nome: "Marco Silva", avaliado: false },
-  ];
-
+  const [formandos, setFormandos] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [showModalAvaliacao, setShowModalAvaliacao] = useState(false);
   const [formandoSelecionado, setFormandoSelecionado] = useState(null);
@@ -32,6 +19,26 @@ export default function AvaliacaoTrabalho() {
   const [erroNota, setErroNota] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [filtroAvaliacao, setFiltroAvaliacao] = useState("todos");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    fetchFormandos();
+  }, []);
+
+  const fetchFormandos = async () => {
+    try {
+      const token = sessionStorage.getItem('token');
+      const response = await axios.get('/trabalhos/formandos', {
+        headers: { Authorization: `${token}` }
+      });
+      setFormandos(response.data);
+      setLoading(false);
+    } catch (err) {
+      setError("Erro ao carregar dados dos formandos");
+      setLoading(false);
+    }
+  };
 
   const abrirAvaliacao = (formando) => {
     setFormandoSelecionado(formando);
@@ -50,15 +57,33 @@ export default function AvaliacaoTrabalho() {
     setErroNota("");
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!nota) {
       setErroNota("Por favor, selecione uma classificação antes de guardar");
       return;
     }
     setErroNota("");
-    alert("Dados enviados");
-    fecharModalAvaliacao();
+
+    try {
+      const token = sessionStorage.getItem('token');
+      await axios.post('/trabalhos/avaliar', {
+        formando_id: formandoSelecionado.formando_id,
+        trabalho_id: formandoSelecionado.trabalho_id,
+        nota: parseFloat(nota)
+      }, {
+        headers: { Authorization: `${token}` }
+      });
+
+      // Atualizar a lista de formandos após a avaliação
+      await fetchFormandos();
+      fecharModalAvaliacao();
+    } catch (err) {
+      setErroNota("Erro ao salvar a avaliação. Tente novamente.");
+    }
   };
+
+  if (loading) return <div>Carregando...</div>;
+  if (error) return <div>{error}</div>;
 
   return (
     <div className="page-container">
@@ -135,6 +160,7 @@ export default function AvaliacaoTrabalho() {
                       size="sm"
                       onClick={() => abrirAvaliacao(formando)}
                       className="action-button"
+                      disabled={formando.avaliado}
                     >
                       <div className="button-content">
                         <BsChatDots size={16} />
@@ -144,8 +170,9 @@ export default function AvaliacaoTrabalho() {
                     <Button
                       variant="secondary"
                       size="sm"
-                      onClick={() => ('')}
+                      onClick={() => window.open(formando.arquivo_url, '_blank')}
                       className="secondary-button"
+                      disabled={!formando.arquivo_url}
                     >
                       <div className="button-content">
                         <BsDownload size={16} />
@@ -158,36 +185,6 @@ export default function AvaliacaoTrabalho() {
           </div>
         </Card>
       </Container>
-
-      {/* Modal de Notas */}
-      <ModalCustom
-        show={showModal}
-        handleClose={fecharModal}
-        title={`Notas de ${formandoSelecionado?.nome}`}
-      >
-        <div className="modal-content">
-          <Form>
-            <Form.Group className="mb-3" controlId="comentario">
-              <Form.Label className="form-label">Comentário</Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={4}
-                placeholder="Escreve aqui um comentário sobre o desempenho do formando..."
-                className="form-control-custom"
-              />
-            </Form.Group>
-
-            <div className="d-flex justify-content-end mt-4">
-              <AddButton
-                text="Guardar Nota"
-                onClick={fecharModal}
-                variant="primary"
-                size="sm"
-              />
-            </div>
-          </Form>
-        </div>
-      </ModalCustom>
 
       {/* Modal de Avaliação */}
       <ModalCustom

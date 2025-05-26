@@ -32,7 +32,6 @@ var _threads = require("./threads");
 var _threads_avaliacao = require("./threads_avaliacao");
 var _topico = require("./topico");
 var _trabalho = require("./trabalho");
-var _trabalhos_formando = require("./trabalhos_formando");
 var _departamento = require("./departamento");
 var _funcao = require("./funcao");
 
@@ -70,7 +69,6 @@ function initModels(sequelize) {
   var threads_avaliacao = _threads_avaliacao(sequelize, DataTypes);
   var topico = _topico(sequelize, DataTypes);
   var trabalho = _trabalho(sequelize, DataTypes);
-  var trabalhos_formando = _trabalhos_formando(sequelize, DataTypes);
   var departamento = _departamento(sequelize, DataTypes);
   var funcao = _funcao(sequelize, DataTypes);
 
@@ -84,12 +82,10 @@ function initModels(sequelize) {
   formando.belongsToMany(questoes_quizz, { as: 'questao_id_questoes_quizzs', through: respostas_quizz, foreignKey: "formando_id", otherKey: "questao_id" });
   formando.belongsToMany(quizz, { as: 'quizz_id_quizzs', through: avaliacao_quizz, foreignKey: "formando_id", otherKey: "quizz_id" });
   formando.belongsToMany(threads, { as: 'thread_id_threads', through: threads_avaliacao, foreignKey: "formando_id", otherKey: "thread_id" });
-  formando.belongsToMany(trabalho, { as: 'trabalho_id_trabalhos', through: trabalhos_formando, foreignKey: "formando_id", otherKey: "trabalho_id" });
   notificacao.belongsToMany(formando, { as: 'formando_id_formando_notificacoes_formandos', through: notificacoes_formando, foreignKey: "notificacao_id", otherKey: "formando_id" });
   questoes_quizz.belongsToMany(formando, { as: 'formando_id_formando_respostas_quizzs', through: respostas_quizz, foreignKey: "questao_id", otherKey: "formando_id" });
   quizz.belongsToMany(formando, { as: 'formando_id_formandos', through: avaliacao_quizz, foreignKey: "quizz_id", otherKey: "formando_id" });
   threads.belongsToMany(formando, { as: 'formando_id_formando_threads_avaliacaos', through: threads_avaliacao, foreignKey: "thread_id", otherKey: "formando_id" });
-  trabalho.belongsToMany(formando, { as: 'formando_id_formando_trabalhos_formandos', through: trabalhos_formando, foreignKey: "trabalho_id", otherKey: "formando_id" });
   topico.belongsTo(area, { as: "topico_area", foreignKey: "area_id"});
   area.hasMany(topico, { as: "area_topicos", foreignKey: "area_id"});
   presenca_form_sinc.belongsTo(aula, { as: "aula", foreignKey: "aula_id"});
@@ -152,8 +148,6 @@ function initModels(sequelize) {
   formando.hasMany(respostas_quizz, { as: "respostas_quizzs", foreignKey: "formando_id"});
   threads_avaliacao.belongsTo(formando, { as: "threads_ava_formando", foreignKey: "formando_id"});
   formando.hasMany(threads_avaliacao, { as: "formando_threads_ava", foreignKey: "formando_id"});
-  trabalhos_formando.belongsTo(formando, { as: "formando", foreignKey: "formando_id"});
-  formando.hasMany(trabalhos_formando, { as: "trabalhos_formandos", foreignKey: "formando_id"});
   threads.belongsTo(forum, { as: "threads_forum", foreignKey: "forum_id"});
   forum.hasMany(threads, { as: "forum_threads", foreignKey: "forum_id"});
   curso.belongsTo(gestor, { as: "gestor", foreignKey: "gestor_id"});
@@ -174,6 +168,8 @@ function initModels(sequelize) {
   sincrono.hasMany(aula, { as: "aulas", foreignKey: "sincrono_id"});
   trabalho.belongsTo(sincrono, { as: "sincrono", foreignKey: "sincrono_id"});
   sincrono.hasMany(trabalho, { as: "trabalhos", foreignKey: "sincrono_id"});
+  trabalho.belongsTo(formando, { as: "formando", foreignKey: "formando_id"});
+  formando.hasMany(trabalho, { as: "trabalhos", foreignKey: "formando_id"});
   comentarios.belongsTo(threads, { as: "comentarios_thread", foreignKey: "thread_id"});
   threads.hasMany(comentarios, { as: "thread_comentarios", foreignKey: "thread_id"});
   denuncias.belongsTo(threads, { as: "den_thread", foreignKey: "thread_id"});
@@ -184,8 +180,6 @@ function initModels(sequelize) {
   topico.hasMany(curso, { as: "topico_cursos", foreignKey: "topico_id"});
   forum.belongsTo(topico, { as: "forum_topico", foreignKey: "topico_id"});
   topico.hasMany(forum, { as: "topico_forums", foreignKey: "topico_id"});
-  trabalhos_formando.belongsTo(trabalho, { as: "trabalho", foreignKey: "trabalho_id"});
-  trabalho.hasMany(trabalhos_formando, { as: "trabalhos_formandos", foreignKey: "trabalho_id"});
   avaliacao_formador.belongsTo(curso, { as: "avaformador_curso", foreignKey: "curso_id"});
   curso.hasMany(avaliacao_formador, { as: "curso_avaformador", foreignKey: "curso_id"});
   avaliacao_formador.belongsTo(formador, { as: "avaformador_formador", foreignKey: "formador_id"});
@@ -229,7 +223,6 @@ function initModels(sequelize) {
     threads_avaliacao,
     topico,
     trabalho,
-    trabalhos_formando,
     departamento,
     funcao,
   };
