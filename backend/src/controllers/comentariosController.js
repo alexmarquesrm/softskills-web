@@ -2,6 +2,7 @@ const initModels = require("../models/init-models");
 const sequelizeConn = require("../bdConexao");
 const { Op } = require("sequelize");
 const models = initModels(sequelizeConn);
+const ficheirosController = require('./ficheiros');
 
 const controladorComentarios = {
   // Função auxiliar para procurar respostas recursivamente
@@ -38,10 +39,19 @@ const controladorComentarios = {
       order: [['comentario_id', 'ASC']]
     });
 
-    // Para cada resposta, procurar suas próprias respostas
+    // Para cada resposta, procurar suas próprias respostas e imagens
     const respostasComRespostas = await Promise.all(respostas.map(async (resposta) => {
       const respostaJSON = resposta.toJSON();
       respostaJSON.respostas = await controladorComentarios.procurarRespostas(resposta.comentario_id);
+      
+      // Buscar imagem associada à resposta
+      const files = await ficheirosController.getAllFilesByAlbum(resposta.comentario_id, 'comentario');
+      if (files && files.length > 0) {
+        respostaJSON.imagem_url = files[0].url;
+      } else {
+        respostaJSON.imagem_url = null;
+      }
+      
       return respostaJSON;
     }));
 
@@ -51,7 +61,7 @@ const controladorComentarios = {
   // Criar um novo comentário
   async createComentario(req, res) {
     try {
-      const { thread_id, colaborador_id, descricao, comentariopai_id } = req.body;
+      const { thread_id, colaborador_id, descricao, comentariopai_id, imagem } = req.body;
 
       // Validar se a descrição não está vazia
       if (!descricao || descricao.trim().length === 0) {
@@ -85,8 +95,18 @@ const controladorComentarios = {
         });
       }
 
+      // Se veio imagem, salvar como ficheiro associado ao comentário
+      if (imagem && imagem.base64 && imagem.nome) {
+        await ficheirosController.adicionar(
+          novoComentario.comentario_id,
+          'comentario',
+          [imagem],
+          req.user?.id || colaborador_id
+        );
+      }
+
       // procurar o comentário criado com as informações do colaborador
-      const comentarioCompleto = await models.comentarios.findByPk(novoComentario.comentario_id, {
+      let comentarioCompleto = await models.comentarios.findByPk(novoComentario.comentario_id, {
         include: [{
           model: models.colaborador,
           as: 'colab_comentarios',
@@ -102,6 +122,14 @@ const controladorComentarios = {
           attributes: ['nome']
         }]
       });
+      comentarioCompleto = comentarioCompleto.toJSON();
+      // Buscar imagem associada ao comentário
+      const files = await ficheirosController.getAllFilesByAlbum(novoComentario.comentario_id, 'comentario');
+      if (files && files.length > 0) {
+        comentarioCompleto.imagem_url = files[0].url;
+      } else {
+        comentarioCompleto.imagem_url = null;
+      }
 
       res.status(201).json(comentarioCompleto);
     } catch (error) {
@@ -156,6 +184,13 @@ const controladorComentarios = {
       const comentariosComRespostas = await Promise.all(comentarios.map(async (comentario) => {
         const comentarioJSON = comentario.toJSON();
         comentarioJSON.respostas = await controladorComentarios.procurarRespostas(comentario.comentario_id);
+        // Buscar imagem associada ao comentário
+        const files = await ficheirosController.getAllFilesByAlbum(comentario.comentario_id, 'comentario');
+        if (files && files.length > 0) {
+          comentarioJSON.imagem_url = files[0].url;
+        } else {
+          comentarioJSON.imagem_url = null;
+        }
         return comentarioJSON;
       }));
 

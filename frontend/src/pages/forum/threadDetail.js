@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from "../../config/configAxios";
 import { useParams, useNavigate } from 'react-router-dom';
-import { MessageSquare, ArrowLeft, ThumbsUp, ThumbsDown, Flag, Send, User } from 'react-feather';
+import { MessageSquare, ArrowLeft, ThumbsUp, ThumbsDown, Flag, Send, User, Image, X, Paperclip } from 'react-feather';
 import { Container, Row } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -32,6 +32,10 @@ const ThreadDetail = () => {
   const [newComment, setNewComment] = useState('');
   const [replyTo, setReplyTo] = useState(null);
   const [replyComment, setReplyComment] = useState('');
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [replyImage, setReplyImage] = useState(null);
+  const [replyImagePreview, setReplyImagePreview] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -123,12 +127,94 @@ const ThreadDetail = () => {
     }
   };
 
+  const handleImageSelect = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Verificar se é uma imagem
+      if (!file.type.startsWith('image/')) {
+        toast.error('Por favor, selecione apenas arquivos de imagem');
+        return;
+      }
+      
+      // Verificar tamanho (máximo 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error('A imagem deve ter no máximo 5MB');
+        return;
+      }
+
+      // Se já existe uma imagem, remover antes de adicionar a nova
+      if (selectedImage) {
+        handleRemoveImage();
+      }
+
+      setSelectedImage(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setSelectedImage(null);
+    setImagePreview(null);
+  };
+
+  const handleReplyImageSelect = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Verificar se é uma imagem
+      if (!file.type.startsWith('image/')) {
+        toast.error('Por favor, selecione apenas arquivos de imagem');
+        return;
+      }
+      
+      // Verificar tamanho (máximo 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error('A imagem deve ter no máximo 5MB');
+        return;
+      }
+
+      // Se já existe uma imagem, remover antes de adicionar a nova
+      if (replyImage) {
+        handleRemoveReplyImage();
+      }
+
+      setReplyImage(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setReplyImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveReplyImage = () => {
+    setReplyImage(null);
+    setReplyImagePreview(null);
+  };
+
+  const handleReply = (commentId) => {
+    setReplyTo(commentId);
+    setReplyComment('');
+    setReplyImage(null);
+    setReplyImagePreview(null);
+  };
+
+  const handleCancelReply = () => {
+    setReplyTo(null);
+    setReplyComment('');
+    setReplyImage(null);
+    setReplyImagePreview(null);
+  };
+
   const handleCommentSubmit = async (e, replyToId = null) => {
     e.preventDefault();
     try {
       const commentText = replyToId ? replyComment : newComment;
-      
-      // Validar se o comentário não está vazio
+      const imageToUpload = replyToId ? replyImage : selectedImage;
+
       if (!commentText || commentText.trim().length === 0) {
         toast.error('O comentário não pode estar vazio');
         return;
@@ -136,16 +222,43 @@ const ThreadDetail = () => {
 
       const colaborador_id = sessionStorage.getItem('colaboradorid');
       if (!colaborador_id) throw new Error('Utilizador não autenticado');
-      const commentData = {
-        thread_id: parseInt(threadId),
-        colaborador_id: parseInt(colaborador_id),
+
+      let imagem = null;
+      if (imageToUpload) {
+        let base64 = imageToUpload;
+        if (typeof imageToUpload !== 'string') {
+          base64 = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result.split(',')[1]);
+            reader.onerror = reject;
+            reader.readAsDataURL(imageToUpload);
+          });
+        }
+        imagem = {
+          nome: imageToUpload.name,
+          base64,
+          tamanho: imageToUpload.size
+        };
+      }
+
+      const payload = {
+        thread_id: threadId,
+        colaborador_id,
         descricao: commentText,
-        comentariopai_id: replyToId || replyTo
+        ...(replyToId || replyTo ? { comentariopai_id: replyToId || replyTo } : {}),
+        ...(imagem ? { imagem } : {})
       };
-      await axios.post('/comentario/criar', commentData);
+
+      await axios.post('/comentario/criar', payload);
+
       setNewComment('');
       setReplyComment('');
       setReplyTo(null);
+      setSelectedImage(null);
+      setImagePreview(null);
+      setReplyImage(null);
+      setReplyImagePreview(null);
+
       const commentsResponse = await axios.get(`/comentario/thread/${threadId}`);
       setComments(commentsResponse.data);
       toast.success('Comentário adicionado com sucesso!');
@@ -154,25 +267,15 @@ const ThreadDetail = () => {
     }
   };
 
-  const handleReply = (commentId) => {
-    setReplyTo(commentId);
-    setReplyComment('');
-  };
-
-  const handleCancelReply = () => {
-    setReplyTo(null);
-    setReplyComment('');
-  };
-
   const renderComment = (comment) => {
     return (
       <div key={comment.comentario_id} className="comment-card">
         <div className="comment-card-header">
           <div className="comment-author">
             <span className="author-label">Autor:</span>
-            <span className="author-value">{comment.colab_comentarios.nome}</span>
+            <span className="author-value">{comment.colab_comentarios?.nome || comment.autor_nome || 'Anônimo'}</span>
           </div>
-          {comment.colab_comentarios.colab_funcao && (
+          {comment.colab_comentarios?.colab_funcao && (
             <div className="comment-role">
               <span className="role-label">Função:</span>
               <span className="role-value">{comment.colab_comentarios.colab_funcao.nome}</span>
@@ -186,6 +289,11 @@ const ThreadDetail = () => {
         </div>
         <div className="comment-card-body">
           <p className="comment-content">{comment.descricao}</p>
+          {(comment.imagem_url || (comment.imagem && typeof comment.imagem === 'string')) && (
+            <div className="comment-image">
+              <img src={comment.imagem_url || comment.imagem} alt="Anexo do comentário" />
+            </div>
+          )}
         </div>
         <div className="comment-card-footer">
           <button onClick={() => handleReply(comment.comentario_id)} className="reply-btn">
@@ -202,17 +310,39 @@ const ThreadDetail = () => {
               required
             />
             <div className="reply-form-actions">
-              <button onClick={handleCancelReply} className="cancel-reply-btn">
-                Cancelar
-              </button>
-              <button onClick={(e) => handleCommentSubmit(e, comment.comentario_id)} className="submit-reply-btn">
-                <Send size={16} />
-                Enviar Resposta
-              </button>
+              <div className="reply-buttons">
+                <div className="button-group">
+                  <input
+                    type="file"
+                    id={`image-upload-reply-${comment.comentario_id}`}
+                    accept="image/*"
+                    onChange={handleReplyImageSelect}
+                    style={{ display: 'none' }}
+                  />
+                  <label htmlFor={`image-upload-reply-${comment.comentario_id}`} className="clip-btn">
+                    <Paperclip size={16} />
+                  </label>
+                  {replyImagePreview && (
+                    <div className="image-preview">
+                      <img src={replyImagePreview} alt="Preview" />
+                      <button onClick={handleRemoveReplyImage} className="remove-image-btn">
+                        <X size={16} />
+                      </button>
+                    </div>
+                  )}
+                </div>
+                <button onClick={handleCancelReply} className="cancel-reply-btn">
+                  Cancelar
+                </button>
+                <button onClick={(e) => handleCommentSubmit(e, comment.comentario_id)} className="submit-reply-btn">
+                  <Send size={16} />
+                  Enviar Resposta
+                </button>
+              </div>
             </div>
           </div>
         )}
-        {comment.respostas && comment.respostas.length > 0 && (
+        {Array.isArray(comment.respostas) && comment.respostas.length > 0 && (
           <div className="replies">
             {comment.respostas.map(reply => renderComment(reply))}
           </div>
@@ -304,10 +434,32 @@ const ThreadDetail = () => {
                 placeholder="Escreva seu comentário..."
                 required
               />
-              <button onClick={(e) => handleCommentSubmit(e)} className="submit-comment-btn">
-                <Send size={16} />
-                Comentar
-              </button>
+              <div className="comment-form-actions">
+                <div className="comment-buttons">
+                  <input
+                    type="file"
+                    id="image-upload"
+                    accept="image/*"
+                    onChange={handleImageSelect}
+                    style={{ display: 'none' }}
+                  />
+                  <label htmlFor="image-upload" className="clip-btn">
+                    <Paperclip size={16} />
+                  </label>
+                  <button onClick={(e) => handleCommentSubmit(e)} className="submit-comment-btn">
+                    <Send size={16} />
+                    Comentar
+                  </button>
+                </div>
+                {imagePreview && (
+                  <div className="image-preview">
+                    <img src={imagePreview} alt="Preview" />
+                    <button onClick={handleRemoveImage} className="remove-image-btn">
+                      <X size={16} />
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
             <div className="comments-list">
               {comments.length === 0 ? (
