@@ -1,19 +1,80 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider } from 'firebase/auth';
+import axios from './configAxios';
 
-// Your web app's Firebase configuration
-const firebaseConfig = {
-  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
-  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.REACT_APP_FIREBASE_APP_ID
+let app = null;
+let auth = null;
+let googleProvider = null;
+let isInitializing = false;
+let initializationPromise = null;
+
+export const isFirebaseInitialized = () => {
+    return !!app && !!auth && !!googleProvider;
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app);
-export const googleProvider = new GoogleAuthProvider();
+export const initializeFirebase = async () => {
+    if (isFirebaseInitialized()) {
+        return true;
+    }
 
-export default app; 
+    if (isInitializing && initializationPromise) {
+        return initializationPromise;
+    }
+
+    try {
+        isInitializing = true;
+        
+        initializationPromise = (async () => {
+            const response = await axios.get('/colaborador/firebase-config');
+            const firebaseConfig = response.data;
+            
+            if (!firebaseConfig.apiKey) {
+                throw new Error('Configuração do Firebase incompleta: apiKey não encontrada');
+            }
+
+            const requiredFields = ['apiKey', 'authDomain', 'projectId', 'storageBucket', 'messagingSenderId', 'appId'];
+            const missingFields = requiredFields.filter(field => !firebaseConfig[field]);
+            
+            if (missingFields.length > 0) {
+                throw new Error(`Configuração do Firebase incompleta. Campos faltando: ${missingFields.join(', ')}`);
+            }
+
+            app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            googleProvider = new GoogleAuthProvider();
+            
+            return true;
+        })();
+
+        return await initializationPromise;
+    } catch (error) {
+        app = null;
+        auth = null;
+        googleProvider = null;
+        initializationPromise = null;
+        throw error;
+    } finally {
+        isInitializing = false;
+    }
+};
+
+const initFirebase = async () => {
+    let attempts = 0;
+    const maxAttempts = 3;
+    
+    while (attempts < maxAttempts) {
+        try {
+            await initializeFirebase();
+            break;
+        } catch (error) {
+            attempts++;
+            if (attempts < maxAttempts) {
+                await new Promise(resolve => setTimeout(resolve, 2000));
+            }
+        }
+    }
+};
+
+initFirebase();
+
+export { auth, googleProvider }; 

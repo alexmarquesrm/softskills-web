@@ -4,7 +4,7 @@ import { Modal, Button, Form, InputGroup, Container, Row, Col, Alert } from 'rea
 import { EyeFill, EyeSlashFill, PersonFill, KeyFill } from 'react-bootstrap-icons';
 import { useNavigate } from 'react-router-dom';
 import { signInWithPopup } from 'firebase/auth';
-import { auth, googleProvider } from '../config/firebase';
+import { auth, googleProvider, isFirebaseInitialized, initializeFirebase } from '../config/firebase';
 import RegisterUser from './registerUser';
 import ResetPasswordModal from './resetPasswordModal';
 import 'react-toastify/dist/ReactToastify.css';
@@ -150,9 +150,34 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
     const handleGoogleLogin = async () => {
         try {
             setIsLoading(true);
+            setError('');
+            
+            // Verifica se o Firebase está inicializado
+            if (!isFirebaseInitialized()) {
+                console.log('Firebase não inicializado, tentando inicializar...');
+                try {
+                    const initialized = await initializeFirebase();
+                    if (!initialized || !isFirebaseInitialized()) {
+                        console.error('Falha na inicialização do Firebase');
+                        throw new Error('Não foi possível inicializar o Firebase. Por favor, tente novamente mais tarde.');
+                    }
+                } catch (initError) {
+                    console.error('Erro ao inicializar Firebase:', initError);
+                    throw new Error('Erro ao inicializar o Firebase. Por favor, tente novamente mais tarde.');
+                }
+            }
+
+            // Garante que auth e googleProvider estão disponíveis
+            if (!auth || !googleProvider) {
+                console.error('Auth ou GoogleProvider não disponíveis:', { auth: !!auth, googleProvider: !!googleProvider });
+                throw new Error('Firebase Auth não inicializado corretamente. Por favor, tente novamente mais tarde.');
+            }
+
+            console.log('Iniciando login com Google...');
             const result = await signInWithPopup(auth, googleProvider);
             const user = result.user;
             
+            console.log('Login com Google bem sucedido, enviando dados para o backend...');
             // Send the Google user data to your backend
             const response = await axios.post('/colaborador/google-login', {
                 googleId: user.uid,
@@ -165,16 +190,19 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
             const token = response.data.token;
             const saudacao = response.data.saudacao;
 
-            // Store authentication data
+            // Armazenar token - principal fonte de autenticação
             sessionStorage.setItem('token', token);
+            
+            // Armazenar dados para UI (estes não são usados para autorização)
             sessionStorage.setItem('colaboradorid', utilizador.colaboradorid);
             sessionStorage.setItem('nome', utilizador.nome);
             sessionStorage.setItem('email', utilizador.email);
-            sessionStorage.setItem('googleId', user.uid);
+            sessionStorage.setItem('primeirologin', utilizador.ultimologin === null ? "true" : "false");
             
-            // Store user types
+            // Armazenar todos os tipos de usuário
             if (utilizador.allUserTypes && Array.isArray(utilizador.allUserTypes)) {
                 sessionStorage.setItem('allUserTypes', utilizador.allUserTypes.join(','));
+                // Definir tipo predefinido seguindo a hierarquia: Gestor > Formador > Formando
                 let defaultType = utilizador.allUserTypes[0];
                 if (utilizador.allUserTypes.includes('Gestor')) {
                     defaultType = 'Gestor';
@@ -190,9 +218,18 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
             }
             
             sessionStorage.setItem('saudacao', saudacao);
+
+            // Configurar o token para todas as requisições futuras
             axios.defaults.headers.common['Authorization'] = token;
 
-            // Determine redirect path
+            // Se o último login for null, mostrar o modal de alteração de password
+            if (utilizador.ultimologin === null) {
+                resetForm();
+                setShowChangePassword(true);
+                return;
+            }
+
+            // Determinar a rota de redirecionamento baseada nas roles
             let redirectPath = '/';
             const userTypes = utilizador.allUserTypes || [utilizador.tipo];
             const isGestor = userTypes.includes('Gestor');
@@ -207,6 +244,7 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
                 redirectPath = '/formador/dashboard';
             }
 
+            // Fechar o modal e redirecionar com a mensagem de boas-vindas
             handleClose();
             navigate(redirectPath, { 
                 state: { 
@@ -216,7 +254,7 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
             onLoginSuccess();
         } catch (error) {
             console.error('Erro no login com Google:', error);
-            setError('Erro ao fazer login com Google. Tente novamente.');
+            setError(error.message || 'Erro ao fazer login com Google. Tente novamente.');
         } finally {
             setIsLoading(false);
         }
