@@ -35,4 +35,7 @@ router.put("/atualizar/:id", authenticate, validateResourceAccess, colaboradorCo
 // Excluir colaborador (apenas admin/gestor)
 router.delete("/apagar/:id", authenticate, validateResourceAccess, colaboradorController.deleteColaborador);
 
+// Google login
+router.post("/google-login", colaboradorController.googleLogin);
+
 module.exports = router;

@@ -59,6 +59,17 @@ module.exports = function(sequelize, DataTypes) {
     last_login: {
       type: DataTypes.DATE,
       allowNull: true
+    },
+    google_id: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+      unique: true
+    }
+    ,
+    fcmtoken: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+      unique: true
     }
   }, {
     sequelize,
