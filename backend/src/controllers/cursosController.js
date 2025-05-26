@@ -3,6 +3,7 @@ const initModels = require("../models/init-models");
 const sequelizeConn = require("../bdConexao");
 const colaborador = require("../models/colaborador");
 const models = initModels(sequelizeConn);
+const ficheirosController = require('./ficheiros');
 
 const controladorCursos = {
   // Criar um novo curso
@@ -151,7 +152,17 @@ const controladorCursos = {
         }
       });
 
-      res.json(cursos);
+      // Para cada curso, buscar a URL da capa
+      const cursosComCapa = await Promise.all(cursos.map(async (curso) => {
+        const cursoData = curso.toJSON();
+        const files = await ficheirosController.getAllFilesByAlbum(curso.curso_id, 'curso');
+        if (files && files.length > 0) {
+          cursoData.capaUrl = files[0].url;
+        }
+        return cursoData;
+      }));
+
+      res.json(cursosComCapa);
     } catch (error) {
       console.error("Erro ao obter cursos:", error);
       res.status(500).json({ message: "Erro interno ao obter cursos" });
@@ -472,7 +483,17 @@ const controladorCursos = {
         attributes: ["curso_id", "titulo", "descricao", "tipo", "total_horas", "pendente", "nivel"],
       });
 
-      res.json(cursos);
+      // Adicionar capaUrl a cada curso
+      const cursosComCapa = await Promise.all(cursos.map(async (curso) => {
+        const cursoData = curso.toJSON();
+        const files = await ficheirosController.getAllFilesByAlbum(curso.curso_id, 'curso');
+        if (files && files.length > 0) {
+          cursoData.capaUrl = files[0].url;
+        }
+        return cursoData;
+      }));
+
+      res.json(cursosComCapa);
     } catch (error) {
       console.error("Erro ao obter cursos do formador:", error);
       res.status(500).json({ message: "Erro interno ao obter cursos do formador" });
@@ -541,7 +562,8 @@ const controladorCursos = {
         descricao,
         certificado,
         nivel,
-        sincrono
+        sincrono,
+        capa
       } = req.body;
 
       const curso = await models.curso.findByPk(id);
@@ -594,6 +616,11 @@ const controladorCursos = {
             curso_id: id
           }, { transaction: t });
         }
+      }
+
+      // Se vier imagem de capa, guardar como ficheiro associado ao curso
+      if (capa && capa.base64) {
+        await ficheirosController.adicionar(id, 'curso', [capa], req.user?.id || null);
       }
 
       await t.commit();

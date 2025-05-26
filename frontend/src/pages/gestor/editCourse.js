@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Container, Form, Button, Row, Col, Alert, Spinner } from "react-bootstrap";
 import { useNavigate, useParams } from 'react-router-dom';
 import { Book } from 'react-feather';
-import { BsArrowReturnLeft } from "react-icons/bs";
+import { BsArrowReturnLeft, BsImage } from "react-icons/bs";
 import axios from "../../config/configAxios";
 import Cancelar from "../../components/buttons/cancelButton";
 import "./addCourse.css";
@@ -38,62 +38,63 @@ export default function EditCourse() {
         certificado: ""
     });
 
-   
-      useEffect(() => {
-    const fetchData = async () => {
-        try {
-            const token = sessionStorage.getItem('token');
-            const [cat, area, top, form, curso] = await Promise.all([
-                axios.get('/categoria', { headers: { Authorization: `${token}` } }),
-                axios.get('/area', { headers: { Authorization: `${token}` } }),
-                axios.get('/topico', { headers: { Authorization: `${token}` } }),
-                axios.get('/formador', { headers: { Authorization: `${token}` } }),
-                axios.get(`/curso/${id}`, { headers: { Authorization: `${token}` } })
-            ]);
+    const [coverImage, setCoverImage] = useState(null);
+    const [coverPreview, setCoverPreview] = useState(null);
 
-            // Guardar dados nas states
-            setCategorias(cat.data);
-            setAreas(area.data);
-            setTopicos(top.data);
-            setFormadores(form.data);
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const token = sessionStorage.getItem('token');
+                const [cat, area, top, form, curso] = await Promise.all([
+                    axios.get('/categoria', { headers: { Authorization: `${token}` } }),
+                    axios.get('/area', { headers: { Authorization: `${token}` } }),
+                    axios.get('/topico', { headers: { Authorization: `${token}` } }),
+                    axios.get('/formador', { headers: { Authorization: `${token}` } }),
+                    axios.get(`/curso/${id}`, { headers: { Authorization: `${token}` } })
+                ]);
 
-            const cursoData = curso.data;
-            const cursoSincrono = cursoData.curso_sincrono || {};
+                // Guardar dados nas states
+                setCategorias(cat.data);
+                setAreas(area.data);
+                setTopicos(top.data);
+                setFormadores(form.data);
 
-            // Obter topico a partir do ID
-            const topicoSelecionado = top.data.find(t => t.topico_id === cursoData.topico_id);
-            const area_id = topicoSelecionado?.area_id || "";
-            const categoria_id = area_id
-                ? area.data.find(a => a.area_id === area_id)?.categoria_id || ""
-                : "";
+                const cursoData = curso.data;
+                const cursoSincrono = cursoData.curso_sincrono || {};
 
-            // Atualizar formData
-            setFormData({
-                titulo: cursoData.titulo || "",
-                descricao: cursoData.descricao || "",
-                tipo: cursoData.tipo || "",
-                horas: cursoData.total_horas || "",
-                categoria_id: categoria_id,
-                area_id: area_id,
-                topico_id: cursoData.topico_id || "",
-                formador_id: cursoSincrono.formador_id || "",
-                vagas: cursoSincrono.limite_vagas || "",
-                grau_dificuldade: cursoData.nivel || "",
-                data_limite_inscricao: cursoSincrono.data_limite_inscricao?.substring(0, 10) || "",
-                data_inicio: cursoSincrono.data_inicio?.substring(0, 10) || "",
-                data_fim: cursoSincrono.data_fim?.substring(0, 10) || "",
-                certificado: cursoData.certificado?.toString() || ""
-            });
+                // Obter topico a partir do ID
+                const topicoSelecionado = top.data.find(t => t.topico_id === cursoData.topico_id);
+                const area_id = topicoSelecionado?.area_id || "";
+                const categoria_id = area_id
+                    ? area.data.find(a => a.area_id === area_id)?.categoria_id || ""
+                    : "";
 
-        } catch (error) {
-            console.error("Erro ao carregar dados do curso", error);
-            setError("Falha ao carregar os dados do curso. Por favor, tente novamente.");
-        }
-    };
+                // Atualizar formData
+                setFormData({
+                    titulo: cursoData.titulo || "",
+                    descricao: cursoData.descricao || "",
+                    tipo: cursoData.tipo || "",
+                    horas: cursoData.total_horas || "",
+                    categoria_id: categoria_id,
+                    area_id: area_id,
+                    topico_id: cursoData.topico_id || "",
+                    formador_id: cursoSincrono.formador_id || "",
+                    vagas: cursoSincrono.limite_vagas || "",
+                    grau_dificuldade: cursoData.nivel || "",
+                    data_limite_inscricao: cursoSincrono.data_limite_inscricao?.substring(0, 10) || "",
+                    data_inicio: cursoSincrono.data_inicio?.substring(0, 10) || "",
+                    data_fim: cursoSincrono.data_fim?.substring(0, 10) || "",
+                    certificado: cursoData.certificado?.toString() || ""
+                });
 
-    fetchData();
-}, [id]);
+            } catch (error) {
+                console.error("Erro ao carregar dados do curso", error);
+                setError("Falha ao carregar os dados do curso. Por favor, tente novamente.");
+            }
+        };
 
+        fetchData();
+    }, [id]);
 
     useEffect(() => {
         if (formData.categoria_id) {
@@ -116,6 +117,24 @@ export default function EditCourse() {
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
+    };
+
+    const handleCoverChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            if (!file.type.startsWith('image/')) {
+                setError('Por favor, selecione apenas imagens');
+                return;
+            }
+            if (file.size > 5 * 1024 * 1024) {
+                setError('A imagem deve ter no máximo 5MB');
+                return;
+            }
+            setCoverImage(file);
+            const reader = new FileReader();
+            reader.onloadend = () => setCoverPreview(reader.result);
+            reader.readAsDataURL(file);
+        }
     };
 
     const handleSubmit = async (e) => {
@@ -143,6 +162,24 @@ export default function EditCourse() {
                     data_inicio: formData.data_inicio,
                     data_fim: formData.data_fim,
                     estado: false
+                };
+            }
+
+            // Adicionar imagem de capa se existir
+            if (coverImage) {
+                let base64 = coverImage;
+                if (typeof coverImage !== 'string') {
+                    base64 = await new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onloadend = () => resolve(reader.result.split(',')[1]);
+                        reader.onerror = reject;
+                        reader.readAsDataURL(coverImage);
+                    });
+                }
+                cursoData.capa = {
+                    nome: coverImage.name,
+                    base64,
+                    tamanho: coverImage.size
                 };
             }
 
@@ -179,6 +216,19 @@ export default function EditCourse() {
                 {error && <Alert variant="danger">{error}</Alert>}
 
                 <Form onSubmit={handleSubmit} className="course-form">
+                    <Row>
+                        <Col md={12} className="mb-3">
+                            <Form.Group>
+                                <Form.Label>Imagem de Capa do Curso</Form.Label>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                    <input type="file" accept="image/*" onChange={handleCoverChange} />
+                                    {coverPreview && (
+                                        <img src={coverPreview} alt="Preview" style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 8, border: '1px solid #ccc' }} />
+                                    )}
+                                </div>
+                            </Form.Group>
+                        </Col>
+                    </Row>
 
                     <Row>
                         <Col md={6}>

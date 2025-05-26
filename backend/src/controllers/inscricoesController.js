@@ -4,6 +4,7 @@ const formando = require("../models/formando");
 const curso = require("../models/curso");
 const models = initModels(sequelizeConn);
 const { sendEmail } = require('../services/emailService');
+const ficheirosController = require('./ficheiros');
 
 const controladorInscricoes = {
   // Criar uma nova inscrição
@@ -194,7 +195,19 @@ const controladorInscricoes = {
         ]
       });
 
-      res.json(inscricoes);
+      // Adicionar capaUrl a cada inscricao_curso
+      const inscricoesComCapa = await Promise.all(inscricoes.map(async (inscricao) => {
+        const inscricaoData = inscricao.toJSON();
+        if (inscricaoData.inscricao_curso) {
+          const files = await ficheirosController.getAllFilesByAlbum(inscricaoData.inscricao_curso.curso_id, 'curso');
+          if (files && files.length > 0) {
+            inscricaoData.inscricao_curso.capaUrl = files[0].url;
+          }
+        }
+        return inscricaoData;
+      }));
+
+      res.json(inscricoesComCapa);
     } catch (error) {
       res.status(500).json({ erro: "Erro ao procurar inscrições", detalhes: error.message });
     }
@@ -223,9 +236,7 @@ const controladorInscricoes = {
               {
                 model: models.topico,
                 as: "curso_topico"
-              }
-            ],
-            include: [
+              },
               {
                 model: models.sincrono,
                 as: "curso_sincrono"
@@ -250,7 +261,19 @@ const controladorInscricoes = {
         return res.status(404).json({ erro: "Nenhuma inscrição encontrada para este formando" });
       }
 
-      res.json(inscricoes);
+      // Adicionar capaUrl a cada inscricao_curso
+      const inscricoesComCapa = await Promise.all(inscricoes.map(async (inscricao) => {
+        const inscricaoData = inscricao.toJSON();
+        if (inscricaoData.inscricao_curso) {
+          const files = await ficheirosController.getAllFilesByAlbum(inscricaoData.inscricao_curso.curso_id, 'curso');
+          if (files && files.length > 0) {
+            inscricaoData.inscricao_curso.capaUrl = files[0].url;
+          }
+        }
+        return inscricaoData;
+      }));
+
+      res.json(inscricoesComCapa);
     } catch (error) {
       res.status(500).json({ erro: "Erro ao procurar inscrições", detalhes: error.message });
     }

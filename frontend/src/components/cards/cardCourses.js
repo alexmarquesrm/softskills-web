@@ -63,7 +63,16 @@ function CardCourses({ curso, inscricao, mostrarBotao = true, mostrarInicioEFim 
       )}
 
       <div className="course-header" style={{ cursor: 'pointer' }} onClick={handleViewDetails}>
-        <img src={ReactGif} alt="Curso" className="course-image" />
+        {curso.capaUrl ? (
+          <img 
+            src={curso.capaUrl} 
+            alt={curso.titulo} 
+            className="course-image" 
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          />
+        ) : (
+          <img src={ReactGif} alt="Curso" className="course-image" />
+        )}
         {mostrarNivelCard && (
         <Badge className={`course-type-badge2 nivel`}>
           Nível-{ String(curso.nivel)}
