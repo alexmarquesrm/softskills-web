@@ -52,6 +52,10 @@
     color: #2c3e50;
     font-weight: 500;
     margin-bottom: 0.5rem;
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
 }
 
 .register-form-input-group {
@@ -63,6 +67,8 @@
     overflow: hidden;
     transition: all 0.3s ease;
     height: 42px;
+    width: 80%;
+    margin: 0 auto;
 }
 
 .register-form-input-group:focus-within {
@@ -118,35 +124,43 @@
     color: #e74c3c;
     font-size: 0.85rem;
     margin-top: 0.25rem;
-    padding-left: 0.5rem;
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
 }
 
-.register-form-button {
-    background-color: #3498db;
-    border: none;
-    border-radius: 8px;
-    padding: 0.8rem;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    margin-top: 1rem;
+.login-modal .register-form-button {
+    background-color: #3498db !important;
+    border: none !important;
+    border-radius: 8px !important;
+    padding: 0.6rem !important;
+    font-weight: 600 !important;
+    transition: all 0.3s ease !important;
+    margin-top: 1rem !important;
+    width: 80% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    display: block !important;
+    font-size: 1rem !important;
 }
 
-.register-form-button:hover {
-    background-color: #2980b9;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+.login-modal .register-form-button:hover {
+    background-color: #2980b9 !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1) !important;
 }
 
-.register-form-button:active {
-    transform: translateY(0);
-    box-shadow: none;
+.login-modal .register-form-button:active {
+    transform: translateY(0) !important;
+    box-shadow: none !important;
 }
 
-.register-form-button:disabled {
-    background-color: #bdc3c7;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
+.login-modal .register-form-button:disabled {
+    background-color: #bdc3c7 !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+    box-shadow: none !important;
 }
 
 .register-link {
@@ -154,6 +168,10 @@
     text-decoration: none;
     font-weight: 500;
     transition: color 0.2s ease;
+    width: 80%;
+    margin: 1rem auto;
+    display: block;
+    text-align: center;
 }
 
 .register-link:hover {
@@ -167,6 +185,10 @@
     font-size: 0.9rem;
     padding: 0;
     transition: color 0.2s ease;
+    width: 80%;
+    margin: 0 auto;
+    display: block;
+    text-align: right;
 }
 
 .forgot-password-link:hover {
@@ -180,6 +202,9 @@
     padding: 1rem;
     margin-bottom: 1.5rem;
     font-size: 0.95rem;
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .register-form-alert-danger {
