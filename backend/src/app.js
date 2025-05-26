@@ -58,7 +58,7 @@ app.use('/funcao', funcoesRoutes);
 app.use('/trabalhos', authenticate, trabalhosRoutes);
 app.use('/quizz', quizzRoutes);
 
-app.listen(8000, () => {
+app.listen(8000, '0.0.0.0', () => {
   console.log("Servidor na porta 8000");
 });
 
