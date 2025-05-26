@@ -409,7 +409,7 @@ const ThreadDetail = () => {
                   >
                     <ThumbsUp size={16} />
                   </button>
-                  <span className="vote-count">{thread.voto_count || 0}</span>
+                  <span className="vote-count positive-votes">{Number(thread.votos_positivos) || 0}</span>
                   <button
                     onClick={() => handleVote(-1)}
                     className={`vote-btn ${voteStatus === -1 ? 'voted' : ''}`}
@@ -417,6 +417,7 @@ const ThreadDetail = () => {
                   >
                     <ThumbsDown size={16} />
                   </button>
+                  <span className="vote-count negative-votes">{Number(thread.votos_negativos) || 0}</span>
                 </div>
               </div>
             </div>

@@ -91,23 +91,23 @@ const controladorThreads = {
             model: models.forum,
             as: 'threads_forum',
             include: [
-                {
-                  model: models.topico,
-                  as: 'forum_topico',
-                  include: [
-                    {
-                      model: models.area,
-                      as: 'topico_area',
-                      include: [
-                        {
-                          model: models.categoria,
-                          as: 'area_categoria',
-                        }
-                      ]
-                    }
-                  ]
-                }
-              ]
+              {
+                model: models.topico,
+                as: 'forum_topico',
+                include: [
+                  {
+                    model: models.area,
+                    as: 'topico_area',
+                    include: [
+                      {
+                        model: models.categoria,
+                        as: 'area_categoria',
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
           },
           {
             model: models.colaborador,
@@ -122,11 +122,12 @@ const controladorThreads = {
         attributes: {
           include: [
             [
-              Sequelize.fn('COALESCE', 
-                Sequelize.fn('SUM', Sequelize.col('thread_threads_ava_.vote')),
-                0
-              ),
-              'voto_count',
+              Sequelize.literal(`SUM(CASE WHEN thread_threads_ava_.vote = 1 THEN 1 ELSE 0 END)`),
+              'votos_positivos',
+            ],
+            [
+              Sequelize.literal(`SUM(CASE WHEN thread_threads_ava_.vote = -1 THEN 1 ELSE 0 END)`),
+              'votos_negativos',
             ],
           ],
         },
@@ -145,21 +146,13 @@ const controladorThreads = {
       }
   
       const result = thread.toJSON();
-      
-      // Transform the data structure
       result.user = {
-        colaborador_id: result.colab_threads.colaborador_id,
-        nome: result.colab_threads.nome,
-        cargo: result.colab_threads.cargo,
-        departamento: result.colab_threads.departamento
+        colaborador_id: result.colab_threads?.colaborador_id,
+        nome: result.colab_threads?.nome,
+        cargo: result.colab_threads?.cargo,
+        departamento: result.colab_threads?.departamento
       };
-
-      // Remove the original colab_threads object
       delete result.colab_threads;
-
-      // Ensure voto_count is a number
-      result.voto_count = parseInt(result.voto_count) || 0;
-
       res.json(result);
     } catch (error) {
       console.error(error);
