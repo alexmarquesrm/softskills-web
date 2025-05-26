@@ -2,6 +2,7 @@ const Sequelize = require("sequelize");
 const initModels = require("../models/init-models");
 const sequelizeConn = require("../bdConexao");
 const models = initModels(sequelizeConn);
+const ficheirosController = require('./ficheiros');
 
 const controladorThreads = {
   // Criar uma nova thread
@@ -152,6 +153,13 @@ const controladorThreads = {
         cargo: result.colab_threads?.cargo,
         departamento: result.colab_threads?.departamento
       };
+      // Buscar foto de perfil
+      if (result.user.colaborador_id) {
+        const files = await ficheirosController.getFilesFromBucketOnly(result.user.colaborador_id, 'colaborador');
+        if (files && files.length > 0) {
+          result.user.fotoPerfilUrl = files[0].url;
+        }
+      }
       delete result.colab_threads;
       res.json(result);
     } catch (error) {

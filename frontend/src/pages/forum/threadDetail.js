@@ -364,16 +364,25 @@ const ThreadDetail = () => {
         <div className="thread-header">
           <div className="thread-header-content">
             <div className="thread-header-avatar">
-              {thread.user?.nome ? (
-                <span className="avatar-circle">{getInitials(thread.user.nome)}</span>
-              ) : (
-                <User size={32} />
-              )}
+              <div className="forum-header-icon" style={{background: 'linear-gradient(135deg, #416699, #3b96d3)', color: 'white', width: 48, height: 48, borderRadius: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 6px 16px rgba(97, 87, 255, 0.15)'}}>
+                <MessageSquare size={28} />
+              </div>
             </div>
             <div className="thread-header-info">
               <div className="thread-header-meta">
                 {forum && <span className="forum-name">{forum.descricao}</span>}
-                <span className="author-name">{thread.user?.nome || 'Anônimo'}</span>
+                <span className="author-name">
+                  {thread.user?.fotoPerfilUrl ? (
+                    <img
+                      src={thread.user.fotoPerfilUrl}
+                      alt={thread.user.nome}
+                      className="author-avatar-img"
+                      style={{ width: 28, height: 28, borderRadius: '50%', objectFit: 'cover', border: '1.5px solid #d0d8e8', marginRight: 6, verticalAlign: 'middle' }}
+                      onError={e => { e.target.src = '/default-profile.png'; }}
+                    />
+                  ) : null}
+                  {thread.user?.nome || 'Anônimo'}
+                </span>
                 <span className="post-time">{formatDate(thread.created_at)}</span>
               </div>
               <h1>{thread.titulo}</h1>
