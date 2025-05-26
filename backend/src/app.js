@@ -25,9 +25,20 @@ const funcoesRoutes = require('./routes/funcoesRoutes');
 const trabalhosRoutes = require('./routes/trabalhosRoutes');
 const quizzRoutes = require('./routes/quizz');
 
+const allowedOrigins = [
+  'https://distance-timing-kits-resolution.trycloudflare.com',
+  'http://localhost:3000'
+];
+
 // Use CORS middleware
 app.use(cors({
-  origin: '*',
+  origin: function(origin, callback){
+    if(!origin) return callback(null, true);
+    if(allowedOrigins.indexOf(origin) === -1){
+      return callback(new Error('Not allowed by CORS'), false);
+    }
+    return callback(null, true);
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
