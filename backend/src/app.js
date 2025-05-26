@@ -26,7 +26,7 @@ const trabalhosRoutes = require('./routes/trabalhosRoutes');
 const quizzRoutes = require('./routes/quizz');
 
 const allowedOrigins = [
-  'https://distance-timing-kits-resolution.trycloudflare.com',
+  'https://hence-remainder-pressure-santa.trycloudflare.com',
   'http://localhost:3000'
 ];
 
