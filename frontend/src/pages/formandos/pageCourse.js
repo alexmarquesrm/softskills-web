@@ -1278,7 +1278,7 @@ export default function CursoFormando() {
                     onClick={() => setAvaliacaoFormador(star)}
                     className="star-button"
                   >
-                    <BsStarFill />
+                    <BsStarFill style={{ color: avaliacaoFormador >= star ? "#f36028" : "#f36028" }} />
                   </Button>
                 ))}
               </div>

@@ -22,6 +22,9 @@ export default function PaginaGestor() {
   const navToPage = (url) => {
     navigate(url)
   }
+const cursosComAvaliacoes = curso.filter(cursoItem =>
+  avaliacoes.some(a => a.curso_id === cursoItem.curso_id)
+);
 
   const fetchSaudacao = async () => {
     try {
@@ -95,7 +98,7 @@ export default function PaginaGestor() {
       if (!dataInicio) return false;
 
       const dataInicioObj = new Date(dataInicio);
-      
+
       // Verifica se a data está entre hoje e 15 dias depois
       return dataInicioObj >= hoje && dataInicioObj <= quinzeDiasDepois;
     }).sort((a, b) => new Date(a.curso_sincrono?.data_inicio) - new Date(b.curso_sincrono?.data_inicio));
@@ -121,16 +124,16 @@ export default function PaginaGestor() {
   const getMediaPorCurso = (cursoId) => {
     const avaliacoesDoCurso = avaliacoes.filter(a => a.curso_id === cursoId);
     if (avaliacoesDoCurso.length === 0) return 0;
-    
+
     const soma = avaliacoesDoCurso.reduce((acc, curr) => acc + curr.avaliacao, 0);
     return soma / avaliacoesDoCurso.length;
   };
 
   const renderPedidoCard = (curso, index) => {
     if (!curso) return null;
-    
+
     return (
-      <CardPedido 
+      <CardPedido
         key={curso.curso_id || index}
         pedido={{
           ...curso,
@@ -198,9 +201,9 @@ export default function PaginaGestor() {
               <p>A carregar cursos...</p>
             </div>
           ) : filteredCurso.length > 0 ? (
-            <CardRow 
-              dados={filteredCurso} 
-              renderCard={renderPedidoCard} 
+            <CardRow
+              dados={filteredCurso}
+              renderCard={renderPedidoCard}
               scrollable={true}
             />
           ) : (
@@ -219,7 +222,7 @@ export default function PaginaGestor() {
             Cursos ativos
           </h2>
           <div className="section-actions">
-            <button className="btn btn-link section-link" onClick={() =>{ navToPage('/formador/cursos'); window.scrollTo(0, 0); }}>
+            <button className="btn btn-link section-link" onClick={() => { navToPage('/formador/cursos'); window.scrollTo(0, 0); }}>
               Ver Todos <ArrowRightCircle size={16} className="ms-1" />
             </button>
           </div>
@@ -281,7 +284,7 @@ export default function PaginaGestor() {
                   {[5, 4, 3, 2, 1].map((rating) => {
                     const count = avaliacoes.filter(a => a.avaliacao === rating).length;
                     const percentage = avaliacoes.length > 0 ? (count / avaliacoes.length) * 100 : 0;
-                    
+
                     return (
                       <div key={rating} className="d-flex align-items-center mb-2">
                         <div className="me-2" style={{ width: '60px' }}>
@@ -304,41 +307,44 @@ export default function PaginaGestor() {
               </Row>
             </Card.Body>
           </Card>
+          {cursosComAvaliacoes.length > 0 && (
+            <>
+              <h5 className="mb-3">Avaliações por Curso</h5>
+              <Row>
+                {curso.map((cursoItem) => {
+                  const media = getMediaPorCurso(cursoItem.curso_id);
+                  const avaliacoesDoCurso = avaliacoes.filter(a => a.curso_id === cursoItem.curso_id);
 
-          <h5 className="mb-3">Avaliações por Curso</h5>
-          <Row>
-            {curso.map((cursoItem) => {
-              const media = getMediaPorCurso(cursoItem.curso_id);
-              const avaliacoesDoCurso = avaliacoes.filter(a => a.curso_id === cursoItem.curso_id);
+                  if (avaliacoesDoCurso.length === 0) return null;
 
-              if (avaliacoesDoCurso.length === 0) return null;
-
-              return (
-                <Col md={4} key={cursoItem.curso_id} className="mb-3">
-                  <Card>
-                    <Card.Body>
-                      <h6 className="mb-2">{cursoItem.titulo}</h6>
-                      <div className="d-flex align-items-center mb-2">
-                        <div className="h4 mb-0 me-2">{media.toFixed(1)}</div>
-                        <div className="stars">
-                          {[1, 2, 3, 4, 5].map((star) => (
-                            <StarFill
-                              key={star}
-                              className={star <= Math.round(media) ? "text-warning" : "text-muted"}
-                              size={14}
-                            />
-                          ))}
-                        </div>
-                      </div>
-                      <Badge bg="light" text="dark">
-                        {avaliacoesDoCurso.length} avaliações
-                      </Badge>
-                    </Card.Body>
-                  </Card>
-                </Col>
-              );
-            })}
-          </Row>
+                  return (
+                    <Col md={4} key={cursoItem.curso_id} className="mb-3">
+                      <Card>
+                        <Card.Body>
+                          <h6 className="mb-2">{cursoItem.titulo}</h6>
+                          <div className="d-flex align-items-center mb-2">
+                            <div className="h4 mb-0 me-2">{media.toFixed(1)}</div>
+                            <div className="stars">
+                              {[1, 2, 3, 4, 5].map((star) => (
+                                <StarFill
+                                  key={star}
+                                  className={star <= Math.round(media) ? "text-warning" : "text-muted"}
+                                  size={14}
+                                />
+                              ))}
+                            </div>
+                          </div>
+                          <Badge bg="light" text="dark">
+                            {avaliacoesDoCurso.length} avaliações
+                          </Badge>
+                        </Card.Body>
+                      </Card>
+                    </Col>
+                  );
+                })}
+              </Row>
+            </>
+          )}
         </div>
       </div>
     </Container>
