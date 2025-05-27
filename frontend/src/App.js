@@ -30,6 +30,8 @@ import PedirCurso from "./pages/formadores/pedirCurso";
 import CategoriesList from "./pages/gestor/categoriesList";
 import AreasList from "./pages/gestor/areasList";
 import TopicsList from "./pages/gestor/topicsList";
+import AboutUs from "./pages/microsite";
+
 
 // Forum Pages
 import ForumList from "./pages/forum/forumList";
@@ -87,6 +89,10 @@ function AppContent() {
                         <Route path="/forum/:id" element={<ForumDetail />} />
                         <Route path="/forum/:id/create-thread" element={<CreateThread />} />
                         <Route path="/forum/:id/thread/:threadId" element={<ThreadDetail />} />
+
+                        {/* Micro Site */}
+                        <Route path="/microsite" element={<AboutUs />} />
+
                     </Route>
                     <Route path="*" element={<Navigate to="/" />} />
                 </Routes>

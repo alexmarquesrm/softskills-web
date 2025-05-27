@@ -1,10 +1,16 @@
 import React from "react";
 import { Container, Row, Col } from "react-bootstrap";
 import { FaPhone, FaMapMarkerAlt, FaEnvelope, FaFacebook, FaTwitter, FaInstagram, FaLinkedin} from "react-icons/fa";
+import { Link, useNavigate } from "react-router-dom";
 import "./footer.css";
 
 function Footer() {
   const currentYear = new Date().getFullYear();
+  const navigate = useNavigate();
+  const handleNavigateToMicrosite = (e) => {
+    e.preventDefault();
+    navigate('/microsite');
+  };
   
   return (
     <footer className="footer">
@@ -27,7 +33,11 @@ function Footer() {
           <Col lg={4} md={6} className="mb-4 mb-md-0">
             <h5 className="footer-heading mb-4">Links Úteis</h5>
             <ul className="footer-links">
-              <li><a href="/about">Sobre</a></li>
+               <li>
+                <a href="/microsite" onClick={handleNavigateToMicrosite}>
+                  Sobre
+                </a>
+              </li>
               <li><a href="/services">Serviços</a></li>
               <li><a href="/projects">Projetos</a></li>
               <li><a href="/blog">Blog</a></li>
