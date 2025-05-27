@@ -57,8 +57,8 @@ const ModalAdicionarFicheiro = ({
   // Redefine o tipo de ficheiro quando os tipos permitidos mudam
   useEffect(() => {
     if (show) {
-    limparFormulario();
-  }
+      limparFormulario();
+    }
     if (!tiposPermitidos.includes(tipoFicheiro) && tiposPermitidos.length > 0) {
       setTipoFicheiro(tiposPermitidos[0]);
     }
@@ -193,17 +193,16 @@ const ModalAdicionarFicheiro = ({
   const limparFormulario = () => {
     setFormData({});
     setFicheirosCarregados([]);
-     setFeedbackMsg({ show: false, message: '', type: '' });
+    setFeedbackMsg({ show: false, message: '', type: '' });
   };
 
   const isDataEntregaValida = (data) => {
     if (!data) return false;
-    const hoje = new Date();
-    hoje.setHours(0, 0, 0, 0);
+    const agora = new Date();
     const dataEntrega = new Date(data);
-    dataEntrega.setHours(0, 0, 0, 0);
-    return dataEntrega > hoje;
+    return dataEntrega >= agora;
   };
+
 
   const handleSubmit = async () => {
     // Validação básica
@@ -433,7 +432,7 @@ const ModalAdicionarFicheiro = ({
           </Row>
 
           <Row className="mb-4">
-            <InputField label="Descrição" type="textarea" placeholder="Descrição do material (opcional)" name="descricao" value={formData.descricao || ''} onChange={handleChange} colSize={12} rows={3} style={{ resize: 'none' }}/>
+            <InputField label="Descrição" type="textarea" placeholder="Descrição do material (opcional)" name="descricao" value={formData.descricao || ''} onChange={handleChange} colSize={12} rows={3} style={{ resize: 'none' }} />
           </Row>
 
           {/* Upload de Arquivos - Mostrar para todos os tipos exceto entrega */}
