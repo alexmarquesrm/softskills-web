@@ -8,8 +8,6 @@ import rodrigoFoto from '../pages/FotosAboutUs/Screenshot_2.png';
 import franciscoFoto from '../pages/FotosAboutUs/Screenshot_3.png';
 import tiagoFoto from '../pages/FotosAboutUs/Screenshot_4.png';
 
-
-
 const AboutUs = () => {
   const [isVisible, setIsVisible] = useState(false);
   const navigate = useNavigate();
@@ -17,11 +15,10 @@ const AboutUs = () => {
   const teamMembers = [
     {
       id: 1,
-      name: "Alixandre Marques",
-      role: "PROGRAMMER",
+      name: "Alexandre Marques",
+      role: "LEAD DEVELOPER",
       image: alenxandreFoto,      
-      bio: "Pellentesque nec vestibulum orci. Praesent ut dui ornare ipsum cursus mattis porta. Proin finibus imperdiet sodor et molere justo aliquam ut. Suspendisse eu lobortis orci, eget mattis dolor molestm mauris dolor, interdum at rhoncus eu, aliquam consequat purus. Praesent in sapien lectus. Duis quis faucibus odio. Etiam blandit rutrum justo sit amet, volutpat sapien auctor tempus. Nam ex elit, efficitur nec lacus sed, aliquam vitae lacus.",
-      
+      bio: "Apaixonado por videojogos desde pequeno, foi através deles que descobri o mundo da programação. Fascinado por tecnologia desde sempre, hoje dedico-me ao desenvolvimento de tudo um pouco. Fora do ecrã, adoro andar de mota, praticar ginásio e airsoft.",
     },
     {
       id: 2,
@@ -29,23 +26,20 @@ const AboutUs = () => {
       role: "WEB DEVELOPER",
       image: rodrigoFoto, 
       bio: "Maecenas gravida non erat et bibendum. Sed sem nulla. Cursus rutrum feugiat sed, cursus eget orci. Curabitur feugiat lorem et vaius vehicula. Nunc rhoncus augue eu erat cursus. Lorem ipsum dolor sit amet. Suspendisse in sapien ut magna consequat efficitur. Etiam scelerisque commodo tortor et sodales tellus. Praesent dictum, ipsum et pharetra cursus. Sed ac quis odio. Accumsan magna ut tristique orci. Sed ac lorem mili. Donec lacinia interdum ipsum et finibus mauris placerat non.",
-     
     },
     {
       id: 3,
       name: "Francisco Vitorino",
-      role: "LEAD DEVELOPER",
+      role: "MOBILE DEVELOPER",
       image: franciscoFoto,
       bio: "Pellentesque nec vestibulum orci. Praesent ut dui ornare ipsum cursus mattis porta. Proin finibus imperdiet sodor et molere justo aliquam ut. Suspendisse eu lobortis orci, eget mattis dolor molestm mauris dolor, interdum at rhoncus eu, aliquam consequat purus. Praesent in sapien lectus. Duis quis faucibus odio. Etiam blandit rutrum justo sit amet, volutpat sapien auctor tempus. Nam ex elit, efficitur nec lacus sed, aliquam vitae lacus.",
-     
     },
      {
       id: 4,
       name: "Tiago Carvalho",
-      role: "LEAD DEVELOPER",
+      role: "WEB DEVELOPER",
       image: tiagoFoto,
       bio: "Pellentesque nec vestibulum orci. Praesent ut dui ornare ipsum cursus mattis porta. Proin finibus imperdiet sodor et molere justo aliquam ut. Suspendisse eu lobortis orci, eget mattis dolor molestm mauris dolor, interdum at rhoncus eu, aliquam consequat purus. Praesent in sapien lectus. Duis quis faucibus odio. Etiam blandit rutrum justo sit amet, volutpat sapien auctor tempus. Nam ex elit, efficitur nec lacus sed, aliquam vitae lacus.",
-      
     }
   ];
 
