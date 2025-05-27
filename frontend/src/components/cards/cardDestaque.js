@@ -39,9 +39,6 @@ const CardDestaque = () => {
                   <span>Recursos completos</span>
                 </div>
               </div>
-              <Button variant="primary" className="destaque-button mt-3">
-                Saiba Mais
-              </Button>
             </div>
           </Col>
           <Col lg={5} md={5} className="d-none d-md-block">
