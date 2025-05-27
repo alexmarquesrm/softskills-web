@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 /* COMPONENTES */
 import CardInfo from "../../components/cards/cardDestaque";
 import CardPedido from '../../components/cards/cardPedido';
+import CardTrabalho from '../../components/cards/cardTrabalho';
 import CardRow from '../../components/cards/cardRow';
 import FeaturedCourses from "../../components/cards/cardCourses";
 import WelcomeNotification from "../../components/notifications/WelcomeNotification";
@@ -13,6 +14,7 @@ import WelcomeNotification from "../../components/notifications/WelcomeNotificat
 export default function PaginaGestor() {
   const [inscricao, setInscricao] = useState([]);
   const [cursos, setCursos] = useState([]);
+  const [trabalhosPendentes, setTrabalhosPendentes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [saudacao, setSaudacao] = useState('');
@@ -31,6 +33,19 @@ export default function PaginaGestor() {
       setSaudacao(response.data.saudacao);
     } catch (error) {
       console.error('Erro ao obter saudação:', error);
+    }
+  };
+
+  const fetchTrabalhosPendentes = async () => {
+    try {
+      const token = sessionStorage.getItem('token');
+      const response = await axios.get('/trabalhos/pendentes', {
+        headers: { Authorization: `${token}` }
+      });
+      setTrabalhosPendentes(response.data.data || []);
+    } catch (error) {
+      console.error('Erro ao obter trabalhos pendentes:', error);
+      setTrabalhosPendentes([]);
     }
   };
 
@@ -87,6 +102,7 @@ export default function PaginaGestor() {
     fetchInscricao();
     fetchCurso();
     fetchSaudacao();
+    fetchTrabalhosPendentes();
   }, []);
 
   const filteredInscricao = useMemo(() => {
@@ -118,6 +134,10 @@ export default function PaginaGestor() {
 
   const renderPedidoCard = (curso, index) => (
     <CardPedido index={index} curso={curso} />
+  );
+
+  const renderTrabalhoCard = (trabalho, index) => (
+    <CardTrabalho key={trabalho.material_id || index} trabalho={trabalho} index={index} />
   );
 
   const renderCoursesInscCard = (inscricao, index) => (
@@ -159,7 +179,7 @@ export default function PaginaGestor() {
         <div className="section-header">
           <h2 className="section-title">
             <FileEarmarkText className="section-icon" />
-            Trabalhos
+            Trabalhos Pendentes
           </h2>
           <div className="section-actions">
             <button className="btn btn-link section-link">
@@ -172,14 +192,14 @@ export default function PaginaGestor() {
           {loading ? (
             <div className="loading-container">
               <div className="loading-spinner"></div>
-              <p>A carregar cursos...</p>
+              <p>A carregar trabalhos...</p>
             </div>
-          ) : filteredInscricao.length > 0 ? (
-            <CardRow dados={[...filteredInscricao].sort((a, b) => new Date(a.curso_sincrono?.data_inicio) - new Date(b.curso_sincrono?.data_inicio))} renderCard={renderPedidoCard} scrollable={true} />
+          ) : trabalhosPendentes.length > 0 ? (
+            <CardRow dados={trabalhosPendentes} renderCard={renderTrabalhoCard} scrollable={true} />
           ) : (
             <div className="empty-state text-center">
               <FileEarmarkText size={40} className="empty-icon mb-3" />
-              <p>Não há trabalhos para entregar neste momento.</p>
+              <p>Não há trabalhos pendentes neste momento.</p>
             </div>
           )}
         </div>

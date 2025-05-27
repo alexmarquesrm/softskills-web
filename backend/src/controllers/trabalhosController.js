@@ -2,6 +2,7 @@ const initModels = require("../models/init-models");
 const sequelizeConn = require("../bdConexao");
 const models = initModels(sequelizeConn);
 const ficheirosController = require('./ficheiros');
+const { Op } = require('sequelize');
 
 const controladorTrabalhos = {
   // Obter todos os trabalhos dos formandos
@@ -224,6 +225,82 @@ const controladorTrabalhos = {
     } catch (error) {
       console.error("Erro ao obter submissões por avaliação:", error);
       res.status(500).json({ success: false, message: "Erro ao obter submissões por avaliação" });
+    }
+  },
+
+  // Obter trabalhos pendentes de um formando específico
+  getTrabalhosPendentesFormando: async (req, res) => {
+    try {
+      const formando_id = req.user.id;
+
+      // Verificar se o formando existe
+      const formando = await models.formando.findByPk(formando_id);
+      
+      if (!formando) {
+        return res.json({ success: true, data: [] });
+      }
+
+      // Buscar todas as inscrições ativas do formando
+      const inscricoes = await models.inscricao.findAll({
+        where: {
+          formando_id: formando_id,
+          estado: true // Apenas cursos ativos
+        },
+        include: [
+          {
+            model: models.curso,
+            as: "inscricao_curso",
+            attributes: ['curso_id', 'titulo', 'tipo']
+          }
+        ]
+      });
+
+      let trabalhosPendentes = [];
+
+      // Para cada inscrição, buscar materiais de entrega com prazo futuro
+      for (const inscricao of inscricoes) {
+        const materiais = await models.material.findAll({
+          where: {
+            curso_id: inscricao.curso_id,
+            tipo: 'entrega',
+            data_entrega: {
+              [Op.gte]: new Date() // Prazo ainda não expirou
+            }
+          }
+        });
+
+        // Para cada material, verificar se o formando já submeteu
+        for (const material of materiais) {
+          const trabalhoExistente = await models.trabalho.findOne({
+            where: {
+              formando_id: formando_id,
+              sincrono_id: inscricao.curso_id,
+              material_id: material.material_id
+            }
+          });
+
+          // Se não existe submissão, é um trabalho pendente
+          if (!trabalhoExistente) {
+            trabalhosPendentes.push({
+              material_id: material.material_id,
+              titulo: material.titulo,
+              descricao: material.descricao,
+              data_entrega: material.data_entrega,
+              curso_id: inscricao.curso_id,
+              curso_titulo: inscricao.inscricao_curso.titulo,
+              tipo: 'entrega'
+            });
+          }
+        }
+      }
+
+      // Ordenar por data de entrega mais próxima
+      trabalhosPendentes.sort((a, b) => new Date(a.data_entrega) - new Date(b.data_entrega));
+
+      res.json({ success: true, data: trabalhosPendentes });
+    } catch (error) {
+      console.error("Erro ao obter trabalhos pendentes:", error);
+      res.status(500).json({ success: false, message: "Erro interno ao obter trabalhos pendentes" });
     }
   }
 };

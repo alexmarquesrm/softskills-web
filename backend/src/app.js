@@ -58,7 +58,7 @@ app.use('/notificacao', notificacaoRoutes);
 app.use('/avaliacao-formador', avaliacaoFormadorRoutes);
 app.use('/departamento', departamentosRoutes);
 app.use('/funcao', funcoesRoutes);
-app.use('/trabalhos', authenticate, trabalhosRoutes);
+app.use('/trabalhos', trabalhosRoutes);
 app.use('/quizz', quizzRoutes);
 
 app.listen(8000, () => {
