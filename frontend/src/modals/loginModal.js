@@ -173,11 +173,8 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
                 throw new Error('Firebase Auth não inicializado corretamente. Por favor, tente novamente mais tarde.');
             }
 
-            console.log('Iniciando login com Google...');
             const result = await signInWithPopup(auth, googleProvider);
             const user = result.user;
-            
-            console.log('Login com Google bem sucedido, enviando dados para o backend...');
             
             try {
                 // Send the Google user data to your backend

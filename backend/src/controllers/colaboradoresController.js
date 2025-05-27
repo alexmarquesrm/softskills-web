@@ -4,9 +4,7 @@ const sequelizeConn = require("../bdConexao");
 const models = initModels(sequelizeConn);
 const ficheirosController = require('./ficheiros');
 const bcrypt = require('bcrypt');
-const e = require("express");
 const { sendEmail } = require('../services/emailService');
-const jwt = require('jsonwebtoken');
 
 const controladorUtilizadores = {
   // Função para obter o próprio perfil do usuário autenticado
@@ -291,10 +289,19 @@ const controladorUtilizadores = {
       const { nome, email, data_nasc, telefone, score, sobre_mim, username, password } = req.body;
       const funcao_id = null;
 
-      // Verificar se username já existe
-      const existingUser = await models.colaborador.findOne({
-        where: { username }
-      });
+      // Novo: gerar username único (incremental se já existir)
+      let finalUsername = username;
+      let usernameExists = true;
+      let counter = 1;
+      while (usernameExists) {
+        const existingUser = await models.colaborador.findOne({ where: { username: finalUsername } });
+        if (!existingUser) {
+          usernameExists = false;
+        } else {
+          finalUsername = `${username}${counter}`;
+          counter++;
+        }
+      }
 
       const existingEmail = await models.colaborador.findOne({
         where: { email }
@@ -303,10 +310,6 @@ const controladorUtilizadores = {
       const existingTelefone = await models.colaborador.findOne({
         where: { telefone }
       });
-
-      if (existingUser) {
-        return res.status(400).json({ message: "Username já está em uso" });
-      }
 
       if (existingEmail) {
         return res.status(400).json({ message: "Email já está em uso" });
@@ -342,7 +345,7 @@ const controladorUtilizadores = {
           telefone,
           score,
           sobre_mim,
-          username,
+          username: finalUsername,
           hashedPassword,
           last_login: new Date()
         },
@@ -356,7 +359,7 @@ const controladorUtilizadores = {
           
           A sua conta foi criada com sucesso. Aqui estão os seus dados de acesso:
           
-          Nome de utilizador: ${username}
+          Nome de utilizador: ${finalUsername}
           Password: ${password}
           
           Se tiver alguma dúvida, não hesite em contactar-nos.
