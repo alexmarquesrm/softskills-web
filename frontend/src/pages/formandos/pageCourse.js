@@ -693,7 +693,13 @@ export default function CursoFormando() {
                       <BsInfoCircle className="me-1" /> Sobre
                     </Button>
 
-                    {inscricao !== null && new Date(curso.curso_sincrono.data_inicio) <= new Date() && (
+                    {inscricao !== null && (
+                      // Para cursos assíncronos, sempre mostrar materiais
+                      // Para cursos síncronos, só mostrar após data de início
+                      (curso?.tipo === 'A' || 
+                       (curso?.tipo === 'S' && curso?.curso_sincrono?.data_inicio && new Date(curso.curso_sincrono.data_inicio) <= new Date())
+                      )
+                    ) && (
                       <Button variant={activeSection === "materiais" ? "primary" : "light"} onClick={() => handleSectionChange("materiais")} className="me-2 mb-2">
                         <BsBook className="me-1" /> Materiais
                       </Button>
