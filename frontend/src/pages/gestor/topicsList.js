@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Container, Row, Col, Card, Spinner, Alert } from "react-bootstrap";
 import { IoIosBook, IoIosAdd } from "react-icons/io";
+import { MessageSquare } from 'react-feather';
 import axios from "../../config/configAxios";
+/* COMPONENTES */
 import DataTable from "../../components/tables/dataTable";
+/* MODALS */
 import TopicModal from "../../modals/gestor/topicModal";
+/* CSS */
 import "./topicsList.css";
 
 export default function TopicsList() {
@@ -20,21 +24,21 @@ export default function TopicsList() {
   });
 
   const tableColumns = [
-    { 
-      field: 'id', 
-      headerName: 'ID', 
-      align: 'left', 
-      headerAlign: 'left', 
+    {
+      field: 'id',
+      headerName: 'ID',
+      align: 'left',
+      headerAlign: 'left',
       width: '80px',
       renderCell: ({ row }) => (
         <span className="text-muted">#{row.id}</span>
       )
     },
-    { 
-      field: 'descricao', 
-      headerName: 'Descrição', 
-      align: 'left', 
-      headerAlign: 'left', 
+    {
+      field: 'descricao',
+      headerName: 'Descrição',
+      align: 'left',
+      headerAlign: 'left',
       minWidth: '200px',
       renderCell: ({ row }) => (
         <div className="d-flex align-items-center">
@@ -46,35 +50,35 @@ export default function TopicsList() {
       )
     },
     {
-      field: 'area', 
-      headerName: 'Área', 
-      align: 'left', 
-      headerAlign: 'left', 
+      field: 'area',
+      headerName: 'Área',
+      align: 'left',
+      headerAlign: 'left',
       minWidth: '180px',
       renderCell: ({ row }) => (
         <span className="text-muted">{row.area}</span>
       )
     },
     {
-      field: 'categoria', 
-      headerName: 'Categoria', 
-      align: 'left', 
-      headerAlign: 'left', 
+      field: 'categoria',
+      headerName: 'Categoria',
+      align: 'left',
+      headerAlign: 'left',
       minWidth: '180px',
       renderCell: ({ row }) => (
         <span className="text-muted">{row.categoria}</span>
       )
     },
     {
-      field: 'actions', 
-      headerName: 'Ações', 
-      align: 'center', 
-      headerAlign: 'center', 
-      sortable: false, 
+      field: 'actions',
+      headerName: 'Ações',
+      align: 'center',
+      headerAlign: 'center',
+      sortable: false,
       width: '120px',
       renderCell: ({ row }) => (
         <div className="d-flex justify-content-center gap-2">
-          <button 
+          <button
             className="btn btn-sm btn-outline-primary"
             onClick={() => handleEdit(row)}
           >
@@ -201,8 +205,15 @@ export default function TopicsList() {
 
   return (
     <Container className="py-4">
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <h3 className="mb-0">Lista de Tópicos</h3>
+      <div className="forum-header">
+        <div className="forum-header-content">
+          <div className="forum-header-icon">
+            <MessageSquare size={32} />
+          </div>
+          <div className="forum-header-info">
+            <h1>Lista de Tópicos</h1>
+          </div>
+        </div>
       </div>
 
       {successMessage && (
@@ -265,12 +276,12 @@ export default function TopicsList() {
           {error}
         </Alert>
       ) : (
-        <DataTable 
-          columns={tableColumns} 
-          rows={tableRows} 
-          title=" " 
-          showSearch={true} 
-          pageSize={10} 
+        <DataTable
+          columns={tableColumns}
+          rows={tableRows}
+          title=" "
+          showSearch={true}
+          pageSize={10}
           emptyStateMessage="Nenhum tópico encontrado"
         />
       )}
