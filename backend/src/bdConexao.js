@@ -34,13 +34,12 @@ function getConfig() {
 const config = getConfig();
 
 // Debug logging
-console.log('Database connection config:', {
-  host: config.host,
-  port: config.port,
-  username: config.username,
-  database: config.database,
-  // Don't log the password for security
-});
+// console.log('Database connection config:', {
+//   host: config.host,
+//   port: config.port,
+//   username: config.username,
+//   database: config.database,
+// });
 
 const sequelize = new Sequelize(
   config.database,
