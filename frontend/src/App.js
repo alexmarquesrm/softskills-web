@@ -32,7 +32,6 @@ import AreasList from "./pages/gestor/areasList";
 import TopicsList from "./pages/gestor/topicsList";
 import AboutUs from "./pages/microsite";
 
-
 // Forum Pages
 import ForumList from "./pages/forum/forumList";
 import ForumDetail from "./pages/forum/forumDetail";
@@ -51,16 +50,20 @@ function AppContent() {
             <div className="content">
                 <Routes>
                     <Route path="/" element={<LandingPage />} />
+                    
+                    {/* Protected Routes */}
                     <Route element={<ProtectedRoute />}>
-                        {/* Formandos Routes */}
-                        <Route path="/utilizadores/perfil" element={<PerfilUtilizador />} />
-                        <Route path="/utilizadores/curso/:id" element={<CursoFormando />} />
-                        <Route path="/utilizadores/lista/cursos" element={<CursosFormando />} />
-                        <Route path="/utilizadores/percursoFormativo" element={<PercursoFormativoFormando />} />
-                        <Route path="/utilizadores/dashboard" element={<PagFormando />} />
+                        {/* Formandos Routes - Protected by role */}
+                        <Route path="/utilizadores/*" element={<ProtectedRoute allowedRoles={['Formando']} />}>
+                            <Route path="perfil" element={<PerfilUtilizador />} />
+                            <Route path="curso/:id" element={<CursoFormando />} />
+                            <Route path="lista/cursos" element={<CursosFormando />} />
+                            <Route path="percursoFormativo" element={<PercursoFormativoFormando />} />
+                            <Route path="dashboard" element={<PagFormando />} />
+                        </Route>
                         
                         {/* Formador Routes - Protected by role */}
-                        <Route path="/formador/*" element={<ProtectedRoute />}>
+                        <Route path="/formador/*" element={<ProtectedRoute allowedRoles={['Formador']} />}>
                             <Route path="cursos" element={<ManageCourses />} />
                             <Route path="curso/:id" element={<FormadorCurso />} />
                             <Route path="curso/avaliar" element={<AvaliarFormando />} />
@@ -69,7 +72,7 @@ function AppContent() {
                         </Route>
                         
                         {/* Gestor Routes - Protected by role */}
-                        <Route path="/gestor/*" element={<ProtectedRoute />}>
+                        <Route path="/gestor/*" element={<ProtectedRoute allowedRoles={['Gestor']} />}>
                             <Route path="dashboard" element={<PagGestor />} />
                             <Route path="lista/colaboradores" element={<ListaUtilizadores />} />
                             <Route path="colaborador/percursoFormativo" element={<PercursoFormativoGestor />} />
@@ -84,7 +87,7 @@ function AppContent() {
                             <Route path="lista/topicos" element={<TopicsList />} />
                         </Route>
 
-                        {/* Forum Routes */}
+                        {/* Forum Routes - Accessible by all authenticated users */}
                         <Route path="/forum" element={<ForumList />} />
                         <Route path="/forum/:id" element={<ForumDetail />} />
                         <Route path="/forum/:id/create-thread" element={<CreateThread />} />
@@ -93,10 +96,7 @@ function AppContent() {
                     
                     {/* Public Routes */}
                     <Route path="*" element={<Navigate to="/" />} />
-
-                    {/* Micro Site */}
                     <Route path="/microsite" element={<AboutUs />} />
-
                 </Routes>
             </div>
             <Footer />

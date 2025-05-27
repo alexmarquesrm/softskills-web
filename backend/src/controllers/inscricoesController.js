@@ -19,6 +19,44 @@ const controladorInscricoes = {
           erro: "formando_id e curso_id são obrigatórios"
         });
       }
+
+      // Verificar se o formando é também formador deste curso
+      const cursoInfo = await models.curso.findOne({
+        where: { curso_id },
+        include: [
+          {
+            model: models.sincrono,
+            as: "curso_sincrono",
+            attributes: ["formador_id"]
+          }
+        ]
+      });
+
+      if (!cursoInfo) {
+        return res.status(404).json({
+          erro: "Curso não encontrado"
+        });
+      }
+
+      // Se o curso for síncrono, verificar se o formando é o formador
+      if (cursoInfo.tipo === 'S' && cursoInfo.curso_sincrono) {
+        const formandoInfo = await models.formando.findOne({
+          where: { formando_id },
+          include: [
+            {
+              model: models.colaborador,
+              as: "formando_colab",
+              attributes: ["colaborador_id"]
+            }
+          ]
+        });
+
+        if (formandoInfo && formandoInfo.formando_colab.colaborador_id === cursoInfo.curso_sincrono.formador_id) {
+          return res.status(400).json({
+            erro: "Um formador não pode se inscrever no próprio curso"
+          });
+        }
+      }
       
       await sequelizeConn.query('CALL gerir_inscricao_curso($1, $2)', {
         bind: [parseInt(formando_id), parseInt(curso_id)],

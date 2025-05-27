@@ -1,35 +1,51 @@
 import React from 'react';
-import { Navigate, Outlet } from 'react-router-dom';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
 
 // This component will check if user is logged in and has the correct role
-const ProtectedRoute = () => {
-  // Check if user is logged in by looking for token in sessionStorage
-  const isAuthenticated = !!sessionStorage.getItem('token');
+const ProtectedRoute = ({ allowedRoles }) => {
+  const token = sessionStorage.getItem('token');
   const userType = sessionStorage.getItem('tipo');
-  const userRoles = sessionStorage.getItem('allUserTypes')?.split(',') || [];
-  const isGestor = userType === 'Gestor' || userRoles.includes('Gestor');
-  const isFormador = userType === 'Formador' || userRoles.includes('Formador');
-  
-  // Get the current path
-  const currentPath = window.location.pathname;
-  
-  // Check if the current path is a gestor or formador route
-  const isGestorRoute = currentPath.startsWith('/gestor');
-  const isFormadorRoute = currentPath.startsWith('/formador');
-  
-  // If trying to access gestor routes without being a gestor, redirect to home
-  if (isGestorRoute && !isGestor) {
-    return <Navigate to="/" />;
+  const allUserTypes = sessionStorage.getItem('allUserTypes')?.split(',') || [];
+  const location = useLocation();
+
+  if (!token) {
+    return <Navigate to="/" replace />;
   }
 
-  // If trying to access formador routes without being a formador, redirect to home
-  if (isFormadorRoute && !isFormador) {
-    return <Navigate to="/" />;
+  // Check if trying to access formando routes
+  if (location.pathname.startsWith('/utilizadores')) {
+    // If user is not a formando, redirect to appropriate dashboard
+    if (userType !== 'Formando') {
+      if (userType === 'Formador') {
+        return <Navigate to="/formador/dashboard" replace />;
+      } else if (userType === 'Gestor') {
+        return <Navigate to="/gestor/dashboard" replace />;
+      }
+      return <Navigate to="/" replace />;
+    }
   }
-  
-  // If authenticated, show the route's children (outlet)
-  // If not authenticated, redirect to homepage
-  return isAuthenticated ? <Outlet /> : <Navigate to="/" />;
+
+  // If no specific roles are required, just check for authentication
+  if (!allowedRoles) {
+    return <Outlet />;
+  }
+
+  // Check if user has any of the allowed roles
+  const hasAllowedRole = allowedRoles.some(role => 
+    userType === role || allUserTypes.includes(role)
+  );
+
+  if (!hasAllowedRole) {
+    // Redirect to appropriate dashboard based on user type
+    if (userType === 'Formador') {
+      return <Navigate to="/formador/dashboard" replace />;
+    } else if (userType === 'Gestor') {
+      return <Navigate to="/gestor/dashboard" replace />;
+    }
+    return <Navigate to="/" replace />;
+  }
+
+  return <Outlet />;
 };
 
 export default ProtectedRoute;

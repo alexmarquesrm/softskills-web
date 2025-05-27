@@ -247,9 +247,14 @@ export default function CursoFormando() {
 
     } catch (error) {
       console.error("Erro ao inscrever", error);
-      setError("Não foi possível inscrever no curso. Por favor, avise o gestor.");
+      if (error.response?.data?.erro === "Um formador não pode se inscrever no próprio curso") {
+        toast.error("Você não pode se inscrever neste curso pois é o formador.");
+      } else {
+        toast.error("Não foi possível inscrever no curso. Por favor, avise o gestor.");
+      }
     } finally {
       setLoading(false);
+      setClicked(false);
     }
   };
 
