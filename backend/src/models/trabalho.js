@@ -34,6 +34,14 @@ module.exports = function(sequelize, DataTypes) {
     data: {
       type: DataTypes.DATE,
       allowNull: true
+    },
+    material_id: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'material',
+        key: 'material_id'
+      }
     }
   }, {
     sequelize,
@@ -59,6 +67,10 @@ module.exports = function(sequelize, DataTypes) {
     trabalho.belongsTo(models.sincrono, {
       foreignKey: 'sincrono_id',
       as: 'sincrono'
+    });
+    trabalho.belongsTo(models.material, {
+      foreignKey: 'material_id',
+      as: 'material'
     });
   };
 

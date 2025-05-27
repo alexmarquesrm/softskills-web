@@ -203,6 +203,11 @@ const ModalAdicionarFicheiro = ({
     return dataEntrega >= agora;
   };
 
+  const getMinDateTime = () => {
+    const now = new Date();
+    const pad = (n) => n.toString().padStart(2, '0');
+    return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+  };
 
   const handleSubmit = async () => {
     // Validação básica
@@ -396,7 +401,7 @@ const ModalAdicionarFicheiro = ({
 
             {configAtual.requerData && allowDueDate && (
               <>
-                <InputField label="Data Entrega" type="datetime-local" placeholder="" name="dataentrega" value={formData.dataentrega || ''} onChange={(e) => { handleChange(e); setErroDataEntrega(''); }} icon={<IoCalendarNumberSharp />} colSize={6} />
+                <InputField label="Data Entrega" type="datetime-local" placeholder="" name="dataentrega" value={formData.dataentrega || ''} onChange={(e) => { handleChange(e); setErroDataEntrega(''); }} icon={<IoCalendarNumberSharp />} colSize={6} min={getMinDateTime()} />
                 {erroDataEntrega && (
                   <div className="text-danger mt-1">{erroDataEntrega}</div>
                 )}

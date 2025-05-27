@@ -139,13 +139,17 @@ export default function CursoFormando() {
         setMaterialLoading(true);
         const token = sessionStorage.getItem('token');
 
+        console.log('Buscando materiais para o curso:', id);
         // Using the same endpoint format that works in the modal
         const response = await axios.get(`/material/curso/${id}/materiais`, {
           headers: { Authorization: `${token}` }
         });
 
+        console.log('Resposta da API de materiais:', response.data);
+
         if (response.data.success) {
           const materialsData = response.data.data;
+          console.log('Materiais recebidos:', materialsData);
 
           // Check if each material has files property with expected structure
           const hasFilesWithUrls = materialsData.some(m =>
@@ -155,6 +159,7 @@ export default function CursoFormando() {
           );
 
           if (!hasFilesWithUrls) {
+            console.log('Buscando detalhes adicionais dos materiais');
             const enhancedMaterials = await Promise.all(
               materialsData.map(async (material) => {
                 try {
@@ -162,6 +167,8 @@ export default function CursoFormando() {
                   const detailResponse = await axios.get(`/material/curso/${material.id}`, {
                     headers: { Authorization: `${token}` }
                   });
+
+                  console.log('Detalhes do material:', material.id, detailResponse.data);
 
                   if (detailResponse.data) {
                     return detailResponse.data;
@@ -174,9 +181,11 @@ export default function CursoFormando() {
               })
             );
 
+            console.log('Materiais aprimorados:', enhancedMaterials);
             setMaterials(enhancedMaterials);
           } else {
             // Data already has the right structure
+            console.log('Usando estrutura de materiais existente');
             setMaterials(materialsData);
           }
         } else {
@@ -378,7 +387,12 @@ export default function CursoFormando() {
 
   const formatDate = (dateString) => {
     if (!dateString) return "Não especificado";
-    return new Date(dateString).toLocaleDateString("pt-PT");
+    try {
+      return new Date(dateString).toLocaleDateString("pt-PT");
+    } catch (error) {
+      console.error("Erro ao formatar data:", error);
+      return "Data inválida";
+    }
   };
 
   const handleSectionChange = (section) => {
@@ -387,12 +401,22 @@ export default function CursoFormando() {
 
   // Função para abrir o modal de submissão de trabalho
   const handleOpenSubmeterModal = (material) => {
+    console.log('Material recebido:', material);
+    
+    if (!material || !material.material_id) {
+      console.error('Material inválido:', material);
+      toast.error("Erro ao abrir submissão: material inválido");
+      return;
+    }
+
     const avaliacaoInfo = {
-      id: material.id,
+      id: material.material_id,
       titulo: material.titulo,
       dataEntrega: material.data_entrega,
       descricao: material.descricao
     };
+
+    console.log('Abrindo modal com dados da avaliação:', avaliacaoInfo);
     setSelectedAvaliacao(avaliacaoInfo);
     setShowSubmeterModal(true);
   };
@@ -566,15 +590,33 @@ export default function CursoFormando() {
 
   // Encontra o próximo prazo (usando a data de entrega mais próxima no futuro)
   const getPrazoProximo = () => {
-    const entregas = materials.filter(m => m.tipo === 'entrega' && m.data_entrega);
+    if (!materials || !Array.isArray(materials)) return null;
+    
+    const entregas = materials.filter(m => m?.tipo === 'entrega' && m?.data_entrega);
     if (entregas.length === 0) return null;
 
     const hoje = new Date();
-    const entregasFuturas = entregas.filter(e => new Date(e.data_entrega) > hoje);
+    const entregasFuturas = entregas.filter(e => {
+      try {
+        return new Date(e.data_entrega) > hoje;
+      } catch (error) {
+        console.error("Erro ao processar data de entrega:", error);
+        return false;
+      }
+    });
+    
     if (entregasFuturas.length === 0) return null;
 
     // Ordenar por data mais próxima
-    entregasFuturas.sort((a, b) => new Date(a.data_entrega) - new Date(b.data_entrega));
+    entregasFuturas.sort((a, b) => {
+      try {
+        return new Date(a.data_entrega) - new Date(b.data_entrega);
+      } catch (error) {
+        console.error("Erro ao ordenar datas:", error);
+        return 0;
+      }
+    });
+    
     return entregasFuturas[0];
   };
 
@@ -630,7 +672,7 @@ export default function CursoFormando() {
                       <BsInfoCircle className="me-1" /> Sobre
                     </Button>
 
-                    {inscricao !== null && new Date(curso.curso_sincrono.data_inicio) <= new Date() &&(
+                    {inscricao !== null && (
                       <Button variant={activeSection === "materiais" ? "primary" : "light"} onClick={() => handleSectionChange("materiais")} className="me-2 mb-2">
                         <BsBook className="me-1" /> Materiais
                       </Button>
@@ -761,7 +803,7 @@ export default function CursoFormando() {
                                     </Button>
 
                                     {/* Botão de avaliar formador */}
-                                    {curso?.tipo === "S" && !formadorJaAvaliado && curso?.curso_sincrono.estado === true &&(
+                                    {curso?.tipo === "S" && !formadorJaAvaliado && curso?.curso_sincrono?.estado === true &&(
                                       <Button
                                         variant="primary"
                                         className="w-100"
@@ -773,7 +815,7 @@ export default function CursoFormando() {
                                     )}
 
                                     {/* Mensagem quando o formador já foi avaliado */}
-                                    {curso?.tipo === "S" && formadorJaAvaliado && curso?.curso_sincrono.estado === true && (
+                                    {curso?.tipo === "S" && formadorJaAvaliado && curso?.curso_sincrono?.estado === true && (
                                       <div className="text-success d-flex align-items-center">
                                         <BsCheckCircle className="me-2" />
                                         Formador já avaliado
@@ -970,8 +1012,10 @@ export default function CursoFormando() {
                                                 variant="warning"
                                                 size="sm"
                                                 onClick={() => handleOpenSubmeterModal(material)}
+                                                disabled={new Date(material.data_entrega) < new Date()}
                                               >
-                                                <BsUpload className="me-1" /> Submeter
+                                                <BsUpload className="me-1" /> 
+                                                {new Date(material.data_entrega) < new Date() ? 'Prazo Expirado' : 'Submeter'}
                                               </Button>
                                             ) : (
                                               <Button
@@ -1022,63 +1066,71 @@ export default function CursoFormando() {
                                         if (b.tipo === 'trabalho') return 1;
                                         return 0;
                                       })
-                                      .map((material) => (
-                                        <ListGroup.Item key={material.id} className="material-item py-3">
-                                          <div className="d-flex justify-content-between align-items-center">
-                                            <div className="d-flex align-items-start">
-                                              <div className={material.tipo === 'trabalho' ? 'me-3 text-info' : 'me-3 text-warning'}>
-                                                {material.tipo === 'trabalho' ? <BsTools size={24} /> : <BsUpload size={24} />}
-                                              </div>
-                                              <div>
-                                                <div className="fw-bold">{material.titulo}</div>
-                                                {material.descricao && (
-                                                  <small className="text-muted d-block mb-2">{material.descricao}</small>
-                                                )}
-                                                {material.data_entrega && (
-                                                  <Badge bg={material.tipo === 'trabalho' ? 'info' : 'warning'} text="dark" className="mb-2">
-                                                    <BsClock className="me-1" /> Prazo: {formatDate(material.data_entrega)}
-                                                  </Badge>
-                                                )}
+                                      .map((material) => {
+                                        console.log('Renderizando material:', material);
+                                        return (
+                                          <ListGroup.Item key={material.material_id} className="material-item py-3">
+                                            <div className="d-flex justify-content-between align-items-center">
+                                              <div className="d-flex align-items-start">
+                                                <div className={material.tipo === 'trabalho' ? 'me-3 text-info' : 'me-3 text-warning'}>
+                                                  {material.tipo === 'trabalho' ? <BsTools size={24} /> : <BsUpload size={24} />}
+                                                </div>
                                                 <div>
-                                                  {material.ficheiros && material.ficheiros.map((file, idx) => (
-                                                    <Badge
-                                                      key={idx}
-                                                      bg="light"
-                                                      text={material.tipo === 'trabalho' ? 'info' : 'warning'}
-                                                      onClick={() => handleFileAction(file)}
-                                                      style={{ cursor: 'pointer' }}
-                                                      className="me-2 mb-1 text-decoration-none d-inline-flex align-items-center"
-                                                    >
-                                                      <BsDownload className="me-1" /> {file.nome.split('.').pop().toUpperCase()} • {file.nome}
+                                                  <div className="fw-bold">{material.titulo}</div>
+                                                  {material.descricao && (
+                                                    <small className="text-muted d-block mb-2">{material.descricao}</small>
+                                                  )}
+                                                  {material.data_entrega && (
+                                                    <Badge bg={material.tipo === 'trabalho' ? 'info' : 'warning'} text="dark" className="mb-2">
+                                                      <BsClock className="me-1" /> Prazo: {formatDate(material.data_entrega)}
                                                     </Badge>
-                                                  ))}
+                                                  )}
+                                                  <div>
+                                                    {material.ficheiros && material.ficheiros.map((file, idx) => (
+                                                      <Badge
+                                                        key={idx}
+                                                        bg="light"
+                                                        text={material.tipo === 'trabalho' ? 'info' : 'warning'}
+                                                        onClick={() => handleFileAction(file)}
+                                                        style={{ cursor: 'pointer' }}
+                                                        className="me-2 mb-1 text-decoration-none d-inline-flex align-items-center"
+                                                      >
+                                                        <BsDownload className="me-1" /> {file.nome.split('.').pop().toUpperCase()} • {file.nome}
+                                                      </Badge>
+                                                    ))}
+                                                  </div>
                                                 </div>
                                               </div>
+                                              <div>
+                                                {material.tipo === 'entrega' ? (
+                                                  <Button
+                                                    variant="warning"
+                                                    size="sm"
+                                                    onClick={() => {
+                                                      console.log('Clicando no botão de submeter para material:', material);
+                                                      handleOpenSubmeterModal(material);
+                                                    }}
+                                                    disabled={new Date(material.data_entrega) < new Date()}
+                                                  >
+                                                    <BsUpload className="me-1" /> 
+                                                    {new Date(material.data_entrega) < new Date() ? 'Prazo Expirado' : 'Submeter'}
+                                                  </Button>
+                                                ) : (
+                                                  <Button
+                                                    variant="outline-info"
+                                                    size="sm"
+                                                    className="me-2"
+                                                    onClick={() => material.ficheiros.length > 0 && handleFileAction(material.ficheiros[0])}
+                                                    disabled={material.ficheiros.length === 0}
+                                                  >
+                                                    <BsDownload className="me-1" /> Download
+                                                  </Button>
+                                                )}
+                                              </div>
                                             </div>
-                                            <div>
-                                              {material.tipo === 'entrega' ? (
-                                                <Button
-                                                  variant="warning"
-                                                  size="sm"
-                                                  onClick={() => handleOpenSubmeterModal(material)}
-                                                >
-                                                  <BsUpload className="me-1" /> Submeter
-                                                </Button>
-                                              ) : (
-                                                <Button
-                                                  variant="outline-info"
-                                                  size="sm"
-                                                  className="me-2"
-                                                  onClick={() => material.ficheiros.length > 0 && handleFileAction(material.ficheiros[0])}
-                                                  disabled={material.ficheiros.length === 0}
-                                                >
-                                                  <BsDownload className="me-1" /> Download
-                                                </Button>
-                                              )}
-                                            </div>
-                                          </div>
-                                        </ListGroup.Item>
-                                      ))}
+                                          </ListGroup.Item>
+                                        );
+                                      })}
                                   </ListGroup>
                                 </div>
                               ))

@@ -3,6 +3,7 @@ import { Container, Card, Badge, Button, Form } from "react-bootstrap";
 import { BsFillPeopleFill, BsChatDots, BsArrowReturnLeft, BsDownload, BsFileText, BsSend } from "react-icons/bs";
 import { IoPersonOutline } from "react-icons/io5";
 import axios from "../../config/configAxios";
+import { useLocation } from "react-router-dom";
 
 import ModalCustom from "../../modals/modalCustom";
 import AddButton from "../../components/buttons/addButton";
@@ -22,8 +23,16 @@ export default function AvaliacaoTrabalho() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const location = useLocation();
+  const materialId = location.state?.materialId;
+  const cursoId = location.state?.cursoId;
+
   useEffect(() => {
-    fetchFormandos();
+    if (materialId && cursoId) {
+      fetchSubmissoesPorAvaliacao();
+    } else {
+      fetchFormandos();
+    }
   }, []);
 
   const fetchFormandos = async () => {
@@ -36,6 +45,20 @@ export default function AvaliacaoTrabalho() {
       setLoading(false);
     } catch (err) {
       setError("Erro ao carregar dados dos formandos");
+      setLoading(false);
+    }
+  };
+
+  const fetchSubmissoesPorAvaliacao = async () => {
+    try {
+      const token = sessionStorage.getItem('token');
+      const response = await axios.get(`/trabalhos/avaliacao/${materialId}/curso/${cursoId}/submissoes`, {
+        headers: { Authorization: `${token}` }
+      });
+      setFormandos(response.data.data);
+      setLoading(false);
+    } catch (err) {
+      setError("Erro ao carregar submissões da entrega");
       setLoading(false);
     }
   };
@@ -134,8 +157,8 @@ export default function AvaliacaoTrabalho() {
                 const nomeMatch = formando.nome.toLowerCase().includes(searchTerm.toLowerCase());
                 const filtroMatch =
                   filtroAvaliacao === "todos" ||
-                  (filtroAvaliacao === "avaliado" && formando.avaliado) ||
-                  (filtroAvaliacao === "pendente" && !formando.avaliado);
+                  (filtroAvaliacao === "avaliado" && formando.nota !== null && formando.nota !== undefined) ||
+                  (filtroAvaliacao === "pendente" && (formando.nota === null || formando.nota === undefined));
                 return nomeMatch && filtroMatch;
               })
               .map((formando, idx) => (
@@ -147,11 +170,31 @@ export default function AvaliacaoTrabalho() {
                     <div>
                       <div className="student-name">{formando.nome}</div>
                       <Badge
-                        bg={formando.avaliado ? "success" : "warning"}
-                        className={formando.avaliado ? "badge-success" : "badge-warning"}
+                        bg={formando.nota !== null && formando.nota !== undefined ? "success" : "warning"}
+                        className={formando.nota !== null && formando.nota !== undefined ? "badge-success" : "badge-warning"}
                       >
-                        {formando.avaliado ? "Avaliado" : "Pendente"}
+                        {formando.nota !== null && formando.nota !== undefined ? "Avaliado" : "Pendente"}
                       </Badge>
+                      {/* Mostrar ficheiros submetidos */}
+                      {formando.ficheiros && formando.ficheiros.length > 0 && (
+                        <div className="mt-2">
+                          <strong>Ficheiros submetidos:</strong>
+                          <ul style={{ listStyle: 'none', paddingLeft: 0 }}>
+                            {formando.ficheiros.map((file, fidx) => (
+                              <li key={fidx} style={{ marginBottom: 4 }}>
+                                <Button
+                                  variant="outline-secondary"
+                                  size="sm"
+                                  onClick={() => window.open(file.url, '_blank')}
+                                  className="me-2"
+                                >
+                                  <BsDownload className="me-1" /> {file.nome}
+                                </Button>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
                     </div>
                   </div>
                   <div className="action-buttons">
@@ -160,23 +203,11 @@ export default function AvaliacaoTrabalho() {
                       size="sm"
                       onClick={() => abrirAvaliacao(formando)}
                       className="action-button"
-                      disabled={formando.avaliado}
+                      disabled={formando.nota !== null && formando.nota !== undefined}
                     >
                       <div className="button-content">
                         <BsChatDots size={16} />
                         <span>Avaliar</span>
-                      </div>
-                    </Button>
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      onClick={() => window.open(formando.arquivo_url, '_blank')}
-                      className="secondary-button"
-                      disabled={!formando.arquivo_url}
-                    >
-                      <div className="button-content">
-                        <BsDownload size={16} />
-                        <span>Download</span>
                       </div>
                     </Button>
                   </div>
