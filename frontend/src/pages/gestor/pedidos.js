@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Container } from "react-bootstrap";
 import { Eye } from "react-bootstrap-icons";
-import { MessageSquare} from 'react-feather';
+import { MessageSquare } from 'react-feather';
 import { useNavigate } from "react-router-dom";
 import axios from "../../config/configAxios";
 /* COMPONENTES */
@@ -111,78 +111,64 @@ const ListaPedidos = () => {
   }, [pedidos, colaboradores, cursos, topicos, filtro]);
 
   const columns = [
-  {
-    field: "colaboradorNome",
-    headerName: "Colaborador",
-    sortable: true,
-    searchable: true,
-    width: 200, 
-    minWidth: 200
-  },
-  {
-    field: "tipo",
-    headerName: "Tipo",
-    sortable: true,
-    searchable: true,
-    width: 120, 
-    minWidth: 120,
-    renderCell: ({ row }) => row.tipo === "CURSO" ? "Curso" : "Fórum"
-  },
-  {
-    field: "referenciaNome",
-    headerName: "Referência",
-    sortable: true,
-    searchable: true,
-    width: 300, 
-    minWidth: 300
-  },
-  {
-    field: "data",
-    headerName: "Data do Pedido",
-    sortable: true,
-    type: "date",
-    width: 180, 
-    minWidth: 180,
-    renderCell: ({ row }) => new Date(row.data).toLocaleString(),
-  },
-  {
-    field: "actions",
-    headerName: "Ações",
-    sortable: false,
-    searchable: false,
-    width: 100, 
-    minWidth: 100,
-    renderCell: ({ row }) => (
-      <>
-        <button
-          className="btn btn-sm btn-outline-primary me-2"
-          onClick={() => handleVerPedido(row.pedido_id)}
-          title="Ver detalhes do pedido"
-        >
-          <Eye size={18} />
-        </button>
-      </>
-    ),
-  },
-];
+    {
+      field: "colaboradorNome",
+      headerName: "Colaborador",
+      sortable: true, flex: 0.1, headerAlign: 'left', align: 'left', disableColumnMenu: true, minWidth: 100,
+    },
+    {
+      field: "tipo",
+      headerName: "Tipo",
+      sortable: true, flex: 0.5, headerAlign: 'left', align: 'left', disableColumnMenu: true, minWidth: 100,
+      renderCell: ({ row }) => row.tipo === "CURSO" ? "Curso" : "Fórum"
+    },
+    {
+      field: "referenciaNome",
+      headerName: "Referência",
+      sortable: true, flex: 0.5, headerAlign: 'left', align: 'left', disableColumnMenu: true, minWidth: 400,
+    },
+    {
+      field: "data",
+      headerName: "Data do Pedido",
+      sortable: true,
+      type: "date", flex: 0.5, headerAlign: 'left', align: 'left', disableColumnMenu: true, minWidth: 100,
+      renderCell: ({ row }) => new Date(row.data).toLocaleString(),
+    },
+    {
+      field: "actions",
+      headerName: "Ações",
+      sortable: false, flex: 0.5, headerAlign: 'center', align: 'center', disableColumnMenu: true, minWidth: 100,
+      renderCell: ({ row }) => (
+        <>
+          <button
+            className="btn btn-sm btn-outline-primary me-2"
+            onClick={() => handleVerPedido(row.pedido_id)}
+            title="Ver detalhes do pedido"
+          >
+            <Eye size={18} />
+          </button>
+        </>
+      ),
+    },
+  ];
   return (
     <Container fluid className="lista-pedidos-container">
       <div className="forum-header">
-                <div className="forum-header-content">
-                  <div className="forum-header-icon">
-                    <MessageSquare size={32} />
-                  </div>
-                  <div className="forum-header-info">
-                    <h1>Pedidos</h1>
-                  </div> 
-                </div>
-                <div className="percurso-stats">
-                        <div className="percurso-stat-item">
-                            <span className="stat-value">{tableRows.length}</span>
-                            <span className="stat-label">Total de Pedidos</span>
-                        </div>
-                    </div>
-              </div>
+        <div className="forum-header-content">
+          <div className="forum-header-icon">
+            <MessageSquare size={32} />
+          </div>
+          <div className="forum-header-info">
+            <h1>Pedidos</h1>
+          </div>
+        </div>
+        <div className="percurso-stats">
+          <div className="percurso-stat-item">
+            <span className="stat-value">{tableRows.length}</span>
+            <span className="stat-label">Total de Pedidos</span>
+          </div>
+        </div>
+      </div>
 
       <div className="filtro-container">
         <div className="estado-filtro">

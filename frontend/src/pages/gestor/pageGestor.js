@@ -48,24 +48,16 @@ export default function PaginaGestor() {
 
   const tableColumns = [
     { field: 'id', headerName: 'Nº Denuncia', flex: 0.3, headerAlign: 'left', disableColumnMenu: true },
-    { field: 'denuncia', headerName: 'Denúncia feita por:', flex: 0.5, headerAlign: 'left', disableColumnMenu: true },
+    { field: 'denuncia', headerName: 'Denúncia feita por:', flex: 0.5, headerAlign: 'left', align: 'left', disableColumnMenu: true },
     {
-      field: 'motivo',
-      headerName: 'Motivo',
-      flex: 0.4,
-      headerAlign: 'left',
-      disableColumnMenu: false,
+      field: 'motivo', headerName: 'Motivo', flex: 0.4, headerAlign: 'left', disableColumnMenu: false,
       renderCell: ({ row }) => (
         <span className={`badge ${getBadgeClass(row.motivo)}`}>{row.motivo}</span>
       )
     },
-    { field: 'descricao', headerName: 'Descrição', flex: 0.8, headerAlign: 'left', disableColumnMenu: true },
+    { field: 'descricao', headerName: 'Descrição', flex: 0.8, headerAlign: 'left', align: 'left', disableColumnMenu: true },
     {
-      field: 'data',
-      headerName: 'Data',
-      flex: 0.3,
-      headerAlign: 'left',
-      disableColumnMenu: true,
+      field: 'data', headerName: 'Data', flex: 0.3, headerAlign: 'left', align: 'left', disableColumnMenu: true,
       renderCell: ({ row }) => (
         <span className="text-muted d-flex align-items-center">
           <Clock size={14} className="me-1" />
@@ -246,7 +238,7 @@ export default function PaginaGestor() {
                   <div className="icon-bg pedidos-bg">
                     <FileEarmarkText />
                   </div>
-                  <p style={{ color: '#718096', fontSize: '1.3rem', fontWeight: '500' }}>Total de Pedidos</p>
+                  <p style={{ color: '#718096', fontSize: '1.3rem', fontWeight: '500', marginBottom: '0rem' }}>Total de Pedidos</p>
                 </div>
               </div>
               <h3 className="metric-value">{pedidos.length}</h3>
@@ -266,7 +258,7 @@ export default function PaginaGestor() {
                   <div className="icon-bg denuncias-bg">
                     <ExclamationTriangle />
                   </div>
-                  <p style={{ color: '#718096', fontSize: '1.3rem', fontWeight: '500' }}>Total de Denúncias</p>
+                  <p style={{ color: '#718096', fontSize: '1.3rem', fontWeight: '500', marginBottom: '0rem' }}>Total de Denúncias</p>
                 </div>
               </div>
               <h3 className="metric-value">{tableRows.length}</h3>
@@ -286,7 +278,7 @@ export default function PaginaGestor() {
                   <div className="icon-bg atividade-bg">
                     <Person />
                   </div>
-                  <p style={{ color: '#718096', fontSize: '1.3rem', fontWeight: '500' }}>Total Formandos Ativos</p>
+                  <p style={{ color: '#718096', fontSize: '1.3rem', fontWeight: '500', marginBottom: '0rem' }}>Total Formandos Ativos</p>
                 </div>
               </div>
               <h3 className="metric-value">{countFormandos}</h3>
@@ -306,7 +298,7 @@ export default function PaginaGestor() {
             Pedidos Recentes
           </h2>
           <div className="section-actions">
-            <button className="btn btn-link section-link" onClick={() =>{ navToPage('/gestor/lista/pedidos'); window.scrollTo(0, 0); }}>
+            <button className="btn btn-link section-link" onClick={() => { navToPage('/gestor/lista/pedidos'); window.scrollTo(0, 0); }}>
               Ver Todos <ArrowRightCircle size={16} className="ms-1" />
             </button>
           </div>
@@ -348,6 +340,7 @@ export default function PaginaGestor() {
               rows={tableRows}
               columns={tableColumns}
               showSearch={true}
+              title=""
               pageSize={5}
               emptyStateMessage="Nenhuma denúncia encontrada"
             />

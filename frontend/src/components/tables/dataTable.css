@@ -17,8 +17,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.25rem 1.5rem;
-  border-bottom: 1px solid #edf2f7;
+  flex-wrap: wrap; /* permite quebra */
+  gap: 1rem;
 }
 
 .table-title {
@@ -29,7 +29,10 @@
 }
 
 .table-search {
-  max-width: 320px;
+  flex-grow: 1;
+  min-width: 300px;
+  max-width: 600px;
+  width: 100%;
 }
 
 .table-search .form-control {
