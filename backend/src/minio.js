@@ -11,13 +11,18 @@ var minioClient = new minio.Client({
     secretKey: process.env[`MINIO_ROOT_PASSWORD`],
 })
 
-/*
 console.log('MinIO Client configurado com:', {
     endPoint: process.env[`MINIO_ENDPOINT`],
     port: parseInt(process.env[`MINIO_PORT`])
 });
-*/
 
+// Logs configs gerais dotenv
+console.log('Variáveis de ambiente carregadas:', {
+    MINIO_ENDPOINT: process.env[`MINIO_ENDPOINT`],
+    MINIO_PORT: process.env[`MINIO_PORT`],
+    MINIO_ROOT_USER: process.env[`MINIO_ROOT_USER`],
+    MINIO_ROOT_PASSWORD: process.env[`MINIO_ROOT_PASSWORD`]
+});
 // Listar todos os buckets
 minioClient.listBuckets(function (err, buckets) {
     if (err) {
