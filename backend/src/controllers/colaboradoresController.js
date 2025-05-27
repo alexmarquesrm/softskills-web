@@ -848,6 +848,7 @@ const controladorUtilizadores = {
       res.json({
         user: {
           ...colaborador.toJSON(),
+          colaboradorid: colaborador.colaborador_id,
           allUserTypes
         },
         token,
