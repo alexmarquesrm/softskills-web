@@ -45,7 +45,7 @@ const AboutUs = () => {
 
   const companyInfo = {
     whoWeAre: "Alunos de Engenharia Informática, amantes de Tecnologias e VideoJogos.",
-    whatWeDo: "Adoramos programar nos tempos livres, na maior parte do tempo jogamos.",
+    whatWeDo: "Para além de adorarmos programar nos tempos livres, na maior parte do tempo ou estamos a jogar ou a pensar quando vamos jogar novamente.",
   };
 
   useEffect(() => {
@@ -87,10 +87,8 @@ const AboutUs = () => {
               <Card.Body>
                 <h2 className="section-title">Projeto SoftSkills</h2>
                 <p className="company-description">
-                 Texto a adicionar
-                </p>
-                <p className="company-description">
-                  Outro tipo de Texto
+                SoftSkills é uma plataforma de formação interna, disponível em versão web e mobile. O objetivo é centralizar e facilitar o acesso a conteúdos educativos.
+                Inspirada em plataformas como a Udemy, a SoftSkills permite que os colaboradores explorem cursos criados pela própria empresa, acompanhem o seu progresso, realizem avaliações e obtenham certificados. A plataforma promove uma cultura de aprendizagem contínua, contribuindo para o crescimento profissional.
                 </p>
               </Card.Body>
             </Card>
