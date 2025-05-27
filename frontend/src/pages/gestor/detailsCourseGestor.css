@@ -86,7 +86,7 @@
 
 .course-navigation .btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 /* Accordion personalizado */
@@ -150,7 +150,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 /* Diferenciação de tipos de materiais */
@@ -166,7 +166,8 @@
   border-left: 3px solid #28a745;
 }
 
-.material-trabalho, .material-quiz {
+.material-trabalho,
+.material-quiz {
   border-left: 3px solid #17a2b8;
 }
 
@@ -179,26 +180,26 @@
   .curso-content {
     padding: 0 15px;
   }
-  
+
   .curso-banner h1 {
     font-size: 1.5rem;
   }
-  
+
   .course-navigation .btn {
     font-size: 0.8rem;
     padding: 6px 12px;
   }
-  
+
   .curso-actions {
     margin-top: 15px;
     width: 100%;
   }
-  
+
   .material-item {
     flex-direction: column;
     align-items: flex-start !important;
   }
-  
+
   .material-item .btn-edit-small {
     margin-top: 10px;
     margin-left: 30px;
@@ -230,4 +231,63 @@
 
 .badge:hover {
   transform: scale(1.05);
+}
+
+.course-edit-options {
+  position: absolute;
+  top: 10px;
+  left: 3%;
+  display: flex;
+  gap: 5px;
+  z-index: 10;
+}
+
+.edit-course-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+  background-color: #007bff;
+  color: white;
+}
+
+.courses-grid.edit-mode .course-card-edit-wrapper {
+  cursor: default;
+}
+
+
+
+
+/* Estilos para o botão flutuante */
+.floating-add-button {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: #007bff; 
+    color: white;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    z-index: 1000; 
+    transition: transform 0.2s, background-color 0.2s;
+}
+
+.floating-add-button:hover {
+    transform: scale(1.05);
+    background-color: #0069d9; 
+}
+
+.floating-add-button:active {
+    transform: scale(0.95);
 }

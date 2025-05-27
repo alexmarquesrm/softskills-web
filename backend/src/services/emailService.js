@@ -1,0 +1,50 @@
+const nodemailer = require('nodemailer');
+require('dotenv').config();
+
+exports.sendEmail = async (to, subject, text) => {
+    // Log temporário para debug
+    console.log('Configurações SMTP:', {
+        host: process.env.SMTP_HOST,
+        port: process.env.SMTP_PORT,
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS
+    });
+
+    // Criar transporter 
+    let transporter = nodemailer.createTransport({
+        host: process.env.SMTP_HOST,
+        port: process.env.SMTP_PORT,
+        secure: false, // true for 465, false for other ports
+        auth: {
+            user: process.env.SMTP_USER,
+            pass: process.env.SMTP_PASS,
+        },
+        debug: true, // Habilitar logs de debug
+        logger: true // Habilitar logs do nodemailer
+    });
+
+    // Configurar
+    let mailOptions = {
+        from: process.env.EMAIL_SENDER,
+        to: to,
+        subject: subject,
+        text: text,
+    };
+
+    // Envio
+    try {
+        await transporter.sendMail(mailOptions);
+        return true;
+    } catch (error) {
+        console.error('Erro detalhado ao enviar email:', {
+            message: error.message,
+            code: error.code,
+            command: error.command,
+            response: error.response,
+            responseCode: error.responseCode,
+            stack: error.stack
+        });
+        return false;
+    } finally {
+    }
+};

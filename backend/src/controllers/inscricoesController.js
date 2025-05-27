@@ -1,30 +1,124 @@
 const initModels = require("../models/init-models");
 const sequelizeConn = require("../bdConexao");
+const formando = require("../models/formando");
+const curso = require("../models/curso");
 const models = initModels(sequelizeConn);
+const { sendEmail } = require('../services/emailService');
+const ficheirosController = require('./ficheiros');
 
 const controladorInscricoes = {
   // Criar uma nova inscrição
   async create(req, res) {
+    const { formando_id, curso_id } = req.body;
+    const transaction = await sequelizeConn.transaction();
+    
     try {
-      // Validar se o usuário autenticado é o mesmo que está sendo inscrito
-      // Isso evita que um usuário inscreva outro usuário
-      if (req.body.formando_id && req.body.formando_id !== req.user.id) {
-        return res.status(403).json({
-          erro: "Não é permitido criar inscrições para outros usuários"
+      // Validar os dados
+      if (!formando_id || !curso_id) {
+        return res.status(400).json({
+          erro: "formando_id e curso_id são obrigatórios"
         });
       }
+      
+      await sequelizeConn.query('CALL gerir_inscricao_curso($1, $2)', {
+        bind: [parseInt(formando_id), parseInt(curso_id)],
+        type: sequelizeConn.QueryTypes.RAW,
+        transaction
+      });
+      
+      // procurar a inscrição criada e devolver
+      const novaInscricao = await models.inscricao.findOne({
+        where: { 
+          formando_id,
+          curso_id
+        },
+        include: [
+          {
+            model: models.curso,
+            as: "inscricao_curso",
+            include: [
+              {
+                model: models.sincrono,
+                as: "curso_sincrono",
+                attributes: ["curso_id", "data_inicio", "data_fim"]
+              }
+            ]
+          },
+          {
+            model: models.formando,
+            as: "inscricao_formando",
+            include: [
+              {
+                model: models.colaborador,
+                as: "formando_colab",
+                attributes: ["nome", "email"]
+              }
+            ]
+          }
+        ],
+        transaction
+      });
 
-      // Garantir que o formando_id seja o ID do usuário autenticado
-      req.body.formando_id = req.user.id;
+      // Enviar email de confirmação
+      const emailSent = await sendEmail(
+        novaInscricao.inscricao_formando.formando_colab.email,
+        'Confirmação de Inscrição - SoftSkills',
+        `
+          Olá ${novaInscricao.inscricao_formando.formando_colab.nome},
 
-      const novaInscricao = await models.inscricao.create(req.body);
-      res.status(201).json(novaInscricao);
+          A sua inscrição no curso "${novaInscricao.inscricao_curso.titulo}" foi realizada com sucesso!
+
+          Detalhes do curso:
+          - Título: ${novaInscricao.inscricao_curso.titulo}
+          - Descrição: ${novaInscricao.inscricao_curso.descricao}
+          ${novaInscricao.inscricao_curso.tipo === 'S' && novaInscricao.inscricao_curso.curso_sincrono ? `
+          - Data de início: ${new Date(novaInscricao.inscricao_curso.curso_sincrono.data_inicio).toLocaleDateString('pt-PT')}
+          - Data de fim: ${new Date(novaInscricao.inscricao_curso.curso_sincrono.data_fim).toLocaleDateString('pt-PT')}
+          ` : ''}
+
+          Acompanhe o seu progresso na plataforma e não hesite em contactar-nos se tiver alguma dúvida.
+
+          Atenciosamente,
+          Equipa SoftSkills
+        `
+      );
+
+      if (!emailSent) {
+        console.warn('Não foi possível enviar o email de confirmação para:', novaInscricao.inscricao_formando.formando_colab.email);
+      }
+
+      // Commit da transação
+      await transaction.commit();
+
+      res.status(201).json({
+        ...novaInscricao.toJSON(),
+        emailSent
+      });
     } catch (error) {
-      res.status(500).json({ erro: "Erro ao criar inscrição", detalhes: error.message });
+      // Rollback da transação em caso de erro
+      await transaction.rollback();
+      
+      console.error('Erro detalhado:', error);
+      
+      // Tratar erros específicos do procedimento
+      if (error.message && typeof error.message === 'string') {
+        if (error.message.includes('Curso não encontrado')) {
+          return res.status(404).json({ erro: "Curso não encontrado" });
+        } else if (error.message.includes('Formando já está inscrito')) {
+          return res.status(400).json({ erro: "Formando já está inscrito neste curso" });
+        } else if (error.message.includes('limite de vagas')) {
+          return res.status(400).json({ erro: "Curso já atingiu o limite de vagas" });
+        }
+      }
+      
+      res.status(500).json({ 
+        erro: "Erro ao criar inscrição", 
+        detalhes: error.message || 'Erro desconhecido' 
+      });
     }
   },
 
-  // Listar todas as inscrições (apenas para administradores)
+  // Listar todas as inscrições (apenas para gestores)
   async getAll(req, res) {
     try {
       // Verificar se o usuário é Gestor, seja como tipo ativo ou como um dos tipos disponíveis
@@ -45,6 +139,11 @@ const controladorInscricoes = {
               {
                 model: models.topico,
                 as: "curso_topico"
+              },
+              {
+                model: models.sincrono,
+                as: "curso_sincrono",
+                attributes: ["curso_id", "formador_id", "limite_vagas", "data_limite_inscricao", "data_inicio", "data_fim", "estado"],
               }
             ]
           },
@@ -96,9 +195,21 @@ const controladorInscricoes = {
         ]
       });
 
-      res.json(inscricoes);
+      // Adicionar capaUrl a cada inscricao_curso
+      const inscricoesComCapa = await Promise.all(inscricoes.map(async (inscricao) => {
+        const inscricaoData = inscricao.toJSON();
+        if (inscricaoData.inscricao_curso) {
+          const files = await ficheirosController.getAllFilesByAlbum(inscricaoData.inscricao_curso.curso_id, 'curso');
+          if (files && files.length > 0) {
+            inscricaoData.inscricao_curso.capaUrl = files[0].url;
+          }
+        }
+        return inscricaoData;
+      }));
+
+      res.json(inscricoesComCapa);
     } catch (error) {
-      res.status(500).json({ erro: "Erro ao buscar inscrições", detalhes: error.message });
+      res.status(500).json({ erro: "Erro ao procurar inscrições", detalhes: error.message });
     }
   },
 
@@ -125,6 +236,10 @@ const controladorInscricoes = {
               {
                 model: models.topico,
                 as: "curso_topico"
+              },
+              {
+                model: models.sincrono,
+                as: "curso_sincrono"
               }
             ]
           },
@@ -146,9 +261,21 @@ const controladorInscricoes = {
         return res.status(404).json({ erro: "Nenhuma inscrição encontrada para este formando" });
       }
 
-      res.json(inscricoes);
+      // Adicionar capaUrl a cada inscricao_curso
+      const inscricoesComCapa = await Promise.all(inscricoes.map(async (inscricao) => {
+        const inscricaoData = inscricao.toJSON();
+        if (inscricaoData.inscricao_curso) {
+          const files = await ficheirosController.getAllFilesByAlbum(inscricaoData.inscricao_curso.curso_id, 'curso');
+          if (files && files.length > 0) {
+            inscricaoData.inscricao_curso.capaUrl = files[0].url;
+          }
+        }
+        return inscricaoData;
+      }));
+
+      res.json(inscricoesComCapa);
     } catch (error) {
-      res.status(500).json({ erro: "Erro ao buscar inscrições", detalhes: error.message });
+      res.status(500).json({ erro: "Erro ao procurar inscrições", detalhes: error.message });
     }
   },
 
@@ -179,7 +306,7 @@ const controladorInscricoes = {
 
       res.json(inscricao);
     } catch (error) {
-      res.status(500).json({ erro: "Erro ao buscar inscrição", detalhes: error.message });
+      res.status(500).json({ erro: "Erro ao procurar inscrição", detalhes: error.message });
     }
   },
 

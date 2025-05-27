@@ -1,12 +1,13 @@
-import React, { useState, useEffect, useMemo } from "react";
-import { Container, Row, Col, Spinner } from "react-bootstrap";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
+import { Container, Row, Col, Spinner, Pagination } from "react-bootstrap";
 import { useNavigate } from 'react-router-dom';
-import { Book, AlertCircle} from 'react-feather';
+import { Book, AlertCircle } from 'react-feather';
 import axios from "../../config/configAxios";
 /* COMPONENTES */
 import FeaturedCourses from "../../components/cards/cardCourses";
 import SearchBar from '../../components/textFields/search';
 import Filtros from '../../components/filters/filtros';
+import { filtrarCursosOuInscricoes } from '../../utils/filtrarCursos';
 /* CSS */
 
 export default function PercursoFormativoFormando() {
@@ -15,64 +16,20 @@ export default function PercursoFormativoFormando() {
     const [inscricao, setInscricao] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [tipoSelecionado, setTipoSelecionado] = useState({ S: false, A: false });
-    const [estadoSelecionado, setEstadoSelecionado] = useState({ emCurso: false, terminado: false });
+    const [certSelecionado, setCertSelecionado] = useState({ C: false, S: false });
+    const [estadoSelecionado, setEstadoSelecionado] = useState({ porComecar: false, emCurso: false, terminado: false });
+    const [dataSelecionada, setDataSelecionada] = useState({ inicio: '', fim: '' });
+    const [nivelSelecionado, setNivelSelecionado] = useState({ 1: false, 2: false, 3: false, 4: false });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isFiltersVisible, setIsFiltersVisible] = useState(true);
-    
-    // Verificar autenticação no carregamento inicial
-    useEffect(() => {
-        const token = sessionStorage.getItem("token");
-        if (!token) {
-            setError("Sessão expirada. Por favor, faça login novamente.");
-            setTimeout(() => navigate('/login'), 2000);
-            return;
-        }
-        
-        // Carregar dados se autenticado
-        fetchDataColab();
-        fetchDataInscricao();
-    }, [navigate]);
-
-    // Carregar dados do colaborador autenticado
-    const fetchDataColab = async () => {
-        try {
-            // Usar a rota segura que obtém dados do próprio perfil
-            // baseada no token JWT, não no ID do sessionStorage
-            const response = await axios.get('/colaborador/me');
-            const utilizador = response.data;
-            // Armazenar o ID do usuário no sessionStorage apenas para interface
-            if (utilizador.colaborador_id) {
-                sessionStorage.setItem("colaboradorid", utilizador.colaborador_id);
-            }
-            
-            setNome(utilizador.nome);
-        } catch (error) {
-            handleApiError(error, "Erro ao procurar dados do colaborador");
-        }
-    };
-
-    // Buscar inscrições do usuário autenticado
-    const fetchDataInscricao = async () => {
-        try {
-            // Usar a rota segura que retorna apenas as inscrições 
-            // do usuário autenticado com base no token JWT
-            const response = await axios.get('/inscricao/minhas');
-            
-            // Não é mais necessário filtrar as inscrições, pois a API já retorna
-            // apenas as inscrições do usuário autenticado
-            setInscricao(response.data);
-        } catch (error) {
-            handleApiError(error, "Erro ao procurar inscrições");
-        } finally {
-            setLoading(false);
-        }
-    };
+    const [currentPage, setCurrentPage] = useState(1);
+    const coursesPerPage = 8;
 
     // Função para tratar erros de API de forma consistente
-    const handleApiError = (error, defaultMessage) => {
+    const handleApiError = useCallback((error, defaultMessage) => {
         console.error(defaultMessage, error);
-        
+
         // Verificar se é erro de autenticação
         if (error.response?.status === 401 || error.response?.status === 403) {
             setError("Sessão expirada ou sem permissão. Por favor, faça login novamente.");
@@ -81,42 +38,70 @@ export default function PercursoFormativoFormando() {
         } else {
             setError(defaultMessage);
         }
-    };
+    }, [navigate]);
+
+    // Carregar dados do colaborador autenticado
+    const fetchDataColab = useCallback(async () => {
+        try {
+            // Usar a rota segura que obtém dados do próprio perfil
+            // baseada no token JWT, não no ID do sessionStorage
+            const response = await axios.get('/colaborador/me');
+            const utilizador = response.data;
+            // Armazenar o ID do utilizador no sessionStorage apenas para interface
+            if (utilizador.colaborador_id) {
+                sessionStorage.setItem("colaboradorid", utilizador.colaborador_id);
+            }
+
+            setNome(utilizador.nome);
+        } catch (error) {
+            handleApiError(error, "Erro ao procurar dados do colaborador");
+        }
+    }, [handleApiError]);
+
+    // procurar inscrições do utilizador autenticado
+    const fetchDataInscricao = useCallback(async () => {
+        try {
+            // Usar a rota segura que retorna apenas as inscrições 
+            // do utilizador autenticado com base no token JWT
+            const response = await axios.get('/inscricao/minhas');
+
+            // Não é mais necessário filtrar as inscrições, pois a API já retorna
+            // apenas as inscrições do utilizador autenticado
+            setInscricao(response.data);
+        } catch (error) {
+            handleApiError(error, "Erro ao procurar inscrições");
+        } finally {
+            setLoading(false);
+        }
+    }, [handleApiError]);
+
+    // Verificar autenticação no carregamento inicial
+    useEffect(() => {
+        const token = sessionStorage.getItem("token");
+        if (!token) {
+            setError("Sessão expirada. Por favor, faça login novamente.");
+            setTimeout(() => navigate('/login'), 2000);
+            return;
+        }
+
+        // Carregar dados se autenticado
+        fetchDataColab();
+        fetchDataInscricao();
+    }, [navigate, fetchDataColab, fetchDataInscricao]);
 
     // Memoizar inscrições filtradas para melhorar desempenho (permanece igual)
     const filteredInscricoes = useMemo(() => {
-        if (inscricao.length === 0) return [];
-
-        // Verificar se algum filtro está ativo
-        const anyTipoSelected = tipoSelecionado.S || tipoSelecionado.A;
-        const anyEstadoSelected = estadoSelecionado.emCurso || estadoSelecionado.terminado;
-
-        return inscricao.filter(item => {
-            // Filtrar por tipo de curso - só aplica se algum tipo estiver selecionado
-            if (anyTipoSelected) {
-                if (item.inscricao_curso?.tipo === 'S' && !tipoSelecionado.S) return false;
-                if (item.inscricao_curso?.tipo === 'A' && !tipoSelecionado.A) return false;
-            }
-
-            // Filtrar por estado - só aplica se algum estado estiver selecionado
-            if (anyEstadoSelected) {
-                if (!item.estado && !estadoSelecionado.emCurso) return false;
-                if (item.estado && !estadoSelecionado.terminado) return false;
-            }
-
-            // Filtrar por termo de pesquisa
-            if (searchTerm.trim() !== '') {
-                const searchLower = searchTerm.toLowerCase();
-                return (
-                    item.inscricao_curso?.titulo?.toLowerCase().includes(searchLower) ||
-                    item.inscricao_curso?.descricao?.toLowerCase().includes(searchLower) ||
-                    (item.inscricao_curso?.sincrono?.formador?.colaborador?.nome?.toLowerCase().includes(searchLower))
-                );
-            }
-
-            return true;
+        return filtrarCursosOuInscricoes({
+            dados: inscricao,
+            tipoSelecionado,
+            certSelecionado,
+            estadoSelecionado,
+            dataSelecionada,
+            nivelSelecionado,
+            searchTerm,
+            modo: 'inscricao'
         });
-    }, [inscricao, tipoSelecionado, estadoSelecionado, searchTerm]);
+    }, [inscricao, certSelecionado, tipoSelecionado, estadoSelecionado, dataSelecionada, nivelSelecionado, searchTerm]);
 
     // Stats (permanece igual)
     const stats = useMemo(() => {
@@ -124,7 +109,13 @@ export default function PercursoFormativoFormando() {
 
         const total = inscricao.length;
         const terminados = inscricao.filter(item => item.estado).length;
-        const emCurso = total - terminados;
+        const porComecar = inscricao.filter(item => {
+            const estado = item.inscricao_curso?.curso_sincrono?.estado === false;
+            const dataInicio = new Date(item.inscricao_curso?.curso_sincrono?.data_inicio);
+            const dataAtual = new Date();
+            return estado && dataInicio > dataAtual;
+        }).length;
+        const emCurso = total - terminados - porComecar;
 
         return { total, emCurso, terminados };
     }, [inscricao]);
@@ -133,10 +124,10 @@ export default function PercursoFormativoFormando() {
         // Verifica se o curso está em andamento
         const isEmCurso = !inscricao.estado;
         return (
-            <FeaturedCourses 
-                key={inscricao.inscricao_id || index} 
-                curso={inscricao.inscricao_curso} 
-                inscricao={inscricao} 
+            <FeaturedCourses
+                key={inscricao.inscricao_id || index}
+                curso={inscricao.inscricao_curso}
+                inscricao={inscricao}
                 mostrarBotao={isEmCurso}
             />
         );
@@ -157,8 +148,22 @@ export default function PercursoFormativoFormando() {
     // Função para limpar filtros
     const clearFilters = () => {
         setTipoSelecionado({ S: false, A: false });
-        setEstadoSelecionado({ emCurso: false, terminado: false });
+        setCertSelecionado({ C: false, S: false });
+        setEstadoSelecionado({ porComecar: false, emCurso: false, terminado: false });
+        setDataSelecionada({ inicio: '', fim: '' });
+        setNivelSelecionado({ 1: false, 2: false, 3: false, 4: false });
         setSearchTerm('');
+    };
+
+    // Pagination logic
+    const indexOfLastCourse = currentPage * coursesPerPage;
+    const indexOfFirstCourse = indexOfLastCourse - coursesPerPage;
+    const currentCourses = filteredInscricoes.slice(indexOfFirstCourse, indexOfLastCourse);
+    const totalPages = Math.ceil(filteredInscricoes.length / coursesPerPage);
+
+    const handlePageChange = (pageNumber) => {
+        setCurrentPage(pageNumber);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     if (loading) {
@@ -227,8 +232,18 @@ export default function PercursoFormativoFormando() {
                         <Filtros
                             tipoSelecionado={tipoSelecionado}
                             setTipoSelecionado={setTipoSelecionado}
+                            certSelecionado={certSelecionado}
+                            setCertSelecionado={setCertSelecionado}
                             estadoSelecionado={estadoSelecionado}
                             setEstadoSelecionado={setEstadoSelecionado}
+                            dataSelecionada={dataSelecionada}
+                            setDataSelecionada={setDataSelecionada}
+                            nivelSelecionado={nivelSelecionado}
+                            setNivelSelecionado={setNivelSelecionado}
+                            mostrarTipo={true}
+                            mostrarEstado={true}
+                            mostrarData={true}
+                            mostrarCertificado={true}
                         />
                     </Col>
 
@@ -255,11 +270,62 @@ export default function PercursoFormativoFormando() {
 
                         <div className="courses-container">
                             {filteredInscricoes.length > 0 ? (
-                                <div className="courses-grid">
-                                    {filteredInscricoes.map((item, index) =>
-                                        renderCourseCard(item, index)
+                                <>
+                                    <div className="courses-grid">
+                                        {currentCourses.map((item, index) =>
+                                            renderCourseCard(item, index)
+                                        )}
+                                    </div>
+                                    {totalPages > 1 && (
+                                        <div className="pagination-container">
+                                            <Pagination>
+                                                <Pagination.First
+                                                    onClick={() => handlePageChange(1)}
+                                                    disabled={currentPage === 1}
+                                                />
+                                                <Pagination.Prev
+                                                    onClick={() => handlePageChange(currentPage - 1)}
+                                                    disabled={currentPage === 1}
+                                                />
+
+                                                {[...Array(totalPages)].map((_, index) => {
+                                                    const pageNumber = index + 1;
+                                                    // Show first page, last page, current page, and pages around current page
+                                                    if (
+                                                        pageNumber === 1 ||
+                                                        pageNumber === totalPages ||
+                                                        (pageNumber >= currentPage - 1 && pageNumber <= currentPage + 1)
+                                                    ) {
+                                                        return (
+                                                            <Pagination.Item
+                                                                key={pageNumber}
+                                                                active={pageNumber === currentPage}
+                                                                onClick={() => handlePageChange(pageNumber)}
+                                                            >
+                                                                {pageNumber}
+                                                            </Pagination.Item>
+                                                        );
+                                                    } else if (
+                                                        pageNumber === currentPage - 2 ||
+                                                        pageNumber === currentPage + 2
+                                                    ) {
+                                                        return <Pagination.Ellipsis key={pageNumber} disabled />;
+                                                    }
+                                                    return null;
+                                                })}
+
+                                                <Pagination.Next
+                                                    onClick={() => handlePageChange(currentPage + 1)}
+                                                    disabled={currentPage === totalPages}
+                                                />
+                                                <Pagination.Last
+                                                    onClick={() => handlePageChange(totalPages)}
+                                                    disabled={currentPage === totalPages}
+                                                />
+                                            </Pagination>
+                                        </div>
                                     )}
-                                </div>
+                                </>
                             ) : (
                                 <div className="no-courses">
                                     <AlertCircle size={36} className="mb-3" />

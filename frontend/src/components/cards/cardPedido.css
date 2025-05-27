@@ -149,3 +149,19 @@
   flex: 0 0 auto;
   width: 300px;
 }
+
+.card-title-container {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.tipo-badge {
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: 12px;
+  display: inline-block;
+  font-weight: 500;
+  align-self: flex-start;
+}

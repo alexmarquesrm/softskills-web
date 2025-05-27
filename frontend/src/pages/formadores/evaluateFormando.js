@@ -1,40 +1,43 @@
-import React, { useState } from "react";
-import { Container, Card, Table, Badge, Button, Form } from "react-bootstrap";
-import { BsFillPeopleFill, BsChatDots, BsArrowReturnLeft } from "react-icons/bs";
-import { BsSend } from "react-icons/bs";
+import React, { useState, useEffect } from "react";
+import { Container, Card, Badge, Button, Form } from "react-bootstrap";
+import { BsFillPeopleFill, BsChatDots, BsArrowReturnLeft, BsDownload, BsFileText, BsSend } from "react-icons/bs";
+import { IoPersonOutline } from "react-icons/io5";
+import axios from "../../config/configAxios";
 
 import ModalCustom from "../../modals/modalCustom";
-import "./evaluateFormando.css";
 import AddButton from "../../components/buttons/addButton";
 import Cancelar from "../../components/buttons/cancelButton";
 import Guardar from "../../components/buttons/saveButton";
+import "./evaluateFormando.css";
 
 export default function AvaliacaoTrabalho() {
-  const cursoNome = "Curso de Redes de Segurança";
-
-  const formandos = [
-    { id: 25638, nome: "Ana Silva", progresso: 75, avaliado: true },
-    { id: 24562, nome: "Bruno Costa", progresso: 60, avaliado: false },
-    { id: 23262, nome: "Carla Dias", progresso: 90, avaliado: true },
-    { id: 28662, nome: "Daniel Fonseca", progresso: 45, avaliado: false },
-    { id: 24062, nome: "Eduarda Ramos", progresso: 80, avaliado: true },
-    { id: 28962, nome: "Fábio Nunes", progresso: 55, avaliado: false },
-    { id: 27962, nome: "Gabriela Matos", progresso: 70, avaliado: true },
-    { id: 23962, nome: "Henrique Lopes", progresso: 65, avaliado: false },
-    { id: 22962, nome: "Inês Carvalho", progresso: 85, avaliado: true },
-    { id: 21462, nome: "João Pereira", progresso: 50, avaliado: false },
-    { id: 24562, nome: "Liliana Rocha", progresso: 95, avaliado: true },
-    { id: 21212, nome: "Marco Silva", progresso: 40, avaliado: false },
-  ];
-
+  const [formandos, setFormandos] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [showModalAvaliacao, setShowModalAvaliacao] = useState(false);
   const [formandoSelecionado, setFormandoSelecionado] = useState(null);
   const [nota, setNota] = useState("");
+  const [erroNota, setErroNota] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filtroAvaliacao, setFiltroAvaliacao] = useState("todos");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const abrirNotas = (formando) => {
-    setFormandoSelecionado(formando);
-    setShowModal(true);
+  useEffect(() => {
+    fetchFormandos();
+  }, []);
+
+  const fetchFormandos = async () => {
+    try {
+      const token = sessionStorage.getItem('token');
+      const response = await axios.get('/trabalhos/formandos', {
+        headers: { Authorization: `${token}` }
+      });
+      setFormandos(response.data);
+      setLoading(false);
+    } catch (err) {
+      setError("Erro ao carregar dados dos formandos");
+      setLoading(false);
+    }
   };
 
   const abrirAvaliacao = (formando) => {
@@ -50,92 +53,167 @@ export default function AvaliacaoTrabalho() {
   const fecharModalAvaliacao = () => {
     setFormandoSelecionado(null);
     setShowModalAvaliacao(false);
+    setNota("");
+    setErroNota("");
   };
 
-  const handleSubmit = () => {
-    alert("Dados enviados");
-    fecharModalAvaliacao();
+  const handleSubmit = async () => {
+    if (!nota) {
+      setErroNota("Por favor, selecione uma classificação antes de guardar");
+      return;
+    }
+    setErroNota("");
+
+    try {
+      const token = sessionStorage.getItem('token');
+      await axios.post('/trabalhos/avaliar', {
+        formando_id: formandoSelecionado.formando_id,
+        trabalho_id: formandoSelecionado.trabalho_id,
+        nota: parseFloat(nota)
+      }, {
+        headers: { Authorization: `${token}` }
+      });
+
+      // Atualizar a lista de formandos após a avaliação
+      await fetchFormandos();
+      fecharModalAvaliacao();
+    } catch (err) {
+      setErroNota("Erro ao salvar a avaliação. Tente novamente.");
+    }
   };
+
+  if (loading) return <div>Carregando...</div>;
+  if (error) return <div>{error}</div>;
 
   return (
-    <Container className="mt-5 mb-5">
-      <Card className="shadow-sm p-4">
-        <div className="mb-4">
-          <h4 className="mb-1">Avaliação do Trabalho 1</h4>
-          <h6 className="text-muted">{cursoNome}</h6>
+    <div className="page-container">
+      <Container>
+        <div className="header-card">
+          <h1 className="header-card-title">Avaliação dos Trabalhos</h1>
+          <p className="header-card-subtitle">Gerir e avaliar trabalhos dos formandos</p>
         </div>
 
-        <div className="mb-4">
-          <p>
-            <strong>Objetivo:</strong> Avaliar a apresentação do trabalho com
-            base nos critérios de clareza, conteúdo técnico e originalidade.
-          </p>
-          <p>
-            <strong>Data limite:</strong> 25 de Abril de 2025
-          </p>
-        </div>
-
-        <div className="caixa-redes mb-3">
-          <h6 className="mb-0">Formato da aula</h6>
-          <div className="sinc-meta">
-            <BsFillPeopleFill className="me-2" />
-            Síncrono
+        <Card className="main-card">
+          <div className="deadline-info">
+            <BsFileText size={20} className="deadline-icon" />
+            <div>
+              <strong>Objetivo:</strong> Avaliar a apresentação do trabalho com
+              base nos critérios de clareza, conteúdo técnico e originalidade.
+              <br />
+            </div>
           </div>
-        </div>
 
-        <div className="divider mb-3"></div>
+          <div className="section-title">
+            <IoPersonOutline size={24} className="title-icon" />
+            <h4>Avaliar Formandos</h4>
+          </div>
 
-        <Table responsive borderless className="mb-0">
-          <tbody>
-            {formandos.map((formando, idx) => (
-              <tr key={idx} className="formando-row">
-                <td className="py-3 px-4 d-flex flex-column">
-                  <div className="d-flex align-items-center mb-1">
-                    <BsFillPeopleFill className="me-2 text-secondary" />
-                    <strong>{formando.nome}</strong> (ID: {formando.id})
+          <div className="divider"></div>
+          <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+            <Form.Control
+              type="text"
+              placeholder="Pesquisar formando..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{ maxWidth: "250px" }}
+            />
+            <Form.Select
+              value={filtroAvaliacao}
+              onChange={(e) => setFiltroAvaliacao(e.target.value)}
+              style={{ maxWidth: "200px" }}
+            >
+              <option value="todos">Todos</option>
+              <option value="avaliado">Avaliados</option>
+              <option value="pendente">Pendentes</option>
+            </Form.Select>
+          </div>
+
+          <div className="formandos-container">
+            {formandos
+              .filter((formando) => {
+                const nomeMatch = formando.nome.toLowerCase().includes(searchTerm.toLowerCase());
+                const filtroMatch =
+                  filtroAvaliacao === "todos" ||
+                  (filtroAvaliacao === "avaliado" && formando.avaliado) ||
+                  (filtroAvaliacao === "pendente" && !formando.avaliado);
+                return nomeMatch && filtroMatch;
+              })
+              .map((formando, idx) => (
+                <div key={idx} className="student-card">
+                  <div className="student-info">
+                    <div className="avatar-icon">
+                      <BsFillPeopleFill size={18} />
+                    </div>
+                    <div>
+                      <div className="student-name">{formando.nome}</div>
+                      <Badge
+                        bg={formando.avaliado ? "success" : "warning"}
+                        className={formando.avaliado ? "badge-success" : "badge-warning"}
+                      >
+                        {formando.avaliado ? "Avaliado" : "Pendente"}
+                      </Badge>
+                    </div>
                   </div>
-                  <div className="text-muted small">
-                    Progresso: {formando.progresso}% ·{" "}
-                    <Badge bg={formando.avaliado ? "success" : "warning"}>
-                      {formando.avaliado ? "Avaliado" : "Pendente"}
-                    </Badge>
+                  <div className="action-buttons">
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      onClick={() => abrirAvaliacao(formando)}
+                      className="action-button"
+                      disabled={formando.avaliado}
+                    >
+                      <div className="button-content">
+                        <BsChatDots size={16} />
+                        <span>Avaliar</span>
+                      </div>
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => window.open(formando.arquivo_url, '_blank')}
+                      className="secondary-button"
+                      disabled={!formando.arquivo_url}
+                    >
+                      <div className="button-content">
+                        <BsDownload size={16} />
+                        <span>Download</span>
+                      </div>
+                    </Button>
                   </div>
-                </td>
-                <td className="text-end py-3 px-4">
-                  <Button
-                    variant="primary"
-                    size="sm"
-                    className="me-3"
-                    onClick={() => abrirAvaliacao(formando)}
-                  >
-                    Avaliar
-                  </Button>
-                  <Button
-                    variant="outline-secondary"
-                    size="sm"
-                    onClick={() => abrirNotas(formando)}
-                  >
-                    <BsChatDots className="me-1" />
-                    Notas
-                  </Button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
-      </Card>
+                </div>
+              ))}
+          </div>
+        </Card>
+      </Container>
 
-      {/* Modal de Notas */}
+      {/* Modal de Avaliação */}
       <ModalCustom
-        show={showModal}
-        handleClose={fecharModal}
-        title={`Notas de ${formandoSelecionado?.nome}`}
+        show={showModalAvaliacao}
+        handleClose={fecharModalAvaliacao}
+        title={`Avaliação de ${formandoSelecionado?.nome}`}
       >
-        <div
-          className="border p-4 shadow-sm rounded"
-          style={{ backgroundColor: "#fff" }}
-        >
+        <div className="p-4 rounded" style={{ backgroundColor: "#f9f9f9" }}>
           <Form>
+            <Form.Group className="mb-3" controlId="avaliacaoNota">
+              <Form.Label>Classificação</Form.Label>
+              <Form.Control
+                type="number"
+                min="0"
+                max="20"
+                value={nota}
+                onChange={(e) => {
+                  const valor = e.target.value;
+                  if (valor === "" || (Number(valor) >= 0 && Number(valor) <= 20)) {
+                    setNota(valor);
+                    setErroNota("");
+                  } else {
+                    setErroNota("A nota deve ser entre 0 e 20.");
+                  }
+                }}
+                placeholder="Insira uma nota de 0 a 20"
+              />
+              {erroNota && <div className="text-danger mt-1">{erroNota}</div>}
+            </Form.Group>
             <Form.Group className="mb-3" controlId="comentario">
               <Form.Label>Comentário</Form.Label>
               <Form.Control
@@ -146,88 +224,13 @@ export default function AvaliacaoTrabalho() {
               />
             </Form.Group>
 
-            <div className="d-flex justify-content-end mt-3">
-              <AddButton
-                text="Guardar Nota"
-                onClick={fecharModal}
-                variant="primary"
-                size="sm"
-              />
-            </div>
-          </Form>
-        </div>
-      </ModalCustom>
-
-      {/* Modal de Avaliação */}
-      <ModalCustom
-        show={showModalAvaliacao}
-        handleClose={fecharModalAvaliacao}
-        title={`Avaliação de ${formandoSelecionado?.nome}`}
-      >
-        <div className="p-4 rounded" style={{ backgroundColor: "#f9f9f9" }}>
-
-
-
-
-          <h6 className="mb-3">Ficheiros Entregues</h6>
-          <div className="mb-3">
-            <div className="d-flex flex-column gap-2">
-              {(formandoSelecionado?.ficheiros || []).map((ficheiro, idx) => {
-                const tipoIcone = {
-                  pdf: "bi bi-file-earmark-pdf text-danger",
-                  csv: "bi bi-file-earmark-spreadsheet text-success",
-                  doc: "bi bi-file-earmark-word text-primary",
-                  default: "bi bi-file-earmark"
-                };
-                const iconeClasse = tipoIcone[ficheiro.tipo] || tipoIcone.default;
-
-                return (
-                  <div
-                    key={idx}
-                    className="p-2 bg-light border rounded d-flex justify-content-between align-items-center"
-                  >
-                    <span>
-                      <i className={`${iconeClasse} me-2`}></i>
-                      {ficheiro.nome}
-                    </span>
-                    <div className="d-flex gap-3 align-items-center">
-                      <a href={ficheiro.url} target="_blank" rel="noopener noreferrer">
-                        <i className="bi bi-eye-fill text-primary" title="Visualizar"></i>
-                      </a>
-                      <a href={ficheiro.url} download>
-                        <i className="bi bi-download" title="Download"></i>
-                      </a>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          <Form>
-            <Form.Group className="mb-3" controlId="avaliacaoNota">
-              <Form.Label>Classificação</Form.Label>
-              <Form.Select
-                value={nota}
-                onChange={(e) => setNota(e.target.value)}
-              >
-                <option value="">Seleciona uma nota</option>
-                <option value="1">1 - Muito Fraco</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="5">5 - Excelente</option>
-              </Form.Select>
-            </Form.Group>
-
-            <div className="d-flex justify-content-end gap-2"> 
+            <div className="d-flex justify-content-end gap-2">
               <Cancelar text="Cancelar" onClick={fecharModalAvaliacao} Icon={BsArrowReturnLeft} inline={true} />
               <Guardar text="Guardar" onClick={handleSubmit} Icon={BsSend} />
             </div>
           </Form>
         </div>
       </ModalCustom>
-
-    </Container>
+    </div>
   );
 }

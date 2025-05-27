@@ -11,6 +11,12 @@ var minioClient = new minio.Client({
     secretKey: process.env[`MINIO_ROOT_PASSWORD`],
 })
 
+// console.log('MinIO Client configurado com:', {
+//     endPoint: process.env[`MINIO_ENDPOINT`],
+//     port: parseInt(process.env[`MINIO_PORT`])
+// });
+
+// Listar todos os buckets
 minioClient.listBuckets(function (err, buckets) {
     if (err) {
         return console.log('Erro ao listar os buckets:', err);
@@ -87,26 +93,26 @@ const objectStorage = {
 
     getFilesByBucket: async function (bucketName) {
         const standardBucketName = bucketName.toLowerCase();
-        console.log(`Getting files from bucket: ${standardBucketName}`);
-
         try {
+            // First check if bucket exists
             const exists = await minioClient.bucketExists(standardBucketName);
             if (!exists) {
-                console.log(`Bucket ${standardBucketName} doesn't exist`);
                 return [];
             }
 
+            // If bucket exists, try to list objects
             return new Promise((resolve, reject) => {
                 const objectPromises = [];
-
                 const stream = minioClient.listObjects(standardBucketName, '', true);
 
                 stream.on('data', function (obj) {
                     const promise = new Promise((res, rej) => {
                         minioClient.presignedGetObject(standardBucketName, obj.name, 24 * 60 * 60, function (err, presignedUrl) {
-                            if (err) return rej(err);
+                            if (err) {
+                                res(null); // Skip this object if we can't get URL
+                                return;
+                            }
                             obj.url = presignedUrl;
-                            console.log(`Generated URL for ${obj.name}: ${presignedUrl}`);
                             res(obj);
                         });
                     });
@@ -116,23 +122,21 @@ const objectStorage = {
                 stream.on('end', function () {
                     Promise.all(objectPromises)
                         .then(objectsWithUrls => {
-                            //console.log(`Found ${objectsWithUrls.length} files in bucket ${standardBucketName}`);
-                            resolve(objectsWithUrls);
+                            // Filter out any null objects (where URL generation failed)
+                            const validObjects = objectsWithUrls.filter(obj => obj !== null);
+                            resolve(validObjects);
                         })
-                        .catch(err => {
-                            console.error('Erro ao gerar URLs assinadas:', err);
-                            reject(err);
+                        .catch(() => {
+                            resolve([]); // Return empty array on any error
                         });
                 });
 
-                stream.on('error', function (err) {
-                    console.error('Erro ao listar objetos:', err);
-                    reject(err);
+                stream.on('error', function () {
+                    resolve([]); // Return empty array on stream error
                 });
             });
         } catch (err) {
-            console.error(`Error checking bucket ${standardBucketName}:`, err);
-            return [];
+            return []; // Return empty array for any error
         }
     },
 

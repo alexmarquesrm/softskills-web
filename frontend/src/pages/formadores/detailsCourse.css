@@ -171,7 +171,7 @@ body {
 /* Responsividade para dispositivos móveis */
 @media (max-width: 768px) {
   .curso-banner h1 {
-    font-size: 1.5rem;
+    font-size: 1.5rem; 
   }
   
   .course-navigation .btn {
@@ -189,3 +189,4 @@ body {
     margin-left: 30px;
   }
 }
+

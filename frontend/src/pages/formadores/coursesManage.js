@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { Container, Row, Col, Spinner } from "react-bootstrap";
+import { Container, Row, Col, Spinner, Pagination } from "react-bootstrap";
 import { useNavigate } from 'react-router-dom';
 import { Book, AlertCircle } from 'react-feather';
 import axios from "../../config/configAxios";
+import { IoMdAdd } from "react-icons/io";
+import { filtrarCursosOuInscricoes } from '../../utils/filtrarCursos';
 /* COMPONENTES */
 import FeaturedCourses from "../../components/cards/cardCourses";
 import SearchBar from '../../components/textFields/search';
@@ -12,30 +14,36 @@ export default function CoursesManage() {
     const navigate = useNavigate();
     const [cursos, setCursos] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
+    const tipoUser = sessionStorage.getItem('tipo');
     const [tipoSelecionado, setTipoSelecionado] = useState({ S: false, A: false });
-    const [estadoSelecionado, setEstadoSelecionado] = useState({ emCurso: false, terminado: false });
+    const [certSelecionado, setCertSelecionado] = useState({ C: false, S: false });
+    const [estadoSelecionado, setEstadoSelecionado] = useState({ porComecar: false, emCurso: false, terminado: false });
+    const [dataSelecionada, setDataSelecionada] = useState({ inicio: '', fim: '' });
+    const [nivelSelecionado, setNivelSelecionado] = useState({ 1: false, 2: false, 3: false, 4: false });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isFiltersVisible, setIsFiltersVisible] = useState(true);
     const [formadorNome, setFormadorNome] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const coursesPerPage = 8;
 
     const fetchData = async () => {
         try {
             const token = sessionStorage.getItem('token');
             const formadorId = sessionStorage.getItem('colaboradorid');
-            
+
             const response = await axios.get(`/curso/formador/${formadorId}`, {
                 headers: { Authorization: `${token}` }
             });
-            
+
             setCursos(response.data);
-            
+
             // Get formador name if available from first course
-            if (response.data.length > 0 && 
+            if (response.data.length > 0 &&
                 response.data[0].curso_sincrono?.[0]?.sincrono_formador?.formador_colab?.nome) {
                 setFormadorNome(response.data[0].curso_sincrono[0].sincrono_formador.formador_colab.nome);
             }
-            
+
         } catch (error) {
             console.error("Erro ao carregar cursos:", error);
             setError("Não foi possível carregar os cursos");
@@ -50,54 +58,41 @@ export default function CoursesManage() {
 
     // Memoized filtered courses for better performance
     const filteredCursos = useMemo(() => {
-        if (cursos.length === 0) return [];
-
-        const anyEstadoSelected = estadoSelecionado.emCurso || estadoSelecionado.terminado;
-
-        return cursos.filter(curso => {
-
-            // Filter by state - only if a state is selected
-            if (anyEstadoSelected) {
-                // Check if any of the curso_sincrono entries have the matching state
-                const cursoState = curso.curso_sincrono?.estado;
-                const isTerminado = cursoState === true;
-
-                if (isTerminado && !estadoSelecionado.terminado) return false;
-                if (!isTerminado && !estadoSelecionado.emCurso) return false;
-            }
-
-            // Filter by search term
-            if (searchTerm.trim() !== '') {
-                const searchLower = searchTerm.toLowerCase();
-                return (
-                    curso.titulo?.toLowerCase().includes(searchLower) ||
-                    curso.descricao?.toLowerCase().includes(searchLower) ||
-                    curso.curso_sincrono?.[0]?.sincrono_formador?.formador_colab?.nome?.toLowerCase().includes(searchLower) ||
-                    curso.curso_topico?.[0]?.descricao?.toLowerCase().includes(searchLower)
-                );
-            }
-
-            return true;
+        return filtrarCursosOuInscricoes({
+            dados: cursos,
+            tipoSelecionado,
+            certSelecionado,
+            estadoSelecionado,
+            dataSelecionada,
+            nivelSelecionado,
+            searchTerm,
+            modo: 'curso'
         });
-    }, [cursos, estadoSelecionado, searchTerm]);
+    }, [cursos, tipoSelecionado, estadoSelecionado, dataSelecionada, nivelSelecionado, searchTerm]);
 
     // Stats calculation
     const stats = useMemo(() => {
         if (cursos.length === 0) return { total: 0, emCurso: 0, terminados: 0 };
 
         const total = cursos.length;
-        const terminados = cursos.filter(curso => 
-            curso.curso_sincrono?.[0]?.estado === true
+        const terminados = cursos.filter(curso =>
+            curso.curso_sincrono?.estado === true
         ).length;
-        const emCurso = total - terminados;
+        const porComecar = cursos.filter(item => {
+            const estado = item.curso_sincrono?.estado === false;
+            const dataInicio = new Date(item.curso_sincrono?.data_inicio);
+            const dataAtual = new Date();
+            return estado && dataInicio > dataAtual;
+        }).length;
+        const emCurso = total - terminados - porComecar;
 
         return { total, emCurso, terminados };
     }, [cursos]);
 
     // Handler for course selection
     const handleCourseSelect = (selectedCourse) => {
-        navigate(`/formador/curso/${selectedCourse.curso_id}`, { 
-            state: { id: selectedCourse.curso_id } 
+        navigate(`/formador/curso/${selectedCourse.curso_id}`, {
+            state: { id: selectedCourse.curso_id }
         });
     };
 
@@ -113,10 +108,10 @@ export default function CoursesManage() {
                 vagas: curso.curso_sincrono[0].limite_vagas
             } : null
         };
-        
+
         return (
             <div key={curso.curso_id || index} className="course-card-wrapper" onClick={() => handleCourseSelect(curso)}>
-                <FeaturedCourses curso={cursoData} mostrarBotao={true} mostrarInicioEFim={true}/>
+                <FeaturedCourses curso={cursoData} mostrarBotao={true} mostrarInicioEFim={true} />
             </div>
         );
     };
@@ -136,8 +131,22 @@ export default function CoursesManage() {
     // Function to clear filters
     const clearFilters = () => {
         setTipoSelecionado({ S: false, A: false });
-        setEstadoSelecionado({ emCurso: false, terminado: false });
+        setCertSelecionado({ C: false, S: false });
+        setEstadoSelecionado({ porComecar: false, emCurso: false, terminado: false });
+        setDataSelecionada({ inicio: '', fim: '' });
+        setNivelSelecionado({ 1: false, 2: false, 3: false, 4: false });
         setSearchTerm('');
+    };
+
+    // Pagination logic
+    const indexOfLastCourse = currentPage * coursesPerPage;
+    const indexOfFirstCourse = indexOfLastCourse - coursesPerPage;
+    const currentCourses = filteredCursos.slice(indexOfFirstCourse, indexOfLastCourse);
+    const totalPages = Math.ceil(filteredCursos.length / coursesPerPage);
+
+    const handlePageChange = (pageNumber) => {
+        setCurrentPage(pageNumber);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     if (loading) {
@@ -206,10 +215,17 @@ export default function CoursesManage() {
                         <Filtros
                             tipoSelecionado={tipoSelecionado}
                             setTipoSelecionado={setTipoSelecionado}
+                            certSelecionado={certSelecionado}
+                            setCertSelecionado={setCertSelecionado}
                             estadoSelecionado={estadoSelecionado}
                             setEstadoSelecionado={setEstadoSelecionado}
+                            dataSelecionada={dataSelecionada}
+                            setDataSelecionada={setDataSelecionada}
+                            nivelSelecionado={nivelSelecionado}
+                            setNivelSelecionado={setNivelSelecionado}
                             mostrarTipo={false}
                             mostrarEstado={true}
+                            mostrarData={true}
                         />
                     </Col>
 
@@ -236,11 +252,62 @@ export default function CoursesManage() {
 
                         <div className="courses-container">
                             {filteredCursos.length > 0 ? (
-                                <div className="courses-grid">
-                                    {filteredCursos.map((curso, index) =>
-                                        renderCourseCard(curso, index)
+                                <>
+                                    <div className="courses-grid">
+                                        {currentCourses.map((item, index) =>
+                                            renderCourseCard(item, index)
+                                        )}
+                                    </div>
+                                    {totalPages > 1 && (
+                                        <div className="pagination-container">
+                                            <Pagination>
+                                                <Pagination.First
+                                                    onClick={() => handlePageChange(1)}
+                                                    disabled={currentPage === 1}
+                                                />
+                                                <Pagination.Prev
+                                                    onClick={() => handlePageChange(currentPage - 1)}
+                                                    disabled={currentPage === 1}
+                                                />
+
+                                                {[...Array(totalPages)].map((_, index) => {
+                                                    const pageNumber = index + 1;
+                                                    // Show first page, last page, current page, and pages around current page
+                                                    if (
+                                                        pageNumber === 1 ||
+                                                        pageNumber === totalPages ||
+                                                        (pageNumber >= currentPage - 1 && pageNumber <= currentPage + 1)
+                                                    ) {
+                                                        return (
+                                                            <Pagination.Item
+                                                                key={pageNumber}
+                                                                active={pageNumber === currentPage}
+                                                                onClick={() => handlePageChange(pageNumber)}
+                                                            >
+                                                                {pageNumber}
+                                                            </Pagination.Item>
+                                                        );
+                                                    } else if (
+                                                        pageNumber === currentPage - 2 ||
+                                                        pageNumber === currentPage + 2
+                                                    ) {
+                                                        return <Pagination.Ellipsis key={pageNumber} disabled />;
+                                                    }
+                                                    return null;
+                                                })}
+
+                                                <Pagination.Next
+                                                    onClick={() => handlePageChange(currentPage + 1)}
+                                                    disabled={currentPage === totalPages}
+                                                />
+                                                <Pagination.Last
+                                                    onClick={() => handlePageChange(totalPages)}
+                                                    disabled={currentPage === totalPages}
+                                                />
+                                            </Pagination>
+                                        </div>
                                     )}
-                                </div>
+                                </>
                             ) : (
                                 <div className="no-courses">
                                     <AlertCircle size={36} className="mb-3" />
@@ -254,6 +321,15 @@ export default function CoursesManage() {
                     </Col>
                 </Row>
             </Container>
+            {/* Botão flutuante para adicionar novo curso pendente */}
+            {tipoUser === "Formador" && (
+                <button
+                    className="floating-add-button"
+                    onClick={() => navigate('/formador/pedircurso')}
+                    title="Pedir Curso">
+                    <IoMdAdd size={24} />
+                </button>
+            )}
         </div>
     );
 }

@@ -7,6 +7,14 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: false,
       primaryKey: true
     },
+    formando_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'formando',
+        key: 'formando_id'
+      }
+    },
     curso_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -18,6 +26,16 @@ module.exports = function(sequelize, DataTypes) {
     descricao: {
       type: DataTypes.TEXT,
       allowNull: false
+    },
+    data_criacao: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: Sequelize.NOW
+    },
+    lida: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false
     }
   }, {
     sequelize,

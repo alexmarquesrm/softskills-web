@@ -22,7 +22,7 @@ const controladorTopicos = {
       res.json(topicos);
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: "Erro ao buscar tópicos" });
+      res.status(500).json({ message: "Erro ao procurar tópicos" });
     }
   },
 
@@ -38,7 +38,7 @@ const controladorTopicos = {
       res.json(topico);
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: "Erro ao buscar tópico" });
+      res.status(500).json({ message: "Erro ao procurar tópico" });
     }
   },
 

@@ -48,6 +48,22 @@
   letter-spacing: 0.5px;
 }
 
+.course-type-badge2 {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.35em 0.65em;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.nivel {
+  background-color: #2196F3 !important;
+  color: white;
+}
+
 .course-title {
   font-size: 1.25rem;
   font-weight: 700;

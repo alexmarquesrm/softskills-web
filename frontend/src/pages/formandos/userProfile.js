@@ -24,8 +24,7 @@ export default function EditColab() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     primeiroNome: "", ultimoNome: "", username: "", dataNasc: "", email: "", telefone: "", departamento: "",
-    cargo: "", sobre_mim: "", novaPassword: "", confirmarPassword: "", receberEmails: false, notificacoesForum: false,
-    fotoPerfilUrl: ""
+    cargo: "", sobre_mim: "", novaPassword: "", confirmarPassword: "", fotoPerfilUrl: "", funcao_id: ""
   });
   
   // Keep original name for display until save
@@ -55,7 +54,7 @@ export default function EditColab() {
       return;
     }
     
-    // Se o token existe, buscar os dados do usuário
+    // Se o token existe, procurar os dados do usuário
     fetchData();
   }, [navigate]);
   
@@ -125,9 +124,6 @@ export default function EditColab() {
     try {
       setIsLoading(true);
 
-      // Problema: o backend espera o ID no formato 'colaborador_id' 
-      // mas possivelmente está enviando 'utilizadorid' ou 'colaboradorid'
-      // Solução: usar a rota /colaborador/me para buscar o perfil do próprio usuário
       const response = await axios.get('/colaborador/me');
       const utilizador = response.data;
       
@@ -139,6 +135,28 @@ export default function EditColab() {
       const primeiroNome = utilizador.nome ? utilizador.nome.split(" ")[0] : "";
       const ultimoNome = utilizador.nome ? utilizador.nome.split(" ").slice(1).join(" ") : "";
 
+      // Buscar dados do departamento e função
+      let departamentoNome = "";
+      let funcaoNome = "";
+      
+      if (utilizador.funcao_id) {
+        try {
+          // Buscar função
+          const funcaoResponse = await axios.get(`/funcao/${utilizador.funcao_id}`);
+          if (funcaoResponse.data) {
+            funcaoNome = funcaoResponse.data.nome;
+            
+            // Buscar departamento
+            const departamentoResponse = await axios.get(`/departamento/${funcaoResponse.data.departamento_id}`);
+            if (departamentoResponse.data) {
+              departamentoNome = departamentoResponse.data.nome;
+            }
+          }
+        } catch (error) {
+          console.error("Erro ao buscar dados de departamento/função:", error);
+        }
+      }
+
       setFormData({
         primeiroNome: primeiroNome,
         ultimoNome: ultimoNome,
@@ -146,14 +164,13 @@ export default function EditColab() {
         dataNasc: utilizador.data_nasc || "",
         email: utilizador.email || "",
         telefone: utilizador.telefone || "",
-        departamento: utilizador.departamento || "",
-        cargo: utilizador.cargo || "",
+        departamento: departamentoNome,
+        cargo: funcaoNome,
         sobre_mim: utilizador.sobre_mim || "",
         novaPassword: "",
         confirmarPassword: "",
         fotoPerfilUrl: utilizador.fotoPerfilUrl || "",
-        receberEmails: utilizador.receberEmails || false,
-        notificacoesForum: utilizador.notificacoesForum || false
+        funcao_id: utilizador.funcao_id || ""
       });
       
       // Set display name separately from form data
@@ -190,7 +207,7 @@ export default function EditColab() {
         }
       }
     } catch (error) {
-      console.error("Erro ao buscar dados do colaborador", error);
+      console.error("Erro ao procurar dados do colaborador", error);
       
       if (error.response?.status === 401 || error.response?.status === 403) {
         toast.error("Sessão expirada. Por favor, faça login novamente.");
@@ -225,8 +242,13 @@ export default function EditColab() {
 
       // Preparando o payload para envio
       const payload = {
-        ...formData,
         nome: `${formData.primeiroNome} ${formData.ultimoNome}`.trim(),
+        username: formData.username,
+        email: formData.email,
+        data_nasc: formData.dataNasc,
+        telefone: parseInt(formData.telefone),
+        funcao_id: parseInt(formData.funcao_id),
+        sobre_mim: formData.sobre_mim || '',
       };
 
       // Adicionar foto de perfil se alterada
@@ -248,6 +270,8 @@ export default function EditColab() {
       delete payload.confirmarPassword;
       delete payload.primeiroNome;
       delete payload.ultimoNome;
+      delete payload.departamento;
+      delete payload.cargo;
 
       // Enviar atualização ao servidor
       await axios.put(`/colaborador/atualizar/${id}`, payload);
@@ -370,17 +394,6 @@ export default function EditColab() {
                         >
                           <FaCamera color="white" size={20} />
                         </div>
-                        
-                        {previewFoto !== profilePic && (
-                          <div 
-                            className="bg-danger p-2 rounded-circle mx-1" 
-                            style={{ cursor: "pointer" }}
-                            onClick={handleRemoveFoto}
-                            title="Remover foto"
-                          >
-                            <FaTrash color="white" size={20} />
-                          </div>
-                        )}
                       </div>
                     </div>
                   )}
@@ -428,22 +441,6 @@ export default function EditColab() {
                 endIcon={showConfirmPassword ? <FaEyeSlash /> : <FaEye />} onEndIconClick={() => setShowConfirmPassword(!showConfirmPassword)} />
             </Row>
 
-            <Row className="mb-3">
-              <Col md={12}>
-                <Form.Group>
-                  <strong>Notificações</strong>
-                  <Form.Check type="switch" id="receberEmails" label="Receber e-mails promocionais"
-                    name="receberEmails" checked={formData.receberEmails} onChange={handleChange} className="form-switch" />
-                </Form.Group>
-              </Col>
-
-              <Col md={12}>
-                <Form.Group>
-                  <Form.Check type="switch" id="notificacoesForum" label="Notificações do Fórum"
-                    name="notificacoesForum" checked={formData.notificacoesForum} onChange={handleChange} className="form-switch" />
-                </Form.Group>
-              </Col>
-            </Row>
             <div className="d-flex justify-content-center mt-4">
               <Cancelar text={"Cancelar"} onClick={() => navigate("/")} Icon={BsArrowReturnLeft} inline={true} />
               <Guardar text={"Guardar"} onClick={handleGuardar} Icon={FaRegSave} />

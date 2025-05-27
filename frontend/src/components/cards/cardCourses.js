@@ -1,13 +1,18 @@
 import React from "react";
 import { Card, Badge, Button } from "react-bootstrap";
-import { Clock, Users, Calendar, Award, CheckCircle, RefreshCcw } from "react-feather";
+import { Clock, Users, Calendar, Award, CheckCircle, RefreshCcw, Edit} from "react-feather";
+import {BsTrophy} from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
 import ReactGif from "./../../images/react.gif";
 import "./cardCourses.css";
 
-function CardCourses({ curso, inscricao, mostrarBotao = true, mostrarInicioEFim = false }) {
+function CardCourses({ curso, inscricao, mostrarBotao = true, mostrarInicioEFim = false, mostrarBotaoEdit = false, mostrarCertificado = false, mostrarNivelCard= false }) {
   const navigate = useNavigate();
   const tipoUser = sessionStorage.getItem('tipo');
+
+  const handleEditCourse = (courseId) => {
+    navigate(`/gestor/cursos/edit/${courseId}`);
+  };
 
   const handleViewDetails = () => {
     if (tipoUser === "Gestor") {
@@ -49,14 +54,35 @@ function CardCourses({ curso, inscricao, mostrarBotao = true, mostrarInicioEFim 
 
   return (
     <Card className="course-card h-100">
+      {(mostrarBotaoEdit && tipoUser === "Gestor") && (
+      <div className="course-edit-options">
+        <button className="edit-course-btn" onClick={() => handleEditCourse(curso.curso_id)}>
+          <Edit size={18} />
+        </button>
+      </div>
+      )}
+
       <div className="course-header" style={{ cursor: 'pointer' }} onClick={handleViewDetails}>
-        <img src={ReactGif} alt="Curso" className="course-image" />
+        {curso.capaUrl ? (
+          <img 
+            src={curso.capaUrl} 
+            alt={curso.titulo} 
+            className="course-image" 
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          />
+        ) : (
+          <img src={ReactGif} alt="Curso" className="course-image" />
+        )}
+        {mostrarNivelCard && (
+        <Badge className={`course-type-badge2 nivel`}>
+          Nível-{ String(curso.nivel)}
+        </Badge>)}
         <Badge
           className="course-type-badge"
           bg={getBadgeVariant(curso.tipo)}
         >
           {getTipoLabel(curso.tipo)}
-        </Badge>
+        </Badge>  
       </div>
 
       <Card.Body className="d-flex flex-column">
@@ -120,12 +146,19 @@ function CardCourses({ curso, inscricao, mostrarBotao = true, mostrarInicioEFim 
               <RefreshCcw size={16} className="icon" />
               <span>Estado: {(() => {
                 const estado = inscricao?.estado ?? curso?.curso_sincrono?.estado;
-                const dataInicio = curso?.curso_sincrono?.data_limite_inscricao;
+                const dataInicio = curso?.curso_sincrono?.data_inicio;
 
                 if (estado) return 'Concluído';
                 if (dataInicio && new Date(dataInicio) > new Date()) return 'Por começar';
                 return 'Em curso';
               })()}</span>
+            </div>
+          )}
+
+          {(mostrarCertificado === true && curso?.certificado !== false) && (
+            <div className="meta-item">
+              <BsTrophy size={16} className="icon" />
+              <span>Certificação</span>
             </div>
           )}
 

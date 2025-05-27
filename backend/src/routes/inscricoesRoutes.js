@@ -5,7 +5,7 @@ const inscricoesController = require("../controllers/inscricoesController");
 // Rota para obter as próprias inscrições do usuário autenticado
 router.get("/minhas", inscricoesController.getMyInscricoes);
 
-// Rota para listar todas as inscrições (apenas admin)
+// Rota para listar todas as inscrições (apenas gestor)
 router.get("/listar", inscricoesController.getAll);
 
 // Rota para obter inscrições de um formando específico

@@ -142,18 +142,11 @@ const controladorFicheiros = {
         try {
             const standardEntidade = entidade.toLowerCase();
             const bucketName = `${standardEntidade}${id}`;
-            //console.log(`Getting files directly from bucket: ${bucketName}`);
             
             const files = await objStorage.getFilesByBucket(bucketName);
-            if (files.length > 0) {
-                //console.log(`Found ${files.length} files in bucket ${bucketName}`);
-                //console.log("First file URL:", files[0].url);
-            } else {
-                //console.log(`No files found in bucket ${bucketName}`);
-            }
             return files;
         } catch (error) {
-            console.error('Erro ao buscar ficheiros no bucket:', error);
+            // Silently return empty array for any errors
             return [];
         }
     },
@@ -174,7 +167,7 @@ const controladorFicheiros = {
         try {
             const standardEntidade = entidade.toLowerCase();
             
-            // Buscar o objeto
+            // procurar o objeto
             const objeto = await models.objeto.findOne({
                 where: {
                     registo_id: id,
@@ -187,7 +180,7 @@ const controladorFicheiros = {
                 return false;
             }
             
-            // Buscar o ficheiro
+            // procurar o ficheiro
             const ficheiro = await models.ficheiro.findOne({
                 where: {
                     objeto_id: objeto.objeto_id,

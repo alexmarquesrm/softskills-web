@@ -31,7 +31,7 @@
   width: var(--sidebar-width);
   height: 100%;
   background: #ffffff;
-  transition: all 0.3s ease-in-out;
+  transition: left 0.2s ease;
   z-index: 1050;
   display: flex;
   flex-direction: column;
@@ -96,7 +96,7 @@
   text-decoration: none;
   border-radius: 8px;
   font-weight: 500;
-  transition: all 0.2s ease;
+  transition: background-color 0.15s ease, color 0.15s ease;
   position: relative;
 }
 
@@ -176,7 +176,7 @@
   justify-content: space-between;
   padding: 0.4rem 0.5rem;
   border-radius: 4px;
-  transition: all 0.2s ease;
+  transition: background-color 0.15s ease;
   cursor: pointer;
 }
 
@@ -233,7 +233,7 @@
   padding: 0.4rem 0.5rem;
   border-radius: 4px;
   flex: 1;
-  transition: all 0.2s ease;
+  transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 .area-title:hover {
@@ -255,7 +255,7 @@
   color: var(--text-light);
   text-decoration: none;
   border-radius: 4px;
-  transition: all 0.2s ease;
+  transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 .topic-item:hover {
@@ -265,11 +265,9 @@
 
 @keyframes slideDown {
   from {
-    max-height: 0;
     opacity: 0;
   }
   to {
-    max-height: 1000px;
     opacity: 1;
   }
 }
