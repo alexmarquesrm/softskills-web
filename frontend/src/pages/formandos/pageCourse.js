@@ -14,6 +14,7 @@ import Inscrever from "../../components/buttons/saveButton";
 import Cancelar from "../../components/buttons/cancelButton";
 import ModalSubmeterTrabalho from '../../modals/formandos/submeterFicheiro';
 import QuizModal from '../../modals/formandos/QuizModal';
+import VideoModal from '../../modals/formandos/VideoModal';
 // ICONS
 import { BsArrowReturnLeft } from "react-icons/bs";
 import { FaRegCheckCircle } from "react-icons/fa";
@@ -44,6 +45,8 @@ export default function CursoFormando() {
   const [showQuizModal, setShowQuizModal] = useState(false);
   const [selectedQuizId, setSelectedQuizId] = useState(null);
   const [clicked, setClicked] = useState(false);
+  const [showVideoModal, setShowVideoModal] = useState(false);
+  const [selectedVideo, setSelectedVideo] = useState(null);
 
   const breadcrumbItems = [
     { label: 'Formando', path: '/formando' },
@@ -88,10 +91,8 @@ export default function CursoFormando() {
         );
 
         if (inscricaoDoCurso !== undefined) {
-          console.log('Inscrição encontrada:', inscricaoDoCurso);
           setInscricao(inscricaoDoCurso);
         } else {
-          console.log('Nenhuma inscrição encontrada para o curso');
           setInscricao(null);
         }
 
@@ -100,11 +101,6 @@ export default function CursoFormando() {
           try {
             const token = sessionStorage.getItem('token');
             const formadorId = curso?.curso_sincrono?.formador_id;
-
-            console.log('Verificando avaliação do formador:', {
-              cursoId: id,
-              formadorId: formadorId
-            });
 
             if (formadorId) {
               const avaliacoesResponse = await axios.get(`/avaliacao-formador?curso_id=${id}&formador_id=${formadorId}`, {
@@ -139,17 +135,12 @@ export default function CursoFormando() {
         setMaterialLoading(true);
         const token = sessionStorage.getItem('token');
 
-        console.log('Buscando materiais para o curso:', id);
-        // Using the same endpoint format that works in the modal
         const response = await axios.get(`/material/curso/${id}/materiais`, {
           headers: { Authorization: `${token}` }
         });
 
-        console.log('Resposta da API de materiais:', response.data);
-
         if (response.data.success) {
           const materialsData = response.data.data;
-          console.log('Materiais recebidos:', materialsData);
 
           // Check if each material has files property with expected structure
           const hasFilesWithUrls = materialsData.some(m =>
@@ -159,16 +150,12 @@ export default function CursoFormando() {
           );
 
           if (!hasFilesWithUrls) {
-            console.log('Buscando detalhes adicionais dos materiais');
             const enhancedMaterials = await Promise.all(
               materialsData.map(async (material) => {
                 try {
-                  // Fetch complete material data like the modal does
                   const detailResponse = await axios.get(`/material/curso/${material.id}`, {
                     headers: { Authorization: `${token}` }
                   });
-
-                  console.log('Detalhes do material:', material.id, detailResponse.data);
 
                   if (detailResponse.data) {
                     return detailResponse.data;
@@ -181,11 +168,8 @@ export default function CursoFormando() {
               })
             );
 
-            console.log('Materiais aprimorados:', enhancedMaterials);
             setMaterials(enhancedMaterials);
           } else {
-            // Data already has the right structure
-            console.log('Usando estrutura de materiais existente');
             setMaterials(materialsData);
           }
         } else {
@@ -566,6 +550,18 @@ export default function CursoFormando() {
     setShowQuizModal(true);
   };
 
+  // Add this new function to handle video viewing
+  const handleViewVideo = (material) => {
+    if (!material.ficheiros || material.ficheiros.length === 0) return;
+    
+    const videoFile = material.ficheiros[0];
+    setSelectedVideo({
+      url: videoFile.url,
+      title: material.titulo
+    });
+    setShowVideoModal(true);
+  };
+
   if (loading) {
     return (
       <div className="loading-container d-flex justify-content-center align-items-center" style={{ height: "80vh" }}>
@@ -908,13 +904,12 @@ export default function CursoFormando() {
                                               </div>
                                             </div>
                                             <div>
-                                              {/* Always render both buttons, just disable them when no files exist */}
                                               <Button
                                                 variant="outline-primary"
                                                 size="sm"
                                                 className="me-2"
                                                 onClick={(e) => {
-                                                  e.stopPropagation(); // Stop event propagation
+                                                  e.stopPropagation();
                                                   if (material.ficheiros && material.ficheiros.length > 0) {
                                                     handleFileAction(material.ficheiros[0]);
                                                   }
@@ -934,14 +929,14 @@ export default function CursoFormando() {
                                                 variant="primary"
                                                 size="sm"
                                                 onClick={(e) => {
-                                                  e.stopPropagation(); // Stop event propagation
+                                                  e.stopPropagation();
                                                   if (material.ficheiros && material.ficheiros.length > 0) {
-                                                    handleFileAction(material.ficheiros[0]);
+                                                    handleViewVideo(material);
                                                   }
                                                 }}
                                                 disabled={!material.ficheiros || material.ficheiros.length === 0}
                                               >
-                                                Visualizar
+                                                <BsPlayFill className="me-1" /> Visualizar
                                               </Button>
                                             </div>
                                           </div>
@@ -1355,6 +1350,14 @@ export default function CursoFormando() {
 
           {/* Quiz Modal */}
           <QuizModal show={showQuizModal} onHide={() => setShowQuizModal(false)} quizId={selectedQuizId} />
+
+          {/* Video Modal */}
+          <VideoModal
+            show={showVideoModal}
+            onHide={() => setShowVideoModal(false)}
+            videoUrl={selectedVideo?.url}
+            videoTitle={selectedVideo?.title}
+          />
         </div>
       </Container>
     </div>
