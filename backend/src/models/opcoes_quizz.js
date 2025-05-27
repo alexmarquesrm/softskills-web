@@ -1,42 +1,42 @@
 const Sequelize = require('sequelize');
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('pedido_curso', {
-    formador_id: {
+  return sequelize.define('opcoes_quizz', {
+    opcao_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true,
-      references: {
-        model: 'formador',
-        key: 'formador_id'
-      }
+      autoIncrement: true
     },
-    curso_id: {
+    questao_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      primaryKey: true,
       references: {
-        model: 'curso',
-        key: 'curso_id'
+        model: 'questoes_quizz',
+        key: 'questao_id'
       }
     },
-    data: {
-      type: DataTypes.DATE,
+    texto: {
+      type: DataTypes.TEXT,
       allowNull: false
+    },
+    correta: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false
     }
   }, {
     sequelize,
-    tableName: 'pedido_curso',
+    tableName: 'opcoes_quizz',
     schema: 'public',
     timestamps: false,
     indexes: [
       {
-        name: "pk_pedecurso",
+        name: "pk_opcoes_quizz",
         unique: true,
         fields: [
-          { name: "formador_id" },
-          { name: "curso_id" },
+          { name: "opcao_id" },
         ]
       },
     ]
   });
-};
+}; 

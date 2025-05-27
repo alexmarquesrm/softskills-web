@@ -66,7 +66,7 @@ const controladorCategorias = {
       res.json(categoria);
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: "Erro ao buscar categoria" });
+      res.status(500).json({ message: "Erro ao procurar categoria" });
     }
   },
 
@@ -74,7 +74,6 @@ const controladorCategorias = {
   updateCategoria: async (req, res) => {
     const { id } = req.params;
     const { descricao } = req.body;
-
     try {
       const categoria = await models.categoria.findByPk(id);
       if (!categoria) {

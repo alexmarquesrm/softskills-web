@@ -122,6 +122,29 @@
 .filtros-sidebar {
   transition: max-height 0.3s ease, opacity 0.3s ease;
   margin-bottom: 2rem;
+  max-height: calc(110vh - 200px);
+  overflow-y: auto;
+  padding-right: 1rem;
+  position: sticky;
+  top: 1rem;
+}
+
+.filtros-sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.filtros-sidebar::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.filtros-sidebar::-webkit-scrollbar-thumb {
+  background: #416699;
+  border-radius: 3px;
+}
+
+.filtros-sidebar::-webkit-scrollbar-thumb:hover {
+  background: #3b96d3;
 }
 
 /* Mostra os filtros no desktop */
@@ -361,4 +384,54 @@
   .no-courses {
     padding: 2rem 1rem;
   }
+}
+
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
+    padding: 1rem 0;
+}
+
+.pagination {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.pagination .page-item {
+    list-style: none;
+}
+
+.pagination .page-link {
+    padding: 0.5rem 1rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    color: #333;
+    background-color: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.pagination .page-link:hover {
+    background-color: #f5f5f5;
+    border-color: #d0d0d0;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #007bff;
+    border-color: #007bff;
+    color: white;
+}
+
+.pagination .page-item.disabled .page-link {
+    color: #ccc;
+    cursor: not-allowed;
+    background-color: #f8f9fa;
+}
+
+.pagination .page-item.ellipsis {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+    color: #666;
 }

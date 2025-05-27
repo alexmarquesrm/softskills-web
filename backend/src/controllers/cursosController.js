@@ -3,6 +3,7 @@ const initModels = require("../models/init-models");
 const sequelizeConn = require("../bdConexao");
 const colaborador = require("../models/colaborador");
 const models = initModels(sequelizeConn);
+const ficheirosController = require('./ficheiros');
 
 const controladorCursos = {
   // Criar um novo curso
@@ -12,13 +13,14 @@ const controladorCursos = {
       const {
         gestor_id,
         topico_id,
-        tipo,  
+        tipo,
         total_horas,
         titulo,
         descricao,
         pendente,
         certificado,
         nivel,
+        aprovado,
         sincrono
       } = req.body;
 
@@ -32,13 +34,20 @@ const controladorCursos = {
         descricao,
         pendente,
         certificado,
-        nivel
+        nivel,
+        aprovado
       }, { transaction: t });
 
       // Se for do tipo S (Sincrono), criar entrada na tabela sincrono
       if (tipo === "S" && sincrono) {
         await models.sincrono.create({
           ...sincrono,
+          curso_id: novoCurso.curso_id
+        }, { transaction: t });
+      }
+      // Se for do tipo A (Assincrono), criar entrada na tabela assincrono
+      else if (tipo === "A") {
+        await models.assincrono.create({
           curso_id: novoCurso.curso_id
         }, { transaction: t });
       }
@@ -102,46 +111,58 @@ const controladorCursos = {
           {
             model: models.topico,
             as: "curso_topico",
-            attributes: ["descricao"],
+            attributes: ["topico_id", "descricao"],
+            include: [
+              {
+                model: models.area,
+                as: "topico_area",
+                attributes: ["area_id", "descricao"],
+                include: [
+                  {
+                    model: models.categoria,
+                    as: "area_categoria",
+                    attributes: ["categoria_id", "descricao"],
+                  },
+                ],
+              },
+            ],
           },
+          {
+            model: models.inscricao,
+            as: "curso_inscricaos",
+            attributes: [],
+            required: false
+          }
         ],
-        attributes: ["curso_id", "titulo", "descricao", "tipo", "total_horas", "pendente", "nivel"],
+        attributes: {
+          include: [
+            [
+              Sequelize.literal('(SELECT COUNT(*) FROM inscricao WHERE inscricao.curso_id = curso.curso_id)'),
+              'numero_inscritos'
+            ],
+            [
+              Sequelize.literal(`CASE 
+                WHEN curso.tipo = 'S' AND curso_sincrono.limite_vagas IS NOT NULL 
+                THEN curso_sincrono.limite_vagas - (SELECT COUNT(*) FROM inscricao WHERE inscricao.curso_id = curso.curso_id)
+                ELSE NULL 
+              END`),
+              'vagas_disponiveis'
+            ]
+          ]
+        }
       });
 
-      const cursosResumidos = cursos.map((curso) => {
-        return {
-          id: curso.curso_id,
-          titulo: curso.titulo,
-          descricao: curso.descricao,
-          tipo: curso.tipo,
-          total_horas: curso.total_horas,
-          pendente: curso.pendente,
-          nivel: curso.nivel,
-          topico: curso.curso_topico?.descricao || null,
-          gestor: {
-            nome: curso.gestor?.gestor_colab?.nome || null,
-            email: curso.gestor?.gestor_colab?.email || null,
-          },
-          curso_sincrono: curso.curso_sincrono ? {
-            inicio: curso.curso_sincrono.data_inicio,
-            fim: curso.curso_sincrono.data_fim,
-            data_limite_inscricao: curso.curso_sincrono.data_limite_inscricao,
-            vagas: curso.curso_sincrono.limite_vagas,
-            estado: curso.curso_sincrono.estado,
-            formador: curso.curso_sincrono.sincrono_formador ? {
-              formador_id: curso.curso_sincrono.sincrono_formador.formador_id,
-              especialidade: curso.curso_sincrono.sincrono_formador.especialidade,
-              colaborador: {
-                nome: curso.curso_sincrono.sincrono_formador.formador_colab?.nome || null,
-                email: curso.curso_sincrono.sincrono_formador.formador_colab?.email || null,
-                telefone: curso.curso_sincrono.sincrono_formador.formador_colab?.telefone || null,
-              }
-            } : null
-          } : null,
-        };
-      });
+      // Para cada curso, buscar a URL da capa
+      const cursosComCapa = await Promise.all(cursos.map(async (curso) => {
+        const cursoData = curso.toJSON();
+        const files = await ficheirosController.getAllFilesByAlbum(curso.curso_id, 'curso');
+        if (files && files.length > 0) {
+          cursoData.capaUrl = files[0].url;
+        }
+        return cursoData;
+      }));
 
-      res.json(cursos);
+      res.json(cursosComCapa);
     } catch (error) {
       console.error("Erro ao obter cursos:", error);
       res.status(500).json({ message: "Erro interno ao obter cursos" });
@@ -208,7 +229,7 @@ const controladorCursos = {
           formador_colab.telefone
         ORDER BY 
           numero_inscricoes DESC
-        LIMIT 3;
+        LIMIT 4;
       `, { type: QueryTypes.SELECT });
 
       // Query for top 3 asynchronous courses
@@ -269,7 +290,7 @@ const controladorCursos = {
           formador_colab.telefone
         ORDER BY 
           numero_inscricoes DESC
-        LIMIT 3;
+        LIMIT 4;
       `, { type: QueryTypes.SELECT });
 
       // Process synchronous courses
@@ -406,7 +427,7 @@ const controladorCursos = {
         });
       }
 
-      const curso = await models.curso.findByPk(id, {include: includes});
+      const curso = await models.curso.findByPk(id, { include: includes });
 
       res.json(curso);
     } catch (error) {
@@ -462,7 +483,17 @@ const controladorCursos = {
         attributes: ["curso_id", "titulo", "descricao", "tipo", "total_horas", "pendente", "nivel"],
       });
 
-      res.json(cursos);
+      // Adicionar capaUrl a cada curso
+      const cursosComCapa = await Promise.all(cursos.map(async (curso) => {
+        const cursoData = curso.toJSON();
+        const files = await ficheirosController.getAllFilesByAlbum(curso.curso_id, 'curso');
+        if (files && files.length > 0) {
+          cursoData.capaUrl = files[0].url;
+        }
+        return cursoData;
+      }));
+
+      res.json(cursosComCapa);
     } catch (error) {
       console.error("Erro ao obter cursos do formador:", error);
       res.status(500).json({ message: "Erro interno ao obter cursos do formador" });
@@ -489,7 +520,7 @@ const controladorCursos = {
             ]
           }
         ],
-        attributes: ["inscricao_id", "tipo_avaliacao", "nota", "data_certificado", "data_inscricao", "estado"]
+        attributes: ["inscricao_id", "nota", "data_certificado", "data_inscricao", "estado"]
       });
 
       // Transformar os dados para o formato desejado
@@ -497,7 +528,6 @@ const controladorCursos = {
         id: inscricao.inscricao_formando.formando_id,
         nome: inscricao.inscricao_formando.formando_colab.nome,
         email: inscricao.inscricao_formando.formando_colab.email,
-        tipo_avaliacao: inscricao.tipo_avaliacao,
         nota: inscricao.nota,
         data_certificado: inscricao.data_certificado,
         data_inscricao: inscricao.data_inscricao,
@@ -511,44 +541,120 @@ const controladorCursos = {
       });
     } catch (error) {
       console.error("Erro ao obter alunos inscritos:", error);
-      res.status(500).json({ 
-        success: false, 
-        message: "Erro interno ao obter alunos inscritos" 
+      res.status(500).json({
+        success: false,
+        message: "Erro interno ao obter alunos inscritos"
       });
     }
   },
 
   // Atualizar um curso pelo ID
   updateCurso: async (req, res) => {
+    console.log("Atualizar curso", req.body);
+    const t = await sequelizeConn.transaction();
     try {
       const { id } = req.params;
       const {
-        gestor_id,
         topico_id,
         tipo,
         total_horas,
+        titulo,
         descricao,
-        pendente,
+        certificado,
         nivel,
+        sincrono,
+        capa
       } = req.body;
 
       const curso = await models.curso.findByPk(id);
       if (!curso) {
+        await t.rollback();
         return res.status(404).json({ message: "Curso não encontrado" });
       }
 
+      // Atualizar dados básicos do curso
       await curso.update({
-        gestor_id,
         topico_id,
         tipo,
         total_horas,
+        titulo,
         descricao,
-        pendente,
-        nivel,
+        certificado,
+        nivel
+      }, { transaction: t });
+
+      // Se for do tipo S (Sincrono), atualizar ou criar entrada na tabela sincrono
+      if (tipo === "S" && sincrono) {
+        const cursoSincrono = await models.sincrono.findOne({
+          where: { curso_id: id }
+        });
+
+        const sincronoData = {
+          formador_id: sincrono.formador_id,
+          limite_vagas: sincrono.limite_vagas,
+          data_limite_inscricao: sincrono.data_limite_inscricao,
+          data_inicio: sincrono.data_inicio,
+          data_fim: sincrono.data_fim,
+          estado: sincrono.estado || false,
+          curso_id: id
+        };
+
+        if (cursoSincrono) {
+          await cursoSincrono.update(sincronoData, { transaction: t });
+        } else {
+          await models.sincrono.create(sincronoData, { transaction: t });
+        }
+      }
+      // Se for do tipo A (Assincrono), atualizar ou criar entrada na tabela assincrono
+      else if (tipo === "A") {
+        const cursoAssincrono = await models.assincrono.findOne({
+          where: { curso_id: id }
+        });
+
+        if (!cursoAssincrono) {
+          await models.assincrono.create({
+            curso_id: id
+          }, { transaction: t });
+        }
+      }
+
+      // Se vier imagem de capa, guardar como ficheiro associado ao curso
+      if (capa && capa.base64) {
+        await ficheirosController.adicionar(id, 'curso', [capa], req.user?.id || null);
+      }
+
+      await t.commit();
+
+      // procurar curso atualizado com todos os relacionamentos
+      const cursoAtualizado = await models.curso.findByPk(id, {
+        include: [
+          {
+            model: models.sincrono,
+            as: "curso_sincrono",
+            include: [
+              {
+                model: models.formador,
+                as: "sincrono_formador",
+                include: [
+                  {
+                    model: models.colaborador,
+                    as: "formador_colab",
+                    attributes: ["nome", "email", "telefone"]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            model: models.assincrono,
+            as: "curso_assincrono"
+          }
+        ]
       });
 
-      res.json({ message: "Curso atualizado com sucesso", curso });
+      res.json({ message: "Curso atualizado com sucesso", curso: cursoAtualizado });
     } catch (error) {
+      await t.rollback();
       console.error("Erro ao atualizar curso:", error);
       res.status(500).json({ message: "Erro interno ao atualizar curso" });
     }

@@ -1,0 +1,26 @@
+.custom-breadcrumb {
+    background-color: transparent;
+    padding: 0;
+    margin-bottom: 2rem;
+}
+
+.custom-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
+    content: "›";
+    font-size: 1.2rem;
+    line-height: 1;
+    color: #6c757d;
+}
+
+.custom-breadcrumb .breadcrumb-item a {
+    color: #416699;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.custom-breadcrumb .breadcrumb-item a:hover {
+    color: #3b96d3;
+}
+
+.custom-breadcrumb .breadcrumb-item.active {
+    color: #6c757d;
+} 

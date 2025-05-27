@@ -1,10 +1,11 @@
 const initModels = require("../models/init-models");
 const sequelizeConn = require("../bdConexao");
 const models = initModels(sequelizeConn);
+const { Sequelize } = require("sequelize");
 
 const controladorForuns = {
-// Criar novo fórum
-createForum: async (req, res) => {
+  // Criar novo fórum
+  createForum: async (req, res) => {
     const { topico_id, descricao } = req.body;
     try {
       const novoForum = await models.forum.create({ topico_id, descricao });
@@ -18,11 +19,49 @@ createForum: async (req, res) => {
   // Obter todos os fóruns
   getAllForums: async (req, res) => {
     try {
-      const forums = await models.forum.findAll();
-      res.json(forums);
+      const forums = await models.forum.findAll({
+        include: [
+          {
+            model: models.topico,
+            as: 'forum_topico',
+            include: [
+              {
+                model: models.area,
+                as: 'topico_area',
+                include: [
+                  {
+                    model: models.categoria,
+                    as: 'area_categoria'
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        where: {
+          pendente: false
+        }
+      });
+
+      if (!forums || forums.length === 0) {
+        return res.status(200).json([]);
+      }
+
+      // Transform the data structure
+      const result = forums.map(forum => {
+        const forumJSON = forum.toJSON();
+
+        // Ensure counts are numbers
+        forumJSON.thread_count = 0;
+        forumJSON.participant_count = 0;
+
+        return forumJSON;
+      });
+
+      res.json(result);
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: "Erro ao buscar fóruns" });
+      res.status(500).json({ message: "Erro ao procurar fóruns" });
     }
   },
 
@@ -38,7 +77,7 @@ createForum: async (req, res) => {
       res.json(forum);
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: "Erro ao buscar fórum" });
+      res.status(500).json({ message: "Erro ao procurar fórum" });
     }
   },
 

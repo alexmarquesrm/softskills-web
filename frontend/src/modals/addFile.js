@@ -26,6 +26,33 @@ const ModalAdicionarFicheiro = ({
   const [ficheirosCarregados, setFicheirosCarregados] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [feedbackMsg, setFeedbackMsg] = useState({ show: false, message: '', type: '' });
+  const [secoes, setSecoes] = useState([]);
+
+  // Adicionar useEffect para carregar as seções existentes quando o modal abrir
+  useEffect(() => {
+    const fetchSecoes = async () => {
+      if (show && courseId) {
+        try {
+          const token = sessionStorage.getItem('token');
+          const response = await axios.get(`/material/curso/${courseId}/materiais`, {
+            headers: { Authorization: `${token}` }
+          });
+
+          if (response.data.success) {
+            // Extrair seções únicas dos materiais
+            const secoesUnicas = [...new Set(response.data.data
+              .map(material => material.secao)
+              .filter(secao => secao && secao !== 'Sem Seção'))];
+            setSecoes(secoesUnicas);
+          }
+        } catch (err) {
+          console.error('Erro ao carregar seções:', err);
+        }
+      }
+    };
+
+    fetchSecoes();
+  }, [show, courseId]);
 
   // Redefine o tipo de ficheiro quando os tipos permitidos mudam
   useEffect(() => {
@@ -186,10 +213,10 @@ const ModalAdicionarFicheiro = ({
     }
 
     // Validação específica por tipo
-    if (tipoFicheiro === 'trabalho' && ficheirosCarregados.length === 0) {
+    if (tipoFicheiro !== 'entrega' && ficheirosCarregados.length === 0) {
       setFeedbackMsg({
         show: true,
-        message: 'Por favor, carregue o arquivo do trabalho.',
+        message: 'Por favor, carregue pelo menos um arquivo.',
         type: 'danger'
       });
       return;
@@ -208,27 +235,24 @@ const ModalAdicionarFicheiro = ({
       setUploading(true);
       const token = sessionStorage.getItem('token');
       
-      // Preparar os arquivos para upload (apenas se for trabalho)
-      let filesData = [];
-      if (tipoFicheiro === 'trabalho') {
-        const filesPromises = ficheirosCarregados.map(file => {
-          return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-              const base64 = reader.result.split(',')[1];
-              resolve({
-                nome: file.name,
-                base64: base64,
-                tamanho: file.size
-              });
-            };
-            reader.onerror = reject;
-            reader.readAsDataURL(file);
-          });
+      // Preparar os arquivos para upload
+      const filesPromises = ficheirosCarregados.map(file => {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            const base64 = reader.result.split(',')[1];
+            resolve({
+              nome: file.name,
+              base64: base64,
+              tamanho: file.size
+            });
+          };
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
         });
-        
-        filesData = await Promise.all(filesPromises);
-      }
+      });
+      
+      const filesData = await Promise.all(filesPromises);
       
       // Preparar dados para a API
       const dadosEnvio = {
@@ -236,62 +260,36 @@ const ModalAdicionarFicheiro = ({
         descricao: formData.descricao || '',
         tipo: tipoFicheiro,
         dataEntrega: formData.dataentrega || null,
-        ficheiros: filesData
+        ficheiros: filesData,
+        secao: formData.secao || null
       };
       
       // Enviar para a API
       const response = await axios.post(`/material/curso/${courseId}/materiais`, dadosEnvio, {
         headers: { Authorization: `${token}` }
       });
-      
+
       if (response.data.success) {
-        // Se for um trabalho, perguntar se deseja criar a entrega
-        if (tipoFicheiro === 'trabalho') {
-          const criarEntrega = window.confirm('Deseja criar automaticamente a entrega correspondente a este trabalho?');
-          
-          if (criarEntrega) {
-            const entregaData = {
-              titulo: `Entrega: ${formData.titulo}`,
-              descricao: formData.descricao || '',
-              tipo: 'entrega',
-              dataEntrega: formData.dataentrega || null,
-              ficheiros: [] // Entrega começa sem arquivos
-            };
-
-            try {
-              await axios.post(`/material/curso/${courseId}/materiais`, entregaData, {
-                headers: { Authorization: `${token}` }
-              });
-            } catch (error) {
-              console.error('Erro ao criar entrega automática:', error);
-              // Não interrompe o fluxo se falhar ao criar a entrega
-            }
-          }
-        }
-
         setFeedbackMsg({
           show: true,
           message: 'Material adicionado com sucesso!',
           type: 'success'
         });
         
+        // Limpar formulário e fechar modal após sucesso
+        limparFormulario();
         if (onUploadSuccess) {
-          onUploadSuccess(response.data.data);
+          onUploadSuccess();
         }
-        
-        // Fechar modal após um breve delay
-        setTimeout(() => {
-          limparFormulario();
-          handleClose();
-        }, 1500);
+        handleClose();
       } else {
         throw new Error(response.data.message || 'Erro ao adicionar material');
       }
-    } catch (error) {
-      console.error('Erro ao adicionar material:', error);
+    } catch (err) {
+      console.error('Erro ao adicionar material:', err);
       setFeedbackMsg({
         show: true,
-        message: error.response?.data?.message || 'Erro ao adicionar material. Tente novamente.',
+        message: err.message || 'Erro ao adicionar material. Tente novamente.',
         type: 'danger'
       });
     } finally {
@@ -395,6 +393,40 @@ const ModalAdicionarFicheiro = ({
           </Row>
 
           <Row className="mb-4">
+            <Col md={12}>
+              <Form.Group>
+                <Form.Label className="fw-bold">Seção</Form.Label>
+                <div className="d-flex align-items-center gap-2">
+                  <Form.Select
+                    name="secao"
+                    value={secoes.includes(formData.secao) ? formData.secao : ''}
+                    onChange={handleChange}
+                    style={{ width: '200px' }}
+                  >
+                    <option value="">Nova seção</option>
+                    {secoes.map((secao, index) => (
+                      <option key={index} value={secao}>{secao}</option>
+                    ))}
+                  </Form.Select>
+                  {(!secoes.includes(formData.secao)) && (
+                    <Form.Control
+                      type="text"
+                      placeholder="Nome da nova seção"
+                      name="secao"
+                      value={formData.secao || ''}
+                      onChange={handleChange}
+                      style={{ flex: 1 }}
+                    />
+                  )}
+                </div>
+                <Form.Text className="text-muted">
+                  Selecione uma seção existente ou digite o nome de uma nova seção
+                </Form.Text>
+              </Form.Group>
+            </Col>
+          </Row>
+
+          <Row className="mb-4">
             <InputField 
               label="Descrição" 
               type="textarea" 
@@ -408,8 +440,8 @@ const ModalAdicionarFicheiro = ({
             />
           </Row>
 
-          {/* Upload de Arquivos - Mostrar apenas para trabalho */}
-          {tipoFicheiro === 'trabalho' && (
+          {/* Upload de Arquivos - Mostrar para todos os tipos exceto entrega */}
+          {tipoFicheiro !== 'entrega' && (
             <Row className="mb-4">
               <Col md={12}>
                 <Form.Label className="fw-bold mb-2">Upload de Arquivo</Form.Label>

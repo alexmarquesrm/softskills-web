@@ -23,10 +23,6 @@ module.exports = function(sequelize, DataTypes) {
         key: 'curso_id'
       }
     },
-    tipo_avaliacao: {
-      type: DataTypes.TEXT,
-      allowNull: true
-    },
     nota: {
       type: DataTypes.DOUBLE,
       allowNull: true,

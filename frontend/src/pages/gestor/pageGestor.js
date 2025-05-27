@@ -14,12 +14,14 @@ import {
   Clock
 } from 'react-bootstrap-icons';
 import "./pageGestor.css";
+import WelcomeNotification from "../../components/notifications/WelcomeNotification";
 
 export default function PaginaGestor() {
   const [tableRows, setTableRows] = useState([]);
   const [pedidos, setPedidos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [saudacao, setSaudacao] = useState('');
   const nome = sessionStorage.getItem('nome');
 
   const formatDate = (date) => {
@@ -131,22 +133,58 @@ export default function PaginaGestor() {
       setLoading(false);
     }
   };
-  
+
+  const fetchSaudacao = async () => {
+    try {
+      const token = sessionStorage.getItem('token');
+      const response = await axios.get('/colaborador/saudacao', {
+        headers: { Authorization: `${token}` }
+      });
+      setSaudacao(response.data.saudacao);
+    } catch (error) {
+      console.error('Erro ao obter saudação:', error);
+    }
+  };
+
   useEffect(() => {
     fetchDataDenun();
     fetchDataPedidos();
+    fetchSaudacao();
   }, []);
 
   const filteredPedido = useMemo(() => {
     if (pedidos.length === 0) return [];
     
-    return pedidos.filter(pedido => pedido.ped_curso.pendente === true);
-
+    return pedidos.filter(pedido => {
+      if (pedido.tipo === 'CURSO') {
+        return pedido.ped_curso?.pendente === true;
+      } else if (pedido.tipo === 'FORUM') {
+        return pedido.ped_forum?.pendente === true;
+      }
+      return false;
+    }).sort((a, b) => new Date(b.data) - new Date(a.data));
   }, [pedidos]);
   
-  const renderPedidoCard = (pedido, index) => (
-    <CardPedido index={index} pedido={pedido} />
-  );
+  const renderPedidoCard = (pedido, index) => {
+    if (!pedido) return null;
+    
+    return (
+      <CardPedido 
+        key={pedido.pedido_id || index}
+        pedido={{
+          ...pedido,
+          titulo: pedido.tipo === 'CURSO' ? pedido.ped_curso?.titulo : pedido.ped_forum?.descricao,
+          formador: pedido.ped_colaborador?.nome,
+          tipo: pedido.tipo,
+          tipoLabel: pedido.tipo === 'CURSO' ? 'Curso' : 'Fórum',
+          data: pedido.data
+        }}
+        index={index}
+        showFormador={true}
+        showTimeAgo={true}
+      />
+    );
+  };
 
   if (error) {
     return (
@@ -165,10 +203,11 @@ export default function PaginaGestor() {
 
   return (
     <Container fluid className="gestor-container">
+      <WelcomeNotification />
       <div className="page-header">
         <div className="page-header-content">
           <h1 className="page-title">Visão Geral</h1>
-          <p className="page-subtitle">Bem-vindo, <span className="user-name">{nome}</span></p>
+          <p className="page-subtitle">{saudacao}, <span className="user-name">{nome}</span></p>
         </div>
         <div className="page-actions">
           <button className="btn action-btn">
@@ -272,7 +311,7 @@ export default function PaginaGestor() {
               <p>Carregando pedidos...</p>
             </div>
           ) : filteredPedido.length > 0 ? (
-            <CardRow dados={[...filteredPedido].sort((a, b) => new Date(b.data) - new Date(a.data))} renderCard={renderPedidoCard} scrollable={true} />
+            <CardRow dados={filteredPedido} renderCard={renderPedidoCard} scrollable={true} />
           ) : (
             <div className="empty-state">
               <FileEarmarkText size={40} className="empty-icon" />

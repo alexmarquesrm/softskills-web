@@ -3,14 +3,15 @@ import Card from 'react-bootstrap/Card';
 import { Calendar2, Person, Bookmark, Clock } from 'react-bootstrap-icons';
 import "./cardPedido.css";
 
-function CardPedido({ pedido = null, curso = null, index }) {
+function CardPedido({ pedido = null, index, showFormador = false, showTimeAgo = false }) {
   const formatDate = (date) => {
-    if (!date || date === 'Indefenido') return 'Indefinido';
+    if (!date) return 'Indefinido';
     const data = new Date(date);
+    if (isNaN(data.getTime())) return 'Indefinido';
     const dia = String(data.getDate()).padStart(2, '0');
-    const mes = String(data.getMonth() + 1).padStart(2, '0'); // Janeiro é 0
+    const mes = String(data.getMonth() + 1).padStart(2, '0');
     const ano = data.getFullYear();
-    return `${dia}/${mes}/${ano}`;
+    return `${dia}-${mes}-${ano}`;
   };
 
   const variants = [
@@ -21,45 +22,52 @@ function CardPedido({ pedido = null, curso = null, index }) {
   ];
   const currentVariant = variants[index % variants.length];
 
-  const getDaysAgo = (date) => {
-    if (!date || date === 'Indefenido') return null;
-    const pedidoDate = new Date(date);
-    const today = new Date();
-    const diffTime = Math.abs(today - pedidoDate);
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    if (diffDays === 0) return 'Hoje';
-    if (diffDays === 1) return 'Ontem';
-    return `${diffDays} dias atrás`;
+  const getTimeStatus = (date) => {
+    if (!date) return null;
+    const dataInicio = new Date(date);
+    if (isNaN(dataInicio.getTime())) return null;
+    
+    const hoje = new Date();
+    
+    // Compara data e hora completa
+    if (dataInicio < hoje) return null; // Não mostra se já passou
+    
+    // Calcula diferença em dias
+    const diffTime = dataInicio - hoje;
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (showTimeAgo) {
+      // Para o gestor: mostra há quanto tempo foi feito o pedido
+      if (diffDays < 0) return `${Math.abs(diffDays)} dias atrás`;
+      if (diffDays === 0) return 'Hoje';
+      if (diffDays === 1) return 'Ontem';
+      return `${diffDays} dias atrás`;
+    } else {
+      // Para o formador: mostra quanto tempo falta para começar
+      if (diffDays === 0) {
+        // Se for hoje, verifica a hora
+        const diffHoras = Math.floor((diffTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        if (diffHoras === 0) {
+          const diffMinutos = Math.floor((diffTime % (1000 * 60 * 60)) / (1000 * 60));
+          return `Começa em ${diffMinutos} minutos`;
+        }
+        return `Começa em ${diffHoras} horas`;
+      }
+      if (diffDays === 1) return 'Começa amanhã';
+      return `Faltam ${diffDays} dias`;
+    }
   };
 
-  const getDaysUntil = (date) => {
-    if (!date || date === 'Indefenido') return null;
-    const targetDate = new Date(date);
-    const today = new Date();
+  if (!pedido) return null;
 
-    targetDate.setHours(0, 0, 0, 0);
-    today.setHours(0, 0, 0, 0);
+  const titulo = pedido.titulo || 'N/A';
+  const formador = pedido.formador || 'N/A';
+  const data = formatDate(pedido.data);
+  const timeStatus = getTimeStatus(pedido.data);
+  const tipoLabel = pedido.tipoLabel || 'N/A';
 
-    const diffTime = targetDate - today;
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-    if (diffDays < 0) return 'Já começou';
-    if (diffDays === 0) return 'Começa hoje';
-    if (diffDays === 1) return 'Começa amanhã';
-    return `Começa em ${diffDays} dias`;
-  };
-
-  // Detectar se é um pedido ou curso
-  const isPedido = !!pedido;
-  const titulo = isPedido
-    ? pedido?.ped_curso?.titulo ?? 'N/A'
-    : curso?.titulo ?? 'N/A';
-  const formador = isPedido
-    ? pedido?.ped_formador?.formador_colab?.nome ?? 'N/A'
-    : curso?.curso_sincrono?.[0]?.sincrono_formador?.formador_colab?.nome ?? 'N/A';
-  const dataRaw = isPedido ? pedido?.data : curso?.curso_sincrono?.data_inicio;
-  const data = formatDate(dataRaw);
-  const daysAgo = isPedido ? getDaysAgo(dataRaw) : getDaysUntil(dataRaw);
+  // Para o formador: não renderiza se o curso já começou ou se não tem status
+  if (!showTimeAgo && !timeStatus) return null;
 
   return (
     <Card className="card-pedido">
@@ -69,13 +77,21 @@ function CardPedido({ pedido = null, curso = null, index }) {
           <div className="card-icon" style={{ backgroundColor: currentVariant.light, color: currentVariant.bg }}>
             <Bookmark />
           </div>
-          <h5 className="card-title descricao-limitada" title={titulo}>
-            {titulo}
-          </h5>
+          <div className="card-title-container">
+            <h5 className="card-title descricao-limitada" title={titulo}>
+              {titulo}
+            </h5>
+            <span className="tipo-badge" style={{ 
+              backgroundColor: pedido.tipo === 'CURSO' ? '#10B981' : '#6366F1',
+              color: 'white'
+            }}>
+              {tipoLabel}
+            </span>
+          </div>
         </div>
 
         <div className="card-info">
-          {isPedido && (
+          {showFormador && (
             <div className="info-item">
               <Person className="info-icon" />
               <span className="descricao-limitada" title={formador}>
@@ -85,12 +101,12 @@ function CardPedido({ pedido = null, curso = null, index }) {
           )}
           <div className="info-item">
             <Calendar2 className="info-icon" />
-            <span>{data}</span>
+            <span>Início: {data}</span>
           </div>
-          {daysAgo && (
+          {timeStatus && (
             <div className="days-ago" style={{ backgroundColor: currentVariant.light, color: currentVariant.accent }}>
               <Clock className="days-icon" />
-              <span>{daysAgo}</span>
+              <span>{timeStatus}</span>
             </div>
           )}
         </div>
@@ -98,6 +114,5 @@ function CardPedido({ pedido = null, curso = null, index }) {
     </Card>
   );
 }
-
 
 export default CardPedido;

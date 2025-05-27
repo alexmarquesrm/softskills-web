@@ -4,7 +4,8 @@ module.exports = function(sequelize, DataTypes) {
     quizz_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      primaryKey: true
+      primaryKey: true,
+      autoIncrement: true
     },
     curso_id: {
       type: DataTypes.INTEGER,
@@ -26,13 +27,9 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.TEXT,
       allowNull: false
     },
-    tipo: {
-      type: DataTypes.TEXT,
+    nota: {
+      type: DataTypes.FLOAT,
       allowNull: true
-    },
-    limite_tempo: {
-      type: DataTypes.INTEGER,
-      allowNull: false
     }
   }, {
     sequelize,

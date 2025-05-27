@@ -2,6 +2,7 @@ const Sequelize = require("sequelize");
 const initModels = require("../models/init-models");
 const sequelizeConn = require("../bdConexao");
 const models = initModels(sequelizeConn);
+const ficheirosController = require('./ficheiros');
 
 const controladorThreads = {
   // Criar uma nova thread
@@ -26,26 +27,19 @@ const controladorThreads = {
             as: 'threads_forum',
           },
           {
-            model: models.credenciais,
-            as: 'user',
-            include: [
-              {
-                model: models.colaborador,
-                as: 'credenciais_colaborador',
-                attributes: ['colaborador_id', 'nome', 'email', 'idade', 'cargo', 'departamento', 'telefone', 'score'],
-              },
-            ],
+            model: models.colaborador,
+            as: 'colab_threads',
           },
           {
             model: models.threads_avaliacao,
-            as: 'threads_avaliacaos',
+            as: 'thread_threads_ava_',
             attributes: [],
           },
         ],
         attributes: {
           include: [
             [
-              Sequelize.fn('COUNT', Sequelize.col('threads_avaliacaos.thread_id')),
+              Sequelize.fn('COUNT', Sequelize.col('thread_threads_ava_.thread_id')),
               'voto_count',
             ],
           ],
@@ -53,41 +47,28 @@ const controladorThreads = {
         group: [
           'threads.thread_id',
           'threads_forum.forum_id',
-          'user.credencial_id',
-          'user.credenciais_colaborador.colaborador_id'
+          'colab_threads.colaborador_id'
         ],
       });
   
       if (!threads || threads.length === 0) {
-        return res.status(404).json({ message: 'Threads não encontradas' });
+        return res.status(200).json([]);
       }
   
-      // Manipula o retorno para incluir 'user_id' e mover 'credenciais_colaborador' para a estrutura correta
+      // Transform the data structure
       const result = threads.map(thread => {
         const threadJSON = thread.toJSON();
-  
-        // Adiciona o 'user_id' diretamente no resultado
-        threadJSON.user_id = threadJSON.user.credencial_id;
-  
-        // Mover 'credenciais_colaborador' para baixo de 'user_id'
-        threadJSON.user_id = {
-          ...threadJSON.user_id,
-          credenciais_colaborador: threadJSON.user.credenciais_colaborador,
+        
+        // Create user object with colaborador data
+        threadJSON.user = {
+          colaborador_id: threadJSON.colab_threads.colaborador_id,
+          nome: threadJSON.colab_threads.nome,
+          cargo: threadJSON.colab_threads.cargo,
+          departamento: threadJSON.colab_threads.departamento
         };
-  
-        // Adiciona o count de votos
-        threadJSON.voto_count = threadJSON.voto_count || 0;  // Se não houver votos, define como 0
-  
-        // Remove os campos desnecessários
-        delete threadJSON.user.credencial_id;
-        delete threadJSON.user.credenciais_colaborador;
-        delete threadJSON.user;
-        delete threadJSON.user_id.credenciais_colaborador.email;
-        delete threadJSON.user_id.credenciais_colaborador.idade;
-        delete threadJSON.user_id.credenciais_colaborador.cargo;
-        delete threadJSON.user_id.credenciais_colaborador.departamento;
-        delete threadJSON.user_id.credenciais_colaborador.telefone;
-        delete threadJSON.user_id.credenciais_colaborador.score;
+
+        // Remove the original colab_threads object
+        delete threadJSON.colab_threads;
   
         return threadJSON;
       });
@@ -111,53 +92,50 @@ const controladorThreads = {
             model: models.forum,
             as: 'threads_forum',
             include: [
-                {
-                  model: models.topico,
-                  as: 'forum_topico',
-                  include: [
-                    {
-                      model: models.area,
-                      as: 'topico_area',
-                      include: [
-                        {
-                          model: models.categoria,
-                          as: 'area_categoria',
-                        }
-                      ]
-                    }
-                  ]
-                }
-              ]
+              {
+                model: models.topico,
+                as: 'forum_topico',
+                include: [
+                  {
+                    model: models.area,
+                    as: 'topico_area',
+                    include: [
+                      {
+                        model: models.categoria,
+                        as: 'area_categoria',
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
           },
           {
-            model: models.credenciais,
-            as: 'user',
-            include: [
-                {
-                    model: models.colaborador,
-                    as: 'credenciais_colaborador',
-                }
-            ],
+            model: models.colaborador,
+            as: 'colab_threads',
           },
           {
             model: models.threads_avaliacao,
-            as: 'threads_avaliacaos',
+            as: 'thread_threads_ava_',
             attributes: [],
           },
         ],
         attributes: {
           include: [
             [
-              Sequelize.fn('COUNT', Sequelize.col('threads_avaliacaos.thread_id')),
-              'voto_count',
+              Sequelize.literal(`SUM(CASE WHEN thread_threads_ava_.vote = 1 THEN 1 ELSE 0 END)`),
+              'votos_positivos',
+            ],
+            [
+              Sequelize.literal(`SUM(CASE WHEN thread_threads_ava_.vote = -1 THEN 1 ELSE 0 END)`),
+              'votos_negativos',
             ],
           ],
         },
         group: [
           'threads.thread_id',
           'threads_forum.forum_id',
-          'user.credencial_id',
-          'user.credenciais_colaborador.colaborador_id',
+          'colab_threads.colaborador_id',
           'threads_forum.forum_topico.topico_id',
           'threads_forum.forum_topico.topico_area.area_id',
           'threads_forum.forum_topico.topico_area.area_categoria.categoria_id'
@@ -168,26 +146,21 @@ const controladorThreads = {
         return res.status(404).json({ message: "Thread não encontrada" });
       }
   
-    const result = thread.toJSON();
-    result.user_id = result.user.credencial_id;  // Adiciona o 'user_id' diretamente no resultado
-
-    // Move 'credenciais_colaborador' para baixo de 'user_id'
-    result.user_id = {
-      ...result.user_id,
-      credenciais_colaborador: result.user.credenciais_colaborador // Mova diretamente
-    };
-
-    // Remove os campos desnecessários
-    delete result.user.credencial_id;
-    delete result.user.credenciais_colaborador;
-    delete result.user;
-    delete result.user_id.credenciais_colaborador.email;
-    delete result.user_id.credenciais_colaborador.idade;
-    delete result.user_id.credenciais_colaborador.cargo;
-    delete result.user_id.credenciais_colaborador.departamento;
-    delete result.user_id.credenciais_colaborador.telefone;
-    delete result.user_id.credenciais_colaborador.score;
-
+      const result = thread.toJSON();
+      result.user = {
+        colaborador_id: result.colab_threads?.colaborador_id,
+        nome: result.colab_threads?.nome,
+        cargo: result.colab_threads?.cargo,
+        departamento: result.colab_threads?.departamento
+      };
+      // Buscar foto de perfil
+      if (result.user.colaborador_id) {
+        const files = await ficheirosController.getFilesFromBucketOnly(result.user.colaborador_id, 'colaborador');
+        if (files && files.length > 0) {
+          result.user.fotoPerfilUrl = files[0].url;
+        }
+      }
+      delete result.colab_threads;
       res.json(result);
     } catch (error) {
       console.error(error);

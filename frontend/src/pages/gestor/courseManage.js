@@ -1,14 +1,15 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { Container, Row, Col, Spinner } from "react-bootstrap";
-import { Book, AlertCircle} from 'react-feather';
+import { Container, Row, Col, Spinner, Pagination } from "react-bootstrap";
+import { Book, AlertCircle } from 'react-feather';
 import axios from "../../config/configAxios";
-import { FaRegSave } from "react-icons/fa";
+import { IoMdAdd } from "react-icons/io";
 import { useNavigate } from 'react-router-dom';
 /* COMPONENTES */
 import FeaturedCourses from "../../components/cards/cardCourses";
 import SearchBar from '../../components/textFields/search';
 import Filtros from '../../components/filters/filtros';
-import Adicionar from "../../components/buttons/saveButton";
+import { filtrarCursosOuInscricoes } from '../../utils/filtrarCursos';
+
 /* CSS */
 import './percursoFormativo.css';
 
@@ -18,11 +19,16 @@ export default function CourseManage() {
     const [searchTerm, setSearchTerm] = useState('');
     const tipoUser = sessionStorage.getItem('tipo');
     const [tipoSelecionado, setTipoSelecionado] = useState({ S: false, A: false });
-    const [estadoSelecionado, setEstadoSelecionado] = useState({ emCurso: false, terminado: false });
+    const [certSelecionado, setCertSelecionado] = useState({ C: false, S: false });
+    const [estadoSelecionado, setEstadoSelecionado] = useState({ porComecar: false, emCurso: false, terminado: false });
+    const [dataSelecionada, setDataSelecionada] = useState({ inicio: '', fim: '' });
+    const [nivelSelecionado, setNivelSelecionado] = useState({ 1: false, 2: false, 3: false, 4: false });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isFiltersVisible, setIsFiltersVisible] = useState(true);
-    
+    const [currentPage, setCurrentPage] = useState(1);
+    const coursesPerPage = 8;
+
     const fetchData = async () => {
         try {
             const token = sessionStorage.getItem('token');
@@ -33,7 +39,7 @@ export default function CourseManage() {
             const cursos = response.data;
             setCurso(cursos);
         } catch (error) {
-            console.error("Erro ao buscar inscrições", error);
+            console.error("Erro ao procurar inscrições", error);
             setError("Não foi possível carregar as inscrições");
         } finally {
             setLoading(false);
@@ -44,55 +50,42 @@ export default function CourseManage() {
         fetchData();
     }, []);
 
-    // Memoizar inscrições filtradas para melhorar desempenho
+    // Memorizar inscrições filtradas para melhorar desempenho
     const filteredInscricoes = useMemo(() => {
-        if (curso.length === 0) return [];
-
-        // Verificar se algum filtro está ativo
-        const anyTipoSelected = tipoSelecionado.S || tipoSelecionado.A;
-        const anyEstadoSelected = estadoSelecionado.emCurso || estadoSelecionado.terminado;
-
-        return curso.filter(item => {
-            // Filtrar por tipo de curso - só aplica se algum tipo estiver selecionado
-            if (anyTipoSelected) {
-                if (item?.tipo === 'S' && !tipoSelecionado.S) return false;
-                if (item?.tipo === 'A' && !tipoSelecionado.A) return false;
-            }
-
-            // Filtrar por estado - só aplica se algum estado estiver selecionado
-             if (anyEstadoSelected) {
-                if (!item.curso_sincrono?.estado && !estadoSelecionado.emCurso) return false;
-                if (item.curso_sincrono?.estado && !estadoSelecionado.terminado) return false;
-            } 
-
-            // Filtrar por termo de pesquisa
-            if (searchTerm.trim() !== '') {
-                const searchLower = searchTerm.toLowerCase();
-                return (
-                    item?.titulo?.toLowerCase().includes(searchLower) ||
-                    item.descricao?.toLowerCase().includes(searchLower) ||
-                    (item?.curso_sincrono?.formador?.colaborador?.nome?.toLowerCase().includes(searchLower))
-                );
-            }
-
-            return true;
+        return filtrarCursosOuInscricoes({
+            dados: curso,
+            tipoSelecionado,
+            certSelecionado,
+            estadoSelecionado,
+            dataSelecionada,
+            nivelSelecionado,
+            searchTerm,
+            modo: 'curso'
         });
-    }, [curso, tipoSelecionado, estadoSelecionado, searchTerm]);
+    }, [curso, tipoSelecionado, estadoSelecionado, dataSelecionada, nivelSelecionado, searchTerm]);
 
-    // Stats
     const stats = useMemo(() => {
         if (curso.length === 0) return { total: 0, emCurso: 0, terminados: 0 };
 
-        const total = curso.length;
+        const total = curso.filter(item => !(item.pendente)).length;
         const terminados = curso.filter(item => item.curso_sincrono?.estado).length;
-        const emCurso = total - terminados;
+        const porComecar = curso.filter(item => {
+            const estado = item.curso_sincrono?.estado === false;
+            const dataInicio = new Date(item.curso_sincrono?.data_inicio);
+            const dataAtual = new Date();
+            return estado && dataInicio > dataAtual;
+        }).length;
+
+        const emCurso = total - terminados - porComecar;
 
         return { total, emCurso };
     }, [curso]);
 
-    const renderCourseCard = (curso, index) => (
-        <FeaturedCourses key={curso.curso_id || index} curso={curso} mostrarBotao={true} />
-    );
+    const renderCourseCard = (curso, index) => {
+        return (
+            <FeaturedCourses key={curso.curso_id || index} curso={curso} mostrarBotao={true} mostrarBotaoEdit={true} />
+        );
+    };
 
     const handleSearchChange = (event) => {
         setSearchTerm(event.target.value);
@@ -106,18 +99,30 @@ export default function CourseManage() {
         setIsFiltersVisible(!isFiltersVisible);
     };
 
-    // Função para limpar filtros modificada
     const clearFilters = () => {
         setTipoSelecionado({ S: false, A: false });
-        setEstadoSelecionado({ emCurso: false, terminado: false });
+        setCertSelecionado({ C: false, S: false });
+        setEstadoSelecionado({ porComecar: false, emCurso: false, terminado: false });
+        setDataSelecionada({ inicio: '', fim: '' });
+        setNivelSelecionado({ 1: false, 2: false, 3: false, 4: false });
         setSearchTerm('');
     };
 
-    // Função para tratar a navegação do botão "Adicionar Curso"
     const handleAddCourse = () => {
         if (tipoUser === "Gestor") {
             navigate('/gestor/cursos/add');
         }
+    };
+
+    // Pagination logic
+    const indexOfLastCourse = currentPage * coursesPerPage;
+    const indexOfFirstCourse = indexOfLastCourse - coursesPerPage;
+    const currentCourses = filteredInscricoes.slice(indexOfFirstCourse, indexOfLastCourse);
+    const totalPages = Math.ceil(filteredInscricoes.length / coursesPerPage);
+
+    const handlePageChange = (pageNumber) => {
+        setCurrentPage(pageNumber);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     if (loading) {
@@ -181,8 +186,17 @@ export default function CourseManage() {
                         <Filtros
                             tipoSelecionado={tipoSelecionado}
                             setTipoSelecionado={setTipoSelecionado}
+                            certSelecionado={certSelecionado}
+                            setCertSelecionado={setCertSelecionado}
                             estadoSelecionado={estadoSelecionado}
                             setEstadoSelecionado={setEstadoSelecionado}
+                            dataSelecionada={dataSelecionada}
+                            setDataSelecionada={setDataSelecionada}
+                            nivelSelecionado={nivelSelecionado}
+                            setNivelSelecionado={setNivelSelecionado}
+                            mostrarTipo={true}
+                            mostrarEstado={true}
+                            mostrarData={true}
                         />
                     </Col>
 
@@ -197,14 +211,7 @@ export default function CourseManage() {
                                 )}
                             </div>
 
-                            <div className="search-container" style={{display: "flex", alignItems: "center", gap: "0.5rem"}}>
-                                {tipoUser === "Gestor" && (
-                                    <Adicionar
-                                        text={"Novo Curso"}
-                                        onClick={handleAddCourse}
-                                        Icon={FaRegSave}
-                                    />
-                                )}
+                            <div className="search-container">
                                 <SearchBar
                                     searchTerm={searchTerm}
                                     handleSearchChange={handleSearchChange}
@@ -216,11 +223,62 @@ export default function CourseManage() {
 
                         <div className="courses-container">
                             {filteredInscricoes.length > 0 ? (
-                                <div className="courses-grid">
-                                    {filteredInscricoes.map((item, index) =>
-                                        renderCourseCard(item, index)
+                                <>
+                                    <div className="courses-grid">
+                                        {currentCourses.map((item, index) =>
+                                            renderCourseCard(item, index)
+                                        )}
+                                    </div>
+                                    {totalPages > 1 && (
+                                        <div className="pagination-container">
+                                            <Pagination>
+                                                <Pagination.First 
+                                                    onClick={() => handlePageChange(1)} 
+                                                    disabled={currentPage === 1}
+                                                />
+                                                <Pagination.Prev 
+                                                    onClick={() => handlePageChange(currentPage - 1)} 
+                                                    disabled={currentPage === 1}
+                                                />
+                                                
+                                                {[...Array(totalPages)].map((_, index) => {
+                                                    const pageNumber = index + 1;
+                                                    // Show first page, last page, current page, and pages around current page
+                                                    if (
+                                                        pageNumber === 1 ||
+                                                        pageNumber === totalPages ||
+                                                        (pageNumber >= currentPage - 1 && pageNumber <= currentPage + 1)
+                                                    ) {
+                                                        return (
+                                                            <Pagination.Item
+                                                                key={pageNumber}
+                                                                active={pageNumber === currentPage}
+                                                                onClick={() => handlePageChange(pageNumber)}
+                                                            >
+                                                                {pageNumber}
+                                                            </Pagination.Item>
+                                                        );
+                                                    } else if (
+                                                        pageNumber === currentPage - 2 ||
+                                                        pageNumber === currentPage + 2
+                                                    ) {
+                                                        return <Pagination.Ellipsis key={pageNumber} disabled />;
+                                                    }
+                                                    return null;
+                                                })}
+
+                                                <Pagination.Next 
+                                                    onClick={() => handlePageChange(currentPage + 1)} 
+                                                    disabled={currentPage === totalPages}
+                                                />
+                                                <Pagination.Last 
+                                                    onClick={() => handlePageChange(totalPages)} 
+                                                    disabled={currentPage === totalPages}
+                                                />
+                                            </Pagination>
+                                        </div>
                                     )}
-                                </div>
+                                </>
                             ) : (
                                 <div className="no-courses">
                                     <AlertCircle size={36} className="mb-3" />
@@ -234,6 +292,13 @@ export default function CourseManage() {
                     </Col>
                 </Row>
             </Container>
+
+            {/* Botão flutuante para adicionar novo curso */}
+            {tipoUser === "Gestor" && (
+                <button className="floating-add-button" onClick={handleAddCourse} title="Adicionar Curso">
+                    <IoMdAdd size={24} />
+                </button>
+            )}
         </div>
     );
 }

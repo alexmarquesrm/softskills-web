@@ -17,6 +17,16 @@ const sincronosRoutes = require("./routes/sincronosRoutes");
 const pedidosRoutes = require("./routes/pedidosRoutes");
 const inscricoesRoutes = require("./routes/inscricoesRoutes");
 const materiaisRoutes = require("./routes/materialsRoutes");
+const comentariosRoutes = require("./routes/comentariosRoutes");
+const notificacaoRoutes = require('./routes/notificacaoRoutes');
+const avaliacaoFormadorRoutes = require('./routes/avaliacao_formador.routes');
+const departamentosRoutes = require('./routes/departamentosRoutes');
+const funcoesRoutes = require('./routes/funcoesRoutes');
+const trabalhosRoutes = require('./routes/trabalhosRoutes');
+const quizzRoutes = require('./routes/quizz');
+
+// Importar o cron job de notificações
+require('./cron/notificationCron');
 
 // Use CORS middleware
 app.use(cors({
@@ -38,12 +48,21 @@ app.use("/forum", authenticate, forumRoutes);
 app.use("/thread", authenticate, threadsRoutes);
 app.use("/threadsAva", authenticate, threadsAvaRoutes);
 app.use("/denuncia", authenticate, threadsDenRoutes);
+app.use("/comentario", authenticate, comentariosRoutes);
 app.use("/curso", cursosRoutes);
 app.use("/sincrono", authenticate, sincronosRoutes);
 app.use("/pedido", authenticate, pedidosRoutes);
 app.use("/inscricao", authenticate, inscricoesRoutes);
 app.use("/material", materiaisRoutes);
+app.use('/notificacao', notificacaoRoutes);
+app.use('/avaliacao-formador', avaliacaoFormadorRoutes);
+app.use('/departamento', departamentosRoutes);
+app.use('/funcao', funcoesRoutes);
+app.use('/trabalhos', authenticate, trabalhosRoutes);
+app.use('/quizz', quizzRoutes);
 
 app.listen(8000, () => {
   console.log("Servidor na porta 8000");
 });
+
+module.exports = app;

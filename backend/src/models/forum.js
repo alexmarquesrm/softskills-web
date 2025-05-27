@@ -1,6 +1,6 @@
 const Sequelize = require('sequelize');
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('forum', {
+  return sequelize.define('FORUM', {
     forum_id: {
       autoIncrement: true,
       type: DataTypes.INTEGER,
@@ -18,6 +18,16 @@ module.exports = function(sequelize, DataTypes) {
     descricao: {
       type: DataTypes.TEXT,
       allowNull: false
+    },
+    aprovado: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false
+    },
+    pendente: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: true
     }
   }, {
     sequelize,
@@ -31,7 +41,7 @@ module.exports = function(sequelize, DataTypes) {
         fields: [
           { name: "forum_id" },
         ]
-      },
+      }
     ]
   });
 };

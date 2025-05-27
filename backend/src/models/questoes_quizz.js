@@ -4,7 +4,8 @@ module.exports = function(sequelize, DataTypes) {
     questao_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      primaryKey: true
+      primaryKey: true,
+      autoIncrement: true
     },
     quizz_id: {
       type: DataTypes.INTEGER,

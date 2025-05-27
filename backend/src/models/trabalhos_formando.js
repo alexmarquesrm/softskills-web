@@ -1,6 +1,6 @@
 const Sequelize = require('sequelize');
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('trabalhos_formando', {
+  const trabalhos_formando = sequelize.define('trabalhos_formando', {
     formando_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -35,4 +35,17 @@ module.exports = function(sequelize, DataTypes) {
       },
     ]
   });
+
+  trabalhos_formando.associate = function(models) {
+    trabalhos_formando.belongsTo(models.formando, {
+      foreignKey: 'formando_id',
+      as: 'formando'
+    });
+    trabalhos_formando.belongsTo(models.trabalho, {
+      foreignKey: 'trabalho_id',
+      as: 'trabalho'
+    });
+  };
+
+  return trabalhos_formando;
 };
