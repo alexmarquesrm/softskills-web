@@ -24,7 +24,7 @@ export default function EditColab() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     primeiroNome: "", ultimoNome: "", username: "", dataNasc: "", email: "", telefone: "", departamento: "",
-    cargo: "", sobre_mim: "", novaPassword: "", confirmarPassword: "", fotoPerfilUrl: "", funcao_id: ""
+    cargo: "", sobre_mim: "", novaPassword: "", confirmarPassword: "", fotoPerfilUrl: "", funcao_id: "", especialidade: ""
   });
   
   // Keep original name for display until save
@@ -42,6 +42,7 @@ export default function EditColab() {
   const [imageSize, setImageSize] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [showPhotoOptions, setShowPhotoOptions] = useState(false);
+  const [isFormador, setIsFormador] = useState(false);
 
   const fileInputRef = React.createRef();
 
@@ -53,6 +54,10 @@ export default function EditColab() {
       setTimeout(() => navigate('/login'), 2000);
       return;
     }
+    
+    // Check if user is formador
+    const tipo = sessionStorage.getItem("tipo");
+    setIsFormador(tipo === "Formador");
     
     // Se o token existe, procurar os dados do usuário
     fetchData();
@@ -138,6 +143,7 @@ export default function EditColab() {
       // Buscar dados do departamento e função
       let departamentoNome = "";
       let funcaoNome = "";
+      let especialidade = "";
       
       if (utilizador.funcao_id) {
         try {
@@ -157,6 +163,18 @@ export default function EditColab() {
         }
       }
 
+      // If user is formador, fetch especialidade
+      if (isFormador) {
+        try {
+          const formadorResponse = await axios.get(`/formador/${utilizador.colaborador_id}`);
+          if (formadorResponse.data) {
+            especialidade = formadorResponse.data.especialidade || "";
+          }
+        } catch (error) {
+          console.error("Erro ao buscar especialidade do formador:", error);
+        }
+      }
+
       setFormData({
         primeiroNome: primeiroNome,
         ultimoNome: ultimoNome,
@@ -170,7 +188,8 @@ export default function EditColab() {
         novaPassword: "",
         confirmarPassword: "",
         fotoPerfilUrl: utilizador.fotoPerfilUrl || "",
-        funcao_id: utilizador.funcao_id || ""
+        funcao_id: utilizador.funcao_id || "",
+        especialidade: especialidade
       });
       
       // Set display name separately from form data
@@ -250,6 +269,12 @@ export default function EditColab() {
         funcao_id: parseInt(formData.funcao_id),
         sobre_mim: formData.sobre_mim || '',
       };
+
+      // Adicionar especialidade e tipos se for formador
+      if (isFormador) {
+        payload.especialidade = formData.especialidade;
+        payload.tipos = ["Formador"]; // Add tipos array for formador
+      }
 
       // Adicionar foto de perfil se alterada
       if (fotoPerfil) {
@@ -430,6 +455,12 @@ export default function EditColab() {
             <Row className="mb-3">
               <InputField label="Sobre Mim" name="sobre_mim" value={formData.sobre_mim} onChange={handleChange} type="textarea" rows={5} style={{ resize: "none" }} colSize={12} />
             </Row>
+
+            {isFormador && (
+              <Row className="mb-3">
+                <InputField label="Especialidade" name="especialidade" value={formData.especialidade} onChange={handleChange} type="textarea" rows={3} style={{ resize: "none" }} colSize={12} />
+              </Row>
+            )}
 
             <Row className="mb-3">
               <InputField label="Nova Password" name="novaPassword" value={formData.novaPassword} onChange={handleChange}

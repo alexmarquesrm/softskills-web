@@ -569,12 +569,20 @@ const controladorUtilizadores = {
         }
 
         // Adicionar ou remover formador
-        if (novosTipos.includes("Formador") && !formador) {
-          await models.formador.create({
-            formador_id: id,
-            especialidade: dadosAtualizados.especialidade || "Geral"
-          });
-        } else if (!novosTipos.includes("Formador") && formador) {
+        if (novosTipos.includes("Formador")) {
+          if (!formador) {
+            // Create new formador
+            await models.formador.create({
+              formador_id: id,
+              especialidade: dadosAtualizados.especialidade || "Geral"
+            });
+          } else if (dadosAtualizados.especialidade) {
+            // Update existing formador's especialidade
+            await formador.update({
+              especialidade: dadosAtualizados.especialidade
+            });
+          }
+        } else if (formador) {
           try {
             await formador.destroy();
           } catch (error) {

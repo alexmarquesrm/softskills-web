@@ -14,7 +14,12 @@ const ProtectedRoute = ({ allowedRoles }) => {
 
   // Check if trying to access formando routes
   if (location.pathname.startsWith('/utilizadores')) {
-    // If user is not a formando, redirect to appropriate dashboard
+    // Allow access to profile route for all authenticated users
+    if (location.pathname === '/utilizadores/perfil') {
+      return <Outlet />;
+    }
+    
+    // For other formando routes, check if user is not a formando
     if (userType !== 'Formando') {
       if (userType === 'Formador') {
         return <Navigate to="/formador/dashboard" replace />;
