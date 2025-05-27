@@ -193,8 +193,9 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
             // Armazenar token - principal fonte de autenticação
             sessionStorage.setItem('token', token);
             
+            console.log(utilizador);
             // Armazenar dados para UI (estes não são usados para autorização)
-            sessionStorage.setItem('colaboradorid', utilizador.colaborador_id);
+            sessionStorage.setItem('colaboradorid', utilizador.colaboradorid);
             sessionStorage.setItem('nome', utilizador.nome);
             sessionStorage.setItem('email', utilizador.email);
             sessionStorage.setItem('primeirologin', utilizador.ultimologin === null ? "true" : "false");
