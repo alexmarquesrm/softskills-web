@@ -115,9 +115,9 @@ export default function CursoFormando() {
         }
 
       } catch (err) {
-        console.error("Erro ao carregar curso:", err);
-        setError("Erro ao carregar os dados do curso");
-        setLoading(false);
+        console.error("Erro ao carregar inscrições:", err);
+        // Se houver erro ao carregar inscrições, assumir que não está inscrito
+        setInscricao(null);
       }
     };
 
@@ -226,6 +226,15 @@ export default function CursoFormando() {
 
   const handleInscricao = async (e) => {
     try {
+      // Verificar se já está inscrito antes de tentar inscrever
+      if (inscricao !== null) {
+        toast.warning("Você já está inscrito neste curso!");
+        return;
+      }
+
+      if (clicked) return;
+      setClicked(true);
+
       const token = sessionStorage.getItem('token');
       const idColab = sessionStorage.getItem('colaboradorid');
 
@@ -233,8 +242,7 @@ export default function CursoFormando() {
         formando_id: idColab,
         curso_id: id
       };
-      if (clicked) return;
-      setClicked(true);
+
       await axios.post('/inscricao/criar', inscricaoData, {
         headers: { Authorization: `${token}` }
       });
@@ -249,6 +257,12 @@ export default function CursoFormando() {
       console.error("Erro ao inscrever", error);
       if (error.response?.data?.erro === "Um formador não pode se inscrever no próprio curso") {
         toast.error("Você não pode se inscrever neste curso pois é o formador.");
+      } else if (error.response?.data?.erro === "Formando já está inscrito neste curso") {
+        toast.error("Você já está inscrito neste curso!");
+        // Atualizar o estado local para refletir que está inscrito
+        setInscricao({ curso_id: Number(id) });
+      } else if (error.response?.data?.erro === "Curso já atingiu o limite de vagas") {
+        toast.error("Este curso já atingiu o limite de vagas disponíveis.");
       } else {
         toast.error("Não foi possível inscrever no curso. Por favor, avise o gestor.");
       }
@@ -1297,10 +1311,27 @@ export default function CursoFormando() {
                   </Card.Body>
                 </Card>
               )}
-              {inscricao === null && (
+              {/* Botões de ação */}
+              {inscricao === null ? (
                 <div className="d-flex justify-content-center mt-4">
                   <Cancelar text={"Cancelar"} onClick={() => navigate("/utilizadores/lista/cursos")} Icon={BsArrowReturnLeft} inline={true} />
                   <Inscrever text={"Inscrever"} onClick={handleInscricao} Icon={FaRegCheckCircle} disabled={clicked} />
+                </div>
+              ) : (
+                <div className="text-center mt-4">
+                  {/* Só mostra a mensagem "já está inscrito" se o curso não estiver concluído */}
+                  {!(inscricao.nota != null && inscricao.estado === true) && (
+                    <Alert variant="success" className="d-inline-flex align-items-center mb-3">
+                      <BsCheckCircle className="me-2" />
+                      Você já está inscrito neste curso!
+                    </Alert>
+                  )}
+                  <div className="mt-3">
+                    <Button variant="outline-primary" onClick={() => navigate("/utilizadores/lista/cursos")}>
+                      <BsArrowReturnLeft className="me-2" />
+                      Voltar aos Cursos
+                    </Button>
+                  </div>
                 </div>
               )}
             </div>

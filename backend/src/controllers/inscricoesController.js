@@ -20,6 +20,22 @@ const controladorInscricoes = {
         });
       }
 
+      // Verificar se já existe inscrição (verificação explícita)
+      const inscricaoExistente = await models.inscricao.findOne({
+        where: { 
+          formando_id: parseInt(formando_id),
+          curso_id: parseInt(curso_id)
+        },
+        transaction
+      });
+
+      if (inscricaoExistente) {
+        await transaction.rollback();
+        return res.status(400).json({
+          erro: "Formando já está inscrito neste curso"
+        });
+      }
+
       // Verificar se o formando é também formador deste curso
       const cursoInfo = await models.curso.findOne({
         where: { curso_id },
@@ -33,6 +49,7 @@ const controladorInscricoes = {
       });
 
       if (!cursoInfo) {
+        await transaction.rollback();
         return res.status(404).json({
           erro: "Curso não encontrado"
         });
@@ -52,6 +69,7 @@ const controladorInscricoes = {
         });
 
         if (formandoInfo && formandoInfo.formando_colab.colaborador_id === cursoInfo.curso_sincrono.formador_id) {
+          await transaction.rollback();
           return res.status(400).json({
             erro: "Um formador não pode se inscrever no próprio curso"
           });

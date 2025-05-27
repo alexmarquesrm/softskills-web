@@ -58,23 +58,23 @@ const AboutUs = () => {
   };
 
   return (
-    <div className="about-us-page">
+    <div className="microsite-about-us-page">
       <Container className="py-5">
         {/* Page Title */}
         <Row className="mb-5">
           <Col>
-            <h1 className="page-title-microsite">About Us</h1>
+            <h1 className="microsite-page-title">About Us</h1>
           </Col>
         </Row>
 
         {/* Hero Image */}
         <Row className="mb-5">
           <Col>
-            <div className="hero-image-container">
+            <div className="microsite-hero-image-container">
               <img 
                 src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1200&h=400&fit=crop" 
                 alt="Team collaboration" 
-                className="hero-image"
+                className="microsite-hero-image"
               />
             </div>
           </Col>
@@ -83,10 +83,10 @@ const AboutUs = () => {
         {/* Main Content */}
         <Row className="mb-5">
           <Col lg={8}>
-            <Card className="company-info-card">
+            <Card className="microsite-company-info-card">
               <Card.Body>
-                <h2 className="section-title">Projeto SoftSkills</h2>
-                <p className="company-description">
+                <h2 className="microsite-section-title">Projeto SoftSkills</h2>
+                <p className="microsite-company-description">
                 SoftSkills é uma plataforma de formação interna, disponível em versão web e mobile. O objetivo é centralizar e facilitar o acesso a conteúdos educativos.
                 Inspirada em plataformas como a Udemy, a SoftSkills permite que os colaboradores explorem cursos criados pela própria empresa, acompanhem o seu progresso, realizem avaliações e obtenham certificados. A plataforma promove uma cultura de aprendizagem contínua, contribuindo para o crescimento profissional.
                 </p>
@@ -96,18 +96,18 @@ const AboutUs = () => {
           
           {/* Sidebar */}
           <Col lg={4}>
-            <div className="sidebar-content">
-              <Card className={`info-card mb-3 ${isVisible ? 'fade-in' : ''}`}>
+            <div className="microsite-sidebar-content">
+              <Card className={`microsite-info-card mb-3 ${isVisible ? 'microsite-fade-in' : ''}`}>
                 <Card.Body>
-                  <h4 className="info-title">Quem somos</h4>
-                  <p className="info-text">{companyInfo.whoWeAre}</p>
+                  <h4 className="microsite-info-title">Quem somos</h4>
+                  <p className="microsite-info-text">{companyInfo.whoWeAre}</p>
                 </Card.Body>
               </Card>
               
-              <Card className={`info-card mb-3 ${isVisible ? 'fade-in' : ''}`} style={{animationDelay: '0.2s'}}>
+              <Card className={`microsite-info-card mb-3 ${isVisible ? 'microsite-fade-in' : ''}`} style={{animationDelay: '0.2s'}}>
                 <Card.Body>
-                  <h4 className="info-title">O que fazemos</h4>
-                  <p className="info-text">{companyInfo.whatWeDo}</p>
+                  <h4 className="microsite-info-title">O que fazemos</h4>
+                  <p className="microsite-info-text">{companyInfo.whatWeDo}</p>
                 </Card.Body>
               </Card>
             </div>
@@ -115,24 +115,24 @@ const AboutUs = () => {
         </Row>
 
         {/* Team Section */}
-        <Row className="team-section">
+        <Row className="microsite-team-section">
           {teamMembers.map((member, index) => (
             <Col key={member.id} lg={3} md={5} className="mb-4">
-              <Card className={`team-member-card ${isVisible ? 'slide-up' : ''}`} 
+              <Card className={`microsite-team-member-card ${isVisible ? 'microsite-slide-up' : ''}`} 
                     style={{animationDelay: `${index * 0.2}s`}}>
                 <Card.Body className="text-center">
-                  <div className="member-image-container">
+                  <div className="microsite-member-image-container">
                     <img 
                       src={member.image} 
                       alt={member.name}
-                      className="member-image"
+                      className="microsite-member-image"
                     />
-                    <div className="connector-line"></div>
+                    <div className="microsite-connector-line"></div>
                   </div>
                   
-                  <h3 className="member-name">{member.name}</h3>
-                  <p className="member-role">{member.role}</p>
-                  <p className="member-bio">{member.bio}</p>
+                  <h3 className="microsite-member-name">{member.name}</h3>
+                  <p className="microsite-member-role">{member.role}</p>
+                  <p className="microsite-member-bio">{member.bio}</p>
                   
                   
                 </Card.Body>
@@ -145,7 +145,7 @@ const AboutUs = () => {
         <Row className="mt-5">
           <Col className="text-center">
             <button 
-              className="btn btn-outline-primary back-button"
+              className="btn btn-outline-primary microsite-back-button"
               onClick={handleBackToHome}
             >
               ← Back to Home
