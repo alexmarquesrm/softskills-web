@@ -293,68 +293,82 @@ const controladorCursos = {
         LIMIT 4;
       `, { type: QueryTypes.SELECT });
 
-      // Process synchronous courses
-      const sincronosResumidos = cursosSincronos.map((curso) => ({
-        id: curso.curso_id,
-        titulo: curso.titulo,
-        descricao: curso.descricao,
-        tipo: curso.tipo,
-        total_horas: curso.total_horas,
-        pendente: curso.pendente,
-        nivel: curso.nivel,
-        topico: curso.topico_descricao || null,
-        gestor: {
-          nome: curso.gestor_nome || null,
-          email: curso.gestor_email || null,
-        },
-        sincrono: curso.data_inicio
-          ? {
-            inicio: curso.data_inicio,
-            fim: curso.data_fim,
-            vagas: curso.limite_vagas,
-            estado: curso.estado,
-            formador: curso.formador_nome
-              ? {
-                nome: curso.formador_nome || null,
-                email: curso.formador_email || null,
-                telefone: curso.formador_telefone || null,
-              }
-              : null,
-          }
-          : null,
-        numero_inscricoes: curso.numero_inscricoes,
+      // Process synchronous courses and add images
+      const sincronosResumidos = await Promise.all(cursosSincronos.map(async (curso) => {
+        const files = await ficheirosController.getAllFilesByAlbum(curso.curso_id, 'curso');
+        const capaUrl = files && files.length > 0 ? files[0].url : null;
+        
+        return {
+          curso_id: curso.curso_id,
+          id: curso.curso_id,
+          titulo: curso.titulo,
+          descricao: curso.descricao,
+          tipo: curso.tipo,
+          total_horas: curso.total_horas,
+          pendente: curso.pendente,
+          nivel: curso.nivel,
+          topico: curso.topico_descricao || null,
+          capaUrl: capaUrl,
+          gestor: {
+            nome: curso.gestor_nome || null,
+            email: curso.gestor_email || null,
+          },
+          sincrono: curso.data_inicio
+            ? {
+              inicio: curso.data_inicio,
+              fim: curso.data_fim,
+              vagas: curso.limite_vagas,
+              estado: curso.estado,
+              formador: curso.formador_nome
+                ? {
+                  nome: curso.formador_nome || null,
+                  email: curso.formador_email || null,
+                  telefone: curso.formador_telefone || null,
+                }
+                : null,
+            }
+            : null,
+          numero_inscricoes: curso.numero_inscricoes,
+        };
       }));
 
-      // Process asynchronous courses
-      const assincronosResumidos = cursosAssincronos.map((curso) => ({
-        id: curso.curso_id,
-        titulo: curso.titulo,
-        descricao: curso.descricao,
-        tipo: curso.tipo,
-        total_horas: curso.total_horas,
-        pendente: curso.pendente,
-        nivel: curso.nivel,
-        topico: curso.topico_descricao || null,
-        gestor: {
-          nome: curso.gestor_nome || null,
-          email: curso.gestor_email || null,
-        },
-        sincrono: curso.data_inicio
-          ? {
-            inicio: curso.data_inicio,
-            fim: curso.data_fim,
-            vagas: curso.limite_vagas,
-            estado: curso.estado,
-            formador: curso.formador_nome
-              ? {
-                nome: curso.formador_nome || null,
-                email: curso.formador_email || null,
-                telefone: curso.formador_telefone || null,
-              }
-              : null,
-          }
-          : null,
-        numero_inscricoes: curso.numero_inscricoes,
+      // Process asynchronous courses and add images
+      const assincronosResumidos = await Promise.all(cursosAssincronos.map(async (curso) => {
+        const files = await ficheirosController.getAllFilesByAlbum(curso.curso_id, 'curso');
+        const capaUrl = files && files.length > 0 ? files[0].url : null;
+        
+        return {
+          curso_id: curso.curso_id,
+          id: curso.curso_id,
+          titulo: curso.titulo,
+          descricao: curso.descricao,
+          tipo: curso.tipo,
+          total_horas: curso.total_horas,
+          pendente: curso.pendente,
+          nivel: curso.nivel,
+          topico: curso.topico_descricao || null,
+          capaUrl: capaUrl,
+          gestor: {
+            nome: curso.gestor_nome || null,
+            email: curso.gestor_email || null,
+          },
+          sincrono: curso.data_inicio
+            ? {
+              inicio: curso.data_inicio,
+              fim: curso.data_fim,
+              vagas: curso.limite_vagas,
+              estado: curso.estado,
+              formador: curso.formador_nome
+                ? {
+                  nome: curso.formador_nome || null,
+                  email: curso.formador_email || null,
+                  telefone: curso.formador_telefone || null,
+                }
+                : null,
+            }
+            : null,
+          numero_inscricoes: curso.numero_inscricoes,
+        };
       }));
 
       // Combine both types and categorize them

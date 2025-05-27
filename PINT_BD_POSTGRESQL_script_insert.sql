@@ -189,11 +189,11 @@ INSERT INTO CURSO (GESTOR_ID, TOPICO_ID, TIPO, TOTAL_HORAS, TITULO, DESCRICAO, A
 (1, 26, 'S', 60, 'Desenvolvimento de Chatbots', 'Criação de chatbots com Python e NLP.', TRUE, FALSE, TRUE, 3),
 
 -- Cursos Assíncronos (14)
-(1, 4, 'A', 45, 'Introdução ao Node.js', 'Curso básico sobre Node.js e como utilizá-lo no desenvolvimento web.', FALSE, TRUE, FALSE, 1),
-(1, 6, 'A', 55, 'Introdução ao C#', 'Curso para iniciantes em C#, abordando sintaxe básica e estrutura de dados.', FALSE, TRUE, TRUE, 1),
-(1, 7, 'A', 65, 'Desenvolvimento de Jogos com Unity', 'Curso avançado de Unity para criação de jogos.', FALSE, TRUE, FALSE, 3),
-(1, 8, 'A', 80, 'Desenvolvimento de Jogos com Unreal Engine', 'Curso sobre o desenvolvimento de jogos usando Unreal Engine.', FALSE, TRUE, TRUE, 2),
-(1, 9, 'A', 90, 'Fotografia Digital Avançada', 'Curso avançado de técnicas de fotografia digital e edição de imagens.', FALSE, TRUE, FALSE, 4),
+(1, 4, 'A', 45, 'Introdução ao Node.js', 'Curso básico sobre Node.js e como utilizá-lo no desenvolvimento web.', TRUE, FALSE, FALSE, 1),
+(1, 6, 'A', 55, 'Introdução ao C#', 'Curso para iniciantes em C#, abordando sintaxe básica e estrutura de dados.', TRUE, FALSE, TRUE, 1),
+(1, 7, 'A', 65, 'Desenvolvimento de Jogos com Unity', 'Curso avançado de Unity para criação de jogos.', TRUE, FALSE, FALSE, 3),
+(1, 8, 'A', 80, 'Desenvolvimento de Jogos com Unreal Engine', 'Curso sobre o desenvolvimento de jogos usando Unreal Engine.', TRUE, FALSE, TRUE, 2),
+(1, 9, 'A', 90, 'Fotografia Digital Avançada', 'Curso avançado de técnicas de fotografia digital e edição de imagens.', TRUE, FALSE, FALSE, 4),
 (1, 1, 'A', 40, 'HTML5 e CSS3 Moderno', 'Aprenda as últimas features do HTML5 e CSS3.', TRUE, FALSE, TRUE, 1),
 (1, 3, 'A', 45, 'JavaScript Avançado', 'Conceitos avançados de JavaScript e ES6+.', TRUE, FALSE, TRUE, 3),
 (1, 5, 'A', 50, 'TypeScript para Desenvolvedores', 'Introdução ao TypeScript e suas vantagens.', TRUE, FALSE, TRUE, 2),
@@ -204,7 +204,7 @@ INSERT INTO CURSO (GESTOR_ID, TOPICO_ID, TIPO, TOTAL_HORAS, TITULO, DESCRICAO, A
 (1, 14, 'A', 55, 'Docker e Containers', 'Containerização de aplicações com Docker.', TRUE, FALSE, TRUE, 3),
 (1, 15, 'A', 60, 'Kubernetes', 'Orquestração de containers com Kubernetes.', TRUE, FALSE, TRUE, 4);
 
--- Inserção na Tabela ASSINCRONO (15 cursos)
+-- Inserção na Tabela ASSINCRONO (14 cursos)
 INSERT INTO ASSINCRONO (CURSO_ID) VALUES
 (22), (23), (24), (25), (26), (27), (28), (29), (30), (31), (32), (33), (34), (35);
 
@@ -550,64 +550,63 @@ INSERT INTO MATERIAL (CURSO_ID, TITULO, DESCRICAO, TIPO, SECAO, DATA_ENTREGA, DA
 (3, 'Projeto React', 'Desenvolva uma aplicação React', 'trabalho', 'Projeto Final', '2024-12-20 23:59:59+00', CURRENT_TIMESTAMP),
 (3, 'Entrega Projeto React', 'Submissão do projeto React', 'entrega', 'Projeto Final', '2024-12-20 23:59:59+00', CURRENT_TIMESTAMP);
 
--- Inserção na Tabela OBJETO para materiais (Atualizado para usar entidade em lowercase)
+-- Inserção na Tabela OBJETO para materiais
 INSERT INTO OBJETO (REGISTO_ID, ENTIDADE) VALUES
-(1, 'material'),  -- Para o material 1
-(2, 'material'),  -- Para o material 2
-(3, 'material'),  -- Para o material 3
-(4, 'material'),  -- Para o material 4
-(5, 'material'),  -- Para o material 5
-(6, 'material'),  -- Para o material 6
-(7, 'material'),  -- Para o material 7
-(8, 'material'),  -- Para o material 8
-(9, 'material'),  -- Para o material 9
-(10, 'material'), -- Para o material 10
-(11, 'material'), -- Para o material 11
-(12, 'material'), -- Para o material 12
-(13, 'material'); -- Para o material 13
+(1, 'material'),
+(2, 'material'),
+(3, 'material'),
+(4, 'material'),
+(5, 'material'),
+(6, 'material'),
+(7, 'material'),
+(8, 'material'),
+(9, 'material'),
+(10, 'material'),
+(11, 'material'),
+(12, 'material'),
+(13, 'material');
 
--- Inserção na Tabela FICHEIRO para materiais (Atualizado para incluir todos os arquivos necessários)
-INSERT INTO FICHEIRO (OBJETO_ID, NOME, EXTENSAO, TAMANHO, DATA_CRIACAO, DATA_ALTERACAO) VALUES
--- Arquivos para o material 1 (Introdução ao JavaScript)
-(1, 'introducao_js.pdf', 'pdf', 1024, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+-- Inserção na Tabela OBJETO para TODOS os cursos (síncronos e assíncronos)
+INSERT INTO OBJETO (REGISTO_ID, ENTIDADE) VALUES
+-- Cursos síncronos (IDs 1-21)
+(1, 'curso'),
+(2, 'curso'),
+(3, 'curso'),
+(4, 'curso'),
+(5, 'curso'),
+(6, 'curso'),
+(7, 'curso'),
+(8, 'curso'),
+(9, 'curso'),
+(10, 'curso'),
+(11, 'curso'),
+(12, 'curso'),
+(13, 'curso'),
+(14, 'curso'),
+(15, 'curso'),
+(16, 'curso'),
+(17, 'curso'),
+(18, 'curso'),
+(19, 'curso'),
+(20, 'curso'),
+(21, 'curso'),
+-- Cursos assíncronos (IDs 22-35)
+(22, 'curso'),
+(23, 'curso'),
+(24, 'curso'),
+(25, 'curso'),
+(26, 'curso'),
+(27, 'curso'),
+(28, 'curso'),
+(29, 'curso'),
+(30, 'curso'),
+(31, 'curso'),
+(32, 'curso'),
+(33, 'curso'),
+(34, 'curso'),
+(35, 'curso');
 
--- Arquivos para o material 2 (Variáveis e Tipos de Dados)
-(2, 'variaveis_js.pdf', 'pdf', 1536, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-
--- Arquivos para o material 3 (Funções em JavaScript)
-(3, 'funcoes_js.mp4', 'mp4', 5120, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-
--- Arquivos para o material 4 (Arrays e Objetos)
-(4, 'arrays_objetos.pdf', 'pdf', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-
--- Arquivos para o material 5 (Projeto Final JavaScript)
-(5, 'projeto_final.pdf', 'pdf', 4096, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-
--- Arquivos para o material 6 (Introdução ao Python)
-(6, 'introducao_python.pdf', 'pdf', 1024, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-
--- Arquivos para o material 7 (Estruturas de Controle)
-(7, 'estruturas_controle.mp4', 'mp4', 4096, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-
--- Arquivos para o material 8 (Manipulação de Arquivos)
-(8, 'manipulacao_arquivos.pdf', 'pdf', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-
--- Arquivos para o material 9 (Projeto Python)
-(9, 'projeto_python.pdf', 'pdf', 3072, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-
--- Arquivos para o material 10 (Introdução ao React)
-(10, 'introducao_react.pdf', 'pdf', 1024, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-
--- Arquivos para o material 11 (Componentes React)
-(11, 'componentes_react.mp4', 'mp4', 5120, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-
--- Arquivos para o material 12 (Hooks em React)
-(12, 'hooks_react.pdf', 'pdf', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-
--- Arquivos para o material 13 (Projeto React)
-(13, 'projeto_react.pdf', 'pdf', 4096, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
-
--- Inserção na Tabela OBJETO para colaboradores
+-- Inserção na Tabela OBJETO para colaboradores (IDs reais dos colaboradores)
 INSERT INTO OBJETO (REGISTO_ID, ENTIDADE) VALUES
 (1, 'colaborador'),
 (2, 'colaborador'),
@@ -618,31 +617,53 @@ INSERT INTO OBJETO (REGISTO_ID, ENTIDADE) VALUES
 (7, 'colaborador'),
 (8, 'colaborador'),
 (9, 'colaborador'),
-(10, 'colaborador'),
-(11, 'colaborador'),
-(12, 'colaborador'),
-(13, 'colaborador'),
-(14, 'colaborador'),
-(15, 'colaborador'),
-(16, 'colaborador'),
-(17, 'colaborador'),
-(18, 'colaborador'),
-(19, 'colaborador'),
-(20, 'colaborador'),
-(21, 'colaborador'),
-(22, 'colaborador'),
-(23, 'colaborador'),
-(24, 'colaborador');
+(10, 'colaborador');
 
--- Inserção na Tabela FICHEIRO para imagens dos colaboradores
+-- Inserção na Tabela FICHEIRO para materiais
 INSERT INTO FICHEIRO (OBJETO_ID, NOME, EXTENSAO, TAMANHO, DATA_CRIACAO, DATA_ALTERACAO) VALUES
-(15, 'colaborador1.jpg', 'jpg', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(16, 'colaborador2.jpg', 'jpg', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(17, 'colaborador3.jpg', 'jpg', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(18, 'colaborador4.jpg', 'jpg', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(19, 'colaborador5.jpg', 'jpg', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(20, 'colaborador6.jpg', 'jpg', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(21, 'colaborador7.jpg', 'jpg', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(22, 'colaborador8.jpg', 'jpg', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(23, 'colaborador9.jpg', 'jpg', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(24, 'colaborador10.jpg', 'jpg', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+(1, 'introducao_js.pdf', 'pdf', 1024, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(2, 'variaveis_js.pdf', 'pdf', 1536, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(3, 'funcoes_js.mp4', 'mp4', 5120, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(4, 'arrays_objetos.pdf', 'pdf', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(5, 'projeto_final.pdf', 'pdf', 4096, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(6, 'introducao_python.pdf', 'pdf', 1024, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(7, 'estruturas_controle.mp4', 'mp4', 4096, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(8, 'manipulacao_arquivos.pdf', 'pdf', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(9, 'projeto_python.pdf', 'pdf', 3072, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(10, 'introducao_react.pdf', 'pdf', 1024, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(11, 'componentes_react.mp4', 'mp4', 5120, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(12, 'hooks_react.pdf', 'pdf', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(13, 'projeto_react.pdf', 'pdf', 4096, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+-- Inserção na Tabela FICHEIRO para cursos síncronos (usando os objeto_id gerados automaticamente)
+-- Nota: Os objeto_id serão gerados sequencialmente após os materiais (1-13) e colaboradores (1-10)
+-- Assumindo que os cursos começam no objeto_id 14
+-- APENAS para os cursos 1-5 que têm imagens no MinIO
+INSERT INTO FICHEIRO (OBJETO_ID, NOME, EXTENSAO, TAMANHO, DATA_CRIACAO, DATA_ALTERACAO) VALUES
+(14, 'curso1_sincrono.jpg', 'jpg', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(15, 'curso2_sincrono.jpg', 'jpg', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(16, 'curso3_sincrono.jpg', 'jpg', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(17, 'curso4_sincrono.jpg', 'jpg', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(18, 'curso5_sincrono.jpg', 'jpg', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+-- Inserção na Tabela FICHEIRO para colaboradores (OBJETO_IDs correspondendo aos IDs dos colaboradores)
+INSERT INTO FICHEIRO (OBJETO_ID, NOME, EXTENSAO, TAMANHO, DATA_CRIACAO, DATA_ALTERACAO) VALUES
+(24, 'colaborador1.jpg', 'jpg', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(25, 'colaborador2.jpg', 'jpg', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(26, 'colaborador3.jpg', 'jpg', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(27, 'colaborador4.jpg', 'jpg', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(28, 'colaborador5.jpg', 'jpg', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(29, 'colaborador6.jpg', 'jpg', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(30, 'colaborador7.jpg', 'jpg', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(31, 'colaborador8.jpg', 'jpg', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(32, 'colaborador9.jpg', 'jpg', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(33, 'colaborador10.jpg', 'jpg', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+-- Inserção na Tabela FICHEIRO para cursos assíncronos (usando os objeto_id gerados automaticamente)
+-- Os cursos assíncronos (22-26) terão objeto_id a partir de 35 (após todos os síncronos)
+INSERT INTO FICHEIRO (OBJETO_ID, NOME, EXTENSAO, TAMANHO, DATA_CRIACAO, DATA_ALTERACAO) VALUES
+(35, 'curso22_assincrono.jpg', 'jpg', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(36, 'curso23_assincrono.jpg', 'jpg', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(37, 'curso24_assincrono.jpg', 'jpg', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(38, 'curso25_assincrono.jpg', 'jpg', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(39, 'curso26_assincrono.jpg', 'jpg', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);

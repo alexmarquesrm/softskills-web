@@ -94,7 +94,6 @@ const controladorFicheiros = {
     getAllFilesByAlbum: async (id, entidade) => {
         try {
             const standardEntidade = entidade.toLowerCase();
-            //console.log(`Getting all files for ${standardEntidade}${id}`);
             
             const objeto = await models.objeto.findOne({
                 where: {
@@ -102,8 +101,8 @@ const controladorFicheiros = {
                     entidade: standardEntidade
                 }
             });
+            
             if (!objeto) {
-                console.error('O objeto não existe!');
                 return [];
             }
 
