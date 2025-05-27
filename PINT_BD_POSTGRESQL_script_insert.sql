@@ -606,3 +606,43 @@ INSERT INTO FICHEIRO (OBJETO_ID, NOME, EXTENSAO, TAMANHO, DATA_CRIACAO, DATA_ALT
 
 -- Arquivos para o material 13 (Projeto React)
 (13, 'projeto_react.pdf', 'pdf', 4096, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+-- Inserção na Tabela OBJETO para colaboradores
+INSERT INTO OBJETO (REGISTO_ID, ENTIDADE) VALUES
+(1, 'colaborador'),
+(2, 'colaborador'),
+(3, 'colaborador'),
+(4, 'colaborador'),
+(5, 'colaborador'),
+(6, 'colaborador'),
+(7, 'colaborador'),
+(8, 'colaborador'),
+(9, 'colaborador'),
+(10, 'colaborador'),
+(11, 'colaborador'),
+(12, 'colaborador'),
+(13, 'colaborador'),
+(14, 'colaborador'),
+(15, 'colaborador'),
+(16, 'colaborador'),
+(17, 'colaborador'),
+(18, 'colaborador'),
+(19, 'colaborador'),
+(20, 'colaborador'),
+(21, 'colaborador'),
+(22, 'colaborador'),
+(23, 'colaborador'),
+(24, 'colaborador');
+
+-- Inserção na Tabela FICHEIRO para imagens dos colaboradores
+INSERT INTO FICHEIRO (OBJETO_ID, NOME, EXTENSAO, TAMANHO, DATA_CRIACAO, DATA_ALTERACAO) VALUES
+(15, 'colaborador1.jpg', 'jpg', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(16, 'colaborador2.jpg', 'jpg', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(17, 'colaborador3.jpg', 'jpg', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(18, 'colaborador4.jpg', 'jpg', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(19, 'colaborador5.jpg', 'jpg', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(20, 'colaborador6.jpg', 'jpg', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(21, 'colaborador7.jpg', 'jpg', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(22, 'colaborador8.jpg', 'jpg', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(23, 'colaborador9.jpg', 'jpg', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(24, 'colaborador10.jpg', 'jpg', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);

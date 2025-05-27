@@ -10,7 +10,7 @@ const minioClient = new Minio.Client({
   secretKey: process.env[`MINIO_ROOT_PASSWORD`],
 });
 
-// Lista de arquivos de exemplo para upload (sem ZIP)
+// Lista de arquivos de exemplo para upload
 const files = [
   // Material 1: Introdução ao JavaScript (ID: 1)
   { local: './exemplos/introducao_js.pdf', bucket: 'material1', name: 'introducao_js.pdf' },
@@ -51,6 +51,15 @@ const files = [
   // Material 13: Projeto React (ID: 13)
   { local: './exemplos/projeto_react.pdf', bucket: 'material13', name: 'projeto_react.pdf' },
 ];
+
+// Adicionar imagens dos colaboradores
+for (let i = 1; i <= 10; i++) {
+  files.push({
+    local: `./exemplos/colaborador${i}.jpg`,
+    bucket: `colaborador${i}`,
+    name: `colaborador${i}.jpg`
+  });
+}
 
 // Função para criar bucket se não existir
 function ensureBucket(bucket) {
