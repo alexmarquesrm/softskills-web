@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import "../pages/microsite.css";
 //Fotos
 import alenxandreFoto from '../pages/FotosAboutUs/Screenshot_1.png';
-import rodrigoFoto from '../pages/FotosAboutUs/Screenshot_2.png';
+import rodrigoFoto from '../pages/FotosAboutUs/Screenshot_2.jpg';
 import franciscoFoto from '../pages/FotosAboutUs/Screenshot_3.png';
 import tiagoFoto from '../pages/FotosAboutUs/Screenshot_4.png';
 
@@ -25,7 +25,7 @@ const AboutUs = () => {
       name: "Rodrigo Marques",
       role: "WEB DEVELOPER",
       image: rodrigoFoto, 
-      bio: "Maecenas gravida non erat et bibendum. Sed sem nulla. Cursus rutrum feugiat sed, cursus eget orci. Curabitur feugiat lorem et vaius vehicula. Nunc rhoncus augue eu erat cursus. Lorem ipsum dolor sit amet. Suspendisse in sapien ut magna consequat efficitur. Etiam scelerisque commodo tortor et sodales tellus. Praesent dictum, ipsum et pharetra cursus. Sed ac quis odio. Accumsan magna ut tristique orci. Sed ac lorem mili. Donec lacinia interdum ipsum et finibus mauris placerat non.",
+      bio: "Desde pequeno que a curiosidade por computadores e tecnologia fez parte de mim, e foi com os videojogos — atualmente Sea of Thieves e Rocket League — que essa paixão cresceu. Com o tempo, descobri na programação uma forma de explorar esse interesse de forma criativa. Fora do mundo digital, tenho também um gosto especial pela agricultura, onde encontro uma ligação mais simples e prática com o mundo.",
     },
     {
       id: 3,
@@ -118,9 +118,9 @@ const AboutUs = () => {
         <Row className="microsite-team-section">
           {teamMembers.map((member, index) => (
             <Col key={member.id} lg={3} md={5} className="mb-4">
-              <Card className={`microsite-team-member-card ${isVisible ? 'microsite-slide-up' : ''}`} 
+              <Card className={`microsite-team-member-card ${isVisible ? 'microsite-slide-up' : ''}` } 
                     style={{animationDelay: `${index * 0.2}s`}}>
-                <Card.Body className="text-center">
+                <Card.Body className="text-center" style={{ minHeight: '540px'}}>
                   <div className="microsite-member-image-container">
                     <img 
                       src={member.image} 
