@@ -47,7 +47,6 @@ export default function PaginaGestor() {
   };
 
   const tableColumns = [
-    { field: 'id', headerName: 'Nº Denuncia', flex: 0.3, headerAlign: 'left', disableColumnMenu: true },
     { field: 'denuncia', headerName: 'Denúncia feita por:', flex: 0.5, headerAlign: 'left', align: 'left', disableColumnMenu: true },
     {
       field: 'motivo', headerName: 'Motivo', flex: 0.4, headerAlign: 'left', disableColumnMenu: false,

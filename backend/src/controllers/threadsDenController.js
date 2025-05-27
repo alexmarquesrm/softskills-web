@@ -8,7 +8,7 @@ const controladorThreadsDen = {
   // Criar uma nova denúncia
   createDenuncia: async (req, res) => {
     try {
-      const { thread_id, formando_id, descricao } = req.body;
+      const { thread_id, formando_id, descricao, motivo = 'I' } = req.body;
 
       const thread = await models.threads.findByPk(thread_id);
       const formando = await models.formando.findByPk(formando_id);
@@ -20,10 +20,24 @@ const controladorThreadsDen = {
         return res.status(404).json({ message: "Formando não encontrado" });
       }
 
+      // Verificar se o formando já denunciou esta thread
+      const denunciaExistente = await models.denuncias.findOne({
+        where: {
+          thread_id,
+          formando_id
+        }
+      });
+
+      if (denunciaExistente) {
+        return res.status(409).json({ message: "Já denunciou esta thread anteriormente" });
+      }
+
       const novaDenuncia = await models.denuncias.create({
         thread_id,
         formando_id,
         descricao,
+        motivo,
+        data: new Date()
       });
 
       res.status(201).json(novaDenuncia);
@@ -126,6 +140,25 @@ const controladorThreadsDen = {
     } catch (error) {
       console.error("Erro ao obter denúncia:", error);
       res.status(500).json({ message: "Erro interno ao obter denúncia" });
+    }
+  },
+
+  // Verificar se um formando já denunciou uma thread
+  checkDenunciaExistente: async (req, res) => {
+    try {
+      const { thread_id, formando_id } = req.params;
+
+      const denunciaExistente = await models.denuncias.findOne({
+        where: {
+          thread_id,
+          formando_id
+        }
+      });
+
+      res.json({ jadenunciou: !!denunciaExistente });
+    } catch (error) {
+      console.error("Erro ao verificar denúncia:", error);
+      res.status(500).json({ message: "Erro interno ao verificar denúncia" });
     }
   },
 
