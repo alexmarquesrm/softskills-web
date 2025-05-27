@@ -32,7 +32,7 @@ const AboutUs = () => {
       name: "Francisco Vitorino",
       role: "MOBILE DEVELOPER",
       image: franciscoFoto,
-      bio: "Pellentesque nec vestibulum orci. Praesent ut dui ornare ipsum cursus mattis porta. Proin finibus imperdiet sodor et molere justo aliquam ut. Suspendisse eu lobortis orci, eget mattis dolor molestm mauris dolor, interdum at rhoncus eu, aliquam consequat purus. Praesent in sapien lectus. Duis quis faucibus odio. Etiam blandit rutrum justo sit amet, volutpat sapien auctor tempus. Nam ex elit, efficitur nec lacus sed, aliquam vitae lacus.",
+      bio: "Sou um amante das tecnologias e pouco a pouco, desde pequeno, desenvolvi o gosto pela programação. Sempre tive a curiosidade de como eram feitos os sites, aplicações mobile e etc. e foi graças a isso que decidi levar a programação para a minha vida.",
     },
      {
       id: 4,
