@@ -167,6 +167,13 @@
 .topic-value {
   color: #666;
   font-size: 0.9rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 300px;
+  display: inline-block;
+  vertical-align: bottom;
+  cursor: pointer;
 }
 
 .forum-card-body {

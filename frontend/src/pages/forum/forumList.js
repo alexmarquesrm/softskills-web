@@ -31,16 +31,46 @@ const ForumList = () => {
           axios.get('/thread')
         ]);
 
-        // Count threads for each forum
+        // Get all comments for all threads
+        const commentsPromises = threadsResponse.data.map(thread => 
+          axios.get(`/comentario/thread/${thread.thread_id}`)
+        );
+        const commentsResponses = await Promise.all(commentsPromises);
+        const allComments = commentsResponses.flatMap(response => response.data);
+
+        // Count threads and unique participants for each forum
         const forumsWithCounts = forumsResponse.data.map(forum => {
-          const threadCount = threadsResponse.data.filter(
+          // Get threads for this forum
+          const forumThreads = threadsResponse.data.filter(
             thread => thread.forum_id === forum.forum_id
-          ).length;
+          );
+
+          // Get unique participants (thread creators and comment authors)
+          const uniqueParticipants = new Set();
+          
+          // Add thread creators
+          forumThreads.forEach(thread => {
+            if (thread.colaborador_id) {
+              uniqueParticipants.add(thread.colaborador_id);
+            }
+          });
+
+          // Add comment authors
+          forumThreads.forEach(thread => {
+            const threadComments = allComments.filter(
+              comment => comment.thread_id === thread.thread_id
+            );
+            threadComments.forEach(comment => {
+              if (comment.colaborador_id) {
+                uniqueParticipants.add(comment.colaborador_id);
+              }
+            });
+          });
 
           return {
             ...forum,
-            thread_count: threadCount,
-            participant_count: 0 // Keeping this for compatibility
+            thread_count: forumThreads.length,
+            participant_count: uniqueParticipants.size
           };
         });
 
@@ -177,11 +207,15 @@ const ForumList = () => {
                       <div className="forum-card-header">
                         <div className="forum-category">
                           <span className="category-label">Área:</span>
-                          <span className="category-value">{forum.forum_topico?.topico_area?.descricao || 'Não especificada'}</span>
+                          <span className="category-value" title={forum.forum_topico?.topico_area?.descricao || 'Não especificada'}>
+                            {forum.forum_topico?.topico_area?.descricao || 'Não especificada'}
+                          </span>
                         </div>
                         <div className="forum-topic">
                           <span className="topic-label">Tópico:</span>
-                          <span className="topic-value">{forum.forum_topico?.descricao || 'Não especificado'}</span>
+                          <span className="topic-value" title={forum.forum_topico?.descricao || 'Não especificado'}>
+                            {forum.forum_topico?.descricao || 'Não especificado'}
+                          </span>
                         </div>
                       </div>
 
