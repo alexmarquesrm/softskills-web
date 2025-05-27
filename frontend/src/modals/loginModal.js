@@ -111,15 +111,15 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
             let redirectPath = '/';
             const userTypes = utilizador.allUserTypes || [utilizador.tipo];
             const isGestor = userTypes.includes('Gestor');
-            const isFormando = userTypes.includes('Formando');
             const isFormador = userTypes.includes('Formador');
+            const isFormando = userTypes.includes('Formando');
 
             if (isGestor) {
                 redirectPath = '/gestor/dashboard';
-            } else if (isFormando) {
-                redirectPath = '/utilizadores/dashboard';
             } else if (isFormador) {
                 redirectPath = '/formador/dashboard';
+            } else if (isFormando) {
+                redirectPath = '/utilizadores/dashboard';
             }
 
             // Fechar o modal e redirecionar com a mensagem de boas-vindas
@@ -243,15 +243,15 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
                 let redirectPath = '/';
                 const userTypes = utilizador.allUserTypes || [utilizador.tipo];
                 const isGestor = userTypes.includes('Gestor');
-                const isFormando = userTypes.includes('Formando');
                 const isFormador = userTypes.includes('Formador');
+                const isFormando = userTypes.includes('Formando');
 
                 if (isGestor) {
                     redirectPath = '/gestor/dashboard';
-                } else if (isFormando) {
-                    redirectPath = '/utilizadores/dashboard';
                 } else if (isFormador) {
                     redirectPath = '/formador/dashboard';
+                } else if (isFormando) {
+                    redirectPath = '/utilizadores/dashboard';
                 }
 
                 // Fechar o modal e redirecionar com a mensagem de boas-vindas
