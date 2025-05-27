@@ -404,13 +404,13 @@ INSERT INTO COMENTARIO_RESPOSTA (COMENTARIOPAI_ID, RESPOSTA_ID) VALUES
 (10, 20); -- Resposta ao comentário 10
 
 -- Inserção na Tabela QUIZZ
-INSERT INTO QUIZZ (CURSO_ID, GESTOR_ID, DESCRICAO, NOTA) VALUES
-(1, 1, 'Quiz Final de SQL', 10),
-(3, 1, 'Quiz Java Básico', 10),
-(1, 1, 'Quiz de Consultas SQL', 10),
-(3, 1, 'Quiz Spring Framework', 10),
-(1, 1, 'Quiz de Otimização', 10),
-(3, 1, 'Quiz Hibernate', 10);
+INSERT INTO QUIZZ (CURSO_ID, GESTOR_ID, DESCRICAO, NOTA, LIMITE_TEMPO) VALUES
+(1, 1, 'Quiz Final de SQL', 10, 45),
+(3, 1, 'Quiz Java Básico', 10, 30),
+(1, 1, 'Quiz de Consultas SQL', 10, 25),
+(3, 1, 'Quiz Spring Framework', 10, 40),
+(1, 1, 'Quiz de Otimização', 10, 35),
+(3, 1, 'Quiz Hibernate', 10, 30);
 
 -- Inserção na Tabela QUESTOES_QUIZZ
 INSERT INTO QUESTOES_QUIZZ (QUIZZ_ID, PERGUNTA) VALUES
@@ -514,17 +514,17 @@ INSERT INTO AVALIACAO_QUIZZ (QUIZZ_ID, FORMANDO_ID, NOTA) VALUES
 (4, 10, 93.0);
 
 -- Inserção na Tabela AVALIACAO_FORMADOR
-INSERT INTO AVALIACAO_FORMADOR (CURSO_ID, FORMADOR_ID, AVALIACAO) VALUES
-(1, 2, 5),  -- Avaliação do curso de JavaScript
-(2, 2, 4),  -- Avaliação do curso de Python
-(3, 2, 5),  -- Avaliação do curso de React
-(5, 3, 4),  -- Avaliação do curso de Design Gráfico
-(10, 5, 5), -- Avaliação do curso de Gestão de Projetos
-(11, 2, 4), -- Avaliação do curso de Desenvolvimento Web
-(12, 3, 5), -- Avaliação do curso de Python para Data Science
-(13, 2, 4), -- Avaliação do curso de Flutter
-(14, 3, 5), -- Avaliação do curso de DevOps
-(15, 2, 4); -- Avaliação do curso de Segurança
+INSERT INTO AVALIACAO_FORMADOR (CURSO_ID, FORMADOR_ID, FORMANDO_ID, AVALIACAO) VALUES
+(1, 2, 1, 5),  -- Formando 1 avaliou formador 2 no curso de JavaScript
+(1, 2, 2, 4),  -- Formando 2 avaliou formador 2 no curso de JavaScript
+(2, 2, 1, 4),  -- Formando 1 avaliou formador 2 no curso de Python
+(2, 2, 4, 5),  -- Formando 4 avaliou formador 2 no curso de Python
+(3, 2, 2, 5),  -- Formando 2 avaliou formador 2 no curso de React
+(3, 2, 3, 4),  -- Formando 3 avaliou formador 2 no curso de React
+(5, 3, 5, 4),  -- Formando 5 avaliou formador 3 no curso de Design Gráfico
+(10, 5, 1, 5), -- Formando 1 avaliou formador 5 no curso de Gestão de Projetos
+(11, 2, 5, 4), -- Formando 5 avaliou formador 2 no curso de Desenvolvimento Web
+(12, 3, 8, 5); -- Formando 8 avaliou formador 3 no curso de Python para Data Science
 
 -- Inserção na Tabela MATERIAL (Atualizado para refletir a estrutura correta)
 INSERT INTO MATERIAL (CURSO_ID, TITULO, DESCRICAO, TIPO, SECAO, DATA_ENTREGA, DATA_CRIACAO) VALUES

@@ -104,9 +104,10 @@ export default function CursoFormando() {
           try {
             const token = sessionStorage.getItem('token');
             const formadorId = curso?.curso_sincrono?.formador_id;
+            const formandoId = sessionStorage.getItem('colaboradorid');
 
-            if (formadorId) {
-              const avaliacoesResponse = await axios.get(`/avaliacao-formador?curso_id=${id}&formador_id=${formadorId}`, {
+            if (formadorId && formandoId) {
+              const avaliacoesResponse = await axios.get(`/avaliacao-formador?curso_id=${id}&formador_id=${formadorId}&formando_id=${formandoId}`, {
                 headers: { Authorization: `${token}` }
               });
 
@@ -541,20 +542,24 @@ export default function CursoFormando() {
 
     try {
       const token = sessionStorage.getItem('token');
+      const formandoId = sessionStorage.getItem('colaboradorid');
       // Corrigindo a forma de obter o ID do formador baseado na estrutura real
       const formadorId = curso?.curso_sincrono?.formador_id;
-
-      console.log('Dados do curso:', curso);
-      console.log('ID do formador:', formadorId);
 
       if (!formadorId) {
         toast.error("Não foi possível identificar o formador");
         return;
       }
 
+      if (!formandoId) {
+        toast.error("Não foi possível identificar o formando");
+        return;
+      }
+
       await axios.post('/avaliacao-formador', {
         curso_id: id,
         formador_id: formadorId,
+        formando_id: formandoId,
         avaliacao: avaliacaoFormador
       }, {
         headers: { Authorization: `${token}` }
@@ -567,7 +572,12 @@ export default function CursoFormando() {
       setFormadorJaAvaliado(true);
     } catch (error) {
       console.error("Erro ao enviar avaliação:", error);
-      toast.error("Não foi possível enviar a avaliação. Por favor, tente novamente.");
+      if (error.response?.data?.message === "Este formando já avaliou este formador neste curso") {
+        toast.warning("Você já avaliou este formador neste curso!");
+        setFormadorJaAvaliado(true);
+      } else {
+        toast.error("Não foi possível enviar a avaliação. Por favor, tente novamente.");
+      }
     }
   };
 
