@@ -110,8 +110,6 @@ const controladorTrabalhos = {
       const { avaliacaoId, cursoId } = req.params;
       const formando_id = req.user.id;
 
-      console.log('[getSubmissaoExistente] Params:', { avaliacaoId, cursoId, formando_id });
-
       // Buscar o trabalho do formando para esta avaliação e curso
       const trabalho = await models.trabalho.findOne({
         where: {
@@ -122,10 +120,7 @@ const controladorTrabalhos = {
         order: [['data', 'DESC']] // Pegar a submissão mais recente
       });
 
-      console.log('[getSubmissaoExistente] Trabalho encontrado:', trabalho);
-
       if (!trabalho) {
-        console.log('[getSubmissaoExistente] Nenhum trabalho encontrado');
         return res.json({ success: true, data: null });
       }
 
@@ -135,8 +130,6 @@ const controladorTrabalhos = {
         'trabalho'
       );
 
-      console.log('[getSubmissaoExistente] Ficheiros encontrados:', ficheiros);
-
       // Preparar a resposta
       const submissao = {
         trabalho_id: trabalho.trabalho_id,
@@ -145,8 +138,6 @@ const controladorTrabalhos = {
         data_submissao: trabalho.data,
         ficheiros: ficheiros
       };
-
-      console.log('[getSubmissaoExistente] Submissao retornada:', submissao);
 
       res.json({ success: true, data: submissao });
     } catch (error) {
