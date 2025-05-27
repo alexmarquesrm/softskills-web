@@ -526,7 +526,7 @@ INSERT INTO AVALIACAO_FORMADOR (CURSO_ID, FORMADOR_ID, AVALIACAO) VALUES
 (14, 3, 5), -- Avaliação do curso de DevOps
 (15, 2, 4); -- Avaliação do curso de Segurança
 
--- Inserção na Tabela MATERIAL
+-- Inserção na Tabela MATERIAL (Atualizado para refletir a estrutura correta)
 INSERT INTO MATERIAL (CURSO_ID, TITULO, DESCRICAO, TIPO, SECAO, DATA_ENTREGA, DATA_CRIACAO) VALUES
 -- Materiais para o curso de JavaScript (ID: 1)
 (1, 'Introdução ao JavaScript', 'Conceitos básicos de JavaScript', 'documento', 'Fundamentos', NULL, CURRENT_TIMESTAMP),
@@ -534,15 +534,75 @@ INSERT INTO MATERIAL (CURSO_ID, TITULO, DESCRICAO, TIPO, SECAO, DATA_ENTREGA, DA
 (1, 'Funções em JavaScript', 'Tutorial sobre funções e escopo', 'video', 'Funções', NULL, CURRENT_TIMESTAMP),
 (1, 'Arrays e Objetos', 'Manipulação de arrays e objetos em JavaScript', 'aula', 'Estruturas de Dados', NULL, CURRENT_TIMESTAMP),
 (1, 'Projeto Final JavaScript', 'Desenvolva uma aplicação web completa', 'trabalho', 'Projeto Final', '2024-12-31 23:59:59+00', CURRENT_TIMESTAMP),
+(1, 'Entrega Projeto Final JavaScript', 'Submissão do projeto final', 'entrega', 'Projeto Final', '2024-12-31 23:59:59+00', CURRENT_TIMESTAMP),
 
 -- Materiais para o curso de Python (ID: 2)
 (2, 'Introdução ao Python', 'Primeiros passos com Python', 'documento', 'Fundamentos', NULL, CURRENT_TIMESTAMP),
 (2, 'Estruturas de Controle', 'If, else, loops e mais', 'video', 'Controle de Fluxo', NULL, CURRENT_TIMESTAMP),
 (2, 'Manipulação de Arquivos', 'Como trabalhar com arquivos em Python', 'aula', 'I/O', NULL, CURRENT_TIMESTAMP),
-(2, 'Projeto Python', 'Desenvolva um script Python', 'entrega', 'Projeto', '2024-12-15 23:59:59+00', CURRENT_TIMESTAMP),
+(2, 'Projeto Python', 'Desenvolva um script Python', 'trabalho', 'Projeto', '2024-12-15 23:59:59+00', CURRENT_TIMESTAMP),
+(2, 'Entrega Projeto Python', 'Submissão do projeto Python', 'entrega', 'Projeto', '2024-12-15 23:59:59+00', CURRENT_TIMESTAMP),
 
 -- Materiais para o curso de React (ID: 3)
 (3, 'Introdução ao React', 'Conceitos básicos do React', 'documento', 'Fundamentos', NULL, CURRENT_TIMESTAMP),
 (3, 'Componentes React', 'Criando e usando componentes', 'video', 'Componentes', NULL, CURRENT_TIMESTAMP),
 (3, 'Hooks em React', 'UseState e useEffect', 'aula', 'Hooks', NULL, CURRENT_TIMESTAMP),
-(3, 'Projeto React', 'Desenvolva uma aplicação React', 'trabalho', 'Projeto Final', '2024-12-20 23:59:59+00', CURRENT_TIMESTAMP);
+(3, 'Projeto React', 'Desenvolva uma aplicação React', 'trabalho', 'Projeto Final', '2024-12-20 23:59:59+00', CURRENT_TIMESTAMP),
+(3, 'Entrega Projeto React', 'Submissão do projeto React', 'entrega', 'Projeto Final', '2024-12-20 23:59:59+00', CURRENT_TIMESTAMP);
+
+-- Inserção na Tabela OBJETO para materiais (Atualizado para usar entidade em lowercase)
+INSERT INTO OBJETO (REGISTO_ID, ENTIDADE) VALUES
+(1, 'material'),  -- Para o material 1
+(2, 'material'),  -- Para o material 2
+(3, 'material'),  -- Para o material 3
+(4, 'material'),  -- Para o material 4
+(5, 'material'),  -- Para o material 5
+(6, 'material'),  -- Para o material 6
+(7, 'material'),  -- Para o material 7
+(8, 'material'),  -- Para o material 8
+(9, 'material'),  -- Para o material 9
+(10, 'material'), -- Para o material 10
+(11, 'material'), -- Para o material 11
+(12, 'material'), -- Para o material 12
+(13, 'material'); -- Para o material 13
+
+-- Inserção na Tabela FICHEIRO para materiais (Atualizado para incluir todos os arquivos necessários)
+INSERT INTO FICHEIRO (OBJETO_ID, NOME, EXTENSAO, TAMANHO, DATA_CRIACAO, DATA_ALTERACAO) VALUES
+-- Arquivos para o material 1 (Introdução ao JavaScript)
+(1, 'introducao_js.pdf', 'pdf', 1024, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+
+-- Arquivos para o material 2 (Variáveis e Tipos de Dados)
+(2, 'variaveis_js.pdf', 'pdf', 1536, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+
+-- Arquivos para o material 3 (Funções em JavaScript)
+(3, 'funcoes_js.mp4', 'mp4', 5120, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+
+-- Arquivos para o material 4 (Arrays e Objetos)
+(4, 'arrays_objetos.pdf', 'pdf', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+
+-- Arquivos para o material 5 (Projeto Final JavaScript)
+(5, 'projeto_final.pdf', 'pdf', 4096, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+
+-- Arquivos para o material 6 (Introdução ao Python)
+(6, 'introducao_python.pdf', 'pdf', 1024, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+
+-- Arquivos para o material 7 (Estruturas de Controle)
+(7, 'estruturas_controle.mp4', 'mp4', 4096, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+
+-- Arquivos para o material 8 (Manipulação de Arquivos)
+(8, 'manipulacao_arquivos.pdf', 'pdf', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+
+-- Arquivos para o material 9 (Projeto Python)
+(9, 'projeto_python.pdf', 'pdf', 3072, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+
+-- Arquivos para o material 10 (Introdução ao React)
+(10, 'introducao_react.pdf', 'pdf', 1024, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+
+-- Arquivos para o material 11 (Componentes React)
+(11, 'componentes_react.mp4', 'mp4', 5120, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+
+-- Arquivos para o material 12 (Hooks em React)
+(12, 'hooks_react.pdf', 'pdf', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+
+-- Arquivos para o material 13 (Projeto React)
+(13, 'projeto_react.pdf', 'pdf', 4096, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
