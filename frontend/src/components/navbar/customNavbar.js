@@ -15,6 +15,7 @@ function CustomNavbar() {
   const [open, setOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [userType, setUserType] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -22,6 +23,7 @@ function CustomNavbar() {
       const token = sessionStorage.getItem('token');
       const isLoggedOut = localStorage.getItem('isLoggedOut');
       const currentToken = localStorage.getItem('currentToken');
+      const storedUserType = sessionStorage.getItem('tipo');
       
       // Primeiro verifica se há um token no localStorage
       if (currentToken) {
@@ -29,10 +31,12 @@ function CustomNavbar() {
         if (!token) {
           sessionStorage.setItem('token', currentToken);
           setIsLoggedIn(true);
+          setUserType(storedUserType);
           return;
         }
         // Se já houver token no sessionStorage, mantém o estado
         setIsLoggedIn(true);
+        setUserType(storedUserType);
         return;
       }
 
@@ -42,12 +46,14 @@ function CustomNavbar() {
         localStorage.removeItem('isLoggedOut');
         localStorage.removeItem('currentToken');
         setIsLoggedIn(false);
+        setUserType(null);
         navigate('/login');
         return;
       }
       
       // Se não houver token em nenhum lugar, está deslogado
       setIsLoggedIn(false);
+      setUserType(null);
     };
 
     // Check initial login status
@@ -55,7 +61,7 @@ function CustomNavbar() {
 
     // Listen for storage changes (other tabs)
     const handleStorageChange = (e) => {
-      if (e.key === 'isLoggedOut' || e.key === 'currentToken') {
+      if (e.key === 'isLoggedOut' || e.key === 'currentToken' || e.key === 'tipo') {
         checkLoginStatus();
       }
     };
@@ -67,6 +73,7 @@ function CustomNavbar() {
       localStorage.setItem('isLoggedOut', 'true');
       localStorage.removeItem('currentToken');
       setIsLoggedIn(false);
+      setUserType(null);
       navigate('/login');
     };
     window.addEventListener('auth:sessionExpired', handleSessionExpired);
@@ -96,9 +103,11 @@ function CustomNavbar() {
   const handleLoginSuccess = () => {
     setOpen(false);
     const token = sessionStorage.getItem('token');
+    const userType = sessionStorage.getItem('tipo');
     if (token) {
       localStorage.setItem('currentToken', token);
       setIsLoggedIn(true);
+      setUserType(userType);
     }
   };
 
@@ -107,9 +116,28 @@ function CustomNavbar() {
     localStorage.setItem('isLoggedOut', 'true');
     localStorage.removeItem('currentToken');
     setIsLoggedIn(false);
+    setUserType(null);
     // Disparar evento para outras abas
     window.dispatchEvent(new CustomEvent('auth:sessionExpired'));
     navigate('/');
+  };
+
+  const handleDashboardRedirect = () => {
+    if (!userType) return;
+    
+    switch (userType.toLowerCase()) {
+      case 'gestor':
+        navigate('/gestor/dashboard');
+        break;
+      case 'formando':
+        navigate('/utilizadores/dashboard');
+        break;
+      case 'formador':
+        navigate('/formador/dashboard');
+        break;
+      default:
+        navigate('/');
+    }
   };
 
   return (
@@ -135,24 +163,20 @@ function CustomNavbar() {
             </Navbar.Brand>
             
             <Nav className="me-auto d-none d-lg-flex">
-              <Nav.Link href="/" className="nav-link-custom">Home</Nav.Link>
-              <Nav.Link href="/utilizadores/lista/cursos" className="nav-link-custom">
-                <FaGraduationCap className="nav-icon" /> Cursos
-              </Nav.Link>
-              {/*<Nav.Link href="/ajuda" className="nav-link-custom">
-                <BsQuestionCircle className="nav-icon" /> Ajuda
-              </Nav.Link>*/}
+              {isLoggedIn && (
+                <Nav.Link onClick={handleDashboardRedirect} className="nav-link-custom">
+                  Dashboard
+                </Nav.Link>
+              )}
+              {userType?.toLowerCase() === 'formando' && (
+                <Nav.Link href="/utilizadores/lista/cursos" className="nav-link-custom">
+                  <FaGraduationCap className="nav-icon" /> Cursos
+                </Nav.Link>
+              )}
             </Nav>
           </div>
 
           <div className="d-flex align-items-center">
-            {/*<div className="search-box-container me-3 d-none d-md-block">
-              <div className="search-box-navbar">
-                <input type="text" placeholder="Pesquisar..." className="search-input" />
-                <LuSearch className="search-icon-navbar" />
-              </div>
-            </div>*/}
-            
             {!isLoggedIn ? (
               <>
                 <NavbarButton text="Login" onClick={handleOpen} />
