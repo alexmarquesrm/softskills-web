@@ -89,12 +89,14 @@ function AppContent() {
                         <Route path="/forum/:id" element={<ForumDetail />} />
                         <Route path="/forum/:id/create-thread" element={<CreateThread />} />
                         <Route path="/forum/:id/thread/:threadId" element={<ThreadDetail />} />
-
-                        {/* Micro Site */}
-                        <Route path="/microsite" element={<AboutUs />} />
-
                     </Route>
+                    
+                    {/* Public Routes */}
                     <Route path="*" element={<Navigate to="/" />} />
+
+                    {/* Micro Site */}
+                    <Route path="/microsite" element={<AboutUs />} />
+
                 </Routes>
             </div>
             <Footer />
