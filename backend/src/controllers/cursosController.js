@@ -419,6 +419,22 @@ const controladorCursos = {
               ],
             },
           ],
+          attributes: {
+            include: [
+              [
+                Sequelize.literal('(SELECT COUNT(*) FROM inscricao WHERE inscricao.curso_id = curso.curso_id)'),
+                'numero_inscritos'
+              ],
+              [
+                Sequelize.literal(`CASE 
+                WHEN curso.tipo = 'S' AND curso_sincrono.limite_vagas IS NOT NULL 
+                THEN curso_sincrono.limite_vagas - (SELECT COUNT(*) FROM inscricao WHERE inscricao.curso_id = curso.curso_id)
+                ELSE NULL 
+              END`),
+                'vagas_disponiveis'
+              ]
+            ]
+          },
         });
       } else if (cursoBasico.tipo === 'A') {
         includes.push({
@@ -461,6 +477,22 @@ const controladorCursos = {
                 ],
               },
             ],
+        attributes: {
+          include: [
+            [
+              Sequelize.literal('(SELECT COUNT(*) FROM inscricao WHERE inscricao.curso_id = curso.curso_id)'),
+              'numero_inscritos'
+            ],
+            [
+              Sequelize.literal(`CASE 
+                WHEN curso.tipo = 'S' AND curso_sincrono.limite_vagas IS NOT NULL 
+                THEN curso_sincrono.limite_vagas - (SELECT COUNT(*) FROM inscricao WHERE inscricao.curso_id = curso.curso_id)
+                ELSE NULL 
+              END`),
+              'vagas_disponiveis'
+            ]
+          ]
+        },
           },
           {
             model: models.gestor,

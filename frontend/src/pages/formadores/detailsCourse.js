@@ -633,7 +633,7 @@ export default function CursoDetalhes() {
 
                 <div className="d-flex justify-content-between align-items-center mb-3">
                   <div>
-                    <Badge bg="primary" className="me-2 py-2 px-3"> Total: {curso?.curso_sincrono?.[0]?.limite_vagas || 0} Vagas</Badge>
+                    <Badge bg="primary" className="me-2 py-2 px-3"> Total: {curso?.curso_sincrono?.vagas_disponiveis + " de " + curso?.curso_sincrono?.limite_vagas || 0} Vagas</Badge>
                     <Badge bg="success" className="me-2 py-2 px-3"> Inscritos: {alunos.length} Alunos </Badge>
                   </div>
                 </div>
