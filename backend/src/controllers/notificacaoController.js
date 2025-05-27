@@ -10,6 +10,11 @@ const notificacaoController = {
 
       const notificacoes = await models.notificacao.findAll({
         where: { formando_id: formandoId },
+        include: [{
+          model: models.curso,
+          as: 'curso',
+          attributes: ['titulo', 'descricao']
+        }],
         order: [['data_criacao', 'DESC']]
       });
 
@@ -59,13 +64,29 @@ const notificacaoController = {
       );
 
       const notificacoes = await models.notificacao.findAll({
-        where: { formando_id: colaboradorid }
+        where: { formando_id: colaboradorid },
+        include: [{
+          model: models.curso,
+          as: 'curso',
+          attributes: ['titulo', 'descricao']
+        }]
       });
 
       res.json(notificacoes);
     } catch (error) {
       console.error('Erro ao marcar todas notificações como lidas:', error);
       res.status(500).json({ error: 'Erro ao marcar todas notificações como lidas' });
+    }
+  },
+
+  // Processar notificações de início de curso (para ser chamado por um cron job)
+  processarNotificacoesInicioCurso: async (req, res) => {
+    try {
+      const result = await sequelizeConn.query('SELECT processar_notificacoes_inicio_curso()');
+      res.json({ message: 'Notificações processadas com sucesso', result: result[0][0] });
+    } catch (error) {
+      console.error('Erro ao processar notificações de início de curso:', error);
+      res.status(500).json({ error: 'Erro ao processar notificações de início de curso' });
     }
   }
 };

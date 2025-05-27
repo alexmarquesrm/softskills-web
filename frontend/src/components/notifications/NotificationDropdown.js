@@ -66,6 +66,25 @@ function NotificationDropdown() {
     }
   };
 
+  const formatNotificationTime = (dateString) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now - date;
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMins / 60);
+    const diffDays = Math.floor(diffHours / 24);
+
+    if (diffMins < 60) {
+      return `${diffMins} minuto${diffMins !== 1 ? 's' : ''} atrás`;
+    } else if (diffHours < 24) {
+      return `${diffHours} hora${diffHours !== 1 ? 's' : ''} atrás`;
+    } else if (diffDays < 7) {
+      return `${diffDays} dia${diffDays !== 1 ? 's' : ''} atrás`;
+    } else {
+      return date.toLocaleDateString('pt-PT');
+    }
+  };
+
   // Custom toggle component
   const CustomToggle = React.forwardRef(({ onClick }, ref) => (
     <div
@@ -146,7 +165,7 @@ function NotificationDropdown() {
                     {notification.descricao}
                   </div>
                   <div className="notification-time">
-                    {new Date(notification.data_criacao).toLocaleString()}
+                    {formatNotificationTime(notification.data_criacao)}
                   </div>
                 </div>
               ))

@@ -9,6 +9,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'chaveFixe';
  * @returns {String} Token JWT
  */
 const generateToken = (user) => {
+    console.log('Gerando token para o usuário:', user);
     const payload = {
         id: user.utilizadorid || user.colaborador_id,
         email: user.email,

@@ -56,16 +56,16 @@ $$ LANGUAGE plpgsql;
 -------------------------------------------------------------------------------------------
 
 
--- Remover trigger existente se houver
-DROP TRIGGER IF EXISTS trigger_notificar_inicio_curso ON inscricao;
+-- 1. TRIGGER PARA NOTIFICAÇÃO DE INSCRIÇÃO (executa imediatamente)
+-- Remover trigger existente
+DROP TRIGGER IF EXISTS trigger_notificar_inscricao ON inscricao;
+DROP FUNCTION IF EXISTS notificar_inicio_curso();
 
--- Trigger para criar notificação quando um curso começa
-CREATE OR REPLACE FUNCTION notificar_inicio_curso()
+-- Função para notificar inscrição
+CREATE OR REPLACE FUNCTION notificar_inscricao()
 RETURNS TRIGGER AS $$
-DECLARE
-    data_inicio DATE;
 BEGIN
-    -- Criar notificação de inscrição
+    -- Criar apenas notificação de inscrição
     INSERT INTO notificacao (formando_id, curso_id, descricao)
     SELECT 
         NEW.formando_id,
@@ -73,44 +73,116 @@ BEGIN
         'Você foi inscrito no curso "' || c.titulo || '"'
     FROM curso c
     WHERE c.curso_id = NEW.curso_id;
-
-    -- Obter a data de início do curso
-    SELECT s.data_inicio INTO data_inicio
-    FROM sincrono s
-    WHERE s.curso_id = NEW.curso_id;
-
-    -- Se for um curso síncrono, criar notificações adicionais
-    IF data_inicio IS NOT NULL THEN
-        -- Notificação 3 dias antes
-        INSERT INTO notificacao (formando_id, curso_id, descricao)
-        SELECT 
-            NEW.formando_id,
-            NEW.curso_id,
-            'O curso "' || c.titulo || '" começa em 3 dias!'
-        FROM curso c
-        WHERE c.curso_id = NEW.curso_id
-        AND data_inicio = CURRENT_DATE + INTERVAL '3 days';
-
-        -- Notificação no dia
-        INSERT INTO notificacao (formando_id, curso_id, descricao)
-        SELECT 
-            NEW.formando_id,
-            NEW.curso_id,
-            'O curso "' || c.titulo || '" começa hoje!'
-        FROM curso c
-        WHERE c.curso_id = NEW.curso_id
-        AND data_inicio = CURRENT_DATE;
-    END IF;
     
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER trigger_notificar_inicio_curso
+-- Trigger para inscrição
+CREATE TRIGGER trigger_notificar_inscricao
 AFTER INSERT ON inscricao
 FOR EACH ROW
-EXECUTE FUNCTION notificar_inicio_curso();
+EXECUTE FUNCTION notificar_inscricao();
 
+-- 2. FUNÇÃO PARA PROCESSAR NOTIFICAÇÕES DE INÍCIO DE CURSO
+-- Esta função deve ser executada por um cron job ou agendador
+CREATE OR REPLACE FUNCTION processar_notificacoes_inicio_curso()
+RETURNS INTEGER AS $$
+DECLARE
+    notificacoes_criadas INTEGER := 0;
+    rec RECORD;
+BEGIN
+    -- Notificações para cursos que começam em 3 dias
+    FOR rec IN 
+        SELECT DISTINCT i.formando_id, i.curso_id, c.titulo
+        FROM inscricao i
+        JOIN curso c ON c.curso_id = i.curso_id
+        JOIN sincrono s ON s.curso_id = i.curso_id
+        WHERE s.data_inicio = CURRENT_DATE + INTERVAL '3 days'
+        AND NOT EXISTS (
+            SELECT 1 FROM notificacao n 
+            WHERE n.formando_id = i.formando_id 
+            AND n.curso_id = i.curso_id 
+            AND n.descricao LIKE '%começa em 3 dias%'
+        )
+    LOOP
+        INSERT INTO notificacao (formando_id, curso_id, descricao)
+        VALUES (
+            rec.formando_id,
+            rec.curso_id,
+            'O curso "' || rec.titulo || '" começa em 3 dias!'
+        );
+        notificacoes_criadas := notificacoes_criadas + 1;
+    END LOOP;
+
+    -- Notificações para cursos que começam hoje
+    FOR rec IN 
+        SELECT DISTINCT i.formando_id, i.curso_id, c.titulo
+        FROM inscricao i
+        JOIN curso c ON c.curso_id = i.curso_id
+        JOIN sincrono s ON s.curso_id = i.curso_id
+        WHERE s.data_inicio = CURRENT_DATE
+        AND NOT EXISTS (
+            SELECT 1 FROM notificacao n 
+            WHERE n.formando_id = i.formando_id 
+            AND n.curso_id = i.curso_id 
+            AND n.descricao LIKE '%começa hoje%'
+        )
+    LOOP
+        INSERT INTO notificacao (formando_id, curso_id, descricao)
+        VALUES (
+            rec.formando_id,
+            rec.curso_id,
+            'O curso "' || rec.titulo || '" começa hoje!'
+        );
+        notificacoes_criadas := notificacoes_criadas + 1;
+    END LOOP;
+
+    RETURN notificacoes_criadas;
+END;
+$$ LANGUAGE plpgsql;
+
+-- 3. FUNÇÃO PARA EXECUTAR MANUALMENTE (para testes)
+CREATE OR REPLACE FUNCTION executar_notificacoes_teste()
+RETURNS TEXT AS $$
+DECLARE
+    resultado INTEGER;
+BEGIN
+    SELECT processar_notificacoes_inicio_curso() INTO resultado;
+    RETURN 'Notificações criadas: ' || resultado;
+END;
+$$ LANGUAGE plpgsql;
+
+-- 4. TESTES
+-- Primeiro, vamos testar com um curso que começa em 3 dias
+UPDATE sincrono
+SET data_inicio = CURRENT_DATE + INTERVAL '3 days'
+WHERE curso_id = 21;
+
+-- Executar processamento de notificações
+SELECT executar_notificacoes_teste();
+
+-- Verificar notificações criadas
+SELECT n.*, c.titulo
+FROM notificacao n
+JOIN curso c ON c.curso_id = n.curso_id
+WHERE n.curso_id = 21
+ORDER BY n.data_criacao DESC;
+
+-- Teste para curso que começa hoje
+UPDATE sincrono
+SET data_inicio = CURRENT_DATE
+WHERE curso_id = 21;
+
+-- Executar novamente
+SELECT executar_notificacoes_teste();
+
+-- Verificar todas as notificações
+SELECT n.*, c.titulo
+FROM notificacao n
+JOIN curso c ON c.curso_id = n.curso_id
+WHERE n.curso_id = 21
+ORDER BY n.data_criacao DESC;
 
 -------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------

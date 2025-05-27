@@ -25,6 +25,9 @@ const funcoesRoutes = require('./routes/funcoesRoutes');
 const trabalhosRoutes = require('./routes/trabalhosRoutes');
 const quizzRoutes = require('./routes/quizz');
 
+// Importar o cron job de notificações
+require('./cron/notificationCron');
+
 // Use CORS middleware
 app.use(cors({
   origin: '*',
