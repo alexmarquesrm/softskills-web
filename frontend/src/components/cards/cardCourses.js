@@ -1,12 +1,12 @@
 import React from "react";
 import { Card, Badge, Button } from "react-bootstrap";
-import { Clock, Users, Calendar, Award, CheckCircle, RefreshCcw, Edit} from "react-feather";
-import {BsTrophy} from "react-icons/bs";
+import { Clock, Users, Calendar, Award, CheckCircle, RefreshCcw, Edit } from "react-feather";
+import { BsTrophy } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
 import ReactGif from "./../../images/react.gif";
 import "./cardCourses.css";
 
-function CardCourses({ curso, inscricao, mostrarBotao = true, mostrarInicioEFim = false, mostrarBotaoEdit = false, mostrarCertificado = false, mostrarNivelCard= false }) {
+function CardCourses({ curso, inscricao, mostrarEstado = true, mostrarBotao = true, mostrarInicioEFim = false, mostrarBotaoEdit = false, mostrarCertificado = false, mostrarNivelCard = false, mostrarVagas = false }) {
   const navigate = useNavigate();
   const tipoUser = sessionStorage.getItem('tipo');
 
@@ -33,7 +33,7 @@ function CardCourses({ curso, inscricao, mostrarBotao = true, mostrarInicioEFim 
 
   const formatDate = (date) => {
     const data = new Date(date);
-    return data.toISOString().split('T')[0];
+    return data.toLocaleDateString('pt-PT');
   };
 
   const getBadgeVariant = (tipo) => {
@@ -55,34 +55,34 @@ function CardCourses({ curso, inscricao, mostrarBotao = true, mostrarInicioEFim 
   return (
     <Card className="course-card h-100">
       {(mostrarBotaoEdit && tipoUser === "Gestor") && (
-      <div className="course-edit-options">
-        <button className="edit-course-btn" onClick={() => handleEditCourse(curso.curso_id)}>
-          <Edit size={18} />
-        </button>
-      </div>
+        <div className="course-edit-options">
+          <button className="edit-course-btn" onClick={() => handleEditCourse(curso.curso_id)}>
+            <Edit size={18} />
+          </button>
+        </div>
       )}
 
       <div className="course-header" style={{ cursor: 'pointer' }} onClick={handleViewDetails}>
         {curso.capaUrl ? (
-          <img 
-            src={curso.capaUrl} 
-            alt={curso.titulo} 
-            className="course-image" 
+          <img
+            src={curso.capaUrl}
+            alt={curso.titulo}
+            className="course-image"
             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
           />
         ) : (
           <img src={ReactGif} alt="Curso" className="course-image" />
         )}
         {mostrarNivelCard && (
-        <Badge className={`course-type-badge2 nivel`}>
-          Nível-{ String(curso.nivel)}
-        </Badge>)}
+          <Badge className={`course-type-badge2 nivel`}>
+            Nível-{String(curso.nivel)}
+          </Badge>)}
         <Badge
           className="course-type-badge"
           bg={getBadgeVariant(curso.tipo)}
         >
           {getTipoLabel(curso.tipo)}
-        </Badge>  
+        </Badge>
       </div>
 
       <Card.Body className="d-flex flex-column">
@@ -141,7 +141,7 @@ function CardCourses({ curso, inscricao, mostrarBotao = true, mostrarInicioEFim 
             </div>
           )}
 
-          {(inscricao?.estado !== undefined || curso?.curso_sincrono?.estado !== undefined) && (
+          {mostrarEstado === true && ( inscricao?.estado !== undefined || curso?.curso_sincrono?.estado !== undefined) && (
             <div className="meta-item">
               <RefreshCcw size={16} className="icon" />
               <span>Estado: {(() => {
@@ -152,6 +152,13 @@ function CardCourses({ curso, inscricao, mostrarBotao = true, mostrarInicioEFim 
                 if (dataInicio && new Date(dataInicio) > new Date()) return 'Por começar';
                 return 'Em curso';
               })()}</span>
+            </div>
+          )}
+
+          {(mostrarVagas === true && curso?.vagas_disponiveis !== "" && curso?.tipo === "S") && (
+            <div className="meta-item">
+              <Users size={16} className="icon" />
+              <span>Vagas: {curso.vagas_disponiveis} de {curso.curso_sincrono.limite_vagas}</span>
             </div>
           )}
 
