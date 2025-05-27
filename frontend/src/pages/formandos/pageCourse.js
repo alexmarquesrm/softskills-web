@@ -22,6 +22,9 @@ import CustomBreadcrumb from "../../components/Breadcrumb";
 // CSS
 import "./pageCourse.css";
 
+// Map global para rastrear inscrições em curso por curso
+const inscricoesEmCurso = new Map();
+
 export default function CursoFormando() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -225,16 +228,16 @@ export default function CursoFormando() {
   }, [id, activeSection, curso]);
 
   const handleInscricao = async (e) => {
+    // Prevenir múltiplos cliques - verificar estado local e global
+    if (clicked || inscricoesEmCurso.has(id)) {
+      return;
+    }
+    
+    // Definir imediatamente para bloquear outros cliques
+    setClicked(true);
+    inscricoesEmCurso.set(id, true);
+
     try {
-      // Verificar se já está inscrito antes de tentar inscrever
-      if (inscricao !== null) {
-        toast.warning("Você já está inscrito neste curso!");
-        return;
-      }
-
-      if (clicked) return;
-      setClicked(true);
-
       const token = sessionStorage.getItem('token');
       const idColab = sessionStorage.getItem('colaboradorid');
 
@@ -243,11 +246,14 @@ export default function CursoFormando() {
         curso_id: id
       };
 
-      await axios.post('/inscricao/criar', inscricaoData, {
+      const response = await axios.post('/inscricao/criar', inscricaoData, {
         headers: { Authorization: `${token}` }
       });
 
       toast.success("Inscrição realizada com sucesso!");
+
+      // Atualizar o estado local para refletir que está inscrito
+      setInscricao({ curso_id: Number(id) });
 
       setTimeout(() => {
         navigate('/utilizadores/lista/cursos');
@@ -258,7 +264,7 @@ export default function CursoFormando() {
       if (error.response?.data?.erro === "Um formador não pode se inscrever no próprio curso") {
         toast.error("Você não pode se inscrever neste curso pois é o formador.");
       } else if (error.response?.data?.erro === "Formando já está inscrito neste curso") {
-        toast.error("Você já está inscrito neste curso!");
+        toast.warning("Você já está inscrito neste curso!");
         // Atualizar o estado local para refletir que está inscrito
         setInscricao({ curso_id: Number(id) });
       } else if (error.response?.data?.erro === "Curso já atingiu o limite de vagas") {
@@ -267,13 +273,15 @@ export default function CursoFormando() {
         toast.error("Não foi possível inscrever no curso. Por favor, avise o gestor.");
       }
     } finally {
-      setLoading(false);
-      setClicked(false);
+      // Remover do map global e reativar botão após delay
+      inscricoesEmCurso.delete(id);
+      setTimeout(() => {
+        setClicked(false);
+      }, 1000);
     }
   };
 
-  // 2. Update your handleFileAction function to be more robust with different data structures
-  // Função para abrir ou baixar um arquivo
+  // Função para abrir ou download de um arquivo
   const handleFileAction = (file) => {
     // First check if we have a file object
     if (!file) {
@@ -1315,23 +1323,19 @@ export default function CursoFormando() {
               {inscricao === null ? (
                 <div className="d-flex justify-content-center mt-4">
                   <Cancelar text={"Cancelar"} onClick={() => navigate("/utilizadores/lista/cursos")} Icon={BsArrowReturnLeft} inline={true} />
-                  <Inscrever text={"Inscrever"} onClick={handleInscricao} Icon={FaRegCheckCircle} disabled={clicked} />
+                  <Inscrever 
+                    text={clicked ? "A inscrever..." : "Inscrever"} 
+                    onClick={handleInscricao} 
+                    Icon={clicked ? Spinner : FaRegCheckCircle} 
+                    disabled={clicked} 
+                  />
                 </div>
               ) : (
                 <div className="text-center mt-4">
-                  {/* Só mostra a mensagem "já está inscrito" se o curso não estiver concluído */}
-                  {!(inscricao.nota != null && inscricao.estado === true) && (
-                    <Alert variant="success" className="d-inline-flex align-items-center mb-3">
-                      <BsCheckCircle className="me-2" />
-                      Você já está inscrito neste curso!
-                    </Alert>
-                  )}
-                  <div className="mt-3">
-                    <Button variant="outline-primary" onClick={() => navigate("/utilizadores/lista/cursos")}>
-                      <BsArrowReturnLeft className="me-2" />
-                      Voltar aos Cursos
-                    </Button>
-                  </div>
+                  <Button variant="outline-primary" onClick={() => navigate("/utilizadores/lista/cursos")}>
+                    <BsArrowReturnLeft className="me-2" />
+                    Voltar aos Cursos
+                  </Button>
                 </div>
               )}
             </div>
