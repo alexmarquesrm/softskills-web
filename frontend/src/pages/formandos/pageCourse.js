@@ -43,6 +43,7 @@ export default function CursoFormando() {
   const [quizLoading, setQuizLoading] = useState(false);
   const [showQuizModal, setShowQuizModal] = useState(false);
   const [selectedQuizId, setSelectedQuizId] = useState(null);
+  const [clicked, setClicked] = useState(false);
 
   const breadcrumbItems = [
     { label: 'Formando', path: '/formando' },
@@ -99,17 +100,17 @@ export default function CursoFormando() {
           try {
             const token = sessionStorage.getItem('token');
             const formadorId = curso?.curso_sincrono?.formador_id;
-            
+
             console.log('Verificando avaliação do formador:', {
               cursoId: id,
               formadorId: formadorId
             });
-            
+
             if (formadorId) {
               const avaliacoesResponse = await axios.get(`/avaliacao-formador?curso_id=${id}&formador_id=${formadorId}`, {
                 headers: { Authorization: `${token}` }
               });
-              
+
               setFormadorJaAvaliado(avaliacoesResponse.data.length > 0);
             }
           } catch (error) {
@@ -239,7 +240,8 @@ export default function CursoFormando() {
         formando_id: idColab,
         curso_id: id
       };
-
+      if (clicked) return;
+      setClicked(true);
       await axios.post('/inscricao/criar', inscricaoData, {
         headers: { Authorization: `${token}` }
       });
@@ -422,30 +424,30 @@ export default function CursoFormando() {
     try {
       // Create new PDF document
       const doc = new jsPDF();
-      
+
       // Add background color
       doc.setFillColor(240, 240, 240);
       doc.rect(0, 0, 210, 297, 'F');
-      
+
       // Add border
       doc.setDrawColor(40, 167, 69);
       doc.setLineWidth(2);
       doc.rect(10, 10, 190, 277);
-      
+
       // Add title
       doc.setFontSize(24);
       doc.setTextColor(40, 167, 69);
       doc.text('Certificado de Conclusão', 105, 40, { align: 'center' });
-      
+
       // Add decorative line
       doc.setDrawColor(40, 167, 69);
       doc.setLineWidth(0.5);
       doc.line(40, 50, 170, 50);
-      
+
       // Add content
       doc.setFontSize(12);
       doc.setTextColor(51, 51, 51);
-      
+
       const formando = sessionStorage.getItem('nome');
       const nomeFormando = formando || 'Formando';
       const nomeCurso = curso?.titulo || 'Curso';
@@ -453,44 +455,44 @@ export default function CursoFormando() {
       const nivel = curso?.nivel || 'N/A';
       const totalHoras = curso?.total_horas || 'N/A';
       const formador = getFormadorNome();
-      
+
       // Add certificate text
       doc.setFontSize(14);
       doc.text('Certificamos que', 105, 80, { align: 'center' });
-      
+
       doc.setFontSize(16);
       doc.setFont(undefined, 'bold');
       doc.text(nomeFormando, 105, 95, { align: 'center' });
-      
+
       doc.setFontSize(14);
       doc.setFont(undefined, 'normal');
       doc.text('concluiu com êxito o curso', 105, 110, { align: 'center' });
-      
+
       doc.setFontSize(16);
       doc.setFont(undefined, 'bold');
       doc.text(nomeCurso, 105, 125, { align: 'center' });
-      
+
       // Add course details
       doc.setFontSize(12);
       doc.setFont(undefined, 'normal');
       doc.text(`Nível: ${nivel}`, 105, 150, { align: 'center' });
       doc.text(`Carga Horária: ${totalHoras} horas`, 105, 160, { align: 'center' });
       doc.text(`Data de Conclusão: ${dataConclusao}`, 105, 170, { align: 'center' });
-      
+
       // Add formador
       doc.text('Formador:', 105, 190, { align: 'center' });
       doc.setFont(undefined, 'bold');
       doc.text(formador, 105, 200, { align: 'center' });
-      
+
       // Add footer
       doc.setFontSize(10);
       doc.setFont(undefined, 'normal');
       doc.setTextColor(128, 128, 128);
       doc.text('Este certificado é gerado automaticamente e não requer assinatura digital.', 105, 250, { align: 'center' });
-      
+
       // Save the PDF
       doc.save(`certificado_${nomeCurso}.pdf`);
-      
+
       toast.success("Certificado gerado com sucesso!");
     } catch (error) {
       console.error("Erro ao gerar certificado:", error);
@@ -757,7 +759,7 @@ export default function CursoFormando() {
                                       <BsAward className="me-2" />
                                       Gerar Certificado
                                     </Button>
-                                    
+
                                     {/* Botão de avaliar formador */}
                                     {curso?.tipo === "S" && !formadorJaAvaliado && (
                                       <Button
@@ -769,7 +771,7 @@ export default function CursoFormando() {
                                         Avaliar Formador
                                       </Button>
                                     )}
-                                    
+
                                     {/* Mensagem quando o formador já foi avaliado */}
                                     {curso?.tipo === "S" && formadorJaAvaliado && (
                                       <div className="text-success d-flex align-items-center">
@@ -1244,7 +1246,7 @@ export default function CursoFormando() {
               {inscricao === null && (
                 <div className="d-flex justify-content-center mt-4">
                   <Cancelar text={"Cancelar"} onClick={() => navigate("/utilizadores/lista/cursos")} Icon={BsArrowReturnLeft} inline={true} />
-                  <Inscrever text={"Inscrever"} onClick={handleInscricao} Icon={FaRegCheckCircle} />
+                  <Inscrever text={"Inscrever"} onClick={handleInscricao} Icon={FaRegCheckCircle} disabled={clicked} />
                 </div>
               )}
             </div>
@@ -1267,7 +1269,7 @@ export default function CursoFormando() {
             </Modal.Header>
             <Modal.Body>
               <p className="mb-4">Por favor, avalie o desempenho do formador neste curso:</p>
-              
+
               <div className="d-flex justify-content-center gap-2 mb-3">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <Button
@@ -1280,7 +1282,7 @@ export default function CursoFormando() {
                   </Button>
                 ))}
               </div>
-              
+
               {errorAvaliacao && (
                 <Alert variant="danger" className="mt-3">
                   {errorAvaliacao}

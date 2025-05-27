@@ -115,7 +115,7 @@ export default function Courses() {
             modo: 'curso'
         });
     }, [curso, tipoSelecionado, certSelecionado, estadoSelecionado, dataSelecionada, nivelSelecionado, categoriaSelecionada, areaSelecionada, topicoSelecionado, searchTerm]);
-    console.log(filteredInscricoes);
+
     const stats = useMemo(() => {
         if (curso.length === 0) return { total: 0, emCurso: 0, terminados: 0 };
 
