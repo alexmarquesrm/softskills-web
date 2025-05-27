@@ -748,7 +748,7 @@ export default function CursoFormando() {
                               )}
 
                               {/* Adicionar botão de certificado quando o curso estiver concluído */}
-                              {inscricao && inscricao.nota != null && (
+                              {inscricao && inscricao.nota != null && (inscricao.estado === true) && (
                                 <li className="mt-3">
                                   <div className="d-flex flex-column gap-2">
                                     <Button
@@ -761,7 +761,7 @@ export default function CursoFormando() {
                                     </Button>
 
                                     {/* Botão de avaliar formador */}
-                                    {curso?.tipo === "S" && !formadorJaAvaliado && (
+                                    {curso?.tipo === "S" && !formadorJaAvaliado && curso?.curso_sincrono.estado === true &&(
                                       <Button
                                         variant="primary"
                                         className="w-100"
@@ -773,7 +773,7 @@ export default function CursoFormando() {
                                     )}
 
                                     {/* Mensagem quando o formador já foi avaliado */}
-                                    {curso?.tipo === "S" && formadorJaAvaliado && (
+                                    {curso?.tipo === "S" && formadorJaAvaliado && curso?.curso_sincrono.estado === true && (
                                       <div className="text-success d-flex align-items-center">
                                         <BsCheckCircle className="me-2" />
                                         Formador já avaliado
