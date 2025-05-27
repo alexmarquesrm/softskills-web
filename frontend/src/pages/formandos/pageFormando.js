@@ -53,35 +53,35 @@ export default function PaginaGestor() {
   };
 
   const fetchCurso = async () => {
-  try {
-    const response = await axios.get("/curso/landing");
+    try {
+      const response = await axios.get("/curso/landing");
 
-    let todosCursos = [];
+      let todosCursos = [];
 
-    // Se já vierem separados por tipo
-    if (response.data.sincronos && response.data.assincronos) {
-      const sincronos = response.data.sincronos.slice(0, 4);
-      const assincronos = response.data.assincronos.slice(0, 4);
-      todosCursos = [...sincronos, ...assincronos];
-    } 
-    // Se vier num array plano
-    else if (Array.isArray(response.data)) {
-      const sincronos = response.data
-        .filter(curso => curso.tipo === "S")
-        .slice(0, 4);
+      // Se já vierem separados por tipo
+      if (response.data.sincronos && response.data.assincronos) {
+        const sincronos = response.data.sincronos.slice(0, 4);
+        const assincronos = response.data.assincronos.slice(0, 4);
+        todosCursos = [...sincronos, ...assincronos];
+      }
+      // Se vier num array plano
+      else if (Array.isArray(response.data)) {
+        const sincronos = response.data
+          .filter(curso => curso.tipo === "S")
+          .slice(0, 4);
 
-      const assincronos = response.data
-        .filter(curso => curso.tipo === "A")
-        .slice(0, 4);
+        const assincronos = response.data
+          .filter(curso => curso.tipo === "A")
+          .slice(0, 4);
 
-      todosCursos = [...sincronos, ...assincronos];
+        todosCursos = [...sincronos, ...assincronos];
+      }
+
+      setCursos(todosCursos);
+    } catch (error) {
+      console.error("Erro ao encontrar cursos:", error);
     }
-
-    setCursos(todosCursos);
-  } catch (error) {
-    console.error("Erro ao encontrar cursos:", error);
-  }
-};
+  };
 
   useEffect(() => {
     fetchInscricao();
@@ -192,7 +192,7 @@ export default function PaginaGestor() {
             Cursos ativos
           </h2>
           <div className="section-actions">
-            <button className="btn btn-link section-link" onClick={() => navToPage('/utilizadores/percursoFormativo')}>
+            <button className="btn btn-link section-link" onClick={() => { navToPage('/utilizadores/percursoFormativo'); window.scrollTo(0, 0); }}>
               Ver Todos <ArrowRightCircle size={16} className="ms-1" />
             </button>
           </div>
@@ -226,7 +226,7 @@ export default function PaginaGestor() {
             Cursos em Destaque
           </h2>
           <div className="section-actions">
-            <button className="btn btn-link section-link" onClick={() => navToPage('/utilizadores/lista/cursos')}>
+            <button className="btn btn-link section-link" onClick={() => { navToPage('/utilizadores/lista/cursos'); window.scrollTo(0, 0); }}>
               Ver Todos <ArrowRightCircle size={16} className="ms-1" />
             </button>
           </div>

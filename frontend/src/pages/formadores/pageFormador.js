@@ -219,7 +219,7 @@ export default function PaginaGestor() {
             Cursos ativos
           </h2>
           <div className="section-actions">
-            <button className="btn btn-link section-link" onClick={() => navToPage('/formador/cursos')}>
+            <button className="btn btn-link section-link" onClick={() =>{ navToPage('/formador/cursos'); window.scrollTo(0, 0); }}>
               Ver Todos <ArrowRightCircle size={16} className="ms-1" />
             </button>
           </div>

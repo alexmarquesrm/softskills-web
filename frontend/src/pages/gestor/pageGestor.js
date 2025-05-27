@@ -1,20 +1,16 @@
 import React, { useEffect, useState, useMemo } from "react";
 import axios from "../../config/configAxios";
 import { Container, Row, Col, Card } from "react-bootstrap";
+import { useNavigate } from 'react-router-dom';
+import { FileEarmarkText, ExclamationTriangle, ArrowRightCircle, Clock, Person } from 'react-bootstrap-icons';
+/* COMPONENTES */
 import CardInfo from "../../components/cards/cardDestaque";
 import DataTable from '../../components/tables/dataTable';
 import CardPedido from '../../components/cards/cardPedido';
 import CardRow from '../../components/cards/cardRow';
-import { 
-  BarChart, 
-  FileEarmarkText, 
-  ExclamationTriangle, 
-  Download, 
-  ArrowRightCircle,
-  Clock
-} from 'react-bootstrap-icons';
-import "./pageGestor.css";
 import WelcomeNotification from "../../components/notifications/WelcomeNotification";
+/* CSS */
+import "./pageGestor.css";
 
 export default function PaginaGestor() {
   const [tableRows, setTableRows] = useState([]);
@@ -22,7 +18,13 @@ export default function PaginaGestor() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [saudacao, setSaudacao] = useState('');
+  const [dataMaisRecenteDenuncia, setDataMaisRecenteDenuncia] = useState(null);
+  const [countFormandos, setCountFormandos] = useState(null);
   const nome = sessionStorage.getItem('nome');
+  const navigate = useNavigate();
+  const navToPage = (url) => {
+    navigate(url)
+  }
 
   const formatDate = (date) => {
     const data = new Date(date);
@@ -47,22 +49,22 @@ export default function PaginaGestor() {
   const tableColumns = [
     { field: 'id', headerName: 'Nº Denuncia', flex: 0.3, headerAlign: 'left', disableColumnMenu: true },
     { field: 'denuncia', headerName: 'Denúncia feita por:', flex: 0.5, headerAlign: 'left', disableColumnMenu: true },
-    { 
-      field: 'motivo', 
-      headerName: 'Motivo', 
-      flex: 0.4, 
-      headerAlign: 'left', 
+    {
+      field: 'motivo',
+      headerName: 'Motivo',
+      flex: 0.4,
+      headerAlign: 'left',
       disableColumnMenu: false,
       renderCell: ({ row }) => (
         <span className={`badge ${getBadgeClass(row.motivo)}`}>{row.motivo}</span>
       )
     },
     { field: 'descricao', headerName: 'Descrição', flex: 0.8, headerAlign: 'left', disableColumnMenu: true },
-    { 
-      field: 'data', 
-      headerName: 'Data', 
-      flex: 0.3, 
-      headerAlign: 'left', 
+    {
+      field: 'data',
+      headerName: 'Data',
+      flex: 0.3,
+      headerAlign: 'left',
       disableColumnMenu: true,
       renderCell: ({ row }) => (
         <span className="text-muted d-flex align-items-center">
@@ -105,7 +107,7 @@ export default function PaginaGestor() {
           }
 
           return {
-            id: denuncia.denuncia_id,
+            id: '#' + denuncia.denuncia_id,
             denuncia: denuncia.formando.formando_colab.nome,
             motivo: motivoTexto,
             descricao: denuncia.descricao,
@@ -113,6 +115,10 @@ export default function PaginaGestor() {
           };
         })
       );
+      if (sortedDenuncia.length > 0) {
+        const dataMaisRecenteDenuncia = new Date(sortedDenuncia[0].data);
+        setDataMaisRecenteDenuncia(dataMaisRecenteDenuncia);
+      }
     } catch (error) {
       setError(error);
     } finally {
@@ -152,9 +158,25 @@ export default function PaginaGestor() {
     fetchSaudacao();
   }, []);
 
+  useEffect(() => {
+    const fetchContagemFormandos = async () => {
+      try {
+        const token = sessionStorage.getItem('token');
+        const response = await axios.get(`/formando/totalformandos`, {
+          headers: { Authorization: `${token}` }
+        });
+
+        setCountFormandos(response.data.total);
+
+      } catch (error) {
+        console.error("Erro ao carregar estatísticas de formandos:", error);
+      }
+    };
+    fetchContagemFormandos();
+  }, []);
   const filteredPedido = useMemo(() => {
     if (pedidos.length === 0) return [];
-    
+
     return pedidos.filter(pedido => {
       if (pedido.tipo === 'CURSO') {
         return pedido.ped_curso?.pendente === true;
@@ -164,12 +186,14 @@ export default function PaginaGestor() {
       return false;
     }).sort((a, b) => new Date(b.data) - new Date(a.data));
   }, [pedidos]);
-  
+
+  const dataMaisRecentePedido = filteredPedido.length > 0 ? new Date(filteredPedido[0].data) : null;
+
   const renderPedidoCard = (pedido, index) => {
     if (!pedido) return null;
-    
+
     return (
-      <CardPedido 
+      <CardPedido
         key={pedido.pedido_id || index}
         pedido={{
           ...pedido,
@@ -209,88 +233,72 @@ export default function PaginaGestor() {
           <h1 className="page-title">Visão Geral</h1>
           <p className="page-subtitle">{saudacao}, <span className="user-name">{nome}</span></p>
         </div>
-        <div className="page-actions">
-          <button className="btn action-btn">
-            <BarChart className="action-icon" />
-            <span className="action-text">Relatórios</span>
-          </button>
-          <button className="btn action-btn">
-            <Download className="action-icon" />
-            <span className="action-text">Exportar Dados</span>
-          </button>
-        </div>
       </div>
-      
+
       <CardInfo />
-      
+
       <Row className="dashboard-metrics g-4">
         <Col lg={4} md={6}>
           <Card className="metric-card">
             <Card.Body>
               <div className="metric-header">
-                <div className="metric-icon">
+                <div className="metric-icon" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <div className="icon-bg pedidos-bg">
                     <FileEarmarkText />
                   </div>
-                </div>
-                <div className="metric-trend trend-up">
-                  <span>+8%</span>
+                  <p style={{ color: '#718096', fontSize: '1.3rem', fontWeight: '500' }}>Total de Pedidos</p>
                 </div>
               </div>
               <h3 className="metric-value">{pedidos.length}</h3>
-              <p className="metric-label">Total de Pedidos</p>
               <div className="metric-progress">
                 <div className="progress-bar pedidos-bar" style={{ width: '100%' }}></div>
               </div>
-              <p className="metric-detail">+8% que o mês anterior</p>
+              <p className="metric-detail">Atualizado em {dataMaisRecentePedido ? new Date(dataMaisRecentePedido).toLocaleDateString('pt-PT') : '—'} </p>
             </Card.Body>
           </Card>
         </Col>
-        
+
         <Col lg={4} md={6}>
           <Card className="metric-card">
             <Card.Body>
               <div className="metric-header">
-                <div className="metric-icon">
+                <div className="metric-icon" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <div className="icon-bg denuncias-bg">
                     <ExclamationTriangle />
                   </div>
-                </div>
-                <div className="metric-trend trend-down">
-                  <span>-45%</span>
+                  <p style={{ color: '#718096', fontSize: '1.3rem', fontWeight: '500' }}>Total de Denúncias</p>
                 </div>
               </div>
               <h3 className="metric-value">{tableRows.length}</h3>
-              <p className="metric-label">Total de Denúncias</p>
               <div className="metric-progress">
                 <div className="progress-bar denuncias-bar" style={{ width: '100%' }}></div>
               </div>
-              <p className="metric-detail">-45% que o mês anterior</p>
+              <p className="metric-detail"> Atualizado em {dataMaisRecenteDenuncia ? new Date(dataMaisRecenteDenuncia).toLocaleDateString('pt-PT') : '—'}</p>
             </Card.Body>
           </Card>
         </Col>
-        
+
         <Col lg={4} md={6}>
           <Card className="metric-card">
             <Card.Body>
               <div className="metric-header">
-                <div className="metric-icon">
+                <div className="metric-icon" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <div className="icon-bg atividade-bg">
-                    <Clock />
+                    <Person />
                   </div>
+                  <p style={{ color: '#718096', fontSize: '1.3rem', fontWeight: '500' }}>Total Formandos Ativos</p>
                 </div>
               </div>
-              <h3 className="metric-value">12 dias</h3>
-              <p className="metric-label">Última Atividade</p>
+              <h3 className="metric-value">{countFormandos}</h3>
               <div className="metric-progress">
                 <div className="progress-bar atividade-bar" style={{ width: '100%' }}></div>
               </div>
-              <p className="metric-detail">Atualizado em 4/Abr/2025</p>
+              <p className="metric-detail">Atualizado em {new Date().toLocaleDateString('pt-PT')}</p>
             </Card.Body>
           </Card>
         </Col>
       </Row>
-      
+
       <div className="section-wrapper">
         <div className="section-header">
           <h2 className="section-title">
@@ -298,7 +306,7 @@ export default function PaginaGestor() {
             Pedidos Recentes
           </h2>
           <div className="section-actions">
-            <button className="btn btn-link section-link">
+            <button className="btn btn-link section-link" onClick={() =>{ navToPage('/gestor/lista/pedidos'); window.scrollTo(0, 0); }}>
               Ver Todos <ArrowRightCircle size={16} className="ms-1" />
             </button>
           </div>
@@ -327,13 +335,8 @@ export default function PaginaGestor() {
             <ExclamationTriangle className="section-icon" />
             Denúncias Recentes
           </h2>
-          <div className="section-actions">
-            <button className="btn btn-link section-link">
-              Ver Todas <ArrowRightCircle size={16} className="ms-1" />
-            </button>
-          </div>
         </div>
-        
+
         <div className="section-content">
           {loading ? (
             <div className="loading-container">
@@ -341,12 +344,12 @@ export default function PaginaGestor() {
               <p>Carregando denúncias...</p>
             </div>
           ) : tableRows.length > 0 ? (
-            <DataTable 
-              rows={tableRows} 
-              columns={tableColumns} 
+            <DataTable
+              rows={tableRows}
+              columns={tableColumns}
               showSearch={true}
               pageSize={5}
-              emptyStateMessage="Nenhuma denúncia encontrada" 
+              emptyStateMessage="Nenhuma denúncia encontrada"
             />
           ) : (
             <div className="empty-state">
