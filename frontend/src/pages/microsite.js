@@ -63,7 +63,7 @@ const AboutUs = () => {
         {/* Page Title */}
         <Row className="mb-5">
           <Col>
-            <h1 className="page-title">About Us</h1>
+            <h1 className="page-title-microsite">About Us</h1>
           </Col>
         </Row>
 
