@@ -256,13 +256,6 @@ function ProfileDropdown({ onLogout }) {
           >
             <BsPersonCircle className="menu-icon" /> Perfil
           </Dropdown.Item>
-          <Dropdown.Item 
-            href="/utilizadores/settings" 
-            className="profile-menu-item"
-            onClick={() => setShow(false)}
-          >
-            <BsGear className="menu-icon" /> Definições
-          </Dropdown.Item>
           <Dropdown.Divider />
           <Dropdown.Item 
             onClick={() => {
