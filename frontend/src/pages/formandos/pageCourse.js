@@ -1304,24 +1304,7 @@ export default function CursoFormando() {
                           </Accordion.Body>
                         </Accordion.Item>
                       ))}
-                    </Accordion>
-
-                    <div className="additional-help mt-4 p-4 bg-light rounded">
-                      <div className="d-flex align-items-center mb-3">
-                        <BsInfoCircle className="me-2 text-primary" size={24} />
-                        <h5 className="mb-0">Precisa de mais ajuda?</h5>
-                      </div>
-                      <p className="mb-3">
-                        Se não encontrou resposta para a sua questão, pode contactar-nos de uma das seguintes formas:
-                      </p>
-                      <Row>
-                        <Col md={12}>
-                          <Button variant="outline-primary" className="w-100 mb-2">
-                            <BsFillPeopleFill className="me-2" /> Contactar Formador
-                          </Button>
-                        </Col>
-                      </Row>
-                    </div>
+                    </Accordion>                   
                   </Card.Body>
                 </Card>
               )}
