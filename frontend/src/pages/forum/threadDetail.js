@@ -57,14 +57,21 @@ const ThreadDetail = () => {
           try {
             const formandoResponse = await axios.get(`/formando/${colaborador_id}`);
             if (formandoResponse.data && formandoResponse.data.formando_id) {
-              const voteResponse = await axios.get(`/threadsAva/${threadId}/${formandoResponse.data.formando_id}`);
-              if (voteResponse.data) {
-                const voteValue = parseInt(voteResponse.data.vote);
-                setVoteStatus(voteValue);
+              try {
+                const voteResponse = await axios.get(`/threadsAva/${threadId}/${formandoResponse.data.formando_id}`);
+                if (voteResponse.data) {
+                  const voteValue = parseInt(voteResponse.data.vote);
+                  setVoteStatus(voteValue);
+                }
+              } catch (voteErr) {
+                // If 404, it means user hasn't voted yet - this is normal
+                if (voteErr.response?.status !== 404) {
+                  console.error('Error checking vote:', voteErr);
+                }
               }
             }
           } catch (err) {
-            console.log('Error checking vote:', err);
+            console.error('Error getting formando:', err);
           }
         }
         setLoading(false);

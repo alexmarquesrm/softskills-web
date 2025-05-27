@@ -26,8 +26,25 @@ const ForumList = () => {
   useEffect(() => {
     const fetchForums = async () => {
       try {
-        const response = await axios.get('/forum');
-        setForums(response.data);
+        const [forumsResponse, threadsResponse] = await Promise.all([
+          axios.get('/forum'),
+          axios.get('/thread')
+        ]);
+
+        // Count threads for each forum
+        const forumsWithCounts = forumsResponse.data.map(forum => {
+          const threadCount = threadsResponse.data.filter(
+            thread => thread.forum_id === forum.forum_id
+          ).length;
+
+          return {
+            ...forum,
+            thread_count: threadCount,
+            participant_count: 0 // Keeping this for compatibility
+          };
+        });
+
+        setForums(forumsWithCounts);
         setLoading(false);
       } catch (err) {
         setError('Erro ao carregar fóruns');

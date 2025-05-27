@@ -178,81 +178,95 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
             const user = result.user;
             
             console.log('Login com Google bem sucedido, enviando dados para o backend...');
-            // Send the Google user data to your backend
-            const response = await axios.post('/colaborador/google-login', {
-                googleId: user.uid,
-                email: user.email,
-                name: user.displayName,
-                photoURL: user.photoURL
-            });
-
-            const utilizador = response.data.user;
-            const token = response.data.token;
-            const saudacao = response.data.saudacao;
-
-            // Armazenar token - principal fonte de autenticação
-            sessionStorage.setItem('token', token);
             
-            console.log(utilizador);
-            // Armazenar dados para UI (estes não são usados para autorização)
-            sessionStorage.setItem('colaboradorid', utilizador.colaboradorid);
-            sessionStorage.setItem('nome', utilizador.nome);
-            sessionStorage.setItem('email', utilizador.email);
-            sessionStorage.setItem('primeirologin', utilizador.ultimologin === null ? "true" : "false");
-            
-            // Armazenar todos os tipos de usuário
-            if (utilizador.allUserTypes && Array.isArray(utilizador.allUserTypes)) {
-                sessionStorage.setItem('allUserTypes', utilizador.allUserTypes.join(','));
-                // Definir tipo predefinido seguindo a hierarquia: Gestor > Formador > Formando
-                let defaultType = utilizador.allUserTypes[0];
-                if (utilizador.allUserTypes.includes('Gestor')) {
-                    defaultType = 'Gestor';
-                } else if (utilizador.allUserTypes.includes('Formador')) {
-                    defaultType = 'Formador';
-                } else if (utilizador.allUserTypes.includes('Formando')) {
-                    defaultType = 'Formando';
+            try {
+                // Send the Google user data to your backend
+                const response = await axios.post('/colaborador/google-login', {
+                    googleId: user.uid,
+                    email: user.email,
+                    name: user.displayName,
+                    photoURL: user.photoURL
+                });
+
+                if (!response.data || !response.data.user) {
+                    throw new Error('Resposta do backend inválida');
                 }
-                sessionStorage.setItem('tipo', defaultType);
-            } else {
-                sessionStorage.setItem('allUserTypes', utilizador.tipo);
-                sessionStorage.setItem('tipo', utilizador.tipo);
-            }
-            
-            sessionStorage.setItem('saudacao', saudacao);
 
-            // Configurar o token para todas as requisições futuras
-            axios.defaults.headers.common['Authorization'] = token;
+                const utilizador = response.data.user;
+                const token = response.data.token;
+                const saudacao = response.data.saudacao;
 
-            // Se o último login for null, mostrar o modal de alteração de password
-            if (utilizador.ultimologin === null) {
-                resetForm();
-                setShowChangePassword(true);
-                return;
-            }
-
-            // Determinar a rota de redirecionamento baseada nas roles
-            let redirectPath = '/';
-            const userTypes = utilizador.allUserTypes || [utilizador.tipo];
-            const isGestor = userTypes.includes('Gestor');
-            const isFormando = userTypes.includes('Formando');
-            const isFormador = userTypes.includes('Formador');
-
-            if (isGestor) {
-                redirectPath = '/gestor/dashboard';
-            } else if (isFormando) {
-                redirectPath = '/utilizadores/dashboard';
-            } else if (isFormador) {
-                redirectPath = '/formador/dashboard';
-            }
-
-            // Fechar o modal e redirecionar com a mensagem de boas-vindas
-            handleClose();
-            navigate(redirectPath, { 
-                state: { 
-                    welcomeMessage: `${saudacao}, ${utilizador.nome}! Bem-vindo(a) à plataforma de cursos.`
+                // Armazenar token - principal fonte de autenticação
+                sessionStorage.setItem('token', token);
+                
+                // Armazenar dados para UI (estes não são usados para autorização)
+                if (!utilizador.colaboradorid) {
+                    throw new Error('ID do colaborador não encontrado na resposta do servidor');
                 }
-            });
-            onLoginSuccess();
+                
+                sessionStorage.setItem('colaboradorid', utilizador.colaboradorid);
+                sessionStorage.setItem('nome', utilizador.nome);
+                sessionStorage.setItem('email', utilizador.email);
+                sessionStorage.setItem('primeirologin', utilizador.ultimologin === null ? "true" : "false");
+                
+                // Armazenar todos os tipos de usuário
+                if (utilizador.allUserTypes && Array.isArray(utilizador.allUserTypes)) {
+                    sessionStorage.setItem('allUserTypes', utilizador.allUserTypes.join(','));
+                    // Definir tipo predefinido seguindo a hierarquia: Gestor > Formador > Formando
+                    let defaultType = utilizador.allUserTypes[0];
+                    if (utilizador.allUserTypes.includes('Gestor')) {
+                        defaultType = 'Gestor';
+                    } else if (utilizador.allUserTypes.includes('Formador')) {
+                        defaultType = 'Formador';
+                    } else if (utilizador.allUserTypes.includes('Formando')) {
+                        defaultType = 'Formando';
+                    }
+                    sessionStorage.setItem('tipo', defaultType);
+                } else {
+                    sessionStorage.setItem('allUserTypes', utilizador.tipo);
+                    sessionStorage.setItem('tipo', utilizador.tipo);
+                }
+                
+                sessionStorage.setItem('saudacao', saudacao);
+
+                // Configurar o token para todas as requisições futuras
+                axios.defaults.headers.common['Authorization'] = token;
+
+                // Se o último login for null, mostrar o modal de alteração de password
+                if (utilizador.ultimologin === null) {
+                    resetForm();
+                    setShowChangePassword(true);
+                    return;
+                }
+
+                // Determinar a rota de redirecionamento baseada nas roles
+                let redirectPath = '/';
+                const userTypes = utilizador.allUserTypes || [utilizador.tipo];
+                const isGestor = userTypes.includes('Gestor');
+                const isFormando = userTypes.includes('Formando');
+                const isFormador = userTypes.includes('Formador');
+
+                if (isGestor) {
+                    redirectPath = '/gestor/dashboard';
+                } else if (isFormando) {
+                    redirectPath = '/utilizadores/dashboard';
+                } else if (isFormador) {
+                    redirectPath = '/formador/dashboard';
+                }
+
+                // Fechar o modal e redirecionar com a mensagem de boas-vindas
+                handleClose();
+                navigate(redirectPath, { 
+                    state: { 
+                        welcomeMessage: `${saudacao}, ${utilizador.nome}! Bem-vindo(a) à plataforma de cursos.`
+                    }
+                });
+                onLoginSuccess();
+            } catch (backendError) {
+                console.error('Erro na comunicação com o backend:', backendError);
+                console.error('Detalhes do erro:', backendError.response?.data);
+                throw new Error(backendError.response?.data?.message || 'Erro ao processar login com Google');
+            }
         } catch (error) {
             console.error('Erro no login com Google:', error);
             setError(error.message || 'Erro ao fazer login com Google. Tente novamente.');
