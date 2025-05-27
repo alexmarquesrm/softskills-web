@@ -39,7 +39,7 @@ const AboutUs = () => {
       name: "Tiago Carvalho",
       role: "WEB DEVELOPER",
       image: tiagoFoto,
-      bio: "Pellentesque nec vestibulum orci. Praesent ut dui ornare ipsum cursus mattis porta. Proin finibus imperdiet sodor et molere justo aliquam ut. Suspendisse eu lobortis orci, eget mattis dolor molestm mauris dolor, interdum at rhoncus eu, aliquam consequat purus. Praesent in sapien lectus. Duis quis faucibus odio. Etiam blandit rutrum justo sit amet, volutpat sapien auctor tempus. Nam ex elit, efficitur nec lacus sed, aliquam vitae lacus.",
+      bio: "Apaixonado por duas rodas, livros e bons jogos. Se não estou na estrada de mota, estou mergulhado numa história, (no chão de uma estrada) ou em alguma partida de algum jogo.",
     }
   ];
 
