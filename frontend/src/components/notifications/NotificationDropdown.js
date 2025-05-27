@@ -67,21 +67,35 @@ function NotificationDropdown() {
   };
 
   const formatNotificationTime = (dateString) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffMs = now - date;
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMins / 60);
-    const diffDays = Math.floor(diffHours / 24);
+    try {
+      const date = new Date(dateString);
+      const now = new Date();
+      
+      // Verificar se a data é válida
+      if (isNaN(date.getTime())) {
+        return 'Data inválida';
+      }
+      
+      const diffMs = now - date;
+      const diffMins = Math.floor(diffMs / 60000);
+      const diffHours = Math.floor(diffMins / 60);
+      const diffDays = Math.floor(diffHours / 24);
 
-    if (diffMins < 60) {
-      return `${diffMins} minuto${diffMins !== 1 ? 's' : ''} atrás`;
-    } else if (diffHours < 24) {
-      return `${diffHours} hora${diffHours !== 1 ? 's' : ''} atrás`;
-    } else if (diffDays < 7) {
-      return `${diffDays} dia${diffDays !== 1 ? 's' : ''} atrás`;
-    } else {
-      return date.toLocaleDateString('pt-PT');
+      // Se a diferença for negativa ou muito pequena, mostrar "agora"
+      if (diffMins < 1) {
+        return 'agora';
+      } else if (diffMins < 60) {
+        return `${diffMins} minuto${diffMins !== 1 ? 's' : ''} atrás`;
+      } else if (diffHours < 24) {
+        return `${diffHours} hora${diffHours !== 1 ? 's' : ''} atrás`;
+      } else if (diffDays < 7) {
+        return `${diffDays} dia${diffDays !== 1 ? 's' : ''} atrás`;
+      } else {
+        return date.toLocaleDateString('pt-PT');
+      }
+    } catch (error) {
+      console.error('Erro ao formatar data:', error);
+      return 'Data inválida';
     }
   };
 
