@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { Container } from "react-bootstrap";
 import { Eye } from "react-bootstrap-icons";
+import { MessageSquare} from 'react-feather';
 import { useNavigate } from "react-router-dom";
 import axios from "../../config/configAxios";
+/* COMPONENTES */
 import DataTable from "../../components/tables/dataTable";
+/* CSS */
 import "./pedidos.css";
 
 const ListaPedidos = () => {
@@ -164,9 +167,22 @@ const ListaPedidos = () => {
 ];
   return (
     <Container fluid className="lista-pedidos-container">
-      <div className="page-header">
-        <h1 className="page-title">Pedidos</h1>
-      </div>
+      <div className="forum-header">
+                <div className="forum-header-content">
+                  <div className="forum-header-icon">
+                    <MessageSquare size={32} />
+                  </div>
+                  <div className="forum-header-info">
+                    <h1>Pedidos</h1>
+                  </div> 
+                </div>
+                <div className="percurso-stats">
+                        <div className="percurso-stat-item">
+                            <span className="stat-value">{tableRows.length}</span>
+                            <span className="stat-label">Total de Pedidos</span>
+                        </div>
+                    </div>
+              </div>
 
       <div className="filtro-container">
         <div className="estado-filtro">
