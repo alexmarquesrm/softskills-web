@@ -186,6 +186,8 @@ function initModels(sequelize) {
   curso.hasMany(avaliacao_formador, { as: "curso_avaformador", foreignKey: "curso_id"});
   avaliacao_formador.belongsTo(formador, { as: "avaformador_formador", foreignKey: "formador_id"});
   formador.hasMany(avaliacao_formador, { as: "formador_avaformador", foreignKey: "formador_id"});
+  avaliacao_formador.belongsTo(formando, { as: "avaformador_formando", foreignKey: "formando_id"});
+  formando.hasMany(avaliacao_formador, { as: "formando_avaformador", foreignKey: "formando_id"});
   funcao.belongsTo(departamento, { as: 'funcao_departamento', foreignKey: 'departamento_id'});
   departamento.hasMany(funcao, { as: 'departamento_funcoes', foreignKey: 'departamento_id'});
   colaborador.belongsTo(funcao, { as: 'colab_funcao', foreignKey: 'funcao_id'});

@@ -23,6 +23,14 @@ module.exports = function(sequelize, DataTypes) {
         key: 'formador_id'
       }
     },
+    formando_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'formando',
+        key: 'formando_id'
+      }
+    },
     avaliacao: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -47,6 +55,15 @@ module.exports = function(sequelize, DataTypes) {
         unique: true,
         fields: [
           { name: "avaliacao_id" },
+        ]
+      },
+      {
+        name: "uk_avaliacao_formador_unique",
+        unique: true,
+        fields: [
+          { name: "curso_id" },
+          { name: "formador_id" },
+          { name: "formando_id" },
         ]
       },
     ]
