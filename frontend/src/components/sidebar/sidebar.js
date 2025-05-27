@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "../../config/configAxios";
-import { Gear, Flag, EnvelopeOpen, PersonCircle, BoxArrowRight, Book, PeopleFill, Building, Grid, ChevronRight, ChevronDown } from "react-bootstrap-icons";
+import { Flag, EnvelopeOpen, PersonCircle, BoxArrowRight, Book, PeopleFill, ChevronRight, ChevronDown } from "react-bootstrap-icons";
 import "./sidebar.css";
 import { useNavigate } from 'react-router-dom';
 
@@ -286,7 +286,7 @@ const Sidebar = ({ isOpen, onClose }) => {
             <span className="menu-heading">PRINCIPAIS</span>
 
             {/* Botão Categorias apenas para não-gestores */}
-            {tipoUtilizador !== "Gestor" && (
+            {(tipoUtilizador !== "Gestor" && tipoUtilizador !== "Formador") && (
               <>
                 <NavItem
                   href="#"
