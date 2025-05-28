@@ -21,4 +21,7 @@ router.post('/:quizzId/respostas', authenticate, quizzController.submitQuizAnswe
 // GET /quizz/:quizzId - Buscar um quiz específico com perguntas e opções
 router.get('/:quizzId', quizzController.getQuizById);
 
+// GET /quizz/:quizzId/completion - Verificar se o formando já respondeu ao quiz
+router.get('/:quizzId/completion', authenticate, quizzController.checkQuizCompletion);
+
 module.exports = router; 

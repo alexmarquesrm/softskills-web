@@ -5,7 +5,7 @@ const sequelizeConn = require('../bdConexao');
 // Executar todos os dias à meia-noite
 // cron.schedule('0 0 * * *', async () => {
 //   try {
-//     console.log('Executando processamento de notificações de início de curso...', new Date().toLocaleString());
+//     console.log('Executando processamento de notificações de início de curso...', new Date().toLocaleString('pt-PT', { timeZone: 'Europe/Lisbon' }));
     
 //     // Executar a função do banco de dados
 //     const [result] = await sequelizeConn.query('SELECT processar_notificacoes_inicio_curso()');
@@ -19,7 +19,7 @@ const sequelizeConn = require('../bdConexao');
 // Para testes, executar a cada 5 minutos
 cron.schedule('*/5 * * * *', async () => {
   try {
-    console.log('Executando verificação de notificações...', new Date().toLocaleString());
+    console.log('Executando verificação de notificações...', new Date().toLocaleString('pt-PT', { timeZone: 'Europe/Lisbon' }));
     
     // Executar a função do banco de dados
     const [result] = await sequelizeConn.query('SELECT processar_notificacoes_inicio_curso()');

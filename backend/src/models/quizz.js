@@ -29,7 +29,8 @@ module.exports = function(sequelize, DataTypes) {
     },
     nota: {
       type: DataTypes.FLOAT,
-      allowNull: true
+      allowNull: false,
+      defaultValue: 70.0
     }
   }, {
     sequelize,
