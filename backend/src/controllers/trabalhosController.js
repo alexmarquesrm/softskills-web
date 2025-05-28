@@ -244,7 +244,9 @@ const controladorTrabalhos = {
       const inscricoes = await models.inscricao.findAll({
         where: {
           formando_id: formando_id,
-          estado: true // Apenas cursos ativos
+          estado: false // Apenas cursos ativos
+          // data_atual maior que a data_inicio para mostrar
+          
         },
         include: [
           {
