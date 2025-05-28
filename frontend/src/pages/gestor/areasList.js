@@ -166,7 +166,6 @@ export default function AreasList() {
 
   const handleModalClose = () => {
     setShowModal(false);
-    setSelectedArea(null);
   };
 
   const handleModalSuccess = (message) => {

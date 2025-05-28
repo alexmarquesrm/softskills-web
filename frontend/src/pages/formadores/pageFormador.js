@@ -22,9 +22,9 @@ export default function PaginaGestor() {
   const navToPage = (url) => {
     navigate(url)
   }
-const cursosComAvaliacoes = curso.filter(cursoItem =>
-  avaliacoes.some(a => a.curso_id === cursoItem.curso_id)
-);
+  const cursosComAvaliacoes = curso.filter(cursoItem =>
+    avaliacoes.some(a => a.curso_id === cursoItem.curso_id)
+  );
 
   const fetchSaudacao = async () => {
     try {
@@ -92,16 +92,21 @@ const cursosComAvaliacoes = curso.filter(cursoItem =>
     const quinzeDiasDepois = new Date(hoje);
     quinzeDiasDepois.setDate(hoje.getDate() + 15);
 
-    return curso.filter(item => {
-      // Verifica se tem data de início
-      const dataInicio = item.curso_sincrono?.data_inicio;
-      if (!dataInicio) return false;
-
-      const dataInicioObj = new Date(dataInicio);
-
-      // Verifica se a data está entre hoje e 15 dias depois
-      return dataInicioObj >= hoje && dataInicioObj <= quinzeDiasDepois;
-    }).sort((a, b) => new Date(a.curso_sincrono?.data_inicio) - new Date(b.curso_sincrono?.data_inicio));
+    return curso
+      .filter(item => {
+        // Verifica se o curso foi aprovado e não está pendente
+        if (item.aprovado !== true || item.pendente === true) return false;
+        // Verifica se tem data de início
+        const dataInicio = item.curso_sincrono?.data_inicio;
+        if (!dataInicio) return false;
+        const dataInicioObj = new Date(dataInicio);
+        // Verifica se a data está entre hoje e 15 dias depois
+        return dataInicioObj >= hoje && dataInicioObj <= quinzeDiasDepois;
+      })
+      .sort(
+        (a, b) =>
+          new Date(a.curso_sincrono?.data_inicio) - new Date(b.curso_sincrono?.data_inicio)
+      );
   }, [curso]);
 
   const filteredCursoAtivo = useMemo(() => {

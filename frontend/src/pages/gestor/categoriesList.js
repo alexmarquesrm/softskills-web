@@ -149,7 +149,6 @@ export default function CategoriesList() {
 
   const handleModalClose = () => {
     setShowModal(false);
-    setSelectedCategory(null);
   };
 
   const handleModalSuccess = (message) => {
