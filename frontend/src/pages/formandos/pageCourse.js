@@ -51,6 +51,7 @@ export default function CursoFormando() {
   const [clicked, setClicked] = useState(false);
   const [showVideoModal, setShowVideoModal] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState(null);
+  const [refreshFlag, setRefreshFlag] = useState(0);
 
   const breadcrumbItems = [
     { label: 'Formando', path: '/formando' },
@@ -219,7 +220,7 @@ export default function CursoFormando() {
                 const completionResponse = await axios.get(`/quizz/${quiz.quizz_id}/completion`, {
                   headers: { Authorization: `${token}` }
                 });
-                
+
                 return {
                   ...quiz,
                   completed: completionResponse.data.completed,
@@ -231,7 +232,7 @@ export default function CursoFormando() {
               }
             })
           );
-          
+
           setQuizzes(quizzesWithStatus);
         } else {
           console.log('Failed to load quizzes:', response.data);
@@ -244,18 +245,50 @@ export default function CursoFormando() {
       }
     };
 
-    if (activeSection === "materiais") {
+    if (activeSection === "materiais" || inscricao) {
       console.log('Active section is materiais, fetching quizzes...');
       fetchQuizzes();
     }
   }, [id, activeSection, curso]);
+
+  useEffect(() => {
+    const atualizarEstadoInscricaoSeNecessario = async () => {
+      if (!inscricao) return;
+      // Evita update se já estiver estado true ou quizzes não carregados
+      if (inscricao.estado === true && !quizzes && quizzes.length === 0) return;
+
+      const algumConcluido = quizzes.some(q => q.completed);
+      
+      if (algumConcluido && inscricao.estado !== true) {
+        try {
+          const token = sessionStorage.getItem("token");
+          await axios.put(`/inscricao/atualizar/${inscricao.inscricao_id}`, {
+            estado: true
+          }, {
+            headers: {
+              Authorization: `${token}`
+            }
+          });
+
+          setInscricao(prev => ({ ...prev, estado: true })); // Atualiza localmente
+
+          setRefreshFlag(prev => prev + 1);
+          
+        } catch (error) {
+          console.error("Erro ao atualizar inscrição:", error.response?.data || error.message);
+        }
+      }
+    };
+    
+    atualizarEstadoInscricaoSeNecessario();
+  }, [quizzes, inscricao, refreshFlag]);
 
   const handleInscricao = async (e) => {
     // Prevenir múltiplos cliques - verificar estado local e global
     if (clicked || inscricoesEmCurso.has(id)) {
       return;
     }
-    
+
     // Definir imediatamente para bloquear outros cliques
     setClicked(true);
     inscricoesEmCurso.set(id, true);
@@ -435,7 +468,7 @@ export default function CursoFormando() {
 
   // Função para abrir o modal de submissão de trabalho
   const handleOpenSubmeterModal = (material) => {
-    
+
     if (!material || !material.material_id) {
       console.error('Material inválido:', material);
       toast.error("Erro ao abrir submissão: material inválido");
@@ -613,10 +646,10 @@ export default function CursoFormando() {
   const handleQuizCompleted = async () => {
     try {
       setRefreshingData(true);
-      
+
       // Force refresh of materials and quizzes data
       setRefreshTrigger(prev => prev + 1);
-      
+
       // Also manually refresh the quizzes with completion status
       const token = sessionStorage.getItem('token');
       const response = await axios.get(`/quizz/curso/${id}`, {
@@ -631,7 +664,7 @@ export default function CursoFormando() {
               const completionResponse = await axios.get(`/quizz/${quiz.quizz_id}/completion`, {
                 headers: { Authorization: `${token}` }
               });
-              
+
               return {
                 ...quiz,
                 completed: completionResponse.data.completed,
@@ -643,7 +676,7 @@ export default function CursoFormando() {
             }
           })
         );
-        
+
         setQuizzes(quizzesWithStatus);
         toast.success("Quiz concluído! Dados atualizados.");
       }
@@ -662,7 +695,7 @@ export default function CursoFormando() {
   // Add this new function to handle video viewing
   const handleViewVideo = (material) => {
     if (!material.ficheiros || material.ficheiros.length === 0) return;
-    
+
     const videoFile = material.ficheiros[0];
     setSelectedVideo({
       url: videoFile.url,
@@ -694,7 +727,7 @@ export default function CursoFormando() {
   // Encontra o próximo prazo (usando a data de entrega mais próxima no futuro)
   const getPrazoProximo = () => {
     if (!materials || !Array.isArray(materials)) return null;
-    
+
     const entregas = materials.filter(m => m?.tipo === 'entrega' && m?.data_entrega);
     if (entregas.length === 0) return null;
 
@@ -707,7 +740,7 @@ export default function CursoFormando() {
         return false;
       }
     });
-    
+
     if (entregasFuturas.length === 0) return null;
 
     // Ordenar por data mais próxima
@@ -719,12 +752,12 @@ export default function CursoFormando() {
         return 0;
       }
     });
-    
+
     return entregasFuturas[0];
   };
 
   const proximoPrazo = getPrazoProximo();
-
+  
   return (
     <div className="course-page">
       <Container>
@@ -778,14 +811,14 @@ export default function CursoFormando() {
                     {inscricao !== null && (
                       // Para cursos assíncronos, sempre mostrar materiais
                       // Para cursos síncronos, só mostrar após data de início
-                      (curso?.tipo === 'A' || 
-                       (curso?.tipo === 'S' && curso?.curso_sincrono?.data_inicio && new Date(curso.curso_sincrono.data_inicio) <= new Date())
+                      (curso?.tipo === 'A' ||
+                        (curso?.tipo === 'S' && curso?.curso_sincrono?.data_inicio && new Date(curso.curso_sincrono.data_inicio) <= new Date())
                       )
                     ) && (
-                      <Button variant={activeSection === "materiais" ? "primary" : "light"} onClick={() => handleSectionChange("materiais")} className="me-2 mb-2">
-                        <BsBook className="me-1" /> Materiais
-                      </Button>
-                    )}
+                        <Button variant={activeSection === "materiais" ? "primary" : "light"} onClick={() => handleSectionChange("materiais")} className="me-2 mb-2">
+                          <BsBook className="me-1" /> Materiais
+                        </Button>
+                      )}
                     <Button
                       variant={activeSection === "objetivos" ? "primary" : "light"}
                       onClick={() => handleSectionChange("objetivos")}
@@ -912,7 +945,7 @@ export default function CursoFormando() {
                                     </Button>
 
                                     {/* Botão de avaliar formador */}
-                                    {curso?.tipo === "S" && !formadorJaAvaliado && curso?.curso_sincrono?.estado === true &&(
+                                    {curso?.tipo === "S" && !formadorJaAvaliado && curso?.curso_sincrono?.estado === true && (
                                       <Button
                                         variant="primary"
                                         className="w-100"
@@ -1126,7 +1159,7 @@ export default function CursoFormando() {
                                                   onClick={() => handleOpenSubmeterModal(material)}
                                                   disabled={new Date(material.data_entrega) < new Date()}
                                                 >
-                                                  <BsUpload className="me-1" /> 
+                                                  <BsUpload className="me-1" />
                                                   {new Date(material.data_entrega) < new Date() ? 'Prazo Expirado' : 'Submeter'}
                                                 </Button>
                                               ) : (
@@ -1224,7 +1257,7 @@ export default function CursoFormando() {
                                                       }}
                                                       disabled={new Date(material.data_entrega) < new Date()}
                                                     >
-                                                      <BsUpload className="me-1" /> 
+                                                      <BsUpload className="me-1" />
                                                       {new Date(material.data_entrega) < new Date() ? 'Prazo Expirado' : 'Submeter'}
                                                     </Button>
                                                   ) : (
@@ -1263,11 +1296,11 @@ export default function CursoFormando() {
                               </div>
                             </Accordion.Header>
                             <Accordion.Body>
-                                                          {(quizLoading || refreshingData) ? (
-                              <div className="text-center py-4">
-                                <Spinner animation="border" variant="success" />
-                                <p className="mt-2">{refreshingData ? 'A atualizar dados...' : 'A carregar quizzes...'}</p>
-                              </div>
+                              {(quizLoading || refreshingData) ? (
+                                <div className="text-center py-4">
+                                  <Spinner animation="border" variant="success" />
+                                  <p className="mt-2">{refreshingData ? 'A atualizar dados...' : 'A carregar quizzes...'}</p>
+                                </div>
                               ) : !quizzes || quizzes.length === 0 ? (
                                 <Alert variant="light" className="text-center">
                                   <BsInfoCircle className="me-2" />
@@ -1299,8 +1332,8 @@ export default function CursoFormando() {
                                                 {quiz.questoes_quizzs?.length || 0} questões
                                               </Badge>
                                               {quiz.completed && quiz.nota !== null && (
-                                                <Badge 
-                                                  bg={quiz.nota >= (quiz.nota_minima || 70) ? 'success' : 'danger'} 
+                                                <Badge
+                                                  bg={quiz.nota >= (quiz.nota_minima || 70) ? 'success' : 'danger'}
                                                   className="me-2"
                                                 >
                                                   Nota: {quiz.nota.toFixed(1)}%
@@ -1409,7 +1442,7 @@ export default function CursoFormando() {
                           </Accordion.Body>
                         </Accordion.Item>
                       ))}
-                    </Accordion>                   
+                    </Accordion>
                   </Card.Body>
                 </Card>
               )}
@@ -1417,11 +1450,11 @@ export default function CursoFormando() {
               {inscricao === null ? (
                 <div className="d-flex justify-content-center mt-4">
                   <Cancelar text={"Cancelar"} onClick={() => navigate("/utilizadores/lista/cursos")} Icon={BsArrowReturnLeft} inline={true} />
-                  <Inscrever 
-                    text={clicked ? "A inscrever..." : "Inscrever"} 
-                    onClick={handleInscricao} 
-                    Icon={clicked ? Spinner : FaRegCheckCircle} 
-                    disabled={clicked} 
+                  <Inscrever
+                    text={clicked ? "A inscrever..." : "Inscrever"}
+                    onClick={handleInscricao}
+                    Icon={clicked ? Spinner : FaRegCheckCircle}
+                    disabled={clicked}
                   />
                 </div>
               ) : (
@@ -1483,10 +1516,10 @@ export default function CursoFormando() {
           </Modal>
 
           {/* Quiz Modal */}
-          <QuizModal 
-            show={showQuizModal} 
-            onHide={() => setShowQuizModal(false)} 
-            quizId={selectedQuizId} 
+          <QuizModal
+            show={showQuizModal}
+            onHide={() => setShowQuizModal(false)}
+            quizId={selectedQuizId}
             onQuizCompleted={handleQuizCompleted}
           />
 

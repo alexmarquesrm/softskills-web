@@ -39,11 +39,11 @@ export default function PaginaGestor() {
   const fetchTrabalhosPendentes = async () => {
     try {
       const token = sessionStorage.getItem('token');
-      
+
       const response = await axios.get('/trabalhos/pendentes', {
         headers: { Authorization: `${token}` }
       });
-      
+
       setTrabalhosPendentes(response.data.data || []);
     } catch (error) {
       console.error('Erro ao obter trabalhos pendentes:', error);
@@ -125,10 +125,17 @@ export default function PaginaGestor() {
 
     return inscricao.filter(item => {
       // Verifica se já começou
-      const dataLimite = item.inscricao_curso?.curso_sincrono?.data_inicio;
-      if (!dataLimite || new Date(dataLimite) > new Date()) return false;
+      
+      if (item.inscricao_curso?.tipo === "S") {
+        const dataLimite = item.inscricao_curso?.curso_sincrono?.data_inicio;
+        if (!dataLimite || new Date(dataLimite) > new Date()) return false;
 
-      if (item.inscricao_curso?.curso_sincrono?.estado === true) return false;
+        if (item.inscricao_curso?.curso_sincrono?.estado === true) return false;
+      }
+
+      if (item.inscricao_curso?.tipo === "A") {
+        if (item.estado === true) return false;
+      }
 
       return true;
     });
