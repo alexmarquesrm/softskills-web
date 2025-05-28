@@ -95,7 +95,7 @@ export default function PaginaGestor() {
     return curso
       .filter(item => {
         // Verifica se o curso foi aprovado e não está pendente
-        if (item.aprovado !== true || item.pendente === true) return false;
+        if (item.aprovado !== true && item.pendente === true) return false;
         // Verifica se tem data de início
         const dataInicio = item.curso_sincrono?.data_inicio;
         if (!dataInicio) return false;
