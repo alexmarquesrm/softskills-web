@@ -5,6 +5,7 @@ import axios from "../config/configAxios";
 const ModalAdicionarQuiz = ({ show, onHide, cursoId, onSuccess }) => {
     const [quizData, setQuizData] = useState({
         descricao: '',
+        nota: 70, // Nota mínima padrão para passar (70%)
         questoes: [{
             pergunta: '',
             opcoes: ['', ''], // Começa com 2 opções
@@ -106,6 +107,16 @@ const ModalAdicionarQuiz = ({ show, onHide, cursoId, onSuccess }) => {
                 ...quizData,
                 curso_id: cursoId
             });
+            // Reset form data
+            setQuizData({
+                descricao: '',
+                nota: 70,
+                questoes: [{
+                    pergunta: '',
+                    opcoes: ['', ''],
+                    resposta_correta: 0
+                }]
+            });
             onSuccess();
             onHide();
         } catch (error) {
@@ -114,23 +125,55 @@ const ModalAdicionarQuiz = ({ show, onHide, cursoId, onSuccess }) => {
         }
     };
 
+    const handleClose = () => {
+        // Reset form data when closing
+        setQuizData({
+            descricao: '',
+            nota: 70,
+            questoes: [{
+                pergunta: '',
+                opcoes: ['', ''],
+                resposta_correta: 0
+            }]
+        });
+        onHide();
+    };
+
     return (
-        <Modal show={show} onHide={onHide} size="lg">
+        <Modal show={show} onHide={handleClose} size="lg">
             <Modal.Header closeButton>
                 <Modal.Title>Adicionar Quiz</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                <Form onSubmit={handleSubmit}>
-                    <Form.Group className="mb-3">
-                        <Form.Label>Descrição</Form.Label>
-                        <Form.Control
-                            type="text"
-                            name="descricao"
-                            value={quizData.descricao}
-                            onChange={handleChange}
-                            required
-                        />
-                    </Form.Group>
+                                    <Form onSubmit={handleSubmit}>
+                        <Row className="mb-3">
+                            <Col md={8}>
+                                <Form.Group>
+                                    <Form.Label>Descrição</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="descricao"
+                                        value={quizData.descricao}
+                                        onChange={handleChange}
+                                        required
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col md={4}>
+                                <Form.Group>
+                                    <Form.Label>Nota Mínima (%)</Form.Label>
+                                    <Form.Control
+                                        type="number"
+                                        name="nota"
+                                        value={quizData.nota}
+                                        onChange={handleChange}
+                                        min="0"
+                                        max="100"
+                                        required
+                                    />
+                                </Form.Group>
+                            </Col>
+                        </Row>
 
                     <h5>Questões</h5>
                     {quizData.questoes.map((questao, index) => (
@@ -210,7 +253,7 @@ const ModalAdicionarQuiz = ({ show, onHide, cursoId, onSuccess }) => {
                     </Button>
 
                     <div className="d-flex justify-content-end gap-2">
-                        <Button variant="secondary" onClick={onHide}>
+                        <Button variant="secondary" onClick={handleClose}>
                             Cancelar
                         </Button>
                         <Button variant="primary" type="submit">

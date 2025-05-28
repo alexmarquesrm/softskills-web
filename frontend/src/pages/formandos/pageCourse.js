@@ -45,6 +45,7 @@ export default function CursoFormando() {
   const [formadorJaAvaliado, setFormadorJaAvaliado] = useState(false);
   const [quizzes, setQuizzes] = useState([]);
   const [quizLoading, setQuizLoading] = useState(false);
+  const [refreshingData, setRefreshingData] = useState(false);
   const [showQuizModal, setShowQuizModal] = useState(false);
   const [selectedQuizId, setSelectedQuizId] = useState(null);
   const [clicked, setClicked] = useState(false);
@@ -210,7 +211,28 @@ export default function CursoFormando() {
 
         if (response.data.success) {
           console.log('Quizzes loaded successfully:', response.data.data);
-          setQuizzes(response.data.data);
+          
+          // Check completion status for each quiz
+          const quizzesWithStatus = await Promise.all(
+            response.data.data.map(async (quiz) => {
+              try {
+                const completionResponse = await axios.get(`/quizz/${quiz.quizz_id}/completion`, {
+                  headers: { Authorization: `${token}` }
+                });
+                
+                return {
+                  ...quiz,
+                  completed: completionResponse.data.completed,
+                  nota: completionResponse.data.completed ? completionResponse.data.data.nota : null
+                };
+              } catch (error) {
+                console.error(`Error checking completion for quiz ${quiz.quizz_id}:`, error);
+                return { ...quiz, completed: false, nota: null };
+              }
+            })
+          );
+          
+          setQuizzes(quizzesWithStatus);
         } else {
           console.log('Failed to load quizzes:', response.data);
         }
@@ -585,6 +607,56 @@ export default function CursoFormando() {
   const handleStartQuiz = (quizId) => {
     setSelectedQuizId(quizId);
     setShowQuizModal(true);
+  };
+
+  // Function to handle quiz completion and refresh data
+  const handleQuizCompleted = async () => {
+    try {
+      setRefreshingData(true);
+      
+      // Force refresh of materials and quizzes data
+      setRefreshTrigger(prev => prev + 1);
+      
+      // Also manually refresh the quizzes with completion status
+      const token = sessionStorage.getItem('token');
+      const response = await axios.get(`/quizz/curso/${id}`, {
+        headers: { Authorization: `${token}` }
+      });
+
+      if (response.data.success) {
+        // Check completion status for each quiz
+        const quizzesWithStatus = await Promise.all(
+          response.data.data.map(async (quiz) => {
+            try {
+              const completionResponse = await axios.get(`/quizz/${quiz.quizz_id}/completion`, {
+                headers: { Authorization: `${token}` }
+              });
+              
+              return {
+                ...quiz,
+                completed: completionResponse.data.completed,
+                nota: completionResponse.data.completed ? completionResponse.data.data.nota : null
+              };
+            } catch (error) {
+              console.error(`Error checking completion for quiz ${quiz.quizz_id}:`, error);
+              return { ...quiz, completed: false, nota: null };
+            }
+          })
+        );
+        
+        setQuizzes(quizzesWithStatus);
+        toast.success("Quiz concluído! Dados atualizados.");
+      }
+    } catch (error) {
+      console.error('Erro ao atualizar dados:', error);
+      // Fallback to page reload if manual refresh fails
+      toast.success("Quiz concluído! A página será atualizada.");
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
+    } finally {
+      setRefreshingData(false);
+    }
   };
 
   // Add this new function to handle video viewing
@@ -1191,11 +1263,11 @@ export default function CursoFormando() {
                               </div>
                             </Accordion.Header>
                             <Accordion.Body>
-                              {quizLoading ? (
-                                <div className="text-center py-4">
-                                  <Spinner animation="border" variant="success" />
-                                  <p className="mt-2">A carregar quizzes...</p>
-                                </div>
+                                                          {(quizLoading || refreshingData) ? (
+                              <div className="text-center py-4">
+                                <Spinner animation="border" variant="success" />
+                                <p className="mt-2">{refreshingData ? 'A atualizar dados...' : 'A carregar quizzes...'}</p>
+                              </div>
                               ) : !quizzes || quizzes.length === 0 ? (
                                 <Alert variant="light" className="text-center">
                                   <BsInfoCircle className="me-2" />
@@ -1207,28 +1279,51 @@ export default function CursoFormando() {
                                     <ListGroup.Item key={quiz.quizz_id} className="material-item py-3">
                                       <div className="d-flex justify-content-between align-items-center">
                                         <div className="d-flex align-items-start">
-                                          <div className="me-3 text-success">
-                                            <BsQuestionCircle size={24} />
+                                          <div className={`me-3 ${quiz.completed ? 'text-primary' : 'text-success'}`}>
+                                            {quiz.completed ? <BsCheckCircle size={24} /> : <BsQuestionCircle size={24} />}
                                           </div>
                                           <div>
-                                            <div className="fw-bold">{quiz.descricao}</div>
+                                            <div className="fw-bold">
+                                              {quiz.descricao}
+                                              {quiz.completed && (
+                                                <Badge bg="success" className="ms-2">
+                                                  Concluído
+                                                </Badge>
+                                              )}
+                                            </div>
                                             <div className="mt-2">
                                               <Badge bg="light" text="success" className="me-2">
                                                 <BsClock className="me-1" /> Limite: {quiz.limite_tempo} minutos
                                               </Badge>
-                                              <Badge bg="light" text="success">
+                                              <Badge bg="light" text="success" className="me-2">
                                                 {quiz.questoes_quizzs?.length || 0} questões
                                               </Badge>
+                                              {quiz.completed && quiz.nota !== null && (
+                                                <Badge 
+                                                  bg={quiz.nota >= (quiz.nota_minima || 70) ? 'success' : 'danger'} 
+                                                  className="me-2"
+                                                >
+                                                  Nota: {quiz.nota.toFixed(1)}%
+                                                </Badge>
+                                              )}
                                             </div>
                                           </div>
                                         </div>
                                         <div>
                                           <Button
-                                            variant="success"
+                                            variant={quiz.completed ? "outline-primary" : "success"}
                                             size="sm"
                                             onClick={() => handleStartQuiz(quiz.quizz_id)}
                                           >
-                                            <BsPlayFill className="me-1" /> Iniciar Quiz
+                                            {quiz.completed ? (
+                                              <>
+                                                <BsCheckCircle className="me-1" /> Ver Resultado
+                                              </>
+                                            ) : (
+                                              <>
+                                                <BsPlayFill className="me-1" /> Iniciar Quiz
+                                              </>
+                                            )}
                                           </Button>
                                         </div>
                                       </div>
@@ -1388,7 +1483,12 @@ export default function CursoFormando() {
           </Modal>
 
           {/* Quiz Modal */}
-          <QuizModal show={showQuizModal} onHide={() => setShowQuizModal(false)} quizId={selectedQuizId} />
+          <QuizModal 
+            show={showQuizModal} 
+            onHide={() => setShowQuizModal(false)} 
+            quizId={selectedQuizId} 
+            onQuizCompleted={handleQuizCompleted}
+          />
 
           {/* Video Modal */}
           <VideoModal
