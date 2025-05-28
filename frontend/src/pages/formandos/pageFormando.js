@@ -39,9 +39,11 @@ export default function PaginaGestor() {
   const fetchTrabalhosPendentes = async () => {
     try {
       const token = sessionStorage.getItem('token');
+      
       const response = await axios.get('/trabalhos/pendentes', {
         headers: { Authorization: `${token}` }
       });
+      
       setTrabalhosPendentes(response.data.data || []);
     } catch (error) {
       console.error('Erro ao obter trabalhos pendentes:', error);
