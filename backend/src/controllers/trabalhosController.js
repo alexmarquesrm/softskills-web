@@ -245,6 +245,8 @@ const controladorTrabalhos = {
         where: {
           formando_id: formando_id,
           estado: false // Apenas cursos ativos
+          // data_atual maior que a data_inicio para mostrar
+          
         },
         include: [
           {
