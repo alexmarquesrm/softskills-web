@@ -240,75 +240,55 @@ const controladorTrabalhos = {
         return res.json({ success: true, data: [] });
       }
 
-      // Buscar todas as inscrições do formando que ainda não foram concluídas (nota é null)
+      // Buscar todas as inscrições ativas do formando
       const inscricoes = await models.inscricao.findAll({
         where: {
           formando_id: formando_id,
-          nota: null // Apenas cursos não concluídos
+          estado: false // Apenas cursos ativos
         },
         include: [
           {
             model: models.curso,
             as: "inscricao_curso",
-            attributes: ['curso_id', 'titulo', 'tipo'],
-            include: [
-              {
-                model: models.sincrono,
-                as: "curso_sincrono",
-                attributes: ['data_inicio', 'data_fim', 'estado'],
-                required: false // LEFT JOIN para incluir cursos assíncronos
-              }
-            ]
+            attributes: ['curso_id', 'titulo', 'tipo']
           }
         ]
       });
 
       let trabalhosPendentes = [];
 
-      // Para cada inscrição não concluída, verificar se há trabalhos pendentes
+      // Para cada inscrição, buscar materiais de entrega com prazo futuro
       for (const inscricao of inscricoes) {
-        const curso = inscricao.inscricao_curso;
-        // Buscar materiais de entrega com prazo futuro para este curso
         const materiais = await models.material.findAll({
           where: {
             curso_id: inscricao.curso_id,
-            tipo: {
-              [Op.in]: ['entrega'] // Buscar apenas entregas
-            },
+            tipo: 'entrega',
             data_entrega: {
               [Op.gte]: new Date() // Prazo ainda não expirou
             }
           }
         });
 
-        console.log(`Curso ${curso.curso_id}: encontrados ${materiais.length} materiais de entrega`);
-
         // Para cada material, verificar se o formando já submeteu
         for (const material of materiais) {
-          console.log(`Verificando material ${material.material_id}: ${material.titulo}`);
-          
-          // Verificar se o formando já submeteu para este material
-          // Usar curso_id diretamente em vez de sincrono_id para compatibilidade com todos os tipos de curso
           const trabalhoExistente = await models.trabalho.findOne({
             where: {
               formando_id: formando_id,
+              sincrono_id: inscricao.curso_id,
               material_id: material.material_id
             }
           });
 
-          console.log(`Material ${material.material_id} - trabalho já submetido: ${!!trabalhoExistente}`);
-
           // Se não existe submissão, é um trabalho pendente
           if (!trabalhoExistente) {
-            console.log(`Adicionando trabalho pendente: ${material.titulo}`);
             trabalhosPendentes.push({
               material_id: material.material_id,
               titulo: material.titulo,
               descricao: material.descricao,
               data_entrega: material.data_entrega,
               curso_id: inscricao.curso_id,
-              curso_titulo: curso.titulo,
-              tipo: material.tipo // Usar o tipo real do material
+              curso_titulo: inscricao.inscricao_curso.titulo,
+              tipo: 'entrega'
             });
           }
         }
@@ -316,8 +296,7 @@ const controladorTrabalhos = {
 
       // Ordenar por data de entrega mais próxima
       trabalhosPendentes.sort((a, b) => new Date(a.data_entrega) - new Date(b.data_entrega));
-      console.log("Trabalhos pendentes encontrados:", trabalhosPendentes.length);
-      
+
       res.json({ success: true, data: trabalhosPendentes });
     } catch (error) {
       console.error("Erro ao obter trabalhos pendentes:", error);
