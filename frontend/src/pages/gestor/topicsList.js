@@ -174,7 +174,6 @@ export default function TopicsList() {
 
   const handleModalClose = () => {
     setShowModal(false);
-    setSelectedTopic(null);
   };
 
   const handleModalSuccess = (message) => {
