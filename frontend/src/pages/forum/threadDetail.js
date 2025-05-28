@@ -36,6 +36,10 @@ const ThreadDetail = () => {
   const [imagePreview, setImagePreview] = useState(null);
   const [replyImage, setReplyImage] = useState(null);
   const [replyImagePreview, setReplyImagePreview] = useState(null);
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reportMotivo, setReportMotivo] = useState('I');
+  const [reportDescricao, setReportDescricao] = useState('');
+  const [jadenunciou, setJadenunciou] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -51,7 +55,7 @@ const ThreadDetail = () => {
         const forumResponse = await axios.get(`/forum/${forumId}`);
         setForum(forumResponse.data);
 
-        // Check if user has already voted
+        // Check if user has already voted and if already reported
         const colaborador_id = sessionStorage.getItem('colaboradorid');
         if (colaborador_id) {
           try {
@@ -68,6 +72,16 @@ const ThreadDetail = () => {
                 if (voteErr.response?.status !== 404) {
                   console.error('Error checking vote:', voteErr);
                 }
+              }
+
+              // Check if user has already reported this thread
+              try {
+                const reportResponse = await axios.get(`/denuncia/verificar/${threadId}/${colaborador_id}`);
+                if (reportResponse.data) {
+                  setJadenunciou(reportResponse.data.jadenunciou);
+                }
+              } catch (reportErr) {
+                console.error('Error checking report:', reportErr);
               }
             }
           } catch (err) {
@@ -112,26 +126,57 @@ const ThreadDetail = () => {
     }
   };
 
-  const handleReport = async () => {
+  const handleReportClick = () => {
+    const token = sessionStorage.getItem('token');
+    const tipo = sessionStorage.getItem('tipo');
+    
+    if (!token) {
+      toast.error('Utilizador não autenticado');
+      return;
+    }
+    if (tipo !== 'Formando') {
+      toast.error('Apenas formandos podem denunciar threads');
+      return;
+    }
+    if (jadenunciou) {
+      toast.error('Já denunciou esta thread anteriormente');
+      return;
+    }
+    
+    setShowReportModal(true);
+  };
+
+  const handleReportSubmit = async () => {
     try {
-      const token = sessionStorage.getItem('token');
-      const tipo = sessionStorage.getItem('tipo');
       const colaborador_id = sessionStorage.getItem('colaboradorid');
-      if (!token) throw new Error('Utilizador não autenticado');
-      if (tipo !== 'Formando') throw new Error('Apenas formandos podem denunciar threads');
+      
       if (!colaborador_id) throw new Error('ID do colaborador não encontrado');
-      const formandoResponse = await axios.get(`/formando/colaborador/${colaborador_id}`);
-      if (!formandoResponse.data || !formandoResponse.data.formando_id) throw new Error('Formando não encontrado');
+      if (!reportDescricao.trim()) {
+        toast.error('Por favor, descreva o motivo da denúncia');
+        return;
+      }
+      
       const reportData = {
         thread_id: parseInt(threadId),
-        formando_id: formandoResponse.data.formando_id,
-        descricao: 'Denúncia de conteúdo inapropriado'
+        formando_id: parseInt(colaborador_id), // formando_id é igual ao colaborador_id
+        descricao: reportDescricao,
+        motivo: reportMotivo
       };
       await axios.post('/denuncia/criar', reportData);
       toast.success('Denúncia enviada com sucesso');
+      setShowReportModal(false);
+      setReportDescricao('');
+      setReportMotivo('I');
+      setJadenunciou(true); // Atualizar estado para indicar que já denunciou
     } catch (err) {
-      setError(err.message || 'Erro ao enviar denúncia');
+      toast.error(err.response?.data?.message || err.message || 'Erro ao enviar denúncia');
     }
+  };
+
+  const handleReportCancel = () => {
+    setShowReportModal(false);
+    setReportDescricao('');
+    setReportMotivo('I');
   };
 
   const handleImageSelect = (e) => {
@@ -437,9 +482,14 @@ const ThreadDetail = () => {
                 </div>
               </div>
             </div>
-            <button onClick={handleReport} className="report-btn">
+            <button 
+              onClick={handleReportClick} 
+              className={`report-btn ${jadenunciou ? 'report-btn-disabled' : ''}`}
+              disabled={jadenunciou}
+              title={jadenunciou ? 'Já denunciou esta thread' : 'Denunciar thread'}
+            >
               <Flag size={16} />
-              Denunciar
+              {jadenunciou ? 'Já Denunciado' : 'Denunciar'}
             </button>
           </div>
           <div className="comments-section">
@@ -488,6 +538,56 @@ const ThreadDetail = () => {
           </div>
         </Row>
       </Container>
+
+      {/* Modal de Denúncia */}
+      {showReportModal && (
+        <div className="report-modal-overlay" onClick={handleReportCancel}>
+          <div className="report-modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="report-modal-header">
+              <h3>Denunciar Thread</h3>
+              <button onClick={handleReportCancel} className="report-modal-close-btn">
+                <X size={20} />
+              </button>
+            </div>
+            <div className="report-modal-body">
+              <div className="report-form-group">
+                <label htmlFor="report-motivo">Motivo da denúncia:</label>
+                <select 
+                  id="report-motivo"
+                  value={reportMotivo} 
+                  onChange={(e) => setReportMotivo(e.target.value)}
+                  className="report-form-select"
+                >
+                  <option value="I">Inapropriado</option>
+                  <option value="S">Spam</option>
+                  <option value="O">Outros</option>
+                </select>
+              </div>
+              <div className="report-form-group">
+                <label htmlFor="report-descricao">Descrição:</label>
+                <textarea
+                  id="report-descricao"
+                  value={reportDescricao}
+                  onChange={(e) => setReportDescricao(e.target.value)}
+                  placeholder="Descreva o motivo da denúncia..."
+                  className="report-form-textarea"
+                  rows={4}
+                  required
+                />
+              </div>
+            </div>
+            <div className="report-modal-footer">
+              <button onClick={handleReportCancel} className="report-btn-cancel">
+                Cancelar
+              </button>
+              <button onClick={handleReportSubmit} className="report-btn-submit">
+                <Flag size={16} />
+                Enviar Denúncia
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

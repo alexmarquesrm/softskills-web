@@ -25,7 +25,10 @@ module.exports = function(sequelize, DataTypes) {
     },
     motivo: {
       type: DataTypes.TEXT,
-      allowNull: false
+      allowNull: false,
+      validate: {
+        isIn: [['S', 'I', 'O']]
+      }
     },
     descricao: {
       type: DataTypes.TEXT,
