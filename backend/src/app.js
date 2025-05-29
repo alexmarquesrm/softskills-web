@@ -27,7 +27,11 @@ const quizzRoutes = require('./routes/quizz');
 
 // Importar os cron jobs
 require('./cron/notificationCron');
-require('./cron/sincronoCron');
+//require('./cron/sincronoCron');
+const { processFinishedCourses } = require('./cron/processFinishedCourses');
+
+// Executar processamento de cursos terminados ao iniciar
+processFinishedCourses();
 
 // Use CORS middleware
 app.use(cors({

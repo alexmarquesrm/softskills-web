@@ -5,9 +5,11 @@ const ficheirosController = require('./ficheiros');
 const { Op } = require('sequelize');
 
 const controladorTrabalhos = {
-  // Obter todos os trabalhos dos formandos
+  // Obter todos os trabalhos dos formandos dos cursos do formador logado
   getTrabalhosFormandos: async (req, res) => {
     try {
+      const formador_id = req.user.id; // ID do formador logado
+
       const trabalhos = await models.trabalho.findAll({
         include: [
           {
@@ -20,6 +22,20 @@ const controladorTrabalhos = {
                 attributes: ["nome", "email"]
               }
             ]
+          },
+          {
+            model: models.sincrono,
+            as: "trabalho_sincrono",
+            where: {
+              formador_id: formador_id // Filtrar apenas cursos do formador logado
+            },
+            include: [
+              {
+                model: models.curso,
+                as: "sincrono_curso",
+                attributes: ["titulo", "descricao"]
+              }
+            ]
           }
         ]
       });
@@ -29,10 +45,12 @@ const controladorTrabalhos = {
         formando_id: trab.formando_id,
         trabalho_id: trab.trabalho_id,
         nome: trab.formando.formando_colab.nome,
+        email: trab.formando.formando_colab.email,
         avaliado: trab.nota !== null,
         nota: trab.nota,
         data_entrega: trab.data,
-        descricao: trab.descricao
+        descricao: trab.descricao,
+        curso_titulo: trab.trabalho_sincrono?.sincrono_curso?.titulo || 'Curso não encontrado'
       }));
 
       res.json(formandosComTrabalhos);
