@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { Container, Card, Badge, Button, Form } from "react-bootstrap";
 import { BsFillPeopleFill, BsChatDots, BsArrowReturnLeft, BsDownload, BsFileText, BsSend } from "react-icons/bs";
+import { ArrowLeft, Book } from 'react-feather';
 import { IoPersonOutline } from "react-icons/io5";
 import axios from "../../config/configAxios";
-import { useLocation, useNavigate } from "react-router-dom";
-
+import { useLocation, useNavigate, Link } from "react-router-dom";
+/* COMPONENTES */
 import ModalCustom from "../../modals/modalCustom";
-import AddButton from "../../components/buttons/addButton";
 import Cancelar from "../../components/buttons/cancelButton";
 import Guardar from "../../components/buttons/saveButton";
+/* CSS */
 import "./evaluateFormando.css";
 
 export default function AvaliacaoTrabalho() {
@@ -30,18 +31,18 @@ export default function AvaliacaoTrabalho() {
   const cursoId = location.state?.cursoId;
 
   useEffect(() => {
-    
+
     let currentMaterialId = materialId || sessionStorage.getItem('currentMaterialId');
     let currentCursoId = cursoId || sessionStorage.getItem('currentCursoId');
 
     if (currentMaterialId && currentCursoId) {
-      
+
       sessionStorage.setItem('currentMaterialId', currentMaterialId);
       sessionStorage.setItem('currentCursoId', currentCursoId);
-      
+
       fetchSubmissoesPorAvaliacao(currentMaterialId, currentCursoId);
     } else {
-      
+
       setError("Parâmetros de curso não encontrados. Redirecionando...");
       setTimeout(() => {
         navigate('/cursos', { replace: true });
@@ -160,17 +161,19 @@ export default function AvaliacaoTrabalho() {
   return (
     <div className="page-container">
       <Container>
-        <div className="header-card">
-          <div className="d-flex justify-content-between align-items-center">
-            <div>
-              <h1 className="header-card-title">Avaliação dos Trabalhos</h1>
-              <p className="header-card-subtitle">Gerir e avaliar trabalhos dos formandos</p>
+        <div className="percurso-header">
+          <div className="percurso-header-content">
+            <div className="percurso-header-icon">
+              <Book size={32} />
             </div>
-            <Button variant="outline-secondary" onClick={handleVoltarCursos}>
-              <BsArrowReturnLeft className="me-1" />
-              Voltar
-            </Button>
+            <div className="percurso-header-info">
+              <h1 className="percurso-title">Avaliação dos Trabalhos</h1>
+            </div>
           </div>
+          <Link to={`/formador/curso/${cursoId}`} className="back-btn">
+            <ArrowLeft size={16} />
+            Voltar
+          </Link>
         </div>
 
         <Card className="main-card">
@@ -184,7 +187,7 @@ export default function AvaliacaoTrabalho() {
           </div>
 
           <div className="section-title">
-            <IoPersonOutline size={24} className="title-icon" />
+            <IoPersonOutline size={24} className="title-iconn" />
             <h4>Avaliar Formandos</h4>
           </div>
 
@@ -230,8 +233,8 @@ export default function AvaliacaoTrabalho() {
                         bg={formando.nota !== null && formando.nota !== undefined ? "success" : "warning"}
                         className={formando.nota !== null && formando.nota !== undefined ? "badge-success" : "badge-warning"}
                       >
-                        {formando.nota !== null && formando.nota !== undefined 
-                          ? `Avaliado (${formando.nota})` 
+                        {formando.nota !== null && formando.nota !== undefined
+                          ? `Avaliado (${formando.nota})`
                           : "Pendente"}
                       </Badge>
                       {/* Mostrar ficheiros submetidos */}
@@ -273,7 +276,7 @@ export default function AvaliacaoTrabalho() {
                   </div>
                 </div>
               ))}
-            
+
             {formandos.length === 0 && (
               <div className="text-center p-4">
                 <p>Nenhum formando encontrado para este curso/material.</p>
@@ -308,7 +311,7 @@ export default function AvaliacaoTrabalho() {
               />
               {erroNota && <div className="text-danger mt-1">{erroNota}</div>}
             </Form.Group>
-            
+
             <Form.Group className="mb-3" controlId="comentario">
               <Form.Label>Comentário</Form.Label>
               <Form.Control
@@ -322,16 +325,16 @@ export default function AvaliacaoTrabalho() {
             </Form.Group>
 
             <div className="d-flex justify-content-end gap-2">
-              <Cancelar 
-                text="Cancelar" 
-                onClick={fecharModalAvaliacao} 
-                Icon={BsArrowReturnLeft} 
-                inline={true} 
+              <Cancelar
+                text="Cancelar"
+                onClick={fecharModalAvaliacao}
+                Icon={BsArrowReturnLeft}
+                inline={true}
               />
-              <Guardar 
-                text="Guardar" 
-                onClick={handleSubmit} 
-                Icon={BsSend} 
+              <Guardar
+                text="Guardar"
+                onClick={handleSubmit}
+                Icon={BsSend}
               />
             </div>
           </Form>

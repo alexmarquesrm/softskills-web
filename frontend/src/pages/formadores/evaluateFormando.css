@@ -59,7 +59,7 @@
   display: flex;
   align-items: flex-start;
   color: #2a4a7a;
-  border-left: 4px solid #0D6EFD;
+  border-left: 4px solid  #416699;
 }
 
 .deadline-icon {
@@ -76,8 +76,8 @@
   margin: 1.5rem 0 1rem 0;
 }
 
-.title-icon {
-  color: #39639C;
+.title-iconn {
+  color: #1e3f6e;
   margin-right: 0.8rem;
 }
 
@@ -97,7 +97,7 @@
 
 .student-card {
   border: 1px solid #d6e3ff;
-  border-left: 4px solid #0D6EFD;
+  border-left: 4px solid #416699;
   border-radius: 12px;
   background: linear-gradient(135deg, #f8faff 0%, #f0f7ff 100%);
   padding: 1.2rem;
@@ -158,19 +158,14 @@
 }
 
 .action-button {
-  background: linear-gradient(135deg, #0D6EFD 0%, #39639C 100%) !important;
+  background: linear-gradient(135deg, #416699, #3b96d3) !important;
   border: none !important;
+  color: white !important;
   border-radius: 8px !important;
   padding: 0.5rem 1rem !important;
   transition: all 0.3s ease;
   font-weight: 600 !important;
   box-shadow: 0 4px 12px rgba(57, 99, 156, 0.3);
-}
-
-.action-button:hover {
-  background: linear-gradient(135deg, #39639C 0%, #2e5992 100%) !important;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(57, 99, 156, 0.4);
 }
 
 .secondary-button {
