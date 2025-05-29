@@ -342,7 +342,7 @@ BEGIN
         -- Contar trabalhos entregues e calcular média das notas
         SELECT 
             COUNT(*),
-            COALESCE(ROUND(AVG(t.nota)::NUMERIC, 2)::FLOAT, 0.0)
+            COALESCE(AVG(t.nota)::NUMERIC, 0.0)
         INTO 
             trabalhos_entregues,
             media_notas
@@ -353,8 +353,8 @@ BEGIN
         AND t.nota IS NOT NULL
         AND m.tipo IN ('trabalho', 'entrega');
 
-        -- Calcular percentual de conclusão
-        percentual_conclusao := ROUND((trabalhos_entregues::FLOAT / total_trabalhos::FLOAT) * 100, 2);
+        -- Calcular percentual de conclusão usando CAST para NUMERIC
+        percentual_conclusao := (trabalhos_entregues::NUMERIC / total_trabalhos::NUMERIC) * 100;
 
         -- Retornar dados do formando
         RETURN QUERY SELECT 
