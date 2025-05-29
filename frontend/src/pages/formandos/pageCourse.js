@@ -18,7 +18,6 @@ import VideoModal from '../../modals/formandos/VideoModal';
 // ICONS
 import { BsArrowReturnLeft } from "react-icons/bs";
 import { FaRegCheckCircle } from "react-icons/fa";
-import CustomBreadcrumb from "../../components/Breadcrumb";
 // CSS
 import "./pageCourse.css";
 
@@ -761,7 +760,6 @@ export default function CursoFormando() {
   return (
     <div className="course-page">
       <Container>
-        <CustomBreadcrumb items={breadcrumbItems} />
         <div className="curso-content" style={{ backgroundColor: "#f5f7fa" }}>
           <Container className="my-5">
             {/* Cabeçalho do Curso com Banner */}

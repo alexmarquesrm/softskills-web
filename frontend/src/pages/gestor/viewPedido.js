@@ -4,7 +4,6 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { File, Calendar, User, Book, Clock, Award, Info, Mail } from 'react-feather'; 
 import { BsCheckCircle, BsXCircle } from "react-icons/bs";
 import axios from "../../config/configAxios";
-import CustomBreadcrumb from "../../components/Breadcrumb";
 import "./pedidos.css"; 
 
 export default function ViewPedido() {
@@ -153,8 +152,6 @@ export default function ViewPedido() {
     return (
         <div className="view-pedido-page">
             <Container>
-                <CustomBreadcrumb items={breadcrumbItems} />
-
                 <div className="page-header">
                     <div className="title-container">
                         <div className="title-icon">
