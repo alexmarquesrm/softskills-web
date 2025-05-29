@@ -216,7 +216,7 @@ INSERT INTO SINCRONO (CURSO_ID, FORMADOR_ID, LIMITE_VAGAS, DATA_LIMITE_INSCRICAO
 -- Cursos Concluídos (10)
 (1, 2, 30, '2024-01-15 23:59:59', '2024-02-01 09:00:00', '2024-02-28 18:00:00', TRUE),
 (2, 2, 25, '2024-01-20 23:59:59', '2024-02-05 09:00:00', '2024-03-05 18:00:00', TRUE),
-(3, 2, 25, '2024-02-01 23:59:59', '2024-02-15 09:00:00', '2024-03-15 18:00:00', TRUE),
+(3, 2, 25, '2025-04-01 23:59:59', '2025-04-15 09:00:00', '2025-06-30 18:00:00', FALSE),
 (5, 3, 40, '2024-03-01 23:59:59', '2024-03-15 09:00:00', '2024-04-15 18:00:00', TRUE),
 (10, 5, 35, '2024-04-01 23:59:59', '2024-04-15 09:00:00', '2024-05-15 18:00:00', TRUE),
 (11, 2, 30, '2024-05-01 23:59:59', '2024-05-15 09:00:00', '2024-06-15 18:00:00', TRUE),
@@ -279,49 +279,72 @@ INSERT INTO PRESENCA_FORM_SINC (FORMANDO_ID, AULA_ID) VALUES
 (8, 5), (9, 5), (10, 6), (1, 6),
 (2, 7), (3, 7), (4, 8), (5, 8);
 
--- Inserção na Tabela INSCRICAO (Ajustando datas para antes do início dos cursos)
+-- Inserção na Tabela INSCRICAO (Corrigindo inconsistências de datas e notas)
 INSERT INTO INSCRICAO (FORMANDO_ID, CURSO_ID, NOTA, DATA_CERTIFICADO, DATA_INSCRICAO, ESTADO) VALUES
--- Inscrições do Formando 3 (5 inscrições com estados diferentes)
-(3, 1, 17.0, '2024-02-28 10:00:00+00', '2024-01-10 10:00:00+00', TRUE),  -- Curso concluído
-(3, 3, 18.2, '2024-03-15 15:00:00+00', '2024-02-01 09:15:00+00', TRUE),  -- Curso concluído
-(3, 17, NULL, NULL, '2025-05-01 14:30:00+00', FALSE),  -- Curso ativo
-(3, 19, NULL, NULL, '2025-06-01 11:20:00+00', FALSE),  -- Curso pendente
-(3, 21, NULL, NULL, '2025-07-01 16:45:00+00', FALSE),  -- Curso pendente
+-- Inscrições em cursos CONCLUÍDOS (IDs 1, 2, 5, 10, 11, 12, 13, 14, 15, 16) - com notas e certificados
+(3, 1, 17.0, '2024-02-28 10:00:00+00', '2024-01-10 10:00:00+00', TRUE),  -- Curso 1 concluído
+(3, 2, 16.5, '2024-03-05 12:00:00+00', '2024-01-15 10:00:00+00', TRUE),  -- Curso 2 concluído
+(1, 1, 17.0, '2024-02-28 10:00:00+00', '2024-01-10 10:00:00+00', TRUE),  -- Curso 1 concluído
+(1, 2, 17.6, '2024-03-05 11:00:00+00', '2024-01-18 16:45:00+00', TRUE),  -- Curso 2 concluído
+(1, 5, 15.8, '2024-04-15 14:00:00+00', '2024-02-25 09:30:00+00', TRUE),  -- Curso 5 concluído
+(2, 1, 15.7, '2024-02-28 16:00:00+00', '2024-01-12 14:30:00+00', TRUE),  -- Curso 1 concluído
+(2, 10, 17.2, '2024-05-15 10:00:00+00', '2024-03-28 15:00:00+00', TRUE), -- Curso 10 concluído
+(4, 2, 17.6, '2024-03-05 11:00:00+00', '2024-01-20 16:45:00+00', TRUE),  -- Curso 2 concluído
+(4, 11, 16.8, '2024-06-15 13:00:00+00', '2024-04-28 12:00:00+00', TRUE), -- Curso 11 concluído
+(5, 12, 17.9, '2024-07-15 15:00:00+00', '2024-05-30 10:30:00+00', TRUE), -- Curso 12 concluído
+(6, 1, 15.2, '2024-02-28 18:00:00+00', '2024-01-25 15:30:00+00', TRUE),  -- Curso 1 concluído
+(6, 13, 16.4, '2024-08-15 11:00:00+00', '2024-06-28 14:20:00+00', TRUE), -- Curso 13 concluído
+(7, 2, 17.8, '2024-03-05 16:00:00+00', '2024-02-01 10:15:00+00', TRUE),  -- Curso 2 concluído
+(7, 14, 18.1, '2024-09-15 12:00:00+00', '2024-07-28 16:45:00+00', TRUE), -- Curso 14 concluído
+(8, 15, 17.3, '2024-10-15 14:00:00+00', '2024-08-30 11:15:00+00', TRUE), -- Curso 15 concluído
+(9, 1, 17.5, '2024-02-28 12:00:00+00', '2024-02-03 09:30:00+00', TRUE),  -- Curso 1 concluído
+(9, 16, 16.7, '2024-11-15 13:00:00+00', '2024-09-28 10:45:00+00', TRUE), -- Curso 16 concluído
+(10, 2, 18.0, '2024-03-05 15:00:00+00', '2024-02-04 11:15:00+00', TRUE), -- Curso 2 concluído
+(10, 5, 17.4, '2024-04-15 16:00:00+00', '2024-03-01 13:30:00+00', TRUE), -- Curso 5 concluído
 
--- Outras inscrições (todos com estado TRUE)
-(1, 1, 17.0, '2024-02-28 10:00:00+00', '2024-01-10 10:00:00+00', TRUE),
-(1, 2, 17.6, '2024-03-15 11:00:00+00', '2024-01-28 16:45:00+00', TRUE),
-(1, 17, NULL, NULL, '2025-05-01 14:30:00+00', FALSE),
-(2, 1, 15.7, NULL, '2024-01-12 14:30:00+00', TRUE),
-(2, 3, 18.5, '2024-03-15 14:00:00+00', '2024-01-30 11:20:00+00', TRUE),
-(2, 19, NULL, NULL, '2025-06-01 11:20:00+00', TRUE),
-(4, 2, 17.6, '2024-03-15 11:00:00+00', '2024-01-28 16:45:00+00', TRUE),
-(4, 21, NULL, NULL, '2025-07-01 16:45:00+00', TRUE),
-(5, 3, 18.5, '2024-03-15 14:00:00+00', '2024-01-30 11:20:00+00', TRUE),
-(5, 17, NULL, NULL, '2025-05-01 14:30:00+00', FALSE),
-(6, 1, 15.2, NULL, '2024-01-31 15:30:00+00', TRUE),
-(6, 19, NULL, NULL, '2025-06-01 11:20:00+00', TRUE),
-(7, 2, 17.8, '2024-03-15 16:00:00+00', '2024-02-01 10:15:00+00', TRUE),
-(7, 21, NULL, NULL, '2025-07-01 16:45:00+00', TRUE),
-(8, 3, 18.8, '2024-03-15 10:00:00+00', '2024-02-02 14:45:00+00', TRUE),
-(8, 17, NULL, NULL, '2025-05-01 14:30:00+00', FALSE),
-(9, 1, 17.5, NULL, '2024-02-03 09:30:00+00', TRUE),
-(9, 19, NULL, NULL, '2025-06-01 11:20:00+00', TRUE),
-(10, 2, 18.0, '2024-03-15 15:00:00+00', '2024-02-04 11:15:00+00', TRUE),
-(10, 21, NULL, NULL, '2025-07-01 16:45:00+00', TRUE);
+-- Inscrições em cursos EM ANDAMENTO ou FUTUROS (sem nota/certificado/estado TRUE)
+(3, 3, NULL, NULL, '2025-04-01 09:15:00+00', FALSE),  -- Curso 3 em andamento
+(2, 3, NULL, NULL, '2025-04-02 11:20:00+00', FALSE),  -- Curso 3 em andamento
+(5, 3, NULL, NULL, '2025-04-03 11:20:00+00', FALSE),  -- Curso 3 em andamento
+(8, 3, NULL, NULL, '2025-04-04 14:45:00+00', FALSE),  -- Curso 3 em andamento
+
+-- Inscrições em cursos ATIVOS/FUTUROS (sem notas nem certificados)
+-- Cursos a decorrer (17, 18, 19) - sem notas, logo ESTADO = FALSE
+(3, 17, NULL, NULL, '2025-04-10 14:30:00+00', FALSE),  -- Curso 17 a decorrer - sem nota, não terminou
+(1, 17, NULL, NULL, '2025-04-12 10:15:00+00', FALSE),  -- Curso 17 a decorrer - sem nota, não terminou
+(5, 17, NULL, NULL, '2025-04-14 16:20:00+00', FALSE),  -- Curso 17 a decorrer - sem nota, não terminou
+(8, 17, NULL, NULL, '2025-04-13 09:45:00+00', FALSE),  -- Curso 17 a decorrer - sem nota, não terminou
+(3, 18, NULL, NULL, '2025-04-15 11:20:00+00', FALSE),  -- Curso 18 a decorrer - sem nota, não terminou
+(2, 18, NULL, NULL, '2025-04-17 14:30:00+00', FALSE),  -- Curso 18 a decorrer - sem nota, não terminou
+(3, 19, NULL, NULL, '2025-04-20 11:20:00+00', FALSE),  -- Curso 19 a decorrer - aluno ainda não terminou
+(2, 19, NULL, NULL, '2025-04-22 15:45:00+00', FALSE),  -- Curso 19 a decorrer - aluno ainda não terminou
+(6, 19, NULL, NULL, '2025-04-23 10:30:00+00', FALSE),  -- Curso 19 a decorrer - aluno ainda não terminou
+(9, 19, NULL, NULL, '2025-04-24 13:15:00+00', FALSE),  -- Curso 19 a decorrer - aluno ainda não terminou
+
+-- Cursos futuros (20, 21, 6, 7, 8, 9, 4) - inscrições ainda não abertas ou pendentes
+(4, 20, NULL, NULL, '2025-06-25 16:45:00+00', FALSE), -- Curso 20 futuro - inscrição pendente
+(7, 20, NULL, NULL, '2025-06-28 12:30:00+00', FALSE), -- Curso 20 futuro - inscrição pendente
+(4, 21, NULL, NULL, '2025-07-10 16:45:00+00', FALSE), -- Curso 21 futuro - inscrição pendente
+(7, 21, NULL, NULL, '2025-07-12 14:20:00+00', FALSE), -- Curso 21 futuro - inscrição pendente
+(10, 21, NULL, NULL, '2025-07-14 11:30:00+00', FALSE), -- Curso 21 futuro - inscrição pendente
+(6, 6, NULL, NULL, '2025-07-28 15:30:00+00', FALSE),  -- Curso 6 futuro - inscrição pendente
+(1, 7, NULL, NULL, '2025-08-10 10:15:00+00', FALSE),  -- Curso 7 futuro - inscrição pendente
+(5, 8, NULL, NULL, '2025-08-28 14:45:00+00', FALSE),  -- Curso 8 futuro - inscrição pendente
+(9, 9, NULL, NULL, '2025-09-10 12:20:00+00', FALSE),  -- Curso 9 futuro - inscrição pendente
+(8, 4, NULL, NULL, '2025-09-28 16:30:00+00', FALSE);  -- Curso 4 futuro - inscrição pendente
 
 -- Inserção na Tabela TRABALHO
 INSERT INTO TRABALHO (SINCRONO_ID, FORMANDO_ID, DESCRICAO, NOTA, DATA) VALUES
 (1, 1, 'Trabalho Final - JavaScript', 17, '2024-02-25 23:59:00+00'),
-(3, 2, 'Projeto React', 18, '2024-03-10 23:59:00+00'),
+(3, 2, 'Projeto React', 18, '2025-05-10 23:59:00+00'),
 (1, 3, 'Exercício de JavaScript', 19, '2024-02-20 23:59:00+00'),
-(3, 4, 'Implementação React', 16, '2024-03-08 23:59:00+00'),
+(3, 4, 'Implementação React', 16, '2025-05-25 23:59:00+00'),
 (1, 5, 'Projeto de JavaScript', 18.5, '2024-02-22 23:59:00+00'),
-(3, 6, 'Aplicação React', 15.5, '2024-03-12 23:59:00+00'),
+(3, 6, 'Aplicação React', 15.5, '2025-06-10 23:59:00+00'),
 (1, 7, 'Trabalho Final - JavaScript', NULL, '2024-02-25 23:59:00+00'),
-(3, 8, 'Projeto React', NULL, '2024-03-10 23:59:00+00'),
+(3, 8, 'Projeto React', NULL, '2025-06-25 23:59:00+00'),
 (1, 9, 'Exercício de JavaScript', NULL, '2024-02-20 23:59:00+00'),
-(3, 10, 'Implementação React', NULL, '2024-03-08 23:59:00+00');
+(3, 10, 'Implementação React', NULL, '2025-06-29 23:59:00+00');
 
 -- Inserção na Tabela NOTIFICACAO
 INSERT INTO NOTIFICACAO (FORMANDO_ID, CURSO_ID, DESCRICAO, DATA_CRIACAO, LIDA) VALUES
@@ -550,8 +573,8 @@ INSERT INTO MATERIAL (CURSO_ID, TITULO, DESCRICAO, TIPO, SECAO, DATA_ENTREGA, DA
 (3, 'Introdução ao React', 'Conceitos básicos do React', 'documento', 'Fundamentos', NULL, CURRENT_TIMESTAMP),
 (3, 'Componentes React', 'Criando e usando componentes', 'video', 'Componentes', NULL, CURRENT_TIMESTAMP),
 (3, 'Hooks em React', 'UseState e useEffect', 'aula', 'Hooks', NULL, CURRENT_TIMESTAMP),
-(3, 'Projeto React', 'Desenvolva uma aplicação React', 'trabalho', 'Projeto Final', '2024-12-20 23:59:59+00', CURRENT_TIMESTAMP),
-(3, 'Entrega Projeto React', 'Submissão do projeto React', 'entrega', 'Projeto Final', '2024-12-20 23:59:59+00', CURRENT_TIMESTAMP);
+(3, 'Projeto React', 'Desenvolva uma aplicação React', 'trabalho', 'Projeto Final', '2025-06-29 23:59:59+00', CURRENT_TIMESTAMP),
+(3, 'Entrega Projeto React', 'Submissão do projeto React', 'entrega', 'Projeto Final', '2025-06-29 23:59:59+00', CURRENT_TIMESTAMP);
 
 -- Inserção na Tabela OBJETO para materiais (IDs 1-13)
 INSERT INTO OBJETO (REGISTO_ID, ENTIDADE) VALUES
