@@ -280,7 +280,7 @@ export default function EditColab() {
       if (fotoPerfil) {
         payload.fotoPerfil = {
           base64: fotoPerfil,
-          nome: `foto_${id}.jpg`,
+          nome: `colaborador${id}.jpg`,
           entidade: 'colaborador',
           id,
         };
