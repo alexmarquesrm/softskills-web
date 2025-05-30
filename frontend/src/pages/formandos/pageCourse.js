@@ -677,12 +677,10 @@ export default function CursoFormando() {
         );
 
         setQuizzes(quizzesWithStatus);
-        toast.success("Quiz concluído! Dados atualizados.");
       }
     } catch (error) {
       console.error('Erro ao atualizar dados:', error);
       // Fallback to page reload if manual refresh fails
-      toast.success("Quiz concluído! A página será atualizada.");
       setTimeout(() => {
         window.location.reload();
       }, 1500);
