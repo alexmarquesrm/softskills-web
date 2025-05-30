@@ -510,6 +510,7 @@ const controladorUtilizadores = {
   },
 
   updateColaborador: async (req, res) => {
+    console.log("Dados recebidos:", req.body);
     const id = req.params.id;
     try {
       // Verificar se o usuário está atualizando seu próprio perfil
