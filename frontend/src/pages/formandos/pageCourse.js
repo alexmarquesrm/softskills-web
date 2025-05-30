@@ -1183,7 +1183,7 @@ export default function CursoFormando() {
                         </Accordion.Item>
 
                         {/* Entregas e Avaliações */}
-                        <Accordion.Item eventKey="2">
+                        {curso?.tipo === "S" && (<Accordion.Item eventKey="2">
                           <Accordion.Header>
                             <div className="d-flex align-items-center">
                               <BsUpload className="me-2 text-warning" />
@@ -1280,6 +1280,7 @@ export default function CursoFormando() {
                             )}
                           </Accordion.Body>
                         </Accordion.Item>
+                        )}
 
                         {/* Quizzes */}
                         {curso?.tipo === 'A' && (
