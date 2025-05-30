@@ -195,6 +195,7 @@ export default function UsersTable() {
       // Calculate statistics
       const departamentos = new Set(utilizadoresCompletos.map(u => u.departamento).filter(Boolean));
       const funcoes = new Set(utilizadoresCompletos.map(u => u.funcao).filter(Boolean));
+      const loggedUserId = Number(sessionStorage.getItem('colaboradorid'));
 
       setStats({
         total: utilizadoresCompletos.length,
@@ -204,7 +205,7 @@ export default function UsersTable() {
       });
 
       setTableRows(
-        utilizadoresCompletos.map((colaborador) => ({
+        utilizadoresCompletos.filter(u => u.colaborador_id !== loggedUserId).map((colaborador) => ({
           id: colaborador.colaborador_id,
           nome: colaborador.nome,
           departamento: colaborador.departamento,
