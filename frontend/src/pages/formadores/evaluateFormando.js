@@ -4,7 +4,7 @@ import { BsFillPeopleFill, BsChatDots, BsArrowReturnLeft, BsDownload, BsFileText
 import { ArrowLeft, Book } from 'react-feather';
 import { IoPersonOutline } from "react-icons/io5";
 import axios from "../../config/configAxios";
-import { useLocation, useNavigate, Link } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 /* COMPONENTES */
 import ModalCustom from "../../modals/modalCustom";
 import Cancelar from "../../components/buttons/cancelButton";
@@ -170,10 +170,10 @@ export default function AvaliacaoTrabalho() {
               <h1 className="percurso-title">Avaliação dos Trabalhos</h1>
             </div>
           </div>
-          <Link to={`/formador/curso/${cursoId}`} className="back-btn">
+          <button className="back-btn" onClick={() => navigate(-1)}>
             <ArrowLeft size={16} />
             Voltar
-          </Link>
+          </button>
         </div>
 
         <Card className="main-card">
