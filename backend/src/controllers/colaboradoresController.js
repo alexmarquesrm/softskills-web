@@ -208,6 +208,7 @@ const controladorUtilizadores = {
         username: user.username,
         email: user.email,
         ultimologin: user.last_login,
+        score: user.score,
         tipo: activeType,           // For backward compatibility
         allUserTypes: userTypes,    // All available user types
         isFirstLogin               // Flag para indicar se é o primeiro login
