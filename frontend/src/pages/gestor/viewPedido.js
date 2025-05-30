@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Container, Button, Row, Col, Alert, Spinner, Card } from "react-bootstrap";
 import { useNavigate, useParams } from 'react-router-dom';
-import { File, Calendar, User, Book, Clock, Award, Info, Mail } from 'react-feather'; 
+import { File, Calendar, User, Book, Clock, Award, Info, Mail, ArrowLeft } from 'react-feather';
 import { BsCheckCircle, BsXCircle } from "react-icons/bs";
 import axios from "../../config/configAxios";
-import "./pedidos.css"; 
+import "./pedidos.css";
 
 export default function ViewPedido() {
     const navigate = useNavigate();
@@ -25,7 +25,7 @@ export default function ViewPedido() {
             try {
                 setLoading(true);
                 const token = sessionStorage.getItem('token');
-                
+
                 const pedidoRes = await axios.get(`/pedido/${id}`, {
                     headers: { Authorization: `${token}` }
                 });
@@ -34,21 +34,21 @@ export default function ViewPedido() {
                     headers: { Authorization: `${token}` }
                 });
                 setColaborador(colaboradorRes.data);
-                
+
                 if (pedidoRes.data.tipo === "CURSO") {
                     setTipoReferencia("curso");
                     const cursoRes = await axios.get(`/curso/${pedidoRes.data.referencia_id}`, {
                         headers: { Authorization: `${token}` }
                     });
                     setReferencia(cursoRes.data);
-                    
+
                     if (cursoRes.data.tipo === "S" && cursoRes.data.curso_sincrono?.formador_id) {
                         const formadorRes = await axios.get(`/formador/${cursoRes.data.curso_sincrono.formador_id}`, {
                             headers: { Authorization: `${token}` }
                         });
                         setFormador(formadorRes.data);
                     }
-                    
+
                     if (cursoRes.data.topico_id) {
                         const topicoRes = await axios.get(`/topico/${cursoRes.data.topico_id}`, {
                             headers: { Authorization: `${token}` }
@@ -72,8 +72,8 @@ export default function ViewPedido() {
                 setLoading(false);
             }
         };
-        
-        fetchPedido();    
+
+        fetchPedido();
     }, [id]);
 
     const aprovarPedido = async () => {
@@ -84,7 +84,7 @@ export default function ViewPedido() {
             await axios.put(`/pedido/${id}`, {
                 pendente: false,
                 status: 'APROVADO',
-                aprovado: true    
+                aprovado: true
             }, {
                 headers: { Authorization: `${token}` }
             });
@@ -107,7 +107,7 @@ export default function ViewPedido() {
             await axios.put(`/pedido/${id}`, {
                 pendente: false,
                 status: 'RECUSADO',
-                aprovado: false    
+                aprovado: false
             }, {
                 headers: { Authorization: `${token}` }
             });
@@ -159,6 +159,10 @@ export default function ViewPedido() {
                         </div>
                         <h1>Detalhes do Pedido</h1>
                     </div>
+                    <button className="back-btn" onClick={() => navigate(-1)}>
+                        <ArrowLeft size={16} />
+                        Voltar
+                    </button>
                 </div>
 
                 {success && (
@@ -332,9 +336,9 @@ export default function ViewPedido() {
 
                 <div className="form-buttons">
                     <div className="d-flex justify-content-center gap-3">
-                        <Button 
-                            variant="danger" 
-                            onClick={recusarPedido} 
+                        <Button
+                            variant="danger"
+                            onClick={recusarPedido}
                             disabled={processando || pedido?.pendente === false}
                             className="px-4"
                         >
@@ -350,9 +354,9 @@ export default function ViewPedido() {
                                 </>
                             )}
                         </Button>
-                        <Button 
-                            variant="success" 
-                            onClick={aprovarPedido} 
+                        <Button
+                            variant="success"
+                            onClick={aprovarPedido}
                             disabled={processando || pedido?.pendente === false}
                             className="px-4"
                         >
