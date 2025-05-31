@@ -28,14 +28,14 @@ async function enviarPushParaUsuario(fcmToken, titulo, corpo) {
 
 async function processarNotificacoesPendentes() {
   const notificacoes = await models.notificacao.findAll({
-    where: { push_enviada: false }
+    where: { enviada: false }
   });
 
   for (const notificacao of notificacoes) {
     const colaborador = await models.colaborador.findByPk(notificacao.formando_id);
     if (colaborador && colaborador.fcmtoken) {
       await enviarPushParaUsuario(colaborador.fcmtoken, notificacao.titulo || 'Nova notificação', notificacao.mensagem || notificacao.descricao);
-      notificacao.push_enviada = true;
+      notificacao.enviada = true;
       await notificacao.save();
     }
   }
