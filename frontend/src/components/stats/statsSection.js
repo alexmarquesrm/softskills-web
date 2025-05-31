@@ -26,9 +26,9 @@ function StatsSection() {
         const response = await axios.get(`/formando/totalformandos`, {
           headers: { Authorization: `${token}` }
         });
-  
+
         const countformandos = response.data.total;
-  
+
         setStats(prevStats => ({
           ...prevStats,
           activeStudents: countformandos
@@ -44,9 +44,9 @@ function StatsSection() {
         const response = await axios.get(`/curso/totalcursos`, {
           headers: { Authorization: `${token}` }
         });
-  
+
         const countcursos = response.data.total;
-  
+
         setStats(prevStats => ({
           ...prevStats,
           totalCourses: countcursos
@@ -55,14 +55,14 @@ function StatsSection() {
         console.error("Erro ao carregar estatísticas de cursos:", error);
       }
     };
-  
+
     const fetchContagemFormadores = async () => {
       try {
         const token = sessionStorage.getItem('token');
         const response = await axios.get(`/formador/totalformadores`, {
           headers: { Authorization: `${token}` }
         });
-  
+
         const countformadores = response.data.total;
 
         setStats(prevStats => ({
@@ -76,7 +76,7 @@ function StatsSection() {
     fetchContagemFormandos();
     fetchContagemCursos();
     fetchContagemFormadores();
-  
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -86,15 +86,15 @@ function StatsSection() {
       },
       { threshold: 0.2 }
     );
-  
+
     const section = document.querySelector(".stats-section");
     if (section) observer.observe(section);
-  
+
     return () => {
       if (section) observer.unobserve(section);
     };
   }, []);
-  
+
 
   useEffect(() => {
     if (!isVisible) return;
@@ -198,11 +198,6 @@ function StatsSection() {
             </Card>
           </Col>
         </Row>
-
-        <div className="stats-footnote">
-          <p>Junta-te à nossa comunidade de formandos ainda hoje!</p>
-          <button className="btn btn-primary btn-lg stats-cta">Começar!</button>
-        </div>
       </Container>
     </section>
   );
