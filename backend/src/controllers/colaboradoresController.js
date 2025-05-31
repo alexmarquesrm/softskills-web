@@ -753,6 +753,7 @@ const controladorUtilizadores = {
   googleLogin: async (req, res) => {
     try {
       const { googleId, email, name, photoURL } = req.body;
+      console.log('Google login attempt:', { email });
 
       // Check if user exists with this Google ID
       let colaborador = await models.colaborador.findOne({
@@ -813,7 +814,7 @@ const controladorUtilizadores = {
           const tempPassword = Math.random().toString(36).slice(-8); // Generate random password
           const hashedPassword = await bcrypt.hash(tempPassword, 10);
 
-          // Create new colaborador
+          // Create new colaborador with default birth date
           colaborador = await models.colaborador.create({
             nome: name,
             email,
@@ -823,7 +824,8 @@ const controladorUtilizadores = {
             telefone: phoneNumber,
             score: 0,
             inativo: false,
-            last_login: new Date()
+            last_login: new Date(),
+            data_nasc: new Date('2000-01-01') // Default birth date
           });
 
           // Create formando by default
@@ -831,10 +833,10 @@ const controladorUtilizadores = {
             formando_id: colaborador.colaborador_id
           });
         }
+      } else {
+        // Update last login
+        await colaborador.update({ last_login: new Date() });
       }
-
-      // Update last login
-      await colaborador.update({ last_login: new Date() });
 
       // Get user types
       const formando = await models.formando.findByPk(colaborador.colaborador_id);
@@ -856,6 +858,8 @@ const controladorUtilizadores = {
 
       // Get greeting
       const [saudacao] = await sequelizeConn.query('SELECT obter_saudacao() as saudacao');
+
+      console.log('Google login successful for user:', colaborador.colaborador_id);
 
       res.json({
         user: {
@@ -1056,7 +1060,7 @@ const controladorUtilizadores = {
           const tempPassword = Math.random().toString(36).slice(-8);
           const hashedPassword = await bcrypt.hash(tempPassword, 10);
 
-          // Create new colaborador with FCM token
+          // Create new colaborador with FCM token and default birth date
           colaborador = await models.colaborador.create({
             nome: name,
             email,
@@ -1067,7 +1071,8 @@ const controladorUtilizadores = {
             score: 0,
             inativo: false,
             last_login: new Date(),
-            fcmtoken: fcmToken
+            fcmtoken: fcmToken,
+            data_nasc: new Date('2000-01-01') // Default birth date
           });
 
           // Create formando by default
