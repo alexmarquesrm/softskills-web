@@ -2,9 +2,18 @@ require('dotenv').config();
 const initModels = require("../models/init-models");
 const sequelizeConn = require("../bdConexao");
 const models = initModels(sequelizeConn);
-const axios = require("axios");
-const FCM_SERVER_KEY = "_Yoh_JfQ7Y1Xud13VEmQB11kWOpb1DqYdEbcXDWfab4"; // Get from environment variable
 const { Op } = require("sequelize");
+const admin = require('firebase-admin');
+const path = require('path');
+
+// Inicializa o Firebase Admin SDK com o arquivo de credenciais
+const serviceAccount = require(path.join(__dirname, '../../firebase-service-account.json'));
+
+if (!admin.apps.length) {
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount)
+  });
+}
 
 const notificacaoController = {
   // Obter notificações de um formando
@@ -100,44 +109,21 @@ async function enviarPushParaUsuario(fcmToken, titulo, corpo) {
     console.log('FCM token não fornecido');
     return;
   }
-
-  if (!FCM_SERVER_KEY) {
-    console.error('FCM_SERVER_KEY não configurada no ambiente');
-    return;
-  }
-
   try {
     console.log('Enviando push notification para token:', fcmToken);
     console.log('Payload:', { titulo, corpo });
-    
-    // Usando o endpoint legacy do FCM
-    const response = await axios.post('https://fcm.googleapis.com/fcm/send', {
-      to: fcmToken,
+    const message = {
+      token: fcmToken,
       notification: {
         title: titulo,
         body: corpo
       }
-    }, {
-      headers: {
-        'Authorization': `key=${FCM_SERVER_KEY}`,
-        'Content-Type': 'application/json'
-      }
-    });
-
-    console.log('Resposta do FCM:', response.data);
-    return response.data;
+    };
+    const response = await admin.messaging().send(message);
+    console.log('Resposta do FCM:', response);
+    return response;
   } catch (err) {
-    console.error('Erro detalhado ao enviar push notification:', {
-      message: err.message,
-      response: err?.response?.data,
-      status: err?.response?.status,
-      headers: err?.response?.headers,
-      config: {
-        url: err?.config?.url,
-        method: err?.config?.method,
-        headers: err?.config?.headers
-      }
-    });
+    console.error('Erro ao enviar push notification:', err);
     throw err;
   }
 }
