@@ -1,6 +1,19 @@
+require('dotenv').config();
 const initModels = require("../models/init-models");
 const sequelizeConn = require("../bdConexao");
 const models = initModels(sequelizeConn);
+const { Op } = require("sequelize");
+const admin = require('firebase-admin');
+const path = require('path');
+
+// Inicializa o Firebase Admin SDK com o arquivo de credenciais
+const serviceAccount = require(path.join(__dirname, '../../firebase-service-account.json'));
+
+if (!admin.apps.length) {
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount)
+  });
+}
 
 const notificacaoController = {
   // Obter notificações de um formando
@@ -91,4 +104,97 @@ const notificacaoController = {
   }
 };
 
-module.exports = notificacaoController; 
+async function enviarPushParaUsuario(fcmToken, titulo, corpo) {
+  if (!fcmToken) {
+    console.log('FCM token não fornecido');
+    return;
+  }
+  try {
+    console.log('Enviando push notification para token:', fcmToken);
+    console.log('Payload:', { titulo, corpo });
+    const message = {
+      token: fcmToken,
+      notification: {
+        title: titulo,
+        body: corpo
+      }
+    };
+    const response = await admin.messaging().send(message);
+    console.log('Resposta do FCM:', response);
+    return response;
+  } catch (err) {
+    console.error('Erro ao enviar push notification:', err);
+    throw err;
+  }
+}
+
+// Função para enviar notificação de teste
+async function enviarNotificacaoTeste(req, res) {
+  try {
+    const { fcmToken, titulo, corpo } = req.body;
+    
+    if (!fcmToken || !titulo || !corpo) {
+      return res.status(400).json({ error: 'FCM token, título e corpo são obrigatórios' });
+    }
+
+    await enviarPushParaUsuario(fcmToken, titulo, corpo);
+    res.json({ message: 'Notificação de teste enviada com sucesso' });
+  } catch (error) {
+    console.error('Erro ao enviar notificação de teste:', error);
+    res.status(500).json({ error: 'Erro ao enviar notificação de teste' });
+  }
+}
+
+// Função para enviar notificações push para notificações não lidas
+async function enviarNotificacoesNaoLidas(formandoId) {
+  try {
+    const notificacoes = await models.notificacao.findAll({
+      where: { 
+        formando_id: formandoId,
+        lida: false 
+      },
+      include: [{
+        model: models.curso,
+        as: 'curso',
+        attributes: ['titulo']
+      }]
+    });
+
+    const colaborador = await models.colaborador.findByPk(formandoId);
+    if (!colaborador || !colaborador.fcmtoken) return;
+
+    for (const notificacao of notificacoes) {
+      await enviarPushParaUsuario(
+        colaborador.fcmtoken,
+        notificacao.curso?.titulo || 'Nova notificação',
+        notificacao.mensagem
+      );
+    }
+  } catch (error) {
+    console.error('Erro ao enviar notificações não lidas:', error);
+  }
+}
+
+// Função para enviar push quando uma nova notificação for criada
+async function enviarPushNovaNotificacao(notificacao) {
+  try {
+    const colaborador = await models.colaborador.findByPk(notificacao.formando_id);
+    if (!colaborador || !colaborador.fcmtoken) return;
+
+    const curso = await models.curso.findByPk(notificacao.curso_id);
+    
+    await enviarPushParaUsuario(
+      colaborador.fcmtoken,
+      curso?.titulo || 'Nova notificação',
+      notificacao.mensagem
+    );
+  } catch (error) {
+    console.error('Erro ao enviar push para nova notificação:', error);
+  }
+}
+
+module.exports = {
+  ...notificacaoController,
+  enviarNotificacaoTeste,
+  enviarPushParaUsuario
+}; 
