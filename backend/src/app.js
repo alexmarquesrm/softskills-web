@@ -24,6 +24,7 @@ const departamentosRoutes = require('./routes/departamentosRoutes');
 const funcoesRoutes = require('./routes/funcoesRoutes');
 const trabalhosRoutes = require('./routes/trabalhosRoutes');
 const quizzRoutes = require('./routes/quizz');
+const notificationWorker = require('./notificationWorker');
 
 // Importar os cron jobs
 require('./cron/notificationCron');
@@ -69,6 +70,8 @@ app.use('/quizz', quizzRoutes);
 // Rotas mobile
 app.use("/mobile/notificacoes", require("./routes/mobileNotificacoesRoutes"));
 app.use("/mobile/colaborador", require("./routes/mobileColaboradoresRoutes"));
+
+notificationWorker.startWorker();
 
 app.listen(8000, () => {
   console.log("Servidor na porta 8000");
