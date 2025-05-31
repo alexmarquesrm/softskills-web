@@ -31,6 +31,7 @@ import CategoriesList from "./pages/gestor/categoriesList";
 import AreasList from "./pages/gestor/areasList";
 import TopicsList from "./pages/gestor/topicsList";
 import AboutUs from "./pages/microsite";
+import CursosPublic from "./pages/listCoursesPublic";
 
 // Forum Pages
 import ForumList from "./pages/forum/forumList";
@@ -97,6 +98,7 @@ function AppContent() {
                     {/* Public Routes */}
                     <Route path="*" element={<Navigate to="/" />} />
                     <Route path="/microsite" element={<AboutUs />} />
+                    <Route path="/cursos-view" element={<CursosPublic />} />
                 </Routes>
             </div>
             <Footer />
