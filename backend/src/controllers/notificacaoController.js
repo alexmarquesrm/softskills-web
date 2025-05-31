@@ -110,15 +110,18 @@ async function enviarPushParaUsuario(fcmToken, titulo, corpo) {
     console.log('Enviando push notification para token:', fcmToken);
     console.log('Payload:', { titulo, corpo });
     
-    const response = await axios.post('https://fcm.googleapis.com/fcm/send', {
-      to: fcmToken,
-      notification: {
-        title: titulo,
-        body: corpo
+    // Usando o endpoint HTTP v1 do FCM
+    const response = await axios.post('https://fcm.googleapis.com/v1/projects/softskills-4f0c0/messages:send', {
+      message: {
+        token: fcmToken,
+        notification: {
+          title: titulo,
+          body: corpo
+        }
       }
     }, {
       headers: {
-        'Authorization': `key=${FCM_SERVER_KEY}`,
+        'Authorization': `Bearer ${FCM_SERVER_KEY}`,
         'Content-Type': 'application/json'
       }
     });
