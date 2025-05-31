@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "../../config/configAxios";
 import { Row, Col, Form, Card, Alert, Spinner } from "react-bootstrap";
+import { toast } from 'react-toastify';
 import profilePic from "../../logo.svg";
 /* COMPONENTES */
 import Guardar from "../../components/buttons/saveButton";
@@ -9,12 +10,12 @@ import Cancelar from "../../components/buttons/cancelButton";
 /* MODALS */
 import ModalCustom from "../modalCustom";
 /* ICONS */
-import { FaRegSave, FaMobileAlt, FaUser, FaBuilding, FaUserTie, FaUserGraduate } from "react-icons/fa";
+import { FaRegSave, FaMobileAlt, FaUser, FaUserTie, FaUserGraduate } from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
 import { IoCalendarNumberSharp } from "react-icons/io5";
-import { BsArrowReturnLeft } from "react-icons/bs";
+import { BsArrowReturnLeft, BsCheckCircle, } from "react-icons/bs";
 
-export default function EditProfile ({ show, onClose, onSave, initialData = {} }) {
+export default function EditProfile({ show, onClose, onSave, initialData = {} }) {
   const [formData, setFormData] = useState({
     primeiroNome: "",
     ultimoNome: "",
@@ -60,13 +61,13 @@ export default function EditProfile ({ show, onClose, onSave, initialData = {} }
   }, [show]);
 
   // Filter functions based on current department
-  const funcoesFiltradas = funcoes.filter(funcao => 
+  const funcoesFiltradas = funcoes.filter(funcao =>
     departamentoAtual ? funcao.departamento_id === departamentoAtual : true
   );
 
   const validateForm = () => {
     const errors = {};
-    
+
     if (!formData.primeiroNome.trim()) errors.primeiroNome = "Primeiro nome é obrigatório";
     if (!formData.ultimoNome.trim()) errors.ultimoNome = "Último nome é obrigatório";
     if (!formData.username.trim()) errors.username = "Nome de utilizador é obrigatório";
@@ -112,7 +113,7 @@ export default function EditProfile ({ show, onClose, onSave, initialData = {} }
 
       // Get user types from the API response
       let tipos = [];
-      
+
       // Se tiver tipos no response, usa ele
       if (utilizador.tipos && Array.isArray(utilizador.tipos)) {
         tipos = utilizador.tipos;
@@ -121,7 +122,7 @@ export default function EditProfile ({ show, onClose, onSave, initialData = {} }
       else if (utilizador.tipo) {
         tipos = [utilizador.tipo];
       }
-      
+
       setFormData({
         primeiroNome: primeiroNome || "",
         ultimoNome: ultimoNome || "",
@@ -176,17 +177,18 @@ export default function EditProfile ({ show, onClose, onSave, initialData = {} }
         score: formData.score || 0,
         especialidade: formData.tipos.includes("Formador") ? "Geral" : null
       };
-      
+
       await axios.put(`/colaborador/atualizar/${id}`, payload, {
         headers: { Authorization: `${token}` }
       });
-
+      toast.success("Utilizador atualizado com sucesso!");
       setSuccess(true);
       setTimeout(() => {
         if (onSave) onSave(payload);
         onClose();
-      }, 1500);
+      }, 200);
     } catch (error) {
+      toast.error("Erro ao atualizar perfil");
       console.error("Erro ao atualizar perfil", error);
       console.error("Detalhes do erro:", error.response?.data);
       setError(error.response?.data?.message || "Erro ao atualizar perfil. Por favor, tente novamente.");
@@ -264,16 +266,22 @@ export default function EditProfile ({ show, onClose, onSave, initialData = {} }
       <Card className="border-0 shadow-sm">
         <Card.Body className="p-4">
           {error && <Alert variant="danger" className="mb-4">{error}</Alert>}
-          {success && <Alert variant="success" className="mb-4">Utilizador atualizado com sucesso!</Alert>}
+          {success && (
+            <Alert variant="success" className="d-flex align-items-center mb-4">
+              <BsCheckCircle className="me-2" />
+              <span>Utilizador atualizado com sucesso!</span>
+            </Alert>
+          )}
+
 
           <Row className="mb-4 align-items-center">
             <Col xs={4} sm={3} md={2} className="d-flex justify-content-center">
-              <img 
-                src={previewFoto} 
-                alt="Foto de Perfil" 
+              <img
+                src={previewFoto}
+                alt="Foto de Perfil"
                 className="rounded-circle shadow-lg"
-                width="120" 
-                height="120" 
+                width="120"
+                height="120"
                 style={{ objectFit: "cover" }}
                 onError={(e) => {
                   e.target.src = profilePic;
@@ -465,9 +473,9 @@ export default function EditProfile ({ show, onClose, onSave, initialData = {} }
                   <div className="border rounded p-3 h-100">
                     <label className="form-label fw-bold mb-2">Estado da Conta</label>
                     <div className="d-flex align-items-center">
-                      <Form.Check 
-                        type="switch" 
-                        id="ativoSwitch" 
+                      <Form.Check
+                        type="switch"
+                        id="ativoSwitch"
                         label={
                           <div className="d-flex align-items-center">
                             <span className={!formData.inativo ? "text-success" : "text-danger"}>
@@ -487,14 +495,14 @@ export default function EditProfile ({ show, onClose, onSave, initialData = {} }
 
           <div className="d-flex justify-content-end gap-3 mt-4">
             <Cancelar text="Cancelar" onClick={onClose} Icon={BsArrowReturnLeft} inline={true} />
-            <Guardar 
+            <Guardar
               text={loading ? (
                 <>
                   <Spinner as="span" animation="border" size="sm" className="me-2" />
                   A guardar...
                 </>
-              ) : "Guardar"} 
-              onClick={handleGuardar} 
+              ) : "Guardar"}
+              onClick={handleGuardar}
               Icon={FaRegSave}
               disabled={loading}
             />

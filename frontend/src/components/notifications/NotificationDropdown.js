@@ -164,12 +164,12 @@ function NotificationDropdown() {
           </div>
 
           <div className="notification-list">
-            {notifications.length === 0 ? (
+            {notifications.filter(n => !n.lida).length === 0 ? (
               <div className="notification-empty">
-                Nenhuma notificação
+                Sem nenhuma notificação
               </div>
             ) : (
-              notifications.map((notification) => (
+              notifications.filter(n => !n.lida).map((notification) => (
                 <div 
                   key={notification.notificacao_id}
                   className={`notification-item ${!notification.lida ? 'unread' : ''}`}

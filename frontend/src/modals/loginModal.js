@@ -76,6 +76,7 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
             sessionStorage.setItem('nome', utilizador.nome);
             sessionStorage.setItem('email', utilizador.email);
             sessionStorage.setItem('primeirologin', utilizador.ultimologin === null ? "true" : "false");
+            sessionStorage.setItem('score', utilizador.score);
             
             // Armazenar todos os tipos de usuário
             if (utilizador.allUserTypes && Array.isArray(utilizador.allUserTypes)) {
@@ -205,6 +206,7 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
                 sessionStorage.setItem('nome', utilizador.nome);
                 sessionStorage.setItem('email', utilizador.email);
                 sessionStorage.setItem('primeirologin', utilizador.ultimologin === null ? "true" : "false");
+                sessionStorage.setItem('score', utilizador.score);
                 
                 // Armazenar todos os tipos de usuário
                 if (utilizador.allUserTypes && Array.isArray(utilizador.allUserTypes)) {

@@ -117,7 +117,7 @@ function App() {
                 draggable
                 pauseOnHover
                 theme="light"
-                style={{ marginTop: '60px', zIndex: 1000 }}
+                style={{ marginTop: '60px', zIndex: 9000 }}
             />
             <AppContent />
         </Router>

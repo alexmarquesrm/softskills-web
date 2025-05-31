@@ -183,7 +183,10 @@ export default function PaginaGestor() {
   const renderPedidoCard = (pedido, index) => {
     if (!pedido) return null;
 
+    const pedidoId = pedido.pedido_id;
+
     return (
+      <div key={pedidoId || index} onClick={() => navigate(`/gestor/pedidos/view/${pedidoId}`)} style={{ cursor: 'pointer' }}>
       <CardPedido
         key={pedido.pedido_id || index}
         pedido={{
@@ -198,6 +201,7 @@ export default function PaginaGestor() {
         showFormador={true}
         showTimeAgo={true}
       />
+      </div>
     );
   };
 
