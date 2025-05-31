@@ -1,6 +1,25 @@
 const initModels = require("../models/init-models");
 const sequelizeConn = require("../bdConexao");
 const models = initModels(sequelizeConn);
+const admin = require('firebase-admin');
+const serviceAccount = require('../../firebase-service-account.json');
+
+if (!admin.apps.length) {
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount)
+  });
+}
+
+async function enviarPushParaUsuario(fcmToken, titulo, corpo) {
+  const message = {
+    token: fcmToken,
+    notification: {
+      title: titulo,
+      body: corpo
+    }
+  };
+  return await admin.messaging().send(message);
+}
 
 const mobileColaboradoresController = {
   // Registrar/atualizar token FCM
