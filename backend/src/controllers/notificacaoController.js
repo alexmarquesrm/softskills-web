@@ -182,5 +182,6 @@ async function enviarPushNovaNotificacao(notificacao) {
 
 module.exports = {
   ...notificacaoController,
-  enviarNotificacaoTeste
+  enviarNotificacaoTeste,
+  enviarPushParaUsuario
 }; 
