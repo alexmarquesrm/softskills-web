@@ -96,9 +96,21 @@ const notificacaoController = {
 };
 
 async function enviarPushParaUsuario(fcmToken, titulo, corpo) {
-  if (!fcmToken) return;
+  if (!fcmToken) {
+    console.log('FCM token não fornecido');
+    return;
+  }
+
+  if (!FCM_SERVER_KEY) {
+    console.error('FCM_SERVER_KEY não configurada no ambiente');
+    return;
+  }
+
   try {
-    await axios.post('https://fcm.googleapis.com/fcm/send', {
+    console.log('Enviando push notification para token:', fcmToken);
+    console.log('Payload:', { titulo, corpo });
+    
+    const response = await axios.post('https://fcm.googleapis.com/fcm/send', {
       to: fcmToken,
       notification: {
         title: titulo,
@@ -110,8 +122,22 @@ async function enviarPushParaUsuario(fcmToken, titulo, corpo) {
         'Content-Type': 'application/json'
       }
     });
+
+    console.log('Resposta do FCM:', response.data);
+    return response.data;
   } catch (err) {
-    console.error('Erro ao enviar push notification:', err?.response?.data || err.message);
+    console.error('Erro detalhado ao enviar push notification:', {
+      message: err.message,
+      response: err?.response?.data,
+      status: err?.response?.status,
+      headers: err?.response?.headers,
+      config: {
+        url: err?.config?.url,
+        method: err?.config?.method,
+        headers: err?.config?.headers
+      }
+    });
+    throw err;
   }
 }
 
