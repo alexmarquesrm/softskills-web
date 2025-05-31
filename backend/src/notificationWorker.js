@@ -20,9 +20,8 @@ async function enviarPushParaUsuario(fcmToken, titulo, corpo) {
       notification: { title: titulo, body: corpo }
     };
     await admin.messaging().send(message);
-    console.log('Push enviado para token:', fcmToken);
   } catch (err) {
-    console.error('Erro ao enviar push:', err);
+    // Silencioso
   }
 }
 
@@ -43,7 +42,6 @@ async function processarNotificacoesPendentes() {
 
 function startWorker() {
   setInterval(processarNotificacoesPendentes, 10000); // a cada 10 segundos
-  console.log('Worker de notificações iniciado...');
 }
 
 module.exports = { startWorker }; 
