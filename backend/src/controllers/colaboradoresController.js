@@ -915,5 +915,81 @@ const controladorUtilizadores = {
       res.status(500).json({ message: 'Erro ao registrar FCM token' });
     }
   },
+
+  mobileLogin: async (req, res) => {
+    try {
+      const { username, password, fcmToken, deviceInfo } = req.body;
+      console.log('Mobile login attempt:', { username, deviceInfo });
+
+      // Find user
+      const user = await models.colaborador.findOne({
+        where: { username }
+      });
+
+      if (!user) {
+        console.log('Mobile login failed: User not found');
+        return res.status(404).json({ message: "Utilizador não encontrado" });
+      }
+
+      // Verify password
+      const passwordMatch = await bcrypt.compare(password, user.pssword);
+      if (!passwordMatch) {
+        console.log('Mobile login failed: Invalid password');
+        return res.status(401).json({ message: "Password incorreta" });
+      }
+
+      // Get user roles
+      const [formando, formador, gestor] = await Promise.all([
+        models.formando.findOne({ where: { formando_id: user.colaborador_id } }),
+        models.formador.findOne({ where: { formador_id: user.colaborador_id } }),
+        models.gestor.findOne({ where: { gestor_id: user.colaborador_id } })
+      ]);
+
+      // Collect user types
+      const userTypes = [];
+      if (formando) userTypes.push("Formando");
+      if (formador) userTypes.push("Formador");
+      if (gestor) userTypes.push("Gestor");
+
+      if (userTypes.length === 0) {
+        userTypes.push("Desconhecido");
+      }
+
+      // Update last login and FCM token
+      const updateData = { 
+        last_login: new Date(),
+        fcmtoken: fcmToken || user.fcmtoken // Keep existing token if new one not provided
+      };
+      await user.update(updateData);
+
+      // Generate JWT token
+      const token = generateToken({
+        utilizadorid: user.colaborador_id,
+        email: user.email,
+        tipo: userTypes[0],
+        allUserTypes: userTypes.join(',')
+      });
+
+      // Get greeting
+      const [saudacao] = await sequelizeConn.query('SELECT obter_saudacao() as saudacao');
+
+      console.log('Mobile login successful for user:', user.colaborador_id);
+
+      // Return response with all necessary data
+      res.status(200).json({
+        user: {
+          ...user.toJSON(),
+          colaboradorid: user.colaborador_id,
+          allUserTypes: userTypes,
+          fcmToken: user.fcmtoken
+        },
+        token,
+        saudacao: saudacao[0].saudacao
+      });
+    } catch (error) {
+      console.error('Mobile login error:', error);
+      res.status(500).json({ message: "Erro no login mobile" });
+    }
+  },
 };
 module.exports = controladorUtilizadores;
