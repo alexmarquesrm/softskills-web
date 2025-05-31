@@ -3,7 +3,7 @@ const initModels = require("../models/init-models");
 const sequelizeConn = require("../bdConexao");
 const models = initModels(sequelizeConn);
 const axios = require("axios");
-const FCM_SERVER_KEY = _Yoh_JfQ7Y1Xud13VEmQB11kWOpb1DqYdEbcXDWfab4; // Get from environment variable
+const FCM_SERVER_KEY = "_Yoh_JfQ7Y1Xud13VEmQB11kWOpb1DqYdEbcXDWfab4"; // Get from environment variable
 const { Op } = require("sequelize");
 
 const notificacaoController = {
