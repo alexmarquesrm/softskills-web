@@ -66,6 +66,10 @@ app.use('/funcao', funcoesRoutes);
 app.use('/trabalhos', trabalhosRoutes);
 app.use('/quizz', quizzRoutes);
 
+// Rotas mobile
+app.use("/mobile/notificacoes", require("./routes/mobileNotificacoesRoutes"));
+app.use("/mobile/colaborador", require("./routes/mobileColaboradoresRoutes"));
+
 app.listen(8000, () => {
   console.log("Servidor na porta 8000");
 });

@@ -4,6 +4,7 @@ const sequelizeConn = require("../bdConexao");
 const models = initModels(sequelizeConn);
 const axios = require("axios");
 const FCM_SERVER_KEY = process.env.FCM_SERVER_KEY;
+const { Op } = require("sequelize");
 
 const notificacaoController = {
   // Obter notificações de um formando
@@ -114,4 +115,72 @@ async function enviarPushParaUsuario(fcmToken, titulo, corpo) {
   }
 }
 
-module.exports = notificacaoController; 
+// Função para enviar notificação de teste
+async function enviarNotificacaoTeste(req, res) {
+  try {
+    const { fcmToken, titulo, corpo } = req.body;
+    
+    if (!fcmToken || !titulo || !corpo) {
+      return res.status(400).json({ error: 'FCM token, título e corpo são obrigatórios' });
+    }
+
+    await enviarPushParaUsuario(fcmToken, titulo, corpo);
+    res.json({ message: 'Notificação de teste enviada com sucesso' });
+  } catch (error) {
+    console.error('Erro ao enviar notificação de teste:', error);
+    res.status(500).json({ error: 'Erro ao enviar notificação de teste' });
+  }
+}
+
+// Função para enviar notificações push para notificações não lidas
+async function enviarNotificacoesNaoLidas(formandoId) {
+  try {
+    const notificacoes = await models.notificacao.findAll({
+      where: { 
+        formando_id: formandoId,
+        lida: false 
+      },
+      include: [{
+        model: models.curso,
+        as: 'curso',
+        attributes: ['titulo']
+      }]
+    });
+
+    const colaborador = await models.colaborador.findByPk(formandoId);
+    if (!colaborador || !colaborador.fcmtoken) return;
+
+    for (const notificacao of notificacoes) {
+      await enviarPushParaUsuario(
+        colaborador.fcmtoken,
+        notificacao.curso?.titulo || 'Nova notificação',
+        notificacao.mensagem
+      );
+    }
+  } catch (error) {
+    console.error('Erro ao enviar notificações não lidas:', error);
+  }
+}
+
+// Função para enviar push quando uma nova notificação for criada
+async function enviarPushNovaNotificacao(notificacao) {
+  try {
+    const colaborador = await models.colaborador.findByPk(notificacao.formando_id);
+    if (!colaborador || !colaborador.fcmtoken) return;
+
+    const curso = await models.curso.findByPk(notificacao.curso_id);
+    
+    await enviarPushParaUsuario(
+      colaborador.fcmtoken,
+      curso?.titulo || 'Nova notificação',
+      notificacao.mensagem
+    );
+  } catch (error) {
+    console.error('Erro ao enviar push para nova notificação:', error);
+  }
+}
+
+module.exports = {
+  ...notificacaoController,
+  enviarNotificacaoTeste
+}; 

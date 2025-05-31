@@ -14,5 +14,6 @@ router.put("/marcar-todas-lidas", authenticate, notificacaoController.marcarToda
 // POST
 router.post("/processar-inicio-curso", authenticate, notificacaoController.processarNotificacoesInicioCurso);
 router.post('/registrar-fcm-token', colaboradorController.registrarFcmToken);
+router.post('/teste-push', authenticate, notificacaoController.enviarNotificacaoTeste);
 
 module.exports = router; 
