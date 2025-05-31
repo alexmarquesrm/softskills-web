@@ -24,6 +24,7 @@ const departamentosRoutes = require('./routes/departamentosRoutes');
 const funcoesRoutes = require('./routes/funcoesRoutes');
 const trabalhosRoutes = require('./routes/trabalhosRoutes');
 const quizzRoutes = require('./routes/quizz');
+const fcmTokenRoutes = require('./routes/fcmTokenRoutes');
 const notificationWorker = require('./notificationWorker');
 
 // Importar os cron jobs
@@ -66,6 +67,7 @@ app.use('/departamento', departamentosRoutes);
 app.use('/funcao', funcoesRoutes);
 app.use('/trabalhos', trabalhosRoutes);
 app.use('/quizz', quizzRoutes);
+app.use('/fcm-token', fcmTokenRoutes);
 
 // Rotas mobile
 app.use("/mobile/notificacoes", require("./routes/mobileNotificacoesRoutes"));
