@@ -2,7 +2,7 @@ require('dotenv').config();
 const initModels = require("../models/init-models");
 const sequelizeConn = require("../bdConexao");
 const models = initModels(sequelizeConn);
-const axios = require('axios');
+const axios = require("../config/configAxios");
 const FCM_SERVER_KEY = process.env.FCM_SERVER_KEY;
 
 const notificacaoController = {
