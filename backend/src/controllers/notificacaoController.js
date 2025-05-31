@@ -3,7 +3,7 @@ const initModels = require("../models/init-models");
 const sequelizeConn = require("../bdConexao");
 const models = initModels(sequelizeConn);
 const axios = require("axios");
-const FCM_SERVER_KEY = "AIzaSyAkW7A9i2ki0VJm9ALZ3-f4Mxp7nFK15ZE"; // Using the API key as server key
+const FCM_SERVER_KEY = process.env.FCM_SERVER_KEY; // Get from environment variable
 const { Op } = require("sequelize");
 
 const notificacaoController = {
@@ -98,6 +98,11 @@ const notificacaoController = {
 async function enviarPushParaUsuario(fcmToken, titulo, corpo) {
   if (!fcmToken) {
     console.log('FCM token não fornecido');
+    return;
+  }
+
+  if (!FCM_SERVER_KEY) {
+    console.error('FCM_SERVER_KEY não configurada no ambiente');
     return;
   }
 
