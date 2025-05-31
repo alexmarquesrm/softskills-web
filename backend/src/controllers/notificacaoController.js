@@ -3,7 +3,7 @@ const initModels = require("../models/init-models");
 const sequelizeConn = require("../bdConexao");
 const models = initModels(sequelizeConn);
 const axios = require("axios");
-const FCM_SERVER_KEY = process.env.FCM_SERVER_KEY;
+const FCM_API_KEY = "AIzaSyAkW7A9i2ki0VJm9ALZ3-f4Mxp7nFK15ZE"; // API key from google-services.json
 const { Op } = require("sequelize");
 
 const notificacaoController = {
@@ -101,26 +101,22 @@ async function enviarPushParaUsuario(fcmToken, titulo, corpo) {
     return;
   }
 
-  if (!FCM_SERVER_KEY) {
-    console.error('FCM_SERVER_KEY não configurada no ambiente');
-    return;
-  }
-
   try {
     console.log('Enviando push notification para token:', fcmToken);
     console.log('Payload:', { titulo, corpo });
     
-    // Usando o endpoint legacy do FCM com o project_id correto
-    const response = await axios.post('https://fcm.googleapis.com/fcm/send', {
-      to: fcmToken,
-      notification: {
-        title: titulo,
-        body: corpo
-      },
-      project_id: 'pint2025-edd37' // Adicionando o project_id do google-services.json
+    // Usando o endpoint v1 do FCM com a API key
+    const response = await axios.post('https://fcm.googleapis.com/v1/projects/pint2025-edd37/messages:send', {
+      message: {
+        token: fcmToken,
+        notification: {
+          title: titulo,
+          body: corpo
+        }
+      }
     }, {
       headers: {
-        'Authorization': `key=${FCM_SERVER_KEY}`,
+        'Authorization': `Bearer ${FCM_API_KEY}`,
         'Content-Type': 'application/json'
       }
     });
