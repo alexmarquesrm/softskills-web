@@ -110,13 +110,14 @@ async function enviarPushParaUsuario(fcmToken, titulo, corpo) {
     console.log('Enviando push notification para token:', fcmToken);
     console.log('Payload:', { titulo, corpo });
     
-    // Usando o endpoint legacy do FCM
+    // Usando o endpoint legacy do FCM com o project_id correto
     const response = await axios.post('https://fcm.googleapis.com/fcm/send', {
       to: fcmToken,
       notification: {
         title: titulo,
         body: corpo
-      }
+      },
+      project_id: 'pint2025-edd37' // Adicionando o project_id do google-services.json
     }, {
       headers: {
         'Authorization': `key=${FCM_SERVER_KEY}`,
