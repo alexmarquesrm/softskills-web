@@ -4,7 +4,6 @@ const mobileNotificacoesController = require("../controllers/mobileNotificacoesC
 // Adicione autenticação se necessário
 
 router.get("/", mobileNotificacoesController.getNotificacoes);
-router.post("/marcar-lida", mobileNotificacoesController.marcarComoLida);
 router.post("/teste-push", mobileNotificacoesController.testePush);
 
 module.exports = router; 

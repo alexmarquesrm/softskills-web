@@ -20,22 +20,7 @@ const mobileNotificacoesController = {
     }
   },
 
-  // Marcar notificação como lida
-  marcarComoLida: async (req, res) => {
-    try {
-      const { notificacaoId } = req.body;
-      if (!notificacaoId) return res.status(400).json({ error: "ID da notificação não informado" });
-      await models.notificacao.update(
-        { lida: true },
-        { where: { notificacao_id: notificacaoId } }
-      );
-      res.json({ success: true });
-    } catch (error) {
-      res.status(500).json({ error: "Erro ao marcar como lida" });
-    }
-  },
-
-  // Enviar push de teste (apenas mobile)
+  // Enviar push de teste (mobile)
   testePush: async (req, res) => {
     try {
       const { colaboradorid, titulo, corpo } = req.body;
