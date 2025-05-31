@@ -991,5 +991,138 @@ const controladorUtilizadores = {
       res.status(500).json({ message: "Erro no login mobile" });
     }
   },
+
+  googleMobileLogin: async (req, res) => {
+    try {
+      const { googleId, email, name, photoURL, fcmToken, deviceInfo } = req.body;
+      console.log('Google mobile login attempt:', { email, deviceInfo, hasFcmToken: !!fcmToken });
+
+      // Check if user exists with this Google ID
+      let colaborador = await models.colaborador.findOne({
+        where: { google_id: googleId }
+      });
+
+      if (!colaborador) {
+        // Check if user exists with this email
+        colaborador = await models.colaborador.findOne({
+          where: { email }
+        });
+
+        if (colaborador) {
+          // Update existing user with Google ID and FCM token
+          await colaborador.update({ 
+            google_id: googleId,
+            fcmtoken: fcmToken || colaborador.fcmtoken,
+            last_login: new Date()
+          });
+        } else {
+          // Generate username from name (firstname.lastname)
+          const nameParts = name.split(' ');
+          const firstName = nameParts[0].toLowerCase();
+          const lastName = nameParts[nameParts.length - 1].toLowerCase();
+          let username = `${firstName}.${lastName}`;
+          
+          // Check if username already exists and add a number if it does
+          let usernameExists = true;
+          let counter = 1;
+          let finalUsername = username;
+          
+          while (usernameExists) {
+            const existingUser = await models.colaborador.findOne({
+              where: { username: finalUsername }
+            });
+            
+            if (!existingUser) {
+              usernameExists = false;
+            } else {
+              finalUsername = `${username}${counter}`;
+              counter++;
+            }
+          }
+
+          // Generate a unique phone number
+          let phoneExists = true;
+          let phoneNumber;
+          while (phoneExists) {
+            phoneNumber = 900000000 + Math.floor(Math.random() * 100000000);
+            const existingPhone = await models.colaborador.findOne({
+              where: { telefone: phoneNumber }
+            });
+            if (!existingPhone) {
+              phoneExists = false;
+            }
+          }
+
+          const tempPassword = Math.random().toString(36).slice(-8);
+          const hashedPassword = await bcrypt.hash(tempPassword, 10);
+
+          // Create new colaborador with FCM token
+          colaborador = await models.colaborador.create({
+            nome: name,
+            email,
+            username: finalUsername,
+            pssword: hashedPassword,
+            google_id: googleId,
+            telefone: phoneNumber,
+            score: 0,
+            inativo: false,
+            last_login: new Date(),
+            fcmtoken: fcmToken
+          });
+
+          // Create formando by default
+          await models.formando.create({
+            formando_id: colaborador.colaborador_id
+          });
+        }
+      } else {
+        // Update last login and FCM token
+        const updateData = { 
+          last_login: new Date(),
+          fcmtoken: fcmToken || colaborador.fcmtoken
+        };
+        await colaborador.update(updateData);
+      }
+
+      // Get user types
+      const [formando, formador, gestor] = await Promise.all([
+        models.formando.findOne({ where: { formando_id: colaborador.colaborador_id } }),
+        models.formador.findOne({ where: { formador_id: colaborador.colaborador_id } }),
+        models.gestor.findOne({ where: { gestor_id: colaborador.colaborador_id } })
+      ]);
+
+      const allUserTypes = [];
+      if (formando) allUserTypes.push('Formando');
+      if (formador) allUserTypes.push('Formador');
+      if (gestor) allUserTypes.push('Gestor');
+
+      // Generate token
+      const token = generateToken({
+        utilizadorid: colaborador.colaborador_id,
+        email: colaborador.email,
+        tipo: allUserTypes[0] || 'Formando',
+        allUserTypes: allUserTypes.join(',')
+      });
+
+      // Get greeting
+      const [saudacao] = await sequelizeConn.query('SELECT obter_saudacao() as saudacao');
+
+      console.log('Google mobile login successful for user:', colaborador.colaborador_id);
+
+      res.json({
+        user: {
+          ...colaborador.toJSON(),
+          colaboradorid: colaborador.colaborador_id,
+          allUserTypes,
+          fcmToken: colaborador.fcmtoken
+        },
+        token,
+        saudacao: saudacao[0].saudacao
+      });
+    } catch (error) {
+      console.error('Erro no login mobile com Google:', error);
+      res.status(500).json({ message: "Erro ao fazer login mobile com Google" });
+    }
+  },
 };
 module.exports = controladorUtilizadores;

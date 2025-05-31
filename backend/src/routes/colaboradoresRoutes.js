@@ -11,6 +11,7 @@ router.post('/login', colaboradorController.login);
 router.post('/mobile-login', colaboradorController.mobileLogin);
 router.post('/reset-password', colaboradorController.resetPassword);
 router.post("/google-login", colaboradorController.googleLogin);
+router.post("/google-mobile-login", colaboradorController.googleMobileLogin);
 
 // Rota para obter saudação baseada na hora do dia
 router.get("/saudacao", colaboradorController.getSaudacao);
