@@ -898,5 +898,22 @@ const controladorUtilizadores = {
       res.status(500).json({ message: 'Erro ao obter configuração do Firebase' });
     }
   },
+
+  registrarFcmToken: async (req, res) => {
+    try {
+      const { colaboradorid, fcmToken } = req.body;
+      if (!colaboradorid || !fcmToken) {
+        return res.status(400).json({ message: 'Dados insuficientes' });
+      }
+      await models.colaborador.update(
+        { fcmtoken: fcmToken },
+        { where: { colaborador_id: colaboradorid } }
+      );
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Erro ao registrar FCM token:', error);
+      res.status(500).json({ message: 'Erro ao registrar FCM token' });
+    }
+  },
 };
 module.exports = controladorUtilizadores;

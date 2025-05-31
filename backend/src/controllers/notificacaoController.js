@@ -1,6 +1,9 @@
+require('dotenv').config();
 const initModels = require("../models/init-models");
 const sequelizeConn = require("../bdConexao");
 const models = initModels(sequelizeConn);
+const axios = require('axios');
+const FCM_SERVER_KEY = process.env.FCM_SERVER_KEY;
 
 const notificacaoController = {
   // Obter notificações de um formando
@@ -90,5 +93,25 @@ const notificacaoController = {
     }
   }
 };
+
+async function enviarPushParaUsuario(fcmToken, titulo, corpo) {
+  if (!fcmToken) return;
+  try {
+    await axios.post('https://fcm.googleapis.com/fcm/send', {
+      to: fcmToken,
+      notification: {
+        title: titulo,
+        body: corpo
+      }
+    }, {
+      headers: {
+        'Authorization': `key=${FCM_SERVER_KEY}`,
+        'Content-Type': 'application/json'
+      }
+    });
+  } catch (err) {
+    console.error('Erro ao enviar push notification:', err?.response?.data || err.message);
+  }
+}
 
 module.exports = notificacaoController; 
