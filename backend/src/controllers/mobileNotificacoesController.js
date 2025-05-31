@@ -32,7 +32,8 @@ const mobileNotificacoesController = {
       await enviarPushParaUsuario(colaborador.fcmtoken, titulo, corpo);
       res.json({ success: true });
     } catch (error) {
-      res.status(500).json({ error: "Erro ao enviar push" });
+      console.error('Erro ao enviar push', error);
+      res.status(500).json({ error: error?.response?.data || error.message || String(error) });
     }
   }
 };
