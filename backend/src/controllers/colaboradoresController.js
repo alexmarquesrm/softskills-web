@@ -1357,7 +1357,7 @@ const controladorMobile = {
     console.log('Iniciando mobileChangePassword...');
     console.log('Headers recebidos:', req.headers);
     console.log('Dados recebidos:', {
-        colaboradorid: req.user.colaborador_id,
+        colaboradorid: req.user.id,
         currentPasswordLength: req.body.currentPassword ? req.body.currentPassword.length : 0,
         newPasswordLength: req.body.newPassword ? req.body.newPassword.length : 0
     });
@@ -1365,7 +1365,7 @@ const controladorMobile = {
     const t = await sequelizeConn.transaction();
     try {
         console.log('Buscando colaborador...');
-        const colaborador = await models.colaborador.findByPk(req.user.colaborador_id);
+        const colaborador = await models.colaborador.findByPk(req.user.id);
         
         if (!colaborador) {
             console.log('Colaborador não encontrado');
