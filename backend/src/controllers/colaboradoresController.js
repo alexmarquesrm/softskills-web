@@ -960,11 +960,15 @@ const controladorUtilizadores = {
         userTypes.push("Desconhecido");
       }
 
-      // Update last login and FCM token
+      // Só atualiza o last_login se não for o primeiro login
       const updateData = { 
-        last_login: new Date(),
         fcmtoken: fcmToken || user.fcmtoken // Keep existing token if new one not provided
       };
+      
+      if (user.last_login !== null) {
+        updateData.last_login = new Date();
+      }
+      
       await user.update(updateData);
 
       // Generate JWT token
@@ -1173,11 +1177,15 @@ const controladorMobile = {
         userTypes.push("Desconhecido");
       }
 
-      // Update last login and FCM token
+      // Só atualiza o last_login se não for o primeiro login
       const updateData = { 
-        last_login: new Date(),
         fcmtoken: fcmToken || user.fcmtoken // Keep existing token if new one not provided
       };
+      
+      if (user.last_login !== null) {
+        updateData.last_login = new Date();
+      }
+      
       await user.update(updateData);
 
       // Generate JWT token
@@ -1363,8 +1371,8 @@ const controladorMobile = {
             return res.status(404).json({ message: 'Colaborador não encontrado' });
         }
         console.log('Colaborador encontrado:', {
-            id: colaborador.colaboradorid,
-            ultimologin: colaborador.ultimologin
+            id: colaborador.colaborador_id,
+            ultimologin: colaborador.last_login
         });
 
         console.log('Verificando senha atual...');
@@ -1380,22 +1388,26 @@ const controladorMobile = {
         const hashedPassword = await bcrypt.hash(req.body.newPassword, 10);
         console.log('Hash gerado com sucesso');
 
-        console.log('Atualizando senha...');
-        await colaborador.update({ pssword: hashedPassword }, { transaction: t });
-        console.log('Senha atualizada com sucesso');
+        // Preparar dados para atualização
+        const updateData = {
+            pssword: hashedPassword
+        };
 
         // Só atualiza o last_login se for o primeiro login
         if (colaborador.last_login === null) {
             console.log('Primeiro login detectado, atualizando last_login...');
-            await colaborador.update({ last_login: new Date() }, { transaction: t });
-            console.log('last_login atualizado');
+            updateData.last_login = new Date();
         } else {
             console.log('Não é primeiro login, last_login não será atualizado');
         }
 
+        console.log('Atualizando dados do colaborador...');
+        await colaborador.update(updateData, { transaction: t });
+        console.log('Dados atualizados com sucesso');
+
         console.log('Gerando token inválido...');
         const invalidToken = generateToken({
-            utilizadorid: colaborador.colaboradorid,
+            utilizadorid: colaborador.colaborador_id,
             email: colaborador.email,
             tipo: req.user.tipo,
             allUserTypes: req.user.allUserTypes,
