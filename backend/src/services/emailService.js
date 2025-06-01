@@ -6,12 +6,13 @@ exports.sendEmail = async (to, subject, text) => {
     console.log('Destinatário:', to);
     console.log('Assunto:', subject);
     
-    // Log das configurações SMTP
+    // Log das configurações SMTP (sem mostrar a senha)
     console.log('Configurações SMTP:', {
         host: process.env.SMTP_HOST,
         port: process.env.SMTP_PORT,
         user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS
+        pass: process.env.SMTP_PASS ? '******' : 'não definida',
+        sender: process.env.EMAIL_SENDER
     });
 
     // Verificar se todas as variáveis de ambiente necessárias estão definidas
@@ -23,19 +24,32 @@ exports.sendEmail = async (to, subject, text) => {
         return false;
     }
 
-    // Criar transporter 
+    // Criar transporter com configurações seguras
     console.log('Criando transporter Nodemailer...');
     let transporter = nodemailer.createTransport({
         host: process.env.SMTP_HOST,
         port: process.env.SMTP_PORT,
-        secure: false, // true for 465, false for other ports
+        secure: process.env.SMTP_PORT === '465', // true for 465, false for other ports
         auth: {
             user: process.env.SMTP_USER,
             pass: process.env.SMTP_PASS,
         },
-        debug: true, // Habilitar logs de debug
-        logger: true // Habilitar logs do nodemailer
+        tls: {
+            rejectUnauthorized: false // Apenas use em desenvolvimento
+        },
+        debug: true,
+        logger: true
     });
+
+    // Verificar conexão antes de tentar enviar
+    try {
+        console.log('Verificando conexão SMTP...');
+        await transporter.verify();
+        console.log('Conexão SMTP verificada com sucesso!');
+    } catch (error) {
+        console.error('Erro ao verificar conexão SMTP:', error);
+        return false;
+    }
 
     // Configurar
     console.log('Configurando opções do email...');
@@ -65,16 +79,19 @@ exports.sendEmail = async (to, subject, text) => {
             code: error.code,
             command: error.command,
             response: error.response,
-            responseCode: error.responseCode,
-            stack: error.stack
+            responseCode: error.responseCode
         });
         
-        // Log específico para erros de autenticação
+        // Mensagens específicas para diferentes tipos de erro
         if (error.code === 'EAUTH') {
-            console.error('Erro de autenticação SMTP. Verifique:');
-            console.error('1. Se as credenciais estão corretas');
-            console.error('2. Se a conta tem "Acesso a apps menos seguros" habilitado');
-            console.error('3. Se está usando senha de app (caso tenha 2FA ativado)');
+            console.error('Erro de autenticação SMTP. Por favor, verifique:');
+            console.error('1. Se está usando uma senha de app (caso tenha 2FA ativado)');
+            console.error('2. Se a conta tem "Acesso a apps menos seguros" habilitado (caso não tenha 2FA)');
+            console.error('3. Se as credenciais estão corretas');
+        } else if (error.code === 'ESOCKET') {
+            console.error('Erro de conexão com o servidor SMTP. Verifique:');
+            console.error('1. Se o host e porta estão corretos');
+            console.error('2. Se o servidor está acessível');
         }
         
         return false;
