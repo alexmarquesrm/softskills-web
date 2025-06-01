@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from "react";
+import { Container } from "react-bootstrap";
+import { toast } from 'react-toastify';
+import { useLocation } from 'react-router-dom';
 import axios from "../config/configAxios";
+/* COMPONENTES */
 import FeaturedCourses from "../components/cards/cardCourses";
 import CardRow from '../components/cards/cardRow';
 import PromoSection from "../components/promo/promoSection";
 import StatsSection from "../components/stats/statsSection";
-import HeroCard from "../components/cards/cardLandingPage";
-import { Container } from "react-bootstrap";
-import { toast } from 'react-toastify';
-import { useLocation } from 'react-router-dom';
-import "./landingPage.css";
 import LandingCard from "../components/cards/cardLandingPage";
+/* CSS */
+import "./landingPage.css";
 
 function AppContent() {
   const [cursosSincronos, setCursosSincronos] = useState([]);
