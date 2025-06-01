@@ -1402,11 +1402,13 @@ const controladorMobile = {
 
         // Gerar token inválido para forçar logout
         console.log('Gerando token inválido...');
-        const invalidToken = jwt.sign(
-            { id: colaborador.colaborador_id, invalidated: true },
-            JWT_SECRET,
-            { expiresIn: '1s' }
-        );
+        const invalidToken = generateToken({
+            utilizadorid: colaborador.colaborador_id,
+            email: colaborador.email,
+            tipo: 'Formando',
+            allUserTypes: 'Formando',
+            invalidated: true
+        });
         console.log('Token inválido gerado');
 
         // Commit da transação
