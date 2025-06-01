@@ -1368,11 +1368,17 @@ const controladorMobile = {
       // Hash da nova senha
       const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-      // Atualizar a senha e o último login em uma única transação
+      // Atualizar apenas a senha primeiro
       await user.update({
-        pssword: hashedPassword,
-        last_login: new Date()
+        pssword: hashedPassword
       }, { transaction: t });
+
+      // Se for o primeiro login (last_login é null), atualizar o last_login
+      if (user.last_login === null) {
+        await user.update({
+          last_login: new Date()
+        }, { transaction: t });
+      }
 
       // Commit da transação
       await t.commit();
