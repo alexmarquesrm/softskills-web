@@ -143,7 +143,6 @@ export default function CursoFormando() {
         const response = await axios.get(`/material/curso/${id}/materiais`, {
           headers: { Authorization: `${token}` }
         });
-        console.log('Response:', response.data.data);
         if (response.data.success) {
           const materialsData = response.data.data;
 
