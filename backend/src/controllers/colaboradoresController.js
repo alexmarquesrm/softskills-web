@@ -5,6 +5,7 @@ const models = initModels(sequelizeConn);
 const ficheirosController = require('./ficheiros');
 const bcrypt = require('bcrypt');
 const { sendEmail } = require('../services/emailService');
+const jwt = require('jsonwebtoken');
 
 const controladorUtilizadores = {
   // Função para obter o próprio perfil do usuário autenticado
@@ -1354,8 +1355,9 @@ const controladorMobile = {
 
   mobileChangePassword: async (req, res) => {
     console.log('Iniciando mobileChangePassword...');
+    console.log('Headers recebidos:', req.headers);
     console.log('Dados recebidos:', {
-        colaboradorid: req.user.colaboradorid,
+        colaboradorid: req.user.colaborador_id,
         currentPasswordLength: req.body.currentPassword ? req.body.currentPassword.length : 0,
         newPasswordLength: req.body.newPassword ? req.body.newPassword.length : 0
     });
@@ -1363,7 +1365,7 @@ const controladorMobile = {
     const t = await sequelizeConn.transaction();
     try {
         console.log('Buscando colaborador...');
-        const colaborador = await models.colaborador.findByPk(req.user.colaboradorid);
+        const colaborador = await models.colaborador.findByPk(req.user.colaborador_id);
         
         if (!colaborador) {
             console.log('Colaborador não encontrado');
@@ -1372,7 +1374,7 @@ const controladorMobile = {
         }
         console.log('Colaborador encontrado:', {
             id: colaborador.colaborador_id,
-            ultimologin: colaborador.last_login,
+            last_login: colaborador.last_login,
             hasPassword: !!colaborador.pssword
         });
 
@@ -1398,39 +1400,39 @@ const controladorMobile = {
 
         // Só atualiza o last_login se for o primeiro login
         if (colaborador.last_login === null) {
-            console.log('Primeiro login detectado, atualizando last_login...');
+            console.log('Primeiro login detectado, atualizando last_login');
             updateData.last_login = new Date();
         } else {
-            console.log('Não é primeiro login, last_login não será atualizado');
+            console.log('Não é primeiro login, mantendo last_login atual:', colaborador.last_login);
         }
 
-        console.log('Atualizando dados do colaborador...');
-        console.log('Dados a serem atualizados:', {
+        console.log('Dados que serão atualizados:', {
             hasNewPassword: !!updateData.pssword,
             willUpdateLastLogin: !!updateData.last_login
         });
-        
+
+        // Atualizar colaborador
+        console.log('Atualizando dados do colaborador...');
         await colaborador.update(updateData, { transaction: t });
         console.log('Dados atualizados com sucesso');
 
+        // Gerar token inválido para forçar logout
         console.log('Gerando token inválido...');
-        const invalidToken = generateToken({
-            utilizadorid: colaborador.colaborador_id,
-            email: colaborador.email,
-            tipo: req.user.tipo,
-            allUserTypes: req.user.allUserTypes,
-            invalidated: true // Marcar o token como inválido
-        });
+        const invalidToken = jwt.sign(
+            { id: colaborador.colaborador_id, invalidated: true },
+            JWT_SECRET,
+            { expiresIn: '1s' }
+        );
         console.log('Token inválido gerado');
 
-        console.log('Commitando transação...');
+        // Commit da transação
+        console.log('Realizando commit da transação...');
         await t.commit();
-        console.log('Transação commitada com sucesso');
+        console.log('Commit realizado com sucesso');
 
-        console.log('Enviando resposta de sucesso');
-        res.json({
+        res.json({ 
             message: 'Senha alterada com sucesso',
-            invalidToken
+            invalidToken: invalidToken
         });
     } catch (error) {
         console.error('Erro durante alteração de senha:', error);
