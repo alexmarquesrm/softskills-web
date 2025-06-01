@@ -1356,8 +1356,8 @@ const controladorMobile = {
     console.log('Iniciando mobileChangePassword...');
     console.log('Dados recebidos:', {
         colaboradorid: req.user.colaboradorid,
-        currentPassword: req.body.currentPassword ? '***' : undefined,
-        newPassword: req.body.newPassword ? '***' : undefined
+        currentPasswordLength: req.body.currentPassword ? req.body.currentPassword.length : 0,
+        newPasswordLength: req.body.newPassword ? req.body.newPassword.length : 0
     });
 
     const t = await sequelizeConn.transaction();
@@ -1372,11 +1372,14 @@ const controladorMobile = {
         }
         console.log('Colaborador encontrado:', {
             id: colaborador.colaborador_id,
-            ultimologin: colaborador.last_login
+            ultimologin: colaborador.last_login,
+            hasPassword: !!colaborador.pssword
         });
 
         console.log('Verificando senha atual...');
         const isPasswordValid = await bcrypt.compare(req.body.currentPassword, colaborador.pssword);
+        console.log('Resultado da verificação da senha atual:', isPasswordValid);
+        
         if (!isPasswordValid) {
             console.log('Senha atual inválida');
             await t.rollback();
@@ -1402,6 +1405,11 @@ const controladorMobile = {
         }
 
         console.log('Atualizando dados do colaborador...');
+        console.log('Dados a serem atualizados:', {
+            hasNewPassword: !!updateData.pssword,
+            willUpdateLastLogin: !!updateData.last_login
+        });
+        
         await colaborador.update(updateData, { transaction: t });
         console.log('Dados atualizados com sucesso');
 
@@ -1426,6 +1434,7 @@ const controladorMobile = {
         });
     } catch (error) {
         console.error('Erro durante alteração de senha:', error);
+        console.error('Stack trace:', error.stack);
         await t.rollback();
         res.status(500).json({ message: 'Erro ao alterar senha' });
     }
