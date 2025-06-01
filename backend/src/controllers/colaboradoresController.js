@@ -464,7 +464,7 @@ const controladorUtilizadores = {
         });
       }
 
-      // Se for Formador, criar o registro de formador
+      // Se for Formador, criar o registo de formador
       if (tipos?.includes("Formador")) {
         await models.formador.create({
           formador_id: novoColaborador.colaborador_id,

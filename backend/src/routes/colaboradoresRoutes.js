@@ -7,6 +7,7 @@ const { controladorUtilizadores, controladorMobile } = require("../controllers/c
 router.get("/firebase-config", controladorUtilizadores.getFirebaseConfig);
 router.get("/username/:username", controladorUtilizadores.getUserByLogin);
 router.post("/login", controladorUtilizadores.login);
+router.post("/registo", controladorUtilizadores.registarNovoColaborador);
 router.post("/reset-password", controladorUtilizadores.resetPassword);
 
 // Rotas mobile (sem autenticação)
