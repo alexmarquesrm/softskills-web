@@ -173,6 +173,11 @@ function CustomNavbar() {
                   <FaGraduationCap className="nav-icon" /> Cursos
                 </Nav.Link>
               )}
+              {!isLoggedIn && (
+                <Nav.Link href="/cursos-view" className="nav-link-custom">
+                  <FaGraduationCap className="nav-icon" /> Cursos
+                </Nav.Link>
+              )}
             </Nav>
           </div>
 

@@ -169,6 +169,96 @@ const controladorCursos = {
     }
   },
 
+  getAllCursosPublic: async (req, res) => {
+    try {
+      const cursos = await models.curso.findAll({
+        include: [
+          {
+            model: models.sincrono,
+            as: "curso_sincrono",
+            attributes: ["curso_id", "formador_id", "limite_vagas", "data_limite_inscricao", "data_inicio", "data_fim", "estado"],
+            include: [
+              {
+                model: models.formador,
+                as: "sincrono_formador",
+                attributes: ["formador_id", "especialidade"],
+                include: [
+                  {
+                    model: models.colaborador,
+                    as: "formador_colab",
+                    attributes: ["nome", "email", "telefone"],
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            model: models.gestor,
+            as: "gestor",
+            attributes: ["gestor_id"],
+            include: [
+              {
+                model: models.colaborador,
+                as: "gestor_colab",
+                attributes: ["nome", "email"],
+              },
+            ],
+          },
+          {
+            model: models.topico,
+            as: "curso_topico",
+            attributes: ["topico_id", "descricao"],
+            include: [
+              {
+                model: models.area,
+                as: "topico_area",
+                attributes: ["area_id", "descricao"],
+                include: [
+                  {
+                    model: models.categoria,
+                    as: "area_categoria",
+                    attributes: ["categoria_id", "descricao"],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+        attributes: {
+          include: [
+            [
+              Sequelize.literal('(SELECT COUNT(*) FROM inscricao WHERE inscricao.curso_id = curso.curso_id)'),
+              'numero_inscritos'
+            ],
+            [
+              Sequelize.literal(`CASE 
+                WHEN curso.tipo = 'S' AND curso_sincrono.limite_vagas IS NOT NULL 
+                THEN curso_sincrono.limite_vagas - (SELECT COUNT(*) FROM inscricao WHERE inscricao.curso_id = curso.curso_id)
+                ELSE NULL 
+              END`),
+              'vagas_disponiveis'
+            ]
+          ]
+        }
+      });
+
+      // Para cada curso, buscar a URL da capa
+      const cursosComCapa = await Promise.all(cursos.map(async (curso) => {
+        const cursoData = curso.toJSON();
+        const files = await ficheirosController.getAllFilesByAlbum(curso.curso_id, 'curso');
+        if (files && files.length > 0) {
+          cursoData.capaUrl = files[0].url;
+        }
+        return cursoData;
+      }));
+
+      res.json(cursosComCapa);
+    } catch (error) {
+      console.error("Erro ao obter cursos:", error);
+      res.status(500).json({ message: "Erro interno ao obter cursos" });
+    }
+  },
+
   getAllLanding: async (req, res) => {
     try {
       // Query for top 3 synchronous courses
