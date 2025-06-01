@@ -1354,54 +1354,29 @@ const controladorMobile = {
   },
 
   mobileChangePassword: async (req, res) => {
-    console.log('Iniciando mobileChangePassword...');
-    console.log('Headers recebidos:', req.headers);
-    console.log('Dados recebidos:', {
-        colaboradorid: req.user.id,
-        currentPasswordLength: req.body.currentPassword ? req.body.currentPassword.length : 0,
-        newPasswordLength: req.body.newPassword ? req.body.newPassword.length : 0
-    });
-
     const t = await sequelizeConn.transaction();
     try {
-        console.log('Buscando colaborador...');
         const colaborador = await models.colaborador.findByPk(req.user.id);
         
         if (!colaborador) {
-            console.log('Colaborador não encontrado');
             await t.rollback();
             return res.status(404).json({ message: 'Colaborador não encontrado' });
         }
-        console.log('Colaborador encontrado:', {
-            id: colaborador.colaborador_id,
-            last_login: colaborador.last_login,
-            hasPassword: !!colaborador.pssword
-        });
 
-        console.log('Verificando senha atual...');
         const isPasswordValid = await bcrypt.compare(req.body.currentPassword, colaborador.pssword);
-        console.log('Resultado da verificação da senha atual:', isPasswordValid);
         
         if (!isPasswordValid) {
-            console.log('Senha atual inválida');
             await t.rollback();
             return res.status(401).json({ message: 'Senha atual incorreta' });
         }
-        console.log('Senha atual válida');
 
-        console.log('Gerando hash da nova senha...');
         const hashedPassword = await bcrypt.hash(req.body.newPassword, 10);
-        console.log('Hash gerado com sucesso');
 
-        // Atualizar apenas a senha, sem modificar o last_login
-        console.log('Atualizando dados do colaborador...');
         await colaborador.update({
-            pssword: hashedPassword
+            pssword: hashedPassword,
+            last_login: new Date()
         }, { transaction: t });
-        console.log('Dados atualizados com sucesso');
 
-        // Gerar token inválido para forçar logout
-        console.log('Gerando token inválido...');
         const invalidToken = generateToken({
             utilizadorid: colaborador.colaborador_id,
             email: colaborador.email,
@@ -1409,12 +1384,8 @@ const controladorMobile = {
             allUserTypes: 'Formando',
             invalidated: true
         });
-        console.log('Token inválido gerado');
 
-        // Commit da transação
-        console.log('Realizando commit da transação...');
         await t.commit();
-        console.log('Commit realizado com sucesso');
 
         res.json({ 
             message: 'Senha alterada com sucesso',
@@ -1422,7 +1393,6 @@ const controladorMobile = {
         });
     } catch (error) {
         console.error('Erro durante alteração de senha:', error);
-        console.error('Stack trace:', error.stack);
         await t.rollback();
         res.status(500).json({ message: 'Erro ao alterar senha' });
     }
