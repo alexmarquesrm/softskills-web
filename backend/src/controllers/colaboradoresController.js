@@ -1345,42 +1345,54 @@ const controladorMobile = {
   },
 
   mobileChangePassword: async (req, res) => {
+    const t = await sequelizeConn.transaction();
     try {
       const { currentPassword, newPassword } = req.body;
       const userId = req.user.id;
 
       // Buscar o usuário
-      const user = await models.colaborador.findByPk(userId);
+      const user = await models.colaborador.findByPk(userId, { transaction: t });
 
       if (!user) {
+        await t.rollback();
         return res.status(404).json({ message: "Utilizador não encontrado" });
       }
 
       // Verificar a senha atual
       const passwordMatch = await bcrypt.compare(currentPassword, user.pssword);
       if (!passwordMatch) {
+        await t.rollback();
         return res.status(401).json({ message: "Password atual incorreta" });
       }
 
       // Hash da nova senha
       const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-      // Atualizar a senha
-      const updated = await user.update({
-        pssword: hashedPassword
-      });
-
-      if (!updated) {
-        return res.status(500).json({ message: "Erro ao atualizar a senha" });
-      }
-
-      // Se a senha foi atualizada com sucesso, atualizar o último login
+      // Atualizar a senha e o último login em uma única transação
       await user.update({
+        pssword: hashedPassword,
         last_login: new Date()
+      }, { transaction: t });
+
+      // Commit da transação
+      await t.commit();
+
+      // Gerar um novo token que será usado para forçar o logout
+      const invalidToken = generateToken({
+        utilizadorid: userId,
+        email: user.email,
+        tipo: req.user.tipo,
+        allUserTypes: req.user.allUserTypes,
+        invalidated: true // Marcar o token como inválido
       });
 
-      res.json({ message: "Password alterada com sucesso" });
+      res.json({ 
+        message: "Password alterada com sucesso",
+        invalidatedToken: invalidToken // Enviar o token inválido para forçar o logout
+      });
     } catch (error) {
+      // Rollback em caso de erro
+      await t.rollback();
       console.error(error);
       res.status(500).json({ message: "Erro ao alterar password" });
     }
