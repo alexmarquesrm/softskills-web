@@ -11,10 +11,13 @@ exports.sendEmail = async (to, subject, text) => {
         host: process.env.SMTP_HOST,
         port: process.env.SMTP_PORT,
         user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
+        pass: process.env.SMTP_PASS.trim(),
         sender: process.env.EMAIL_SENDER
     });
 
+    // Debug: Log do tamanho da senha
+    console.log('Tamanho da senha SMTP:', process.env.SMTP_PASS ? process.env.SMTP_PASS.length : 0);
+    
     // Verificar se todas as variáveis de ambiente necessárias estão definidas
     const requiredEnvVars = ['SMTP_HOST', 'SMTP_PORT', 'SMTP_USER', 'SMTP_PASS', 'EMAIL_SENDER'];
     const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
@@ -32,7 +35,7 @@ exports.sendEmail = async (to, subject, text) => {
         secure: process.env.SMTP_PORT === '465', // true for 465, false for other ports
         auth: {
             user: process.env.SMTP_USER,
-            pass: process.env.SMTP_PASS,
+            pass: process.env.SMTP_PASS.trim(), // Trim any whitespace
         },
         tls: {
             rejectUnauthorized: false // Apenas use em desenvolvimento
@@ -88,6 +91,7 @@ exports.sendEmail = async (to, subject, text) => {
             console.error('1. Se está usando uma senha de app (caso tenha 2FA ativado)');
             console.error('2. Se a conta tem "Acesso a apps menos seguros" habilitado (caso não tenha 2FA)');
             console.error('3. Se as credenciais estão corretas');
+            console.error('4. Se a senha está sendo lida corretamente do .env');
         } else if (error.code === 'ESOCKET') {
             console.error('Erro de conexão com o servidor SMTP. Verifique:');
             console.error('1. Se o host e porta estão corretos');
