@@ -1131,4 +1131,280 @@ const controladorUtilizadores = {
     }
   },
 };
-module.exports = controladorUtilizadores;
+
+// Controlador específico para funcionalidades mobile
+const controladorMobile = {
+  mobileLogin: async (req, res) => {
+    try {
+      const { username, password, fcmToken, deviceInfo } = req.body;
+      console.log('Mobile login attempt:', { username, deviceInfo });
+
+      // Find user
+      const user = await models.colaborador.findOne({
+        where: { username }
+      });
+
+      if (!user) {
+        console.log('Mobile login failed: User not found');
+        return res.status(404).json({ message: "Utilizador não encontrado" });
+      }
+
+      // Verify password
+      const passwordMatch = await bcrypt.compare(password, user.pssword);
+      if (!passwordMatch) {
+        console.log('Mobile login failed: Invalid password');
+        return res.status(401).json({ message: "Password incorreta" });
+      }
+
+      // Get user roles
+      const [formando, formador, gestor] = await Promise.all([
+        models.formando.findOne({ where: { formando_id: user.colaborador_id } }),
+        models.formador.findOne({ where: { formador_id: user.colaborador_id } }),
+        models.gestor.findOne({ where: { gestor_id: user.colaborador_id } })
+      ]);
+
+      // Collect user types
+      const userTypes = [];
+      if (formando) userTypes.push("Formando");
+      if (formador) userTypes.push("Formador");
+      if (gestor) userTypes.push("Gestor");
+
+      if (userTypes.length === 0) {
+        userTypes.push("Desconhecido");
+      }
+
+      // Update last login and FCM token
+      const updateData = { 
+        last_login: new Date(),
+        fcmtoken: fcmToken || user.fcmtoken // Keep existing token if new one not provided
+      };
+      await user.update(updateData);
+
+      // Generate JWT token
+      const token = generateToken({
+        utilizadorid: user.colaborador_id,
+        email: user.email,
+        tipo: userTypes[0],
+        allUserTypes: userTypes.join(',')
+      });
+
+      // Get greeting
+      const [saudacao] = await sequelizeConn.query('SELECT obter_saudacao() as saudacao');
+
+      console.log('Mobile login successful for user:', user.colaborador_id);
+
+      // Return response with all necessary data
+      res.status(200).json({
+        user: {
+          ...user.toJSON(),
+          colaboradorid: user.colaborador_id,
+          allUserTypes: userTypes,
+          fcmToken: user.fcmtoken
+        },
+        token,
+        saudacao: saudacao[0].saudacao
+      });
+    } catch (error) {
+      console.error('Mobile login error:', error);
+      res.status(500).json({ message: "Erro no login mobile" });
+    }
+  },
+
+  googleMobileLogin: async (req, res) => {
+    try {
+      const { googleId, email, name, photoURL, fcmToken, deviceInfo } = req.body;
+      console.log('Google mobile login attempt:', { email, deviceInfo, hasFcmToken: !!fcmToken });
+
+      // Check if user exists with this Google ID
+      let colaborador = await models.colaborador.findOne({
+        where: { google_id: googleId }
+      });
+
+      if (!colaborador) {
+        // Check if user exists with this email
+        colaborador = await models.colaborador.findOne({
+          where: { email }
+        });
+
+        if (colaborador) {
+          // Update existing user with Google ID and FCM token
+          await colaborador.update({ 
+            google_id: googleId,
+            fcmtoken: fcmToken || colaborador.fcmtoken,
+            last_login: new Date()
+          });
+        } else {
+          // Generate username from name (firstname.lastname)
+          const nameParts = name.split(' ');
+          const firstName = nameParts[0].toLowerCase();
+          const lastName = nameParts[nameParts.length - 1].toLowerCase();
+          let username = `${firstName}.${lastName}`;
+          
+          // Check if username already exists and add a number if it does
+          let usernameExists = true;
+          let counter = 1;
+          let finalUsername = username;
+          
+          while (usernameExists) {
+            const existingUser = await models.colaborador.findOne({
+              where: { username: finalUsername }
+            });
+            
+            if (!existingUser) {
+              usernameExists = false;
+            } else {
+              finalUsername = `${username}${counter}`;
+              counter++;
+            }
+          }
+
+          // Generate a unique phone number
+          let phoneExists = true;
+          let phoneNumber;
+          while (phoneExists) {
+            phoneNumber = 900000000 + Math.floor(Math.random() * 100000000);
+            const existingPhone = await models.colaborador.findOne({
+              where: { telefone: phoneNumber }
+            });
+            if (!existingPhone) {
+              phoneExists = false;
+            }
+          }
+
+          const tempPassword = Math.random().toString(36).slice(-8);
+          const hashedPassword = await bcrypt.hash(tempPassword, 10);
+
+          // Create new colaborador with FCM token and default birth date
+          colaborador = await models.colaborador.create({
+            nome: name,
+            email,
+            username: finalUsername,
+            pssword: hashedPassword,
+            google_id: googleId,
+            telefone: phoneNumber,
+            score: 0,
+            inativo: false,
+            last_login: new Date(),
+            fcmtoken: fcmToken,
+            data_nasc: new Date('2000-01-01') // Default birth date
+          });
+
+          // Create formando by default
+          await models.formando.create({
+            formando_id: colaborador.colaborador_id
+          });
+        }
+      } else {
+        // Update last login and FCM token
+        const updateData = { 
+          last_login: new Date(),
+          fcmtoken: fcmToken || colaborador.fcmtoken
+        };
+        await colaborador.update(updateData);
+      }
+
+      // Get user types
+      const [formando, formador, gestor] = await Promise.all([
+        models.formando.findOne({ where: { formando_id: colaborador.colaborador_id } }),
+        models.formador.findOne({ where: { formador_id: colaborador.colaborador_id } }),
+        models.gestor.findOne({ where: { gestor_id: colaborador.colaborador_id } })
+      ]);
+
+      const allUserTypes = [];
+      if (formando) allUserTypes.push('Formando');
+      if (formador) allUserTypes.push('Formador');
+      if (gestor) allUserTypes.push('Gestor');
+
+      // Generate token
+      const token = generateToken({
+        utilizadorid: colaborador.colaborador_id,
+        email: colaborador.email,
+        tipo: allUserTypes[0] || 'Formando',
+        allUserTypes: allUserTypes.join(',')
+      });
+
+      // Get greeting
+      const [saudacao] = await sequelizeConn.query('SELECT obter_saudacao() as saudacao');
+
+      console.log('Google mobile login successful for user:', colaborador.colaborador_id);
+
+      res.json({
+        user: {
+          ...colaborador.toJSON(),
+          colaboradorid: colaborador.colaborador_id,
+          allUserTypes,
+          fcmToken: colaborador.fcmtoken
+        },
+        token,
+        saudacao: saudacao[0].saudacao
+      });
+    } catch (error) {
+      console.error('Erro no login mobile com Google:', error);
+      res.status(500).json({ message: "Erro ao fazer login mobile com Google" });
+    }
+  },
+
+  mobileChangePassword: async (req, res) => {
+    try {
+      const { currentPassword, newPassword } = req.body;
+      const userId = req.user.id;
+
+      // Buscar o usuário
+      const user = await models.colaborador.findByPk(userId);
+
+      if (!user) {
+        return res.status(404).json({ message: "Utilizador não encontrado" });
+      }
+
+      // Verificar a senha atual
+      const passwordMatch = await bcrypt.compare(currentPassword, user.pssword);
+      if (!passwordMatch) {
+        return res.status(401).json({ message: "Password atual incorreta" });
+      }
+
+      // Hash da nova senha
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+      // Atualizar a senha
+      const updated = await user.update({
+        pssword: hashedPassword
+      });
+
+      if (!updated) {
+        return res.status(500).json({ message: "Erro ao atualizar a senha" });
+      }
+
+      // Se a senha foi atualizada com sucesso, atualizar o último login
+      await user.update({
+        last_login: new Date()
+      });
+
+      res.json({ message: "Password alterada com sucesso" });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Erro ao alterar password" });
+    }
+  },
+
+  registrarFcmToken: async (req, res) => {
+    try {
+      const { colaboradorid, fcmToken } = req.body;
+      if (!colaboradorid || !fcmToken) {
+        return res.status(400).json({ message: 'Dados insuficientes' });
+      }
+      await models.colaborador.update(
+        { fcmtoken: fcmToken },
+        { where: { colaborador_id: colaboradorid } }
+      );
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Erro ao registrar FCM token:', error);
+      res.status(500).json({ message: 'Erro ao registrar FCM token' });
+    }
+  }
+};
+
+module.exports = {
+  controladorUtilizadores,
+  controladorMobile
+};

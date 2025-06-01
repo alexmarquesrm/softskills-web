@@ -71,7 +71,6 @@ app.use('/fcm-token', fcmTokenRoutes);
 
 // Rotas mobile
 app.use("/mobile/notificacoes", require("./routes/mobileNotificacoesRoutes"));
-app.use("/mobile/colaborador", require("./routes/mobileColaboradoresRoutes"));
 
 notificationWorker.startWorker();
 
