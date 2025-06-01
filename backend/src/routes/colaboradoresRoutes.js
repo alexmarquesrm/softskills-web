@@ -11,7 +11,7 @@ router.post("/registo", controladorUtilizadores.registarNovoColaborador);
 router.post("/reset-password", controladorUtilizadores.resetPassword);
 router.post("/google-login", controladorUtilizadores.googleLogin);
 
-router.post("/saudacao", controladorUtilizadores.getSaudacao);
+router.get("/saudacao", controladorUtilizadores.getSaudacao);
 
 // Rotas mobile (sem autenticação)
 router.post('/mobile-login', controladorMobile.mobileLogin);

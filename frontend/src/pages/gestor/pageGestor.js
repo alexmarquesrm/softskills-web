@@ -137,6 +137,7 @@ export default function PaginaGestor() {
       const response = await axios.get('/colaborador/saudacao', {
         headers: { Authorization: `${token}` }
       });
+      console.log(response.data);
       setSaudacao(response.data.saudacao);
     } catch (error) {
       console.error('Erro ao obter saudação:', error);
