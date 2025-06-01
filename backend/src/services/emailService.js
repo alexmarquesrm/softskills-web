@@ -11,7 +11,7 @@ exports.sendEmail = async (to, subject, text) => {
         host: process.env.SMTP_HOST,
         port: process.env.SMTP_PORT,
         user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS ? '******' : 'não definida',
+        pass: process.env.SMTP_PASS,
         sender: process.env.EMAIL_SENDER
     });
 
