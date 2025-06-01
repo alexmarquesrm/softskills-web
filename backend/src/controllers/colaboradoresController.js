@@ -1345,62 +1345,77 @@ const controladorMobile = {
   },
 
   mobileChangePassword: async (req, res) => {
+    console.log('Iniciando mobileChangePassword...');
+    console.log('Dados recebidos:', {
+        colaboradorid: req.user.colaboradorid,
+        currentPassword: req.body.currentPassword ? '***' : undefined,
+        newPassword: req.body.newPassword ? '***' : undefined
+    });
+
     const t = await sequelizeConn.transaction();
     try {
-      const { currentPassword, newPassword } = req.body;
-      const userId = req.user.id;
+        console.log('Buscando colaborador...');
+        const colaborador = await models.colaborador.findByPk(req.user.colaboradorid);
+        
+        if (!colaborador) {
+            console.log('Colaborador não encontrado');
+            await t.rollback();
+            return res.status(404).json({ message: 'Colaborador não encontrado' });
+        }
+        console.log('Colaborador encontrado:', {
+            id: colaborador.colaboradorid,
+            ultimologin: colaborador.ultimologin
+        });
 
-      // Buscar o usuário
-      const user = await models.colaborador.findByPk(userId, { transaction: t });
+        console.log('Verificando senha atual...');
+        const isPasswordValid = await bcrypt.compare(req.body.currentPassword, colaborador.pssword);
+        if (!isPasswordValid) {
+            console.log('Senha atual inválida');
+            await t.rollback();
+            return res.status(401).json({ message: 'Senha atual incorreta' });
+        }
+        console.log('Senha atual válida');
 
-      if (!user) {
-        await t.rollback();
-        return res.status(404).json({ message: "Utilizador não encontrado" });
-      }
+        console.log('Gerando hash da nova senha...');
+        const hashedPassword = await bcrypt.hash(req.body.newPassword, 10);
+        console.log('Hash gerado com sucesso');
 
-      // Verificar a senha atual
-      const passwordMatch = await bcrypt.compare(currentPassword, user.pssword);
-      if (!passwordMatch) {
-        await t.rollback();
-        return res.status(401).json({ message: "Password atual incorreta" });
-      }
+        console.log('Atualizando senha...');
+        await colaborador.update({ pssword: hashedPassword }, { transaction: t });
+        console.log('Senha atualizada com sucesso');
 
-      // Hash da nova senha
-      const hashedPassword = await bcrypt.hash(newPassword, 10);
+        // Só atualiza o last_login se for o primeiro login
+        if (colaborador.last_login === null) {
+            console.log('Primeiro login detectado, atualizando last_login...');
+            await colaborador.update({ last_login: new Date() }, { transaction: t });
+            console.log('last_login atualizado');
+        } else {
+            console.log('Não é primeiro login, last_login não será atualizado');
+        }
 
-      // Atualizar apenas a senha primeiro
-      await user.update({
-        pssword: hashedPassword
-      }, { transaction: t });
+        console.log('Gerando token inválido...');
+        const invalidToken = generateToken({
+            utilizadorid: colaborador.colaboradorid,
+            email: colaborador.email,
+            tipo: req.user.tipo,
+            allUserTypes: req.user.allUserTypes,
+            invalidated: true // Marcar o token como inválido
+        });
+        console.log('Token inválido gerado');
 
-      // Se for o primeiro login (last_login é null), atualizar o last_login
-      if (user.last_login === null) {
-        await user.update({
-          last_login: new Date()
-        }, { transaction: t });
-      }
+        console.log('Commitando transação...');
+        await t.commit();
+        console.log('Transação commitada com sucesso');
 
-      // Commit da transação
-      await t.commit();
-
-      // Gerar um novo token que será usado para forçar o logout
-      const invalidToken = generateToken({
-        utilizadorid: userId,
-        email: user.email,
-        tipo: req.user.tipo,
-        allUserTypes: req.user.allUserTypes,
-        invalidated: true // Marcar o token como inválido
-      });
-
-      res.json({ 
-        message: "Password alterada com sucesso",
-        invalidatedToken: invalidToken // Enviar o token inválido para forçar o logout
-      });
+        console.log('Enviando resposta de sucesso');
+        res.json({
+            message: 'Senha alterada com sucesso',
+            invalidToken
+        });
     } catch (error) {
-      // Rollback em caso de erro
-      await t.rollback();
-      console.error(error);
-      res.status(500).json({ message: "Erro ao alterar password" });
+        console.error('Erro durante alteração de senha:', error);
+        await t.rollback();
+        res.status(500).json({ message: 'Erro ao alterar senha' });
     }
   },
 
