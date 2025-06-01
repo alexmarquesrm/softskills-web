@@ -1,6 +1,15 @@
 const nodemailer = require('nodemailer');
 require('dotenv').config();
 
+// Debug: Log all environment variables (excluding sensitive data)
+console.log('=== ENVIRONMENT VARIABLES CHECK ===');
+console.log('SMTP_HOST:', process.env.SMTP_HOST);
+console.log('SMTP_PORT:', process.env.SMTP_PORT);
+console.log('SMTP_USER:', process.env.SMTP_USER);
+console.log('SMTP_PASS length:', process.env.SMTP_PASS ? process.env.SMTP_PASS.length : 0);
+console.log('EMAIL_SENDER:', process.env.EMAIL_SENDER);
+console.log('===================================');
+
 exports.sendEmail = async (to, subject, text) => {
     console.log('=== INÍCIO DO PROCESSO DE ENVIO DE EMAIL ===');
     console.log('Destinatário:', to);
@@ -11,7 +20,7 @@ exports.sendEmail = async (to, subject, text) => {
         host: process.env.SMTP_HOST,
         port: process.env.SMTP_PORT,
         user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS.trim(),
+        pass: process.env.SMTP_PASS ? '******' : 'não definida',
         sender: process.env.EMAIL_SENDER
     });
 
