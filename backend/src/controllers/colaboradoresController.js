@@ -1393,27 +1393,11 @@ const controladorMobile = {
         const hashedPassword = await bcrypt.hash(req.body.newPassword, 10);
         console.log('Hash gerado com sucesso');
 
-        // Preparar dados para atualização
-        const updateData = {
-            pssword: hashedPassword
-        };
-
-        // Só atualiza o last_login se for o primeiro login
-        if (colaborador.last_login === null) {
-            console.log('Primeiro login detectado, atualizando last_login');
-            updateData.last_login = new Date();
-        } else {
-            console.log('Não é primeiro login, mantendo last_login atual:', colaborador.last_login);
-        }
-
-        console.log('Dados que serão atualizados:', {
-            hasNewPassword: !!updateData.pssword,
-            willUpdateLastLogin: !!updateData.last_login
-        });
-
-        // Atualizar colaborador
+        // Atualizar apenas a senha, sem modificar o last_login
         console.log('Atualizando dados do colaborador...');
-        await colaborador.update(updateData, { transaction: t });
+        await colaborador.update({
+            pssword: hashedPassword
+        }, { transaction: t });
         console.log('Dados atualizados com sucesso');
 
         // Gerar token inválido para forçar logout
