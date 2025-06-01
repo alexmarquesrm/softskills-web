@@ -13,8 +13,7 @@ const LandingCard = () => {
                                 Transforme seu <span className="highlight">Futuro</span> com Educação de Qualidade
                             </h1>
                             <p className="hero-description">
-                                Descubra nossa plataforma de ensino com cursos síncronos e assíncronos,
-                                ministrados por especialistas. Aprenda no seu ritmo e alcance seus objetivos profissionais.
+                                Descubra a nossa plataforma de formação, com cursos síncronos e assíncronos lecionados por especialistas. Aprenda ao seu ritmo e atinja os seus objetivos profissionais.
                             </p>
                         </div>
                     </Col>
