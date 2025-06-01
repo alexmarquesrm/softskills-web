@@ -298,6 +298,13 @@ const quizzController = {
     checkQuizCompletion: async (req, res) => {
         const formando_id = req.user.id;
         const quizz_id = req.params.quizzId;
+        console.log('Verificando conclusão do quiz para formando:', formando_id, 'e quiz:', quizz_id);
+        console.log('User ID:', req.user.id);
+        console.log('Params:', req.params);
+        console.log('Query:', req.query);
+        console.log('Headers:', req.headers);
+        console.log('Body:', req.body);
+
 
         try {
             // Verificar se existe uma avaliação para este formando e quiz
