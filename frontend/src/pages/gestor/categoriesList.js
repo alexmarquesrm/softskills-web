@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Container, Row, Col, Card, Spinner, Alert } from "react-bootstrap";
 import { IoIosBook, IoIosAdd } from "react-icons/io";
+import { MessageSquare } from 'react-feather';
 import axios from "../../config/configAxios";
+/* COMPONENTES */
 import DataTable from "../../components/tables/dataTable";
+/* MODALS */
 import CategoryModal from "../../modals/gestor/categoryModal";
+/* CSS */
 import "./categoriesList.css";
 
 export default function CategoriesList() {
@@ -20,21 +24,21 @@ export default function CategoriesList() {
   });
 
   const tableColumns = [
-    { 
-      field: 'id', 
-      headerName: 'ID', 
-      align: 'left', 
-      headerAlign: 'left', 
+    {
+      field: 'id',
+      headerName: 'ID',
+      align: 'left',
+      headerAlign: 'left',
       width: '80px',
       renderCell: ({ row }) => (
         <span className="text-muted">#{row.id}</span>
       )
     },
-    { 
-      field: 'descricao', 
-      headerName: 'Descrição', 
-      align: 'left', 
-      headerAlign: 'left', 
+    {
+      field: 'descricao',
+      headerName: 'Descrição',
+      align: 'left',
+      headerAlign: 'left',
       minWidth: '200px',
       renderCell: ({ row }) => (
         <div className="d-flex align-items-center">
@@ -46,10 +50,10 @@ export default function CategoriesList() {
       )
     },
     {
-      field: 'areas', 
-      headerName: 'Áreas', 
-      align: 'center', 
-      headerAlign: 'center', 
+      field: 'areas',
+      headerName: 'Áreas',
+      align: 'center',
+      headerAlign: 'center',
       width: '120px',
       renderCell: ({ row }) => (
         <span className="badge bg-info text-white">
@@ -58,10 +62,10 @@ export default function CategoriesList() {
       )
     },
     {
-      field: 'topicos', 
-      headerName: 'Tópicos', 
-      align: 'center', 
-      headerAlign: 'center', 
+      field: 'topicos',
+      headerName: 'Tópicos',
+      align: 'center',
+      headerAlign: 'center',
       width: '120px',
       renderCell: ({ row }) => (
         <span className="badge bg-success text-white">
@@ -70,15 +74,15 @@ export default function CategoriesList() {
       )
     },
     {
-      field: 'actions', 
-      headerName: 'Ações', 
-      align: 'center', 
-      headerAlign: 'center', 
-      sortable: false, 
+      field: 'actions',
+      headerName: 'Ações',
+      align: 'center',
+      headerAlign: 'center',
+      sortable: false,
       width: '120px',
       renderCell: ({ row }) => (
         <div className="d-flex justify-content-center gap-2">
-          <button 
+          <button
             className="btn btn-sm btn-outline-primary"
             onClick={() => handleEdit(row)}
           >
@@ -97,7 +101,7 @@ export default function CategoriesList() {
       // Calculate stats
       const totalAreas = categories.reduce((acc, cat) => acc + (cat.categoria_areas?.length || 0), 0);
       const totalTopics = categories.reduce((acc, cat) => {
-        const topicsInAreas = cat.categoria_areas?.reduce((areaAcc, area) => 
+        const topicsInAreas = cat.categoria_areas?.reduce((areaAcc, area) =>
           areaAcc + (area.area_topicos?.length || 0), 0) || 0;
         return acc + topicsInAreas;
       }, 0);
@@ -113,7 +117,7 @@ export default function CategoriesList() {
         id: category.categoria_id,
         descricao: category.descricao,
         areas: category.categoria_areas?.length || 0,
-        topicos: category.categoria_areas?.reduce((acc, area) => 
+        topicos: category.categoria_areas?.reduce((acc, area) =>
           acc + (area.area_topicos?.length || 0), 0) || 0
       })));
 
@@ -145,7 +149,6 @@ export default function CategoriesList() {
 
   const handleModalClose = () => {
     setShowModal(false);
-    setSelectedCategory(null);
   };
 
   const handleModalSuccess = (message) => {
@@ -176,8 +179,15 @@ export default function CategoriesList() {
 
   return (
     <Container className="py-4">
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <h3 className="mb-0">Lista de Categorias</h3>
+      <div className="forum-header">
+        <div className="forum-header-content">
+          <div className="forum-header-icon">
+            <MessageSquare size={32} />
+          </div>
+          <div className="forum-header-info">
+            <h1>Lista de Categorias</h1>
+          </div>
+        </div>
       </div>
 
       {successMessage && (
@@ -240,12 +250,12 @@ export default function CategoriesList() {
           {error}
         </Alert>
       ) : (
-        <DataTable 
-          columns={tableColumns} 
-          rows={tableRows} 
-          title=" " 
-          showSearch={true} 
-          pageSize={10} 
+        <DataTable
+          columns={tableColumns}
+          rows={tableRows}
+          title=" "
+          showSearch={true}
+          pageSize={10}
           emptyStateMessage="Nenhuma categoria encontrada"
         />
       )}

@@ -1,9 +1,12 @@
 import React from "react";
 import { Card, Container, Row, Col } from "react-bootstrap";
 import { Folder, Grid, Tag } from "react-bootstrap-icons";
+import { useNavigate } from 'react-router-dom';
 import "./promoSection.css";
 
 function PromoSection() {
+  const navigate = useNavigate();
+  const navToPage = (url) => {navigate(url)}
   return (
     <Container className="promo-section-container my-5">
       <Card className="promo-card shadow">
@@ -41,7 +44,7 @@ function PromoSection() {
           
           <p className="promo-subtitle mb-4">Explore, Aprenda, Torne-se o melhor.</p>
           
-          <button className="btn explore-btn">
+          <button className="btn explore-btn" onClick={() => { navToPage('/cursos-view'); window.scrollTo(0, 0); }}>
             Explorar
           </button>
         </Card.Body>

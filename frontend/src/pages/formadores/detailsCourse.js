@@ -421,10 +421,9 @@ export default function CursoDetalhes() {
                         </div>
                       </Accordion.Header>
                       <Accordion.Body>
-                        {Object.keys(getMaterialsByType('video')).length === 0 ? (
-                          <p className="text-muted text-center py-3">Nenhum vídeo adicionado</p>
-                        ) : (
-                          Object.entries(getMaterialsByType('video')).map(([section, materials]) => (
+                        {Object.entries(getMaterialsByType('video'))
+                          .sort(([a], [b]) => a.localeCompare(b))
+                          .map(([section, materials]) => (
                             <div key={section} className="mb-4">
                               <h6 className="fw-bold mb-3 text-primary">{section}</h6>
                               <ListGroup variant="flush" className="material-list">
@@ -455,8 +454,7 @@ export default function CursoDetalhes() {
                                 ))}
                               </ListGroup>
                             </div>
-                          ))
-                        )}
+                          ))}
                       </Accordion.Body>
                     </Accordion.Item>
 
@@ -473,47 +471,44 @@ export default function CursoDetalhes() {
                         </div>
                       </Accordion.Header>
                       <Accordion.Body>
-                        {Object.keys(getMaterialsByType('documento')).length === 0 &&
-                          Object.keys(getMaterialsByType('aula')).length === 0 ? (
-                          <p className="text-muted text-center py-3">Nenhum documento ou aula adicionado</p>
-                        ) : (
-                          <>
-                            {/* Documentos */}
-                            {Object.entries(getMaterialsByType('documento')).map(([section, materials]) => (
-                              <div key={`doc-${section}`} className="mb-4">
-                                <h6 className="fw-bold mb-3 text-primary">{section}</h6>
-                                <ListGroup variant="flush" className="material-list">
-                                  {materials.map((material) => (
-                                    <ListGroup.Item key={`doc-${material.id}`} className="material-item py-3">
-                                      <div className="d-flex justify-content-between align-items-center">
-                                        <div className="d-flex align-items-start">
-                                          <div className="me-3 text-primary">
-                                            <BsFileText size={24} />
-                                          </div>
+                        {Object.entries(getMaterialsByType('documento'))
+                          .sort(([a], [b]) => a.localeCompare(b))
+                          .map(([section, materials]) => (
+                            <div key={`doc-${section}`} className="mb-4">
+                              <h6 className="fw-bold mb-3 text-primary">{section}</h6>
+                              <ListGroup variant="flush" className="material-list">
+                                {materials.map((material) => (
+                                  <ListGroup.Item key={`doc-${material.id}`} className="material-item py-3">
+                                    <div className="d-flex justify-content-between align-items-center">
+                                      <div className="d-flex align-items-start">
+                                        <div className="me-3 text-primary">
+                                          <BsFileText size={24} />
+                                        </div>
+                                        <div>
+                                          <div className="fw-bold">{material.titulo}</div>
+                                          {material.descricao && (
+                                            <small className="text-muted d-block mb-2">{material.descricao}</small>
+                                          )}
                                           <div>
-                                            <div className="fw-bold">{material.titulo}</div>
-                                            {material.descricao && (
-                                              <small className="text-muted d-block mb-2">{material.descricao}</small>
-                                            )}
-                                            <div>
-                                              {material.ficheiros.map((file, idx) => (
-                                                <Badge key={idx} bg="light" text="danger" onClick={() => handleFileAction(file)} style={{ cursor: 'pointer' }} className="me-2 mb-1 text-decoration-none d-inline-flex align-items-center">
-                                                  <BsDownload className="me-1" /> {file.nome.split('.').pop().toUpperCase()} • {file.nome}
-                                                </Badge>
-                                              ))}
-                                            </div>
+                                            {material.ficheiros.map((file, idx) => (
+                                              <Badge key={idx} bg="light" text="danger" onClick={() => handleFileAction(file)} style={{ cursor: 'pointer' }} className="me-2 mb-1 text-decoration-none d-inline-flex align-items-center">
+                                                <BsDownload className="me-1" /> {file.nome.split('.').pop().toUpperCase()} • {file.nome}
+                                              </Badge>
+                                            ))}
                                           </div>
                                         </div>
-                                        <EditButton text="" Icon={BsPencilSquare} onClick={() => handleEditFile(material.id) } inline={true} className="btn-edit-small"/>
                                       </div>
-                                    </ListGroup.Item>
-                                  ))}
-                                </ListGroup>
-                              </div>
-                            ))}
+                                      <EditButton text="" Icon={BsPencilSquare} onClick={() => handleEditFile(material.id) } inline={true} className="btn-edit-small"/>
+                                    </div>
+                                  </ListGroup.Item>
+                                ))}
+                              </ListGroup>
+                            </div>
+                          ))}
 
-                            {/* Aulas */}
-                            {Object.entries(getMaterialsByType('aula')).map(([section, materials]) => (
+                          {Object.entries(getMaterialsByType('aula'))
+                            .sort(([a], [b]) => a.localeCompare(b))
+                            .map(([section, materials]) => (
                               <div key={`aula-${section}`} className="mb-4">
                                 <h6 className="fw-bold mb-3 text-success">{section}</h6>
                                 <ListGroup variant="flush" className="material-list">
@@ -545,8 +540,6 @@ export default function CursoDetalhes() {
                                 </ListGroup>
                               </div>
                             ))}
-                          </>
-                        )}
                       </Accordion.Body>
                     </Accordion.Item>
 
@@ -562,10 +555,9 @@ export default function CursoDetalhes() {
                         </div>
                       </Accordion.Header>
                       <Accordion.Body>
-                        {Object.keys(getTrabalhoEntregaBySection()).length === 0 ? (
-                          <p className="text-muted text-center py-3">Nenhuma entrega ou trabalho adicionado</p>
-                        ) : (
-                          Object.entries(getTrabalhoEntregaBySection()).map(([section, materials]) => (
+                        {Object.entries(getTrabalhoEntregaBySection())
+                          .sort(([a], [b]) => a.localeCompare(b))
+                          .map(([section, materials]) => (
                             <div key={section} className="mb-4">
                               <h6 className="fw-bold mb-3 text-info">{section}</h6>
                               <ListGroup variant="flush" className="material-list">
@@ -612,8 +604,7 @@ export default function CursoDetalhes() {
                                   ))}
                               </ListGroup>
                             </div>
-                          ))
-                        )}
+                          ))}
                       </Accordion.Body>
                     </Accordion.Item>
                   </Accordion>
@@ -633,7 +624,7 @@ export default function CursoDetalhes() {
 
                 <div className="d-flex justify-content-between align-items-center mb-3">
                   <div>
-                    <Badge bg="primary" className="me-2 py-2 px-3"> Total: {curso?.curso_sincrono?.[0]?.limite_vagas || 0} Vagas</Badge>
+                    <Badge bg="primary" className="me-2 py-2 px-3"> Total: {curso?.curso_sincrono?.vagas_disponiveis + " de " + curso?.curso_sincrono?.limite_vagas || 0} Vagas</Badge>
                     <Badge bg="success" className="me-2 py-2 px-3"> Inscritos: {alunos.length} Alunos </Badge>
                   </div>
                 </div>

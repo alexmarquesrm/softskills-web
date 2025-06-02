@@ -33,7 +33,19 @@
   transition: transform 0.5s ease;
 }
 
+.course-image-cover {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.85;
+  transition: transform 0.5s ease;
+}
+
 .course-card:hover .course-image {
+  transform: scale(1.1);
+}
+
+.course-card:hover .course-image-cover {
   transform: scale(1.1);
 }
 

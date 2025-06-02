@@ -14,12 +14,15 @@ import Inscrever from "../../components/buttons/saveButton";
 import Cancelar from "../../components/buttons/cancelButton";
 import ModalSubmeterTrabalho from '../../modals/formandos/submeterFicheiro';
 import QuizModal from '../../modals/formandos/QuizModal';
+import VideoModal from '../../modals/formandos/VideoModal';
 // ICONS
 import { BsArrowReturnLeft } from "react-icons/bs";
 import { FaRegCheckCircle } from "react-icons/fa";
-import CustomBreadcrumb from "../../components/Breadcrumb";
 // CSS
 import "./pageCourse.css";
+
+// Map global para rastrear inscrições em curso por curso
+const inscricoesEmCurso = new Map();
 
 export default function CursoFormando() {
   const { id } = useParams();
@@ -41,8 +44,13 @@ export default function CursoFormando() {
   const [formadorJaAvaliado, setFormadorJaAvaliado] = useState(false);
   const [quizzes, setQuizzes] = useState([]);
   const [quizLoading, setQuizLoading] = useState(false);
+  const [refreshingData, setRefreshingData] = useState(false);
   const [showQuizModal, setShowQuizModal] = useState(false);
   const [selectedQuizId, setSelectedQuizId] = useState(null);
+  const [clicked, setClicked] = useState(false);
+  const [showVideoModal, setShowVideoModal] = useState(false);
+  const [selectedVideo, setSelectedVideo] = useState(null);
+  const [refreshFlag, setRefreshFlag] = useState(0);
 
   const breadcrumbItems = [
     { label: 'Formando', path: '/formando' },
@@ -87,10 +95,8 @@ export default function CursoFormando() {
         );
 
         if (inscricaoDoCurso !== undefined) {
-          console.log('Inscrição encontrada:', inscricaoDoCurso);
           setInscricao(inscricaoDoCurso);
         } else {
-          console.log('Nenhuma inscrição encontrada para o curso');
           setInscricao(null);
         }
 
@@ -99,17 +105,13 @@ export default function CursoFormando() {
           try {
             const token = sessionStorage.getItem('token');
             const formadorId = curso?.curso_sincrono?.formador_id;
-            
-            console.log('Verificando avaliação do formador:', {
-              cursoId: id,
-              formadorId: formadorId
-            });
-            
-            if (formadorId) {
-              const avaliacoesResponse = await axios.get(`/avaliacao-formador?curso_id=${id}&formador_id=${formadorId}`, {
+            const formandoId = sessionStorage.getItem('colaboradorid');
+
+            if (formadorId && formandoId) {
+              const avaliacoesResponse = await axios.get(`/avaliacao-formador?curso_id=${id}&formador_id=${formadorId}&formando_id=${formandoId}`, {
                 headers: { Authorization: `${token}` }
               });
-              
+
               setFormadorJaAvaliado(avaliacoesResponse.data.length > 0);
             }
           } catch (error) {
@@ -118,9 +120,9 @@ export default function CursoFormando() {
         }
 
       } catch (err) {
-        console.error("Erro ao carregar curso:", err);
-        setError("Erro ao carregar os dados do curso");
-        setLoading(false);
+        console.error("Erro ao carregar inscrições:", err);
+        // Se houver erro ao carregar inscrições, assumir que não está inscrito
+        setInscricao(null);
       }
     };
 
@@ -138,11 +140,9 @@ export default function CursoFormando() {
         setMaterialLoading(true);
         const token = sessionStorage.getItem('token');
 
-        // Using the same endpoint format that works in the modal
         const response = await axios.get(`/material/curso/${id}/materiais`, {
           headers: { Authorization: `${token}` }
         });
-
         if (response.data.success) {
           const materialsData = response.data.data;
 
@@ -157,7 +157,6 @@ export default function CursoFormando() {
             const enhancedMaterials = await Promise.all(
               materialsData.map(async (material) => {
                 try {
-                  // Fetch complete material data like the modal does
                   const detailResponse = await axios.get(`/material/curso/${material.id}`, {
                     headers: { Authorization: `${token}` }
                   });
@@ -175,7 +174,6 @@ export default function CursoFormando() {
 
             setMaterials(enhancedMaterials);
           } else {
-            // Data already has the right structure
             setMaterials(materialsData);
           }
         } else {
@@ -196,23 +194,39 @@ export default function CursoFormando() {
   // Add this new useEffect to fetch quizzes
   useEffect(() => {
     const fetchQuizzes = async () => {
-      console.log('Fetching quizzes...', { id, curso });
       if (!id || !curso) {
-        console.log('Missing id or curso, skipping quiz fetch');
         return;
       }
 
       try {
         setQuizLoading(true);
         const token = sessionStorage.getItem('token');
-        console.log('Making API call to fetch quizzes...');
         const response = await axios.get(`/quizz/curso/${id}`, {
           headers: { Authorization: `${token}` }
         });
 
         if (response.data.success) {
-          console.log('Quizzes loaded successfully:', response.data.data);
-          setQuizzes(response.data.data);
+          // Check completion status for each quiz
+          const quizzesWithStatus = await Promise.all(
+            response.data.data.map(async (quiz) => {
+              try {
+                const completionResponse = await axios.get(`/quizz/${quiz.quizz_id}/completion`, {
+                  headers: { Authorization: `${token}` }
+                });
+
+                return {
+                  ...quiz,
+                  completed: completionResponse.data.completed,
+                  nota: completionResponse.data.completed ? completionResponse.data.data.nota : null
+                };
+              } catch (error) {
+                console.error(`Error checking completion for quiz ${quiz.quizz_id}:`, error);
+                return { ...quiz, completed: false, nota: null };
+              }
+            })
+          );
+
+          setQuizzes(quizzesWithStatus);
         } else {
           console.log('Failed to load quizzes:', response.data);
         }
@@ -224,13 +238,53 @@ export default function CursoFormando() {
       }
     };
 
-    if (activeSection === "materiais") {
-      console.log('Active section is materiais, fetching quizzes...');
+    if (activeSection === "materiais" || inscricao) {
       fetchQuizzes();
     }
   }, [id, activeSection, curso]);
 
+  useEffect(() => {
+    const atualizarEstadoInscricaoSeNecessario = async () => {
+      if (!inscricao) return;
+      // Evita update se já estiver estado true ou quizzes não carregados
+      if (inscricao.estado === true && !quizzes && quizzes.length === 0) return;
+
+      const algumConcluido = quizzes.some(q => q.completed);
+      
+      if (algumConcluido && inscricao.estado !== true) {
+        try {
+          const token = sessionStorage.getItem("token");
+          await axios.put(`/inscricao/atualizar/${inscricao.inscricao_id}`, {
+            estado: true
+          }, {
+            headers: {
+              Authorization: `${token}`
+            }
+          });
+
+          setInscricao(prev => ({ ...prev, estado: true })); // Atualiza localmente
+
+          setRefreshFlag(prev => prev + 1);
+          
+        } catch (error) {
+          console.error("Erro ao atualizar inscrição:", error.response?.data || error.message);
+        }
+      }
+    };
+    
+    atualizarEstadoInscricaoSeNecessario();
+  }, [quizzes, inscricao, refreshFlag]);
+
   const handleInscricao = async (e) => {
+    // Prevenir múltiplos cliques - verificar estado local e global
+    if (clicked || inscricoesEmCurso.has(id)) {
+      return;
+    }
+
+    // Definir imediatamente para bloquear outros cliques
+    setClicked(true);
+    inscricoesEmCurso.set(id, true);
+
     try {
       const token = sessionStorage.getItem('token');
       const idColab = sessionStorage.getItem('colaboradorid');
@@ -240,11 +294,14 @@ export default function CursoFormando() {
         curso_id: id
       };
 
-      await axios.post('/inscricao/criar', inscricaoData, {
+      const response = await axios.post('/inscricao/criar', inscricaoData, {
         headers: { Authorization: `${token}` }
       });
 
       toast.success("Inscrição realizada com sucesso!");
+
+      // Atualizar o estado local para refletir que está inscrito
+      setInscricao({ curso_id: Number(id) });
 
       setTimeout(() => {
         navigate('/utilizadores/lista/cursos');
@@ -252,14 +309,27 @@ export default function CursoFormando() {
 
     } catch (error) {
       console.error("Erro ao inscrever", error);
-      setError("Não foi possível inscrever no curso. Por favor, avise o gestor.");
+      if (error.response?.data?.erro === "Um formador não pode se inscrever no próprio curso") {
+        toast.error("Você não pode se inscrever neste curso pois é o formador.");
+      } else if (error.response?.data?.erro === "Formando já está inscrito neste curso") {
+        toast.warning("Você já está inscrito neste curso!");
+        // Atualizar o estado local para refletir que está inscrito
+        setInscricao({ curso_id: Number(id) });
+      } else if (error.response?.data?.erro === "Curso já atingiu o limite de vagas") {
+        toast.error("Este curso já atingiu o limite de vagas disponíveis.");
+      } else {
+        toast.error("Não foi possível inscrever no curso. Por favor, avise o gestor.");
+      }
     } finally {
-      setLoading(false);
+      // Remover do map global e reativar botão após delay
+      inscricoesEmCurso.delete(id);
+      setTimeout(() => {
+        setClicked(false);
+      }, 1000);
     }
   };
 
-  // 2. Update your handleFileAction function to be more robust with different data structures
-  // Função para abrir ou baixar um arquivo
+  // Função para abrir ou download de um arquivo
   const handleFileAction = (file) => {
     // First check if we have a file object
     if (!file) {
@@ -376,7 +446,12 @@ export default function CursoFormando() {
 
   const formatDate = (dateString) => {
     if (!dateString) return "Não especificado";
-    return new Date(dateString).toLocaleDateString("pt-PT");
+    try {
+      return new Date(dateString).toLocaleDateString("pt-PT");
+    } catch (error) {
+      console.error("Erro ao formatar data:", error);
+      return "Data inválida";
+    }
   };
 
   const handleSectionChange = (section) => {
@@ -385,12 +460,20 @@ export default function CursoFormando() {
 
   // Função para abrir o modal de submissão de trabalho
   const handleOpenSubmeterModal = (material) => {
+
+    if (!material || !material.material_id) {
+      console.error('Material inválido:', material);
+      toast.error("Erro ao abrir submissão: material inválido");
+      return;
+    }
+
     const avaliacaoInfo = {
-      id: material.id,
+      id: material.material_id,
       titulo: material.titulo,
       dataEntrega: material.data_entrega,
       descricao: material.descricao
     };
+
     setSelectedAvaliacao(avaliacaoInfo);
     setShowSubmeterModal(true);
   };
@@ -422,30 +505,30 @@ export default function CursoFormando() {
     try {
       // Create new PDF document
       const doc = new jsPDF();
-      
+
       // Add background color
       doc.setFillColor(240, 240, 240);
       doc.rect(0, 0, 210, 297, 'F');
-      
+
       // Add border
       doc.setDrawColor(40, 167, 69);
       doc.setLineWidth(2);
       doc.rect(10, 10, 190, 277);
-      
+
       // Add title
       doc.setFontSize(24);
       doc.setTextColor(40, 167, 69);
       doc.text('Certificado de Conclusão', 105, 40, { align: 'center' });
-      
+
       // Add decorative line
       doc.setDrawColor(40, 167, 69);
       doc.setLineWidth(0.5);
       doc.line(40, 50, 170, 50);
-      
+
       // Add content
       doc.setFontSize(12);
       doc.setTextColor(51, 51, 51);
-      
+
       const formando = sessionStorage.getItem('nome');
       const nomeFormando = formando || 'Formando';
       const nomeCurso = curso?.titulo || 'Curso';
@@ -453,44 +536,44 @@ export default function CursoFormando() {
       const nivel = curso?.nivel || 'N/A';
       const totalHoras = curso?.total_horas || 'N/A';
       const formador = getFormadorNome();
-      
+
       // Add certificate text
       doc.setFontSize(14);
       doc.text('Certificamos que', 105, 80, { align: 'center' });
-      
+
       doc.setFontSize(16);
       doc.setFont(undefined, 'bold');
       doc.text(nomeFormando, 105, 95, { align: 'center' });
-      
+
       doc.setFontSize(14);
       doc.setFont(undefined, 'normal');
       doc.text('concluiu com êxito o curso', 105, 110, { align: 'center' });
-      
+
       doc.setFontSize(16);
       doc.setFont(undefined, 'bold');
       doc.text(nomeCurso, 105, 125, { align: 'center' });
-      
+
       // Add course details
       doc.setFontSize(12);
       doc.setFont(undefined, 'normal');
       doc.text(`Nível: ${nivel}`, 105, 150, { align: 'center' });
       doc.text(`Carga Horária: ${totalHoras} horas`, 105, 160, { align: 'center' });
       doc.text(`Data de Conclusão: ${dataConclusao}`, 105, 170, { align: 'center' });
-      
+
       // Add formador
       doc.text('Formador:', 105, 190, { align: 'center' });
       doc.setFont(undefined, 'bold');
       doc.text(formador, 105, 200, { align: 'center' });
-      
+
       // Add footer
       doc.setFontSize(10);
       doc.setFont(undefined, 'normal');
       doc.setTextColor(128, 128, 128);
       doc.text('Este certificado é gerado automaticamente e não requer assinatura digital.', 105, 250, { align: 'center' });
-      
+
       // Save the PDF
       doc.save(`certificado_${nomeCurso}.pdf`);
-      
+
       toast.success("Certificado gerado com sucesso!");
     } catch (error) {
       console.error("Erro ao gerar certificado:", error);
@@ -506,20 +589,24 @@ export default function CursoFormando() {
 
     try {
       const token = sessionStorage.getItem('token');
+      const formandoId = sessionStorage.getItem('colaboradorid');
       // Corrigindo a forma de obter o ID do formador baseado na estrutura real
       const formadorId = curso?.curso_sincrono?.formador_id;
-
-      console.log('Dados do curso:', curso);
-      console.log('ID do formador:', formadorId);
 
       if (!formadorId) {
         toast.error("Não foi possível identificar o formador");
         return;
       }
 
+      if (!formandoId) {
+        toast.error("Não foi possível identificar o formando");
+        return;
+      }
+
       await axios.post('/avaliacao-formador', {
         curso_id: id,
         formador_id: formadorId,
+        formando_id: formandoId,
         avaliacao: avaliacaoFormador
       }, {
         headers: { Authorization: `${token}` }
@@ -532,7 +619,12 @@ export default function CursoFormando() {
       setFormadorJaAvaliado(true);
     } catch (error) {
       console.error("Erro ao enviar avaliação:", error);
-      toast.error("Não foi possível enviar a avaliação. Por favor, tente novamente.");
+      if (error.response?.data?.message === "Este formando já avaliou este formador neste curso") {
+        toast.warning("Você já avaliou este formador neste curso!");
+        setFormadorJaAvaliado(true);
+      } else {
+        toast.error("Não foi possível enviar a avaliação. Por favor, tente novamente.");
+      }
     }
   };
 
@@ -540,6 +632,66 @@ export default function CursoFormando() {
   const handleStartQuiz = (quizId) => {
     setSelectedQuizId(quizId);
     setShowQuizModal(true);
+  };
+
+  // Function to handle quiz completion and refresh data
+  const handleQuizCompleted = async () => {
+    try {
+      setRefreshingData(true);
+
+      // Force refresh of materials and quizzes data
+      setRefreshTrigger(prev => prev + 1);
+
+      // Also manually refresh the quizzes with completion status
+      const token = sessionStorage.getItem('token');
+      const response = await axios.get(`/quizz/curso/${id}`, {
+        headers: { Authorization: `${token}` }
+      });
+
+      if (response.data.success) {
+        // Check completion status for each quiz
+        const quizzesWithStatus = await Promise.all(
+          response.data.data.map(async (quiz) => {
+            try {
+              const completionResponse = await axios.get(`/quizz/${quiz.quizz_id}/completion`, {
+                headers: { Authorization: `${token}` }
+              });
+
+              return {
+                ...quiz,
+                completed: completionResponse.data.completed,
+                nota: completionResponse.data.completed ? completionResponse.data.data.nota : null
+              };
+            } catch (error) {
+              console.error(`Error checking completion for quiz ${quiz.quizz_id}:`, error);
+              return { ...quiz, completed: false, nota: null };
+            }
+          })
+        );
+
+        setQuizzes(quizzesWithStatus);
+      }
+    } catch (error) {
+      console.error('Erro ao atualizar dados:', error);
+      // Fallback to page reload if manual refresh fails
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
+    } finally {
+      setRefreshingData(false);
+    }
+  };
+
+  // Add this new function to handle video viewing
+  const handleViewVideo = (material) => {
+    if (!material.ficheiros || material.ficheiros.length === 0) return;
+
+    const videoFile = material.ficheiros[0];
+    setSelectedVideo({
+      url: videoFile.url,
+      title: material.titulo
+    });
+    setShowVideoModal(true);
   };
 
   if (loading) {
@@ -564,24 +716,41 @@ export default function CursoFormando() {
 
   // Encontra o próximo prazo (usando a data de entrega mais próxima no futuro)
   const getPrazoProximo = () => {
-    const entregas = materials.filter(m => m.tipo === 'entrega' && m.data_entrega);
+    if (!materials || !Array.isArray(materials)) return null;
+
+    const entregas = materials.filter(m => m?.tipo === 'entrega' && m?.data_entrega);
     if (entregas.length === 0) return null;
 
     const hoje = new Date();
-    const entregasFuturas = entregas.filter(e => new Date(e.data_entrega) > hoje);
+    const entregasFuturas = entregas.filter(e => {
+      try {
+        return new Date(e.data_entrega) > hoje;
+      } catch (error) {
+        console.error("Erro ao processar data de entrega:", error);
+        return false;
+      }
+    });
+
     if (entregasFuturas.length === 0) return null;
 
     // Ordenar por data mais próxima
-    entregasFuturas.sort((a, b) => new Date(a.data_entrega) - new Date(b.data_entrega));
+    entregasFuturas.sort((a, b) => {
+      try {
+        return new Date(a.data_entrega) - new Date(b.data_entrega);
+      } catch (error) {
+        console.error("Erro ao ordenar datas:", error);
+        return 0;
+      }
+    });
+
     return entregasFuturas[0];
   };
 
   const proximoPrazo = getPrazoProximo();
-
+  
   return (
     <div className="course-page">
       <Container>
-        <CustomBreadcrumb items={breadcrumbItems} />
         <div className="curso-content" style={{ backgroundColor: "#f5f7fa" }}>
           <Container className="my-5">
             {/* Cabeçalho do Curso com Banner */}
@@ -629,10 +798,16 @@ export default function CursoFormando() {
                     </Button>
 
                     {inscricao !== null && (
-                      <Button variant={activeSection === "materiais" ? "primary" : "light"} onClick={() => handleSectionChange("materiais")} className="me-2 mb-2">
-                        <BsBook className="me-1" /> Materiais
-                      </Button>
-                    )}
+                      // Para cursos assíncronos, sempre mostrar materiais
+                      // Para cursos síncronos, só mostrar após data de início
+                      (curso?.tipo === 'A' ||
+                        (curso?.tipo === 'S' && curso?.curso_sincrono?.data_inicio && new Date(curso.curso_sincrono.data_inicio) <= new Date())
+                      )
+                    ) && (
+                        <Button variant={activeSection === "materiais" ? "primary" : "light"} onClick={() => handleSectionChange("materiais")} className="me-2 mb-2">
+                          <BsBook className="me-1" /> Materiais
+                        </Button>
+                      )}
                     <Button
                       variant={activeSection === "objetivos" ? "primary" : "light"}
                       onClick={() => handleSectionChange("objetivos")}
@@ -746,7 +921,7 @@ export default function CursoFormando() {
                               )}
 
                               {/* Adicionar botão de certificado quando o curso estiver concluído */}
-                              {inscricao && inscricao.nota != null && (
+                              {inscricao && inscricao.nota != null && (inscricao.estado === true) && (
                                 <li className="mt-3">
                                   <div className="d-flex flex-column gap-2">
                                     <Button
@@ -757,9 +932,9 @@ export default function CursoFormando() {
                                       <BsAward className="me-2" />
                                       Gerar Certificado
                                     </Button>
-                                    
+
                                     {/* Botão de avaliar formador */}
-                                    {curso?.tipo === "S" && !formadorJaAvaliado && (
+                                    {curso?.tipo === "S" && !formadorJaAvaliado && curso?.curso_sincrono?.estado === true && (
                                       <Button
                                         variant="primary"
                                         className="w-100"
@@ -769,9 +944,9 @@ export default function CursoFormando() {
                                         Avaliar Formador
                                       </Button>
                                     )}
-                                    
+
                                     {/* Mensagem quando o formador já foi avaliado */}
-                                    {curso?.tipo === "S" && formadorJaAvaliado && (
+                                    {curso?.tipo === "S" && formadorJaAvaliado && curso?.curso_sincrono?.estado === true && (
                                       <div className="text-success d-flex align-items-center">
                                         <BsCheckCircle className="me-2" />
                                         Formador já avaliado
@@ -831,81 +1006,82 @@ export default function CursoFormando() {
                             {Object.keys(getMaterialsByTypeAndSection(['video'])).length === 0 ? (
                               <p className="text-muted text-center py-3">Nenhum vídeo disponível</p>
                             ) : (
-                              Object.entries(getMaterialsByTypeAndSection(['video'])).map(([section, materials]) => (
-                                <div key={section} className="mb-4">
-                                  <h6 className="fw-bold mb-3 text-danger">{section}</h6>
-                                  <ListGroup variant="flush" className="material-list">
-                                    {materials.map((material) => (
-                                      <ListGroup.Item key={material.id} className="material-item py-3">
-                                        <div className="d-flex justify-content-between align-items-center">
-                                          <div className="d-flex align-items-start">
-                                            <div className="me-3 text-danger">
-                                              <BsPlayFill size={24} />
-                                            </div>
-                                            <div>
-                                              <div className="fw-bold">{material.titulo}</div>
-                                              {material.descricao && (
-                                                <small className="text-muted d-block mb-2">{material.descricao}</small>
-                                              )}
+                              Object.entries(getMaterialsByTypeAndSection(['video']))
+                                .sort(([a], [b]) => a.localeCompare(b))
+                                .map(([section, materials]) => (
+                                  <div key={section} className="mb-4">
+                                    <h6 className="fw-bold mb-3 text-danger">{section}</h6>
+                                    <ListGroup variant="flush" className="material-list">
+                                      {materials.map((material) => (
+                                        <ListGroup.Item key={material.id} className="material-item py-3">
+                                          <div className="d-flex justify-content-between align-items-center">
+                                            <div className="d-flex align-items-start">
+                                              <div className="me-3 text-danger">
+                                                <BsPlayFill size={24} />
+                                              </div>
                                               <div>
-                                                {material.ficheiros.map((file, idx) => (
-                                                  <Badge
-                                                    key={idx}
-                                                    bg="light"
-                                                    text="danger"
-                                                    onClick={() => handleFileAction(file)}
-                                                    style={{ cursor: 'pointer' }}
-                                                    className="me-2 mb-1 text-decoration-none d-inline-flex align-items-center"
-                                                  >
-                                                    <BsDownload className="me-1" /> {file.nome.split('.').pop().toUpperCase()} • {file.nome}
-                                                  </Badge>
-                                                ))}
+                                                <div className="fw-bold">{material.titulo}</div>
+                                                {material.descricao && (
+                                                  <small className="text-muted d-block mb-2">{material.descricao}</small>
+                                                )}
+                                                <div>
+                                                  {material.ficheiros.map((file, idx) => (
+                                                    <Badge
+                                                      key={idx}
+                                                      bg="light"
+                                                      text="danger"
+                                                      onClick={() => handleFileAction(file)}
+                                                      style={{ cursor: 'pointer' }}
+                                                      className="me-2 mb-1 text-decoration-none d-inline-flex align-items-center"
+                                                    >
+                                                      <BsDownload className="me-1" /> {file.nome.split('.').pop().toUpperCase()} • {file.nome}
+                                                    </Badge>
+                                                  ))}
+                                                </div>
                                               </div>
                                             </div>
-                                          </div>
-                                          <div>
-                                            {/* Always render both buttons, just disable them when no files exist */}
-                                            <Button
-                                              variant="outline-primary"
-                                              size="sm"
-                                              className="me-2"
-                                              onClick={(e) => {
-                                                e.stopPropagation(); // Stop event propagation
-                                                if (material.ficheiros && material.ficheiros.length > 0) {
-                                                  handleFileAction(material.ficheiros[0]);
-                                                }
-                                              }}
-                                              disabled={!material.ficheiros || material.ficheiros.length === 0 || loadingFileId === material.id}
-                                            >
-                                              {loadingFileId === material.id ? (
-                                                <Spinner animation="border" size="sm" />
-                                              ) : (
-                                                <>
-                                                  <BsDownload className="me-1" /> Download
-                                                </>
-                                              )}
-                                            </Button>
+                                            <div>
+                                              <Button
+                                                variant="outline-primary"
+                                                size="sm"
+                                                className="me-2"
+                                                onClick={(e) => {
+                                                  e.stopPropagation();
+                                                  if (material.ficheiros && material.ficheiros.length > 0) {
+                                                    handleFileAction(material.ficheiros[0]);
+                                                  }
+                                                }}
+                                                disabled={!material.ficheiros || material.ficheiros.length === 0 || loadingFileId === material.id}
+                                              >
+                                                {loadingFileId === material.id ? (
+                                                  <Spinner animation="border" size="sm" />
+                                                ) : (
+                                                  <>
+                                                    <BsDownload className="me-1" /> Download
+                                                  </>
+                                                )}
+                                              </Button>
 
-                                            <Button
-                                              variant="primary"
-                                              size="sm"
-                                              onClick={(e) => {
-                                                e.stopPropagation(); // Stop event propagation
-                                                if (material.ficheiros && material.ficheiros.length > 0) {
-                                                  handleFileAction(material.ficheiros[0]);
-                                                }
-                                              }}
-                                              disabled={!material.ficheiros || material.ficheiros.length === 0}
-                                            >
-                                              Visualizar
-                                            </Button>
+                                              <Button
+                                                variant="primary"
+                                                size="sm"
+                                                onClick={(e) => {
+                                                  e.stopPropagation();
+                                                  if (material.ficheiros && material.ficheiros.length > 0) {
+                                                    handleViewVideo(material);
+                                                  }
+                                                }}
+                                                disabled={!material.ficheiros || material.ficheiros.length === 0}
+                                              >
+                                                <BsPlayFill className="me-1" /> Visualizar
+                                              </Button>
+                                            </div>
                                           </div>
-                                        </div>
-                                      </ListGroup.Item>
-                                    ))}
-                                  </ListGroup>
-                                </div>
-                              ))
+                                        </ListGroup.Item>
+                                      ))}
+                                    </ListGroup>
+                                  </div>
+                                ))
                             )}
                           </Accordion.Body>
                         </Accordion.Item>
@@ -925,102 +1101,13 @@ export default function CursoFormando() {
                             {Object.keys(getMaterialsByTypeAndSection(['documento', 'aula'])).length === 0 ? (
                               <p className="text-muted text-center py-3">Nenhum documento ou aula disponível</p>
                             ) : (
-                              Object.entries(getMaterialsByTypeAndSection(['documento', 'aula'])).map(([section, materials]) => (
-                                <div key={section} className="mb-4">
-                                  <h6 className="fw-bold mb-3 text-primary">{section}</h6>
-                                  <ListGroup variant="flush" className="material-list">
-                                    {materials.map((material) => (
-                                      <ListGroup.Item key={material.id} className="material-item py-3">
-                                        <div className="d-flex justify-content-between align-items-center">
-                                          <div className="d-flex align-items-start">
-                                            <div className={material.tipo === 'trabalho' ? 'me-3 text-info' : 'me-3 text-warning'}>
-                                              {material.tipo === 'trabalho' ? <BsTools size={24} /> : <BsUpload size={24} />}
-                                            </div>
-                                            <div>
-                                              <div className="fw-bold">{material.titulo}</div>
-                                              {material.descricao && (
-                                                <small className="text-muted d-block mb-2">{material.descricao}</small>
-                                              )}
-                                              {material.data_entrega && (
-                                                <Badge bg={material.tipo === 'trabalho' ? 'info' : 'warning'} text="dark" className="mb-2">
-                                                  <BsClock className="me-1" /> Prazo: {formatDate(material.data_entrega)}
-                                                </Badge>
-                                              )}
-                                              <div>
-                                                {material.ficheiros && material.ficheiros.map((file, idx) => (
-                                                  <Badge
-                                                    key={idx}
-                                                    bg="light"
-                                                    text={material.tipo === 'trabalho' ? 'info' : 'warning'}
-                                                    onClick={() => handleFileAction(file)}
-                                                    style={{ cursor: 'pointer' }}
-                                                    className="me-2 mb-1 text-decoration-none d-inline-flex align-items-center"
-                                                  >
-                                                    <BsDownload className="me-1" /> {file.nome.split('.').pop().toUpperCase()} • {file.nome}
-                                                  </Badge>
-                                                ))}
-                                              </div>
-                                            </div>
-                                          </div>
-                                          <div>
-                                            {material.tipo === 'entrega' ? (
-                                              <Button
-                                                variant="warning"
-                                                size="sm"
-                                                onClick={() => handleOpenSubmeterModal(material)}
-                                              >
-                                                <BsUpload className="me-1" /> Submeter
-                                              </Button>
-                                            ) : (
-                                              <Button
-                                                variant="outline-info"
-                                                size="sm"
-                                                className="me-2"
-                                                onClick={() => material.ficheiros.length > 0 && handleFileAction(material.ficheiros[0])}
-                                                disabled={material.ficheiros.length === 0}
-                                              >
-                                                <BsDownload className="me-1" /> Download
-                                              </Button>
-                                            )}
-                                          </div>
-                                        </div>
-                                      </ListGroup.Item>
-                                    ))}
-                                  </ListGroup>
-                                </div>
-                              ))
-                            )}
-                          </Accordion.Body>
-                        </Accordion.Item>
-
-                        {/* Entregas e Avaliações */}
-                        <Accordion.Item eventKey="2">
-                          <Accordion.Header>
-                            <div className="d-flex align-items-center">
-                              <BsUpload className="me-2 text-warning" />
-                              <span>Entregas e Avaliações</span>
-                              <Badge bg="warning" text="dark" className="ms-2">
-                                {Object.values(getTrabalhoEntregaBySection()).reduce((acc, arr) => acc + arr.length, 0)}
-                              </Badge>
-                            </div>
-                          </Accordion.Header>
-                          <Accordion.Body>
-                            {Object.keys(getTrabalhoEntregaBySection()).length === 0 ? (
-                              <p className="text-muted text-center py-3">Nenhuma entrega ou avaliação disponível</p>
-                            ) : (
-                              Object.entries(getTrabalhoEntregaBySection()).map(([section, materials]) => (
-                                <div key={section} className="mb-4">
-                                  <h6 className="fw-bold mb-3 text-info">{section}</h6>
-                                  <ListGroup variant="flush" className="material-list">
-                                    {materials
-                                      .slice()
-                                      .sort((a, b) => {
-                                        if (a.tipo === b.tipo) return 0;
-                                        if (a.tipo === 'trabalho') return -1;
-                                        if (b.tipo === 'trabalho') return 1;
-                                        return 0;
-                                      })
-                                      .map((material) => (
+                              Object.entries(getMaterialsByTypeAndSection(['documento', 'aula']))
+                                .sort(([a], [b]) => a.localeCompare(b))
+                                .map(([section, materials]) => (
+                                  <div key={section} className="mb-4">
+                                    <h6 className="fw-bold mb-3 text-primary">{section}</h6>
+                                    <ListGroup variant="flush" className="material-list">
+                                      {materials.map((material) => (
                                         <ListGroup.Item key={material.id} className="material-item py-3">
                                           <div className="d-flex justify-content-between align-items-center">
                                             <div className="d-flex align-items-start">
@@ -1059,8 +1146,10 @@ export default function CursoFormando() {
                                                   variant="warning"
                                                   size="sm"
                                                   onClick={() => handleOpenSubmeterModal(material)}
+                                                  disabled={new Date(material.data_entrega) < new Date()}
                                                 >
-                                                  <BsUpload className="me-1" /> Submeter
+                                                  <BsUpload className="me-1" />
+                                                  {new Date(material.data_entrega) < new Date() ? 'Prazo Expirado' : 'Submeter'}
                                                 </Button>
                                               ) : (
                                                 <Button
@@ -1077,12 +1166,112 @@ export default function CursoFormando() {
                                           </div>
                                         </ListGroup.Item>
                                       ))}
-                                  </ListGroup>
-                                </div>
-                              ))
+                                    </ListGroup>
+                                  </div>
+                                ))
                             )}
                           </Accordion.Body>
                         </Accordion.Item>
+
+                        {/* Entregas e Avaliações */}
+                        {curso?.tipo === "S" && (<Accordion.Item eventKey="2">
+                          <Accordion.Header>
+                            <div className="d-flex align-items-center">
+                              <BsUpload className="me-2 text-warning" />
+                              <span>Entregas e Avaliações</span>
+                              <Badge bg="warning" text="dark" className="ms-2">
+                                {Object.values(getTrabalhoEntregaBySection()).reduce((acc, arr) => acc + arr.length, 0)}
+                              </Badge>
+                            </div>
+                          </Accordion.Header>
+                          <Accordion.Body>
+                            {Object.keys(getTrabalhoEntregaBySection()).length === 0 ? (
+                              <p className="text-muted text-center py-3">Nenhuma entrega ou avaliação disponível</p>
+                            ) : (
+                              Object.entries(getTrabalhoEntregaBySection())
+                                .sort(([a], [b]) => a.localeCompare(b))
+                                .map(([section, materials]) => (
+                                  <div key={section} className="mb-4">
+                                    <h6 className="fw-bold mb-3 text-info">{section}</h6>
+                                    <ListGroup variant="flush" className="material-list">
+                                      {materials
+                                        .slice()
+                                        .sort((a, b) => {
+                                          if (a.tipo === b.tipo) return 0;
+                                          if (a.tipo === 'trabalho') return -1;
+                                          if (b.tipo === 'trabalho') return 1;
+                                          return 0;
+                                        })
+                                        .map((material) => {
+                                          return (
+                                            <ListGroup.Item key={material.material_id} className="material-item py-3">
+                                              <div className="d-flex justify-content-between align-items-center">
+                                                <div className="d-flex align-items-start">
+                                                  <div className={material.tipo === 'trabalho' ? 'me-3 text-info' : 'me-3 text-warning'}>
+                                                    {material.tipo === 'trabalho' ? <BsTools size={24} /> : <BsUpload size={24} />}
+                                                  </div>
+                                                  <div>
+                                                    <div className="fw-bold">{material.titulo}</div>
+                                                    {material.descricao && (
+                                                      <small className="text-muted d-block mb-2">{material.descricao}</small>
+                                                    )}
+                                                    {material.data_entrega && (
+                                                      <Badge bg={material.tipo === 'trabalho' ? 'info' : 'warning'} text="dark" className="mb-2">
+                                                        <BsClock className="me-1" /> Prazo: {formatDate(material.data_entrega)}
+                                                      </Badge>
+                                                    )}
+                                                    <div>
+                                                      {material.ficheiros && material.ficheiros.map((file, idx) => (
+                                                        <Badge
+                                                          key={idx}
+                                                          bg="light"
+                                                          text={material.tipo === 'trabalho' ? 'info' : 'warning'}
+                                                          onClick={() => handleFileAction(file)}
+                                                          style={{ cursor: 'pointer' }}
+                                                          className="me-2 mb-1 text-decoration-none d-inline-flex align-items-center"
+                                                        >
+                                                          <BsDownload className="me-1" /> {file.nome.split('.').pop().toUpperCase()} • {file.nome}
+                                                        </Badge>
+                                                      ))}
+                                                    </div>
+                                                  </div>
+                                                </div>
+                                                <div>
+                                                  {material.tipo === 'entrega' ? (
+                                                    <Button
+                                                      variant="warning"
+                                                      size="sm"
+                                                      onClick={() => {
+                                                        handleOpenSubmeterModal(material);
+                                                      }}
+                                                      disabled={new Date(material.data_entrega) < new Date()}
+                                                    >
+                                                      <BsUpload className="me-1" />
+                                                      {new Date(material.data_entrega) < new Date() ? 'Prazo Expirado' : 'Submeter'}
+                                                    </Button>
+                                                  ) : (
+                                                    <Button
+                                                      variant="outline-info"
+                                                      size="sm"
+                                                      className="me-2"
+                                                      onClick={() => material.ficheiros.length > 0 && handleFileAction(material.ficheiros[0])}
+                                                      disabled={material.ficheiros.length === 0}
+                                                    >
+                                                      <BsDownload className="me-1" /> Download
+                                                    </Button>
+                                                  )}
+                                                </div>
+                                              </div>
+                                            </ListGroup.Item>
+                                          );
+                                        })}
+                                    </ListGroup>
+                                  </div>
+                                ))
+                            )}
+                          </Accordion.Body>
+                        </Accordion.Item>
+                        )}
 
                         {/* Quizzes */}
                         {curso?.tipo === 'A' && (
@@ -1097,10 +1286,10 @@ export default function CursoFormando() {
                               </div>
                             </Accordion.Header>
                             <Accordion.Body>
-                              {quizLoading ? (
+                              {(quizLoading || refreshingData) ? (
                                 <div className="text-center py-4">
                                   <Spinner animation="border" variant="success" />
-                                  <p className="mt-2">A carregar quizzes...</p>
+                                  <p className="mt-2">{refreshingData ? 'A atualizar dados...' : 'A carregar quizzes...'}</p>
                                 </div>
                               ) : !quizzes || quizzes.length === 0 ? (
                                 <Alert variant="light" className="text-center">
@@ -1113,28 +1302,51 @@ export default function CursoFormando() {
                                     <ListGroup.Item key={quiz.quizz_id} className="material-item py-3">
                                       <div className="d-flex justify-content-between align-items-center">
                                         <div className="d-flex align-items-start">
-                                          <div className="me-3 text-success">
-                                            <BsQuestionCircle size={24} />
+                                          <div className={`me-3 ${quiz.completed ? 'text-primary' : 'text-success'}`}>
+                                            {quiz.completed ? <BsCheckCircle size={24} /> : <BsQuestionCircle size={24} />}
                                           </div>
                                           <div>
-                                            <div className="fw-bold">{quiz.descricao}</div>
+                                            <div className="fw-bold">
+                                              {quiz.descricao}
+                                              {quiz.completed && (
+                                                <Badge bg="success" className="ms-2">
+                                                  Concluído
+                                                </Badge>
+                                              )}
+                                            </div>
                                             <div className="mt-2">
                                               <Badge bg="light" text="success" className="me-2">
                                                 <BsClock className="me-1" /> Limite: {quiz.limite_tempo} minutos
                                               </Badge>
-                                              <Badge bg="light" text="success">
+                                              <Badge bg="light" text="success" className="me-2">
                                                 {quiz.questoes_quizzs?.length || 0} questões
                                               </Badge>
+                                              {quiz.completed && quiz.nota !== null && (
+                                                <Badge
+                                                  bg={quiz.nota >= (quiz.nota_minima || 70) ? 'success' : 'danger'}
+                                                  className="me-2"
+                                                >
+                                                  Nota: {quiz.nota.toFixed(1)}%
+                                                </Badge>
+                                              )}
                                             </div>
                                           </div>
                                         </div>
                                         <div>
                                           <Button
-                                            variant="success"
+                                            variant={quiz.completed ? "outline-primary" : "success"}
                                             size="sm"
                                             onClick={() => handleStartQuiz(quiz.quizz_id)}
                                           >
-                                            <BsPlayFill className="me-1" /> Iniciar Quiz
+                                            {quiz.completed ? (
+                                              <>
+                                                <BsCheckCircle className="me-1" /> Ver Resultado
+                                              </>
+                                            ) : (
+                                              <>
+                                                <BsPlayFill className="me-1" /> Iniciar Quiz
+                                              </>
+                                            )}
                                           </Button>
                                         </div>
                                       </div>
@@ -1221,30 +1433,26 @@ export default function CursoFormando() {
                         </Accordion.Item>
                       ))}
                     </Accordion>
-
-                    <div className="additional-help mt-4 p-4 bg-light rounded">
-                      <div className="d-flex align-items-center mb-3">
-                        <BsInfoCircle className="me-2 text-primary" size={24} />
-                        <h5 className="mb-0">Precisa de mais ajuda?</h5>
-                      </div>
-                      <p className="mb-3">
-                        Se não encontrou resposta para a sua questão, pode contactar-nos de uma das seguintes formas:
-                      </p>
-                      <Row>
-                        <Col md={12}>
-                          <Button variant="outline-primary" className="w-100 mb-2">
-                            <BsFillPeopleFill className="me-2" /> Contactar Formador
-                          </Button>
-                        </Col>
-                      </Row>
-                    </div>
                   </Card.Body>
                 </Card>
               )}
-              {inscricao === null && (
+              {/* Botões de ação */}
+              {inscricao === null ? (
                 <div className="d-flex justify-content-center mt-4">
                   <Cancelar text={"Cancelar"} onClick={() => navigate("/utilizadores/lista/cursos")} Icon={BsArrowReturnLeft} inline={true} />
-                  <Inscrever text={"Inscrever"} onClick={handleInscricao} Icon={FaRegCheckCircle} />
+                  <Inscrever
+                    text={clicked ? "A inscrever..." : "Inscrever"}
+                    onClick={handleInscricao}
+                    Icon={clicked ? Spinner : FaRegCheckCircle}
+                    disabled={clicked}
+                  />
+                </div>
+              ) : (
+                <div className="text-center mt-4">
+                  <Button variant="outline-primary" onClick={() => navigate("/utilizadores/lista/cursos")}>
+                    <BsArrowReturnLeft className="me-2" />
+                    Voltar aos Cursos
+                  </Button>
                 </div>
               )}
             </div>
@@ -1267,7 +1475,7 @@ export default function CursoFormando() {
             </Modal.Header>
             <Modal.Body>
               <p className="mb-4">Por favor, avalie o desempenho do formador neste curso:</p>
-              
+
               <div className="d-flex justify-content-center gap-2 mb-3">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <Button
@@ -1276,11 +1484,11 @@ export default function CursoFormando() {
                     onClick={() => setAvaliacaoFormador(star)}
                     className="star-button"
                   >
-                    <BsStarFill />
+                    <BsStarFill style={{ color: avaliacaoFormador >= star ? "#f36028" : "#f36028" }} />
                   </Button>
                 ))}
               </div>
-              
+
               {errorAvaliacao && (
                 <Alert variant="danger" className="mt-3">
                   {errorAvaliacao}
@@ -1298,7 +1506,20 @@ export default function CursoFormando() {
           </Modal>
 
           {/* Quiz Modal */}
-          <QuizModal show={showQuizModal} onHide={() => setShowQuizModal(false)} quizId={selectedQuizId} />
+          <QuizModal
+            show={showQuizModal}
+            onHide={() => setShowQuizModal(false)}
+            quizId={selectedQuizId}
+            onQuizCompleted={handleQuizCompleted}
+          />
+
+          {/* Video Modal */}
+          <VideoModal
+            show={showVideoModal}
+            onHide={() => setShowVideoModal(false)}
+            videoUrl={selectedVideo?.url}
+            videoTitle={selectedVideo?.title}
+          />
         </div>
       </Container>
     </div>

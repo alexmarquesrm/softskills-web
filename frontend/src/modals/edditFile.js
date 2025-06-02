@@ -374,6 +374,7 @@ const ModalEditarFicheiro = ({
                 onChange={handleChange} 
                 icon={<IoCalendarNumberSharp />} 
                 colSize={6}
+                min={getMinDateTime()}
               />
             </Row>
             <Row className="mb-4">
@@ -443,6 +444,7 @@ const ModalEditarFicheiro = ({
                   onChange={handleChange} 
                   icon={<IoCalendarNumberSharp />} 
                   colSize={6}
+                  min={getMinDateTime()}
                 />
               )}
             </Row>
@@ -506,6 +508,12 @@ const ModalEditarFicheiro = ({
       </ModalCustom>
     );
   }
+
+  const getMinDateTime = () => {
+    const now = new Date();
+    const pad = (n) => n.toString().padStart(2, '0');
+    return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+  };
 
   return (
     <ModalCustom 

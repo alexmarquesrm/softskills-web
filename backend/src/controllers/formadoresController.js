@@ -61,7 +61,7 @@ const controladorFormadores = {
             attributes: ["nome", "email", "telefone"],
           },
         ],
-        attributes: ["formador_id"],
+        attributes: ["formador_id", "especialidade"],
       });
 
       if (!formador) {
@@ -70,12 +70,11 @@ const controladorFormadores = {
 
       const formadorData = {
         id: formador.formador_id,
+        especialidade: formador.especialidade,
         colaborador: {
           nome: formador.formador_colab.nome,
-          email:
-            formador.formador_colab.email,
-          telefone:
-            formador.formador_colab.telefone,
+          email: formador.formador_colab.email,
+          telefone: formador.formador_colab.telefone,
         },
       };
 

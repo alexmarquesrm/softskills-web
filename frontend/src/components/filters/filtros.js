@@ -94,9 +94,11 @@ function FiltrosCursos({
         setEstadoSelecionado({ porComecar: false, emCurso: false, terminado: false });
         setDataSelecionada({ inicio: '', fim: '' });
         setNivelSelecionado({ 1: false, 2: false, 3: false, 4: false });
+        if((categoriaSelecionada || areaSelecionada || topicoSelecionado) !== undefined){
         setCategoriaSelecionada(null);
         setAreaSelecionada(null);
         setTopicoSelecionado([]);
+        }
     }
 
     // Count active filters

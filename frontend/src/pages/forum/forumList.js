@@ -3,9 +3,12 @@ import axios from "../../config/configAxios";
 import { Link } from 'react-router-dom';
 import { MessageSquare, Users, ArrowRight, AlertCircle } from 'react-feather';
 import { Container, Row, Col } from 'react-bootstrap';
+/* COMPONENTES */
 import Filtros from '../../components/filters/filtros';
 import SearchBar from '../../components/textFields/search';
+/* UTILS */
 import { filtrarCursosOuInscricoes } from '../../utils/filtrarCursos';
+/* CSS */
 import './forumList.css';
 
 const ForumList = () => {

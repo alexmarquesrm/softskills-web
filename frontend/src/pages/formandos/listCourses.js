@@ -45,23 +45,33 @@ export default function Courses() {
     const fetchData = async () => {
         try {
             const token = sessionStorage.getItem('token');
+            const colaboradorId = sessionStorage.getItem('colaboradorid');
             const response = await axios.get(`/curso`, {
                 headers: { Authorization: `${token}` }
             });
             const cursos = response.data;
 
-            // Apenas cursos que ainda têm vagas disponíveis
+            // Apenas cursos com vagas disponíveis ou assíncronos
             const cursosComVagas = cursos.filter(curso => {
                 return curso.tipo === 'A' || (parseInt(curso.vagas_disponiveis) > 0);
             });
-            // Pegamos os ids dos cursos já inscritos
+
+            // Remover cursos já inscritos
             const cursosInscritosIds = inscricao.map(i => i.curso_id);
-            // Filtramos os cursos onde o id não está nas inscrições
             const cursosNaoInscritos = cursosComVagas.filter(
                 (curso) => !cursosInscritosIds.includes(curso.curso_id)
             );
 
-            setCurso(cursosNaoInscritos);
+            // Excluir cursos em que o colaborador é o formador
+            const cursosFinal = cursosNaoInscritos.filter(curso => {
+                if (curso.tipo === 'S') {
+                    const formadorId = curso.curso_sincrono?.formador_id;
+                    return String(formadorId) !== String(colaboradorId); // comparação segura
+                }
+                return true;
+            });
+
+            setCurso(cursosFinal);
         } catch (error) {
             console.error("Erro ao procurar inscrições", error);
             setError("Não foi possível carregar as inscrições");
@@ -100,7 +110,7 @@ export default function Courses() {
             }
             return true;
         });
-        
+
         return filtrarCursosOuInscricoes({
             dados: cursosValidos,
             tipoSelecionado,
@@ -133,7 +143,7 @@ export default function Courses() {
     }, [curso]);
 
     const renderCourseCard = (curso, index) => (
-        <FeaturedCourses key={curso.curso_id || index} curso={curso} mostrarBotao={true} mostrarCertificado={true} mostrarNivelCard={true} />
+        <FeaturedCourses key={curso.curso_id || index} curso={curso} mostrarEstado={false} mostrarBotao={true} mostrarCertificado={true} mostrarNivelCard={true} mostrarVagas={true} />
     );
 
     const handleSearchChange = (event) => {

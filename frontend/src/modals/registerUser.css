@@ -205,4 +205,16 @@
 
 .register-modal + .modal {
     z-index: 1051;
+}
+
+/* Esconde o ícone de erro padrão do Bootstrap nos inputs com ícone personalizado */
+.register-modal .register-form-input-group .form-control.is-invalid {
+    background-image: none !important;
+    border: none;
+    box-shadow: none;
+}
+
+.register-modal .register-form-input-group.is-invalid,
+.register-modal .register-form-input-group .form-control.is-invalid {
+    border-color: #e53e3e !important;
 } 

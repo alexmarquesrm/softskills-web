@@ -24,9 +24,9 @@ export default function EditColab() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     primeiroNome: "", ultimoNome: "", username: "", dataNasc: "", email: "", telefone: "", departamento: "",
-    cargo: "", sobre_mim: "", novaPassword: "", confirmarPassword: "", fotoPerfilUrl: "", funcao_id: ""
+    cargo: "", sobre_mim: "", novaPassword: "", confirmarPassword: "", fotoPerfilUrl: "", funcao_id: "", especialidade: ""
   });
-  
+
   // Keep original name for display until save
   const [displayName, setDisplayName] = useState({
     primeiroNome: "",
@@ -42,6 +42,8 @@ export default function EditColab() {
   const [imageSize, setImageSize] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [showPhotoOptions, setShowPhotoOptions] = useState(false);
+  const [isFormador, setIsFormador] = useState(false);
+  const [errors, setErrors] = useState({});
 
   const fileInputRef = React.createRef();
 
@@ -53,16 +55,34 @@ export default function EditColab() {
       setTimeout(() => navigate('/login'), 2000);
       return;
     }
-    
+
+    // Check if user is formador
+    const tipo = sessionStorage.getItem("tipo");
+    setIsFormador(tipo === "Formador");
+
     // Se o token existe, procurar os dados do usuário
     fetchData();
   }, [navigate]);
-  
+
   useEffect(() => {
     if (formData.fotoPerfilUrl) {
       setPreviewFoto(formData.fotoPerfilUrl);
     }
   }, [formData.fotoPerfilUrl]);
+
+  function isMaiorDeIdade(dataNasc) {
+    if (!dataNasc) return false;
+    const hoje = new Date();
+    const nascimento = new Date(dataNasc);
+    const idade = hoje.getFullYear() - nascimento.getFullYear();
+    const mes = hoje.getMonth() - nascimento.getMonth();
+
+    if (mes < 0 || (mes === 0 && hoje.getDate() < nascimento.getDate())) {
+      return idade - 1 >= 18;
+    }
+
+    return idade >= 18;
+  }
 
   const handleFotoChange = (e) => {
     const file = e.target.files[0];
@@ -126,26 +146,27 @@ export default function EditColab() {
 
       const response = await axios.get('/colaborador/me');
       const utilizador = response.data;
-      
+
       // Armazenar o ID no sessionStorage se ainda não estiver armazenado
       if (!sessionStorage.getItem("colaboradorid") && utilizador.colaborador_id) {
         sessionStorage.setItem("colaboradorid", utilizador.colaborador_id);
       }
-      
+
       const primeiroNome = utilizador.nome ? utilizador.nome.split(" ")[0] : "";
       const ultimoNome = utilizador.nome ? utilizador.nome.split(" ").slice(1).join(" ") : "";
 
       // Buscar dados do departamento e função
       let departamentoNome = "";
       let funcaoNome = "";
-      
+      let especialidade = "";
+
       if (utilizador.funcao_id) {
         try {
           // Buscar função
           const funcaoResponse = await axios.get(`/funcao/${utilizador.funcao_id}`);
           if (funcaoResponse.data) {
             funcaoNome = funcaoResponse.data.nome;
-            
+
             // Buscar departamento
             const departamentoResponse = await axios.get(`/departamento/${funcaoResponse.data.departamento_id}`);
             if (departamentoResponse.data) {
@@ -154,6 +175,18 @@ export default function EditColab() {
           }
         } catch (error) {
           console.error("Erro ao buscar dados de departamento/função:", error);
+        }
+      }
+
+      // If user is formador, fetch especialidade
+      if (isFormador) {
+        try {
+          const formadorResponse = await axios.get(`/formador/${utilizador.colaborador_id}`);
+          if (formadorResponse.data) {
+            especialidade = formadorResponse.data.especialidade || "";
+          }
+        } catch (error) {
+          console.error("Erro ao buscar especialidade do formador:", error);
         }
       }
 
@@ -170,9 +203,10 @@ export default function EditColab() {
         novaPassword: "",
         confirmarPassword: "",
         fotoPerfilUrl: utilizador.fotoPerfilUrl || "",
-        funcao_id: utilizador.funcao_id || ""
+        funcao_id: utilizador.funcao_id || "",
+        especialidade: especialidade
       });
-      
+
       // Set display name separately from form data
       setDisplayName({
         primeiroNome: primeiroNome,
@@ -208,7 +242,7 @@ export default function EditColab() {
       }
     } catch (error) {
       console.error("Erro ao procurar dados do colaborador", error);
-      
+
       if (error.response?.status === 401 || error.response?.status === 403) {
         toast.error("Sessão expirada. Por favor, faça login novamente.");
         sessionStorage.clear();
@@ -225,19 +259,29 @@ export default function EditColab() {
     try {
       // Obter o ID do colaborador
       const id = sessionStorage.getItem("colaboradorid");
-      
+
       if (!id) {
         toast.error("ID do usuário não encontrado. Por favor, faça login novamente.");
         setTimeout(() => navigate('/login'), 2000);
         return;
       }
-      
+
       // Validação das senhas
       if (formData.novaPassword || formData.confirmarPassword) {
         if (formData.novaPassword !== formData.confirmarPassword) {
           toast.error("As palavras-passe não coincidem.");
           return;
         }
+      }
+
+      // Validação da idade mínima
+      if (!isMaiorDeIdade(formData.dataNasc)) {
+        setErrors((prev) => ({
+          ...prev,
+          dataNasc: "Deve ter pelo menos 18 anos.",
+        }));
+        toast.error("Insira uma data de nascimento válida. É necessário ter pelo menos 18 anos.");
+        return;
       }
 
       // Preparando o payload para envio
@@ -251,11 +295,17 @@ export default function EditColab() {
         sobre_mim: formData.sobre_mim || '',
       };
 
+      // Adicionar especialidade e tipos se for formador
+      if (isFormador) {
+        payload.especialidade = formData.especialidade;
+        payload.tipos = ["Formador"]; // Add tipos array for formador
+      }
+
       // Adicionar foto de perfil se alterada
       if (fotoPerfil) {
         payload.fotoPerfil = {
           base64: fotoPerfil,
-          nome: `foto_${id}.jpg`,
+          nome: `colaborador${id}.jpg`,
           entidade: 'colaborador',
           id,
         };
@@ -283,15 +333,15 @@ export default function EditColab() {
       });
 
       toast.success("Perfil atualizado com sucesso!");
-      
+
       // Refresh data after update
       setTimeout(() => {
         fetchData();
       }, 1000);
-      
+
     } catch (error) {
       console.error("Erro ao atualizar perfil", error);
-      
+
       if (error.response?.status === 401 || error.response?.status === 403) {
         toast.error("Sessão expirada ou sem permissão. Por favor, faça login novamente.");
         sessionStorage.clear();
@@ -337,7 +387,7 @@ export default function EditColab() {
         pauseOnHover
         style={{ marginTop: '60px' }} // Add margin to position below navbar
       />
-      
+
       <Row className="justify-content-start">
         <Col md={10} className="mb-4">
           <h2 className="form-title">Perfil Utilizador</h2>
@@ -349,8 +399,8 @@ export default function EditColab() {
           <div className="border p-4 shadow-sm rounded">
             <Row className="mb-3" style={{ alignItems: "center" }}>
               <Col xs={4} sm={3} md={2} className="text-center">
-                <div 
-                  className="position-relative" 
+                <div
+                  className="position-relative"
                   style={{ width: "120px", height: "120px", margin: "0 auto" }}
                   onMouseEnter={() => setShowPhotoOptions(true)}
                   onMouseLeave={() => setShowPhotoOptions(false)}
@@ -367,27 +417,27 @@ export default function EditColab() {
                       e.target.src = profilePic;
                     }}
                   />
-                  
+
                   {/* Hidden file input */}
-                  <input 
-                    type="file" 
-                    accept="image/*" 
-                    onChange={handleFotoChange} 
-                    ref={fileInputRef} 
-                    style={{ display: "none" }} 
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFotoChange}
+                    ref={fileInputRef}
+                    style={{ display: "none" }}
                   />
-                  
+
                   {/* Photo control overlay */}
                   {showPhotoOptions && (
-                    <div className="position-absolute top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center" 
-                      style={{ 
-                        background: "rgba(0,0,0,0.5)", 
+                    <div className="position-absolute top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"
+                      style={{
+                        background: "rgba(0,0,0,0.5)",
                         borderRadius: "50%",
                       }}
                     >
                       <div className="d-flex">
-                        <div 
-                          className="bg-primary p-2 rounded-circle mx-1" 
+                        <div
+                          className="bg-primary p-2 rounded-circle mx-1"
                           style={{ cursor: "pointer" }}
                           onClick={triggerFileInput}
                           title="Carregar nova foto"
@@ -414,7 +464,7 @@ export default function EditColab() {
 
             <Row className="mb-3">
               <InputField label="Nome Utilizador" name="username" value={formData.username} onChange={handleChange} icon={<FaUser />} colSize={6} />
-              <InputField label="Data Nascimento" name="dataNasc" value={formData.dataNasc} type="date" icon={<IoCalendarNumberSharp />} colSize={6} disabled readOnly />
+              <InputField label="Data Nascimento" name="dataNasc" value={formData.dataNasc} onChange={handleChange} type="date" icon={<IoCalendarNumberSharp />} error={!!errors.dataNasc} colSize={6} />
             </Row>
 
             <Row className="mb-3">
@@ -430,6 +480,12 @@ export default function EditColab() {
             <Row className="mb-3">
               <InputField label="Sobre Mim" name="sobre_mim" value={formData.sobre_mim} onChange={handleChange} type="textarea" rows={5} style={{ resize: "none" }} colSize={12} />
             </Row>
+
+            {isFormador && (
+              <Row className="mb-3">
+                <InputField label="Especialidade" name="especialidade" value={formData.especialidade} onChange={handleChange} type="textarea" rows={3} style={{ resize: "none" }} colSize={12} />
+              </Row>
+            )}
 
             <Row className="mb-3">
               <InputField label="Nova Password" name="novaPassword" value={formData.novaPassword} onChange={handleChange}

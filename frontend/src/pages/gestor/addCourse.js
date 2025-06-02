@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Container, Form, Button, Row, Col, Alert, Spinner } from "react-bootstrap";
 import { useNavigate } from 'react-router-dom';
-import { Book } from 'react-feather';
+import { MessageSquare } from 'react-feather';
 import { BsArrowReturnLeft } from "react-icons/bs";
-
 import axios from "../../config/configAxios";
-import "./addCourse.css";
+/* COMPONENTES */
 import Cancelar from "../../components/buttons/cancelButton";
+/* CSS */
+import "./addCourse.css";
 
 export default function AddCourse() {
     const navigate = useNavigate();
@@ -35,7 +36,7 @@ export default function AddCourse() {
         data_limite_inscricao: "",
         data_inicio: "",
         data_fim: "",
-        certificado: "" 
+        certificado: ""
     });
 
     useEffect(() => {
@@ -95,24 +96,24 @@ export default function AddCourse() {
 
         if (formData.tipo === 'S') {
             const hoje = new Date();
-            hoje.setHours(0, 0, 0, 0); 
-        
+            hoje.setHours(0, 0, 0, 0);
+
             const inscricao = new Date(formData.data_limite_inscricao);
             const inicio = new Date(formData.data_inicio);
             const fim = new Date(formData.data_fim);
-        
+
             if (inscricao < hoje) {
                 setError("A data limite de inscrição não pode ser anterior à data atual.");
                 setLoading(false);
                 return;
             }
-        
+
             if (inscricao >= inicio) {
                 setError("A data de início do curso deve ser posterior à data limite de inscrição.");
                 setLoading(false);
                 return;
             }
-        
+
             if (inicio >= fim) {
                 setError("A data de fim do curso deve ser posterior à data de início.");
                 setLoading(false);
@@ -133,15 +134,15 @@ export default function AddCourse() {
                 pendente: false,
                 certificado: formData.certificado,
                 nivel: formData.grau_dificuldade,
-                sincrono:{
-                formador_id: formData.formador_id,
-                limite_vagas: formData.vagas,
-                data_limite_inscricao: formData.data_limite_inscricao,
-                data_inicio: formData.data_inicio,
-                data_fim: formData.data_fim,
-                estado: false
-                  
-            }
+                sincrono: {
+                    formador_id: formData.formador_id,
+                    limite_vagas: formData.vagas,
+                    data_limite_inscricao: formData.data_limite_inscricao,
+                    data_inicio: formData.data_inicio,
+                    data_fim: formData.data_fim,
+                    estado: false
+
+                }
             };
 
             const response = await axios.post('/curso/criar', cursoData, {
@@ -169,11 +170,13 @@ export default function AddCourse() {
     return (
         <div className="add-course-page">
             <Container>
-                <div className="page-header">
-                    <div className="header-left">
-                        <div className="title-container">
-                            <Book size={28} className="title-icon" />
-                            <h1>Adicionar Curso</h1>
+                <div className="forum-header">
+                    <div className="forum-header-content">
+                        <div className="forum-header-icon">
+                            <MessageSquare size={32} />
+                        </div>
+                        <div className="forum-header-info">
+                            <h1>Adicionar curso</h1>
                         </div>
                     </div>
                 </div>
@@ -265,8 +268,8 @@ export default function AddCourse() {
                                 </Form.Select>
                             </Form.Group>
                         </Col>
-                        
-                       
+
+
                         {formData.tipo === 'S' && (
                             <Col md={6}>
                                 <Form.Group className="mb-3">
@@ -314,11 +317,11 @@ export default function AddCourse() {
                                     </Form.Group>
                                 </Col>
                             </Row>
-                            
+
                         </>
                     )}
                     <Row>
-                    <Col md={6}>
+                        <Col md={6}>
                             <Form.Group className="mb-3">
                                 <Form.Label>Certificado</Form.Label>
                                 <Form.Select name="certificado" value={formData.certificado} onChange={handleChange} required>
@@ -334,7 +337,7 @@ export default function AddCourse() {
                         <Form.Control as="textarea" rows={5} name="descricao" value={formData.descricao} onChange={handleChange} required />
                     </Form.Group>
 
-                    <div className="form-buttons">
+                    <div className="form-buttons" style={{ gap: '0rem' }}>
                         <Cancelar text="Cancelar" onClick={goBack} Icon={BsArrowReturnLeft} inline={true} />
                         <Button variant="primary" type="submit" disabled={loading}>
                             {loading ? (
@@ -343,7 +346,7 @@ export default function AddCourse() {
                                     <span className="ms-2">A guardar...</span>
                                 </>
                             ) : (
-                                "Guardar Curso"
+                                "Adicionar Curso"
                             )}
                         </Button>
                     </div>

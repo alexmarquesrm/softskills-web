@@ -79,6 +79,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Trigger para inscrição
+DROP TRIGGER IF EXISTS trigger_notificar_inscricao ON inscricao;
 CREATE TRIGGER trigger_notificar_inscricao
 AFTER INSERT ON inscricao
 FOR EACH ROW
@@ -284,108 +285,375 @@ DROP TRIGGER IF EXISTS calculate_final_grade_trigger ON SINCRONO;
 DROP FUNCTION IF EXISTS calculate_final_grade();
 DROP FUNCTION IF EXISTS calculate_final_grade_trigger();
 
--- Função para chamada direta
-CREATE OR REPLACE FUNCTION calculate_final_grade(p_curso_id INTEGER)
-RETURNS VOID AS $$
-DECLARE
-    total_works INTEGER;
-    submitted_works INTEGER;
-    avg_grade FLOAT;
-    formando_rec RECORD;
-BEGIN
-    -- Count total works required for the course
-    SELECT COUNT(*) INTO total_works
-    FROM MATERIAL
-    WHERE CURSO_ID = p_curso_id
-    AND TIPO = 'trabalho';
+-------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
+-- SISTEMA COMPLETO DE ATUALIZAÇÃO DE NOTAS PARA CURSOS SÍNCRONOS E ASSÍNCRONOS
+-------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
-    -- For each formando in the course
+-- Remover triggers existentes primeiro (pois dependem das funções)
+DROP TRIGGER IF EXISTS trigger_curso_sincrono_concluido ON sincrono;
+DROP TRIGGER IF EXISTS trigger_quiz_completado ON avaliacao_quizz;
+
+-- Remover funções existentes se existirem
+DROP FUNCTION IF EXISTS calcular_nota_final_sincrono(INTEGER);
+DROP FUNCTION IF EXISTS calcular_nota_final_assincrono(INTEGER);
+DROP FUNCTION IF EXISTS atualizar_notas_inscricao(INTEGER);
+DROP FUNCTION IF EXISTS trigger_atualizar_notas_sincrono();
+DROP FUNCTION IF EXISTS trigger_atualizar_nota_assincrono();
+DROP FUNCTION IF EXISTS processar_cursos_sincronos_terminados();
+DROP FUNCTION IF EXISTS reprocessar_notas_curso(INTEGER);
+DROP FUNCTION IF EXISTS relatorio_notas_curso(INTEGER);
+
+-- 1. FUNÇÃO PARA CALCULAR NOTA FINAL DE CURSOS SÍNCRONOS
+-- Verifica trabalhos entregues vs trabalhos totais e calcula média das notas
+CREATE OR REPLACE FUNCTION calcular_nota_final_sincrono(p_curso_id INTEGER)
+RETURNS TABLE (
+    formando_id INTEGER,
+    nota_final FLOAT,
+    trabalhos_entregues INTEGER,
+    trabalhos_totais INTEGER,
+    percentual_entrega FLOAT
+) AS $$
+DECLARE
+    total_trabalhos INTEGER;
+    formando_rec RECORD;
+    trabalhos_entregues INTEGER;
+    media_notas FLOAT;
+    percentual_conclusao FLOAT;
+BEGIN
+    -- Contar total de trabalhos/materiais de entrega do curso
+    SELECT COUNT(*) INTO total_trabalhos
+    FROM material
+    WHERE curso_id = p_curso_id
+    AND tipo IN ('trabalho', 'entrega');
+
+    -- Se não há trabalhos, não há nota a calcular
+    IF total_trabalhos = 0 THEN
+        RETURN;
+    END IF;
+
+    -- Para cada formando inscrito no curso
     FOR formando_rec IN 
-        SELECT DISTINCT i.FORMANDO_ID
-        FROM INSCRICAO i
-        WHERE i.CURSO_ID = p_curso_id
+        SELECT DISTINCT i.formando_id
+        FROM inscricao i
+        WHERE i.curso_id = p_curso_id
     LOOP
-        -- Count submitted works and calculate average grade
+        -- Contar trabalhos entregues e calcular média das notas
         SELECT 
             COUNT(*),
-            ROUND(AVG(t.NOTA)::NUMERIC, 2)
+            COALESCE(AVG(t.nota)::NUMERIC, 0.0)
         INTO 
-            submitted_works,
-            avg_grade
-        FROM TRABALHO t
-        WHERE t.FORMANDO_ID = formando_rec.FORMANDO_ID
-        AND t.SINCRONO_ID = p_curso_id
-        AND t.NOTA IS NOT NULL;
+            trabalhos_entregues,
+            media_notas
+        FROM trabalho t
+        INNER JOIN material m ON t.material_id = m.material_id
+        WHERE t.formando_id = formando_rec.formando_id
+        AND t.sincrono_id = p_curso_id
+        AND t.nota IS NOT NULL
+        AND m.tipo IN ('trabalho', 'entrega');
 
-        -- Update the final grade in INSCRICAO
-        IF submitted_works > 0 THEN
-            UPDATE INSCRICAO
-            SET NOTA = avg_grade,
-                DATA_CERTIFICADO = CURRENT_TIMESTAMP,
-                ESTADO = true  -- Mark as completed
-            WHERE FORMANDO_ID = formando_rec.FORMANDO_ID
-            AND CURSO_ID = p_curso_id;
-        END IF;
+        -- Calcular percentual de conclusão usando CAST para NUMERIC
+        percentual_conclusao := (trabalhos_entregues::NUMERIC / total_trabalhos::NUMERIC) * 100;
+
+        -- Retornar dados do formando
+        RETURN QUERY SELECT 
+            formando_rec.formando_id,
+            media_notas,
+            trabalhos_entregues,
+            total_trabalhos,
+            percentual_conclusao;
     END LOOP;
 END;
 $$ LANGUAGE plpgsql;
 
--- Função para o trigger
-CREATE OR REPLACE FUNCTION calculate_final_grade_trigger()
-RETURNS TRIGGER AS $$
-DECLARE
-    total_works INTEGER;
-    submitted_works INTEGER;
-    avg_grade FLOAT;
-    formando_rec RECORD;
+-- 2. FUNÇÃO PARA CALCULAR NOTA FINAL DE CURSOS ASSÍNCRONOS
+-- Verifica a nota do quiz e determina se o formando passou
+CREATE OR REPLACE FUNCTION calcular_nota_final_assincrono(p_curso_id INTEGER)
+RETURNS TABLE (
+    formando_id INTEGER,
+    nota_quiz FLOAT,
+    nota_minima FLOAT,
+    aprovado BOOLEAN
+) AS $$
 BEGIN
-    -- Count total works required for the course
-    SELECT COUNT(*) INTO total_works
-    FROM MATERIAL
-    WHERE CURSO_ID = NEW.CURSO_ID
-    AND TIPO = 'trabalho';
+    RETURN QUERY
+    SELECT 
+        aq.formando_id,
+        ROUND(aq.nota::NUMERIC, 2)::FLOAT as nota_quiz,
+        ROUND(q.nota::NUMERIC, 2)::FLOAT as nota_minima,
+        (aq.nota >= q.nota) as aprovado
+    FROM avaliacao_quizz aq
+    INNER JOIN quizz q ON aq.quizz_id = q.quizz_id
+    INNER JOIN inscricao i ON i.formando_id = aq.formando_id AND i.curso_id = q.curso_id
+    WHERE q.curso_id = p_curso_id;
+END;
+$$ LANGUAGE plpgsql;
 
-    -- For each formando in the course
-    FOR formando_rec IN 
-        SELECT DISTINCT i.FORMANDO_ID
-        FROM INSCRICAO i
-        WHERE i.CURSO_ID = NEW.CURSO_ID
-    LOOP
-        -- Count submitted works and calculate average grade
-        SELECT 
-            COUNT(*),
-            ROUND(AVG(t.NOTA)::NUMERIC, 2)
-        INTO 
-            submitted_works,
-            avg_grade
-        FROM TRABALHO t
-        WHERE t.FORMANDO_ID = formando_rec.FORMANDO_ID
-        AND t.SINCRONO_ID = NEW.CURSO_ID
-        AND t.NOTA IS NOT NULL;
+-- 3. FUNÇÃO PRINCIPAL PARA ATUALIZAR NOTAS DE INSCRIÇÃO
+CREATE OR REPLACE FUNCTION atualizar_notas_inscricao(p_curso_id INTEGER)
+RETURNS TEXT AS $$
+DECLARE
+    curso_tipo TEXT;
+    formandos_atualizados INTEGER := 0;
+    rec RECORD;
+    resultado TEXT;
+BEGIN
+    -- Verificar tipo do curso
+    SELECT tipo INTO curso_tipo
+    FROM curso
+    WHERE curso_id = p_curso_id;
+    
+    IF NOT FOUND THEN
+        RETURN 'Curso não encontrado';
+    END IF;
 
-        -- Update the final grade in INSCRICAO
-        IF submitted_works > 0 THEN
-            UPDATE INSCRICAO
-            SET NOTA = avg_grade,
-                DATA_CERTIFICADO = CURRENT_TIMESTAMP,
-                ESTADO = true  -- Mark as completed
-            WHERE FORMANDO_ID = formando_rec.FORMANDO_ID
-            AND CURSO_ID = NEW.CURSO_ID;
-        END IF;
-    END LOOP;
+    -- Processar conforme o tipo do curso
+    IF curso_tipo = 'S' THEN
+        -- CURSO SÍNCRONO: Processar baseado em trabalhos
+        FOR rec IN 
+            SELECT * FROM calcular_nota_final_sincrono(p_curso_id)
+        LOOP
+            -- Atualizar inscrição apenas se há trabalhos entregues
+            IF rec.trabalhos_entregues > 0 THEN
+                UPDATE inscricao
+                SET 
+                    nota = rec.nota_final,
+                    estado = CASE 
+                        WHEN rec.percentual_entrega >= 70 AND rec.nota_final >= 10 THEN TRUE 
+                        ELSE FALSE 
+                    END,
+                    data_certificado = CASE 
+                        WHEN rec.percentual_entrega >= 70 AND rec.nota_final >= 10 THEN CURRENT_TIMESTAMP 
+                        ELSE NULL 
+                    END
+                WHERE formando_id = rec.formando_id 
+                AND curso_id = p_curso_id;
+                
+                formandos_atualizados := formandos_atualizados + 1;
+            END IF;
+        END LOOP;
+        
+        resultado := 'Curso Síncrono: ' || formandos_atualizados || ' formandos atualizados';
+        
+    ELSIF curso_tipo = 'A' THEN
+        -- CURSO ASSÍNCRONO: Processar baseado em quiz
+        FOR rec IN 
+            SELECT * FROM calcular_nota_final_assincrono(p_curso_id)
+        LOOP
+            UPDATE inscricao
+            SET 
+                nota = rec.nota_quiz,
+                estado = rec.aprovado,
+                data_certificado = CASE 
+                    WHEN rec.aprovado THEN CURRENT_TIMESTAMP 
+                    ELSE NULL 
+                END
+            WHERE formando_id = rec.formando_id 
+            AND curso_id = p_curso_id;
+            
+            formandos_atualizados := formandos_atualizados + 1;
+        END LOOP;
+        
+        resultado := 'Curso Assíncrono: ' || formandos_atualizados || ' formandos atualizados';
+    ELSE
+        resultado := 'Tipo de curso inválido';
+    END IF;
 
+    RETURN resultado;
+END;
+$$ LANGUAGE plpgsql;
+
+-- 4. TRIGGER PARA CURSOS SÍNCRONOS (executa quando data_fim é atingida)
+CREATE OR REPLACE FUNCTION trigger_atualizar_notas_sincrono()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Verificar se a data fim foi atingida ou passou
+    IF NEW.data_fim IS NOT NULL AND NEW.data_fim <= CURRENT_TIMESTAMP THEN
+        -- Atualizar estado do curso para concluído
+        NEW.estado := TRUE;
+        
+        -- Executar atualização de notas
+        PERFORM atualizar_notas_inscricao(NEW.curso_id);
+        
+        -- Log da operação
+        RAISE NOTICE 'Curso % concluído. Notas atualizadas automaticamente.', NEW.curso_id;
+    END IF;
+    
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
--- Create trigger to run when a course ends
-CREATE TRIGGER calculate_final_grade_trigger
-AFTER UPDATE OF DATA_FIM ON SINCRONO
-FOR EACH ROW
-WHEN (NEW.DATA_FIM <= CURRENT_TIMESTAMP)
-EXECUTE FUNCTION calculate_final_grade_trigger();
+-- Criar trigger para cursos síncronos
+CREATE TRIGGER trigger_curso_sincrono_concluido
+    BEFORE UPDATE ON sincrono
+    FOR EACH ROW
+    WHEN (NEW.data_fim IS NOT NULL AND NEW.data_fim <= CURRENT_TIMESTAMP AND (OLD.estado IS NULL OR OLD.estado = FALSE))
+    EXECUTE FUNCTION trigger_atualizar_notas_sincrono();
+
+-- 5. TRIGGER PARA CURSOS ASSÍNCRONOS (executa quando quiz é completado)
+CREATE OR REPLACE FUNCTION trigger_atualizar_nota_assincrono()
+RETURNS TRIGGER AS $$
+DECLARE
+    curso_id_quiz INTEGER;
+BEGIN
+    -- Obter o curso_id do quiz
+    SELECT q.curso_id INTO curso_id_quiz
+    FROM quizz q
+    WHERE q.quizz_id = NEW.quizz_id;
+    
+    -- Atualizar nota da inscrição deste formando
+    PERFORM atualizar_notas_inscricao(curso_id_quiz);
+    
+    RAISE NOTICE 'Quiz completado para formando % no curso %. Nota atualizada.', NEW.formando_id, curso_id_quiz;
+    
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Criar trigger para quando quiz é completado
+CREATE TRIGGER trigger_quiz_completado
+    AFTER INSERT ON avaliacao_quizz
+    FOR EACH ROW
+    EXECUTE FUNCTION trigger_atualizar_nota_assincrono();
+
+-- 6. FUNÇÃO PARA PROCESSAR CURSOS SÍNCRONOS QUE JÁ TERMINARAM (execução manual/agendada)
+CREATE OR REPLACE FUNCTION processar_cursos_sincronos_terminados()
+RETURNS TEXT AS $$
+DECLARE
+    cursos_processados INTEGER := 0;
+    curso_rec RECORD;
+    resultado TEXT;
+BEGIN
+    -- Buscar cursos síncronos que terminaram mas ainda não foram marcados como concluídos
+    FOR curso_rec IN 
+        SELECT s.curso_id, s.data_fim
+        FROM sincrono s
+        WHERE s.data_fim <= CURRENT_TIMESTAMP
+        AND (s.estado IS NULL OR s.estado = FALSE)
+    LOOP
+        -- Marcar curso como concluído
+        UPDATE sincrono 
+        SET estado = TRUE 
+        WHERE curso_id = curso_rec.curso_id;
+        
+        -- Atualizar notas
+        PERFORM atualizar_notas_inscricao(curso_rec.curso_id);
+        
+        cursos_processados := cursos_processados + 1;
+        
+        RAISE NOTICE 'Curso % processado e marcado como concluído', curso_rec.curso_id;
+    END LOOP;
+    
+    resultado := 'Processados ' || cursos_processados || ' cursos síncronos terminados';
+    RETURN resultado;
+END;
+$$ LANGUAGE plpgsql;
+
+-- 7. FUNÇÃO PARA REPROCESSAR NOTAS DE UM CURSO ESPECÍFICO (útil para correções)
+CREATE OR REPLACE FUNCTION reprocessar_notas_curso(p_curso_id INTEGER)
+RETURNS TEXT AS $$
+DECLARE
+    resultado TEXT;
+BEGIN
+    -- Resetar estado das inscrições
+    UPDATE inscricao 
+    SET 
+        nota = 0,
+        estado = FALSE,
+        data_certificado = NULL
+    WHERE curso_id = p_curso_id;
+    
+    -- Reprocessar notas
+    SELECT atualizar_notas_inscricao(p_curso_id) INTO resultado;
+    
+    RETURN 'Curso reprocessado: ' || resultado;
+END;
+$$ LANGUAGE plpgsql;
+
+-- 8. FUNÇÃO PARA OBTER RELATÓRIO DE NOTAS DE UM CURSO
+CREATE OR REPLACE FUNCTION relatorio_notas_curso(p_curso_id INTEGER)
+RETURNS TABLE (
+    formando_id INTEGER,
+    nome_formando TEXT,
+    email_formando TEXT,
+    nota_final FLOAT,
+    estado_conclusao BOOLEAN,
+    data_certificado TIMESTAMPTZ,
+    tipo_curso TEXT,
+    detalhes_adicionais TEXT
+) AS $$
+DECLARE
+    curso_tipo TEXT;
+BEGIN
+    -- Obter tipo do curso
+    SELECT tipo INTO curso_tipo FROM curso WHERE curso_id = p_curso_id;
+    
+    IF curso_tipo = 'S' THEN
+        -- Relatório para curso síncrono
+        RETURN QUERY
+        SELECT 
+            i.formando_id,
+            c.nome,
+            c.email,
+            COALESCE(i.nota, 0.0)::FLOAT as nota_final,
+            i.estado,
+            i.data_certificado,
+            'Síncrono'::TEXT as tipo_curso,
+            ('Trabalhos: ' || COALESCE(nfs.trabalhos_entregues, 0) || '/' || COALESCE(nfs.trabalhos_totais, 0) || 
+             ' (' || COALESCE(nfs.percentual_entrega, 0) || '%)') as detalhes_adicionais
+        FROM inscricao i
+        INNER JOIN formando f ON i.formando_id = f.formando_id
+        INNER JOIN colaborador c ON f.formando_id = c.colaborador_id
+        LEFT JOIN calcular_nota_final_sincrono(p_curso_id) nfs ON nfs.formando_id = i.formando_id
+        WHERE i.curso_id = p_curso_id;
+        
+    ELSIF curso_tipo = 'A' THEN
+        -- Relatório para curso assíncrono
+        RETURN QUERY
+        SELECT 
+            i.formando_id,
+            c.nome,
+            c.email,
+            COALESCE(i.nota, 0.0)::FLOAT as nota_final,
+            i.estado,
+            i.data_certificado,
+            'Assíncrono'::TEXT as tipo_curso,
+            ('Quiz: ' || COALESCE(nfa.nota_quiz, 0) || '/' || COALESCE(nfa.nota_minima, 0) || 
+             ' (Mín: ' || COALESCE(nfa.nota_minima, 0) || ')') as detalhes_adicionais
+        FROM inscricao i
+        INNER JOIN formando f ON i.formando_id = f.formando_id
+        INNER JOIN colaborador c ON f.formando_id = c.colaborador_id
+        LEFT JOIN calcular_nota_final_assincrono(p_curso_id) nfa ON nfa.formando_id = i.formando_id
+        WHERE i.curso_id = p_curso_id;
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION processar_cursos_assincronos_terminados()
+RETURNS INTEGER AS $$
+DECLARE
+    cursos_processados INTEGER := 0;
+    curso_record RECORD;
+BEGIN
+    -- Buscar todos os cursos assíncronos que têm quizzes
+    FOR curso_record IN 
+        SELECT DISTINCT c.curso_id
+        FROM curso c
+        JOIN quizz q ON q.curso_id = c.curso_id
+        WHERE c.tipo = 'A'
+    LOOP
+        -- Atualizar notas para cada curso
+        PERFORM atualizar_notas_inscricao(curso_record.curso_id);
+        cursos_processados := cursos_processados + 1;
+    END LOOP;
+
+    RETURN cursos_processados;
+END;
+$$ LANGUAGE plpgsql;
 
 
 -------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------
+
 

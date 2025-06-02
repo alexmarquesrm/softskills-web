@@ -62,7 +62,6 @@ const controladorComentarios = {
   async createComentario(req, res) {
     try {
       const { thread_id, colaborador_id, descricao, comentariopai_id, imagem } = req.body;
-
       // Validar se a descrição não está vazia
       if (!descricao || descricao.trim().length === 0) {
         return res.status(400).json({ error: 'O comentário não pode estar vazio' });

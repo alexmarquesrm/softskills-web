@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from 'react-router-dom';
 import axios from "../../config/configAxios";
+import { MessageSquare } from 'react-feather';
 /* COMPONENTES */
 import DataTable from '../../components/tables/dataTable';
-import SearchBar from '../../components/textFields/search';
 /* MODALS */
 import NovoUser from '../../modals/gestor/addUser';
 import EditUser from '../../modals/gestor/editUser';
@@ -22,7 +22,6 @@ export default function UsersTable() {
   const [showModal, setShowModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
   const [isFiltersVisible, setIsFiltersVisible] = useState(true);
   const [stats, setStats] = useState({
     total: 0,
@@ -33,44 +32,31 @@ export default function UsersTable() {
 
   const navigate = useNavigate();
 
-  // Memoize filtered rows for better performance
-  const filteredRows = useMemo(() => {
-    if (!searchTerm) return tableRows;
-    
-    const searchLower = searchTerm.toLowerCase();
-    return tableRows.filter(row => 
-      row.nome.toLowerCase().includes(searchLower) ||
-      row.email.toLowerCase().includes(searchLower) ||
-      row.departamento?.toLowerCase().includes(searchLower) ||
-      row.funcao?.toLowerCase().includes(searchLower)
-    );
-  }, [tableRows, searchTerm]);
-
   const tableColumns = [
-    { 
-      field: 'id', 
-      headerName: 'Nº Colaborador', 
-      align: 'left', 
-      headerAlign: 'left', 
+    {
+      field: 'id',
+      headerName: 'Nº Colaborador',
+      align: 'left',
+      headerAlign: 'left',
       width: '120px',
       renderCell: ({ row }) => (
         <Badge bg="light" text="dark" className="px-3 py-2 rounded-pill">
           #{row.id}
         </Badge>
       )
-    }, 
-    { 
-      field: 'nome', 
-      headerName: 'Nome', 
-      align: 'left', 
-      headerAlign: 'left', 
-      minWidth: '200px', 
+    },
+    {
+      field: 'nome',
+      headerName: 'Nome',
+      align: 'left',
+      headerAlign: 'left',
+      minWidth: '200px',
       renderCell: ({ row }) => (
         <div className="d-flex align-items-center">
           <div className="bg-primary bg-opacity-10 rounded-circle p-2 me-3">
             <BsFillPeopleFill className="text-primary" size={18} />
           </div>
-          <span 
+          <span
             onClick={() => navigate('/gestor/colaborador/percursoFormativo', { state: { id: row.id } })}
             className="text-primary fw-medium cursor-pointer hover-underline"
             style={{ cursor: 'pointer' }}
@@ -80,11 +66,11 @@ export default function UsersTable() {
         </div>
       )
     },
-    { 
-      field: 'email', 
-      headerName: 'Email', 
-      align: 'left', 
-      headerAlign: 'left', 
+    {
+      field: 'email',
+      headerName: 'Email',
+      align: 'left',
+      headerAlign: 'left',
       minWidth: '240px',
       renderCell: ({ row }) => (
         <div className="d-flex align-items-center">
@@ -94,10 +80,10 @@ export default function UsersTable() {
       )
     },
     {
-      field: 'funcao', 
-      headerName: 'Função', 
-      align: 'left', 
-      headerAlign: 'left', 
+      field: 'funcao',
+      headerName: 'Função',
+      align: 'left',
+      headerAlign: 'left',
       minWidth: '180px',
       renderCell: ({ row }) => (
         <div className="d-flex align-items-center">
@@ -107,14 +93,14 @@ export default function UsersTable() {
       )
     },
     {
-      field: 'percurso', 
-      headerName: 'Percurso', 
-      align: 'center', 
-      headerAlign: 'center', 
-      sortable: false, 
+      field: 'percurso',
+      headerName: 'Percurso',
+      align: 'center',
+      headerAlign: 'center',
+      sortable: false,
       width: '120px',
       renderCell: ({ row }) => (
-        <button 
+        <button
           className="btn btn-sm btn-outline-primary d-flex align-items-center gap-1 mx-auto"
           onClick={(e) => {
             e.stopPropagation();
@@ -127,15 +113,15 @@ export default function UsersTable() {
       )
     },
     {
-      field: 'actions', 
-      headerName: 'Ações', 
-      align: 'center', 
-      headerAlign: 'center', 
-      sortable: false, 
+      field: 'actions',
+      headerName: 'Ações',
+      align: 'center',
+      headerAlign: 'center',
+      sortable: false,
       width: '120px',
       renderCell: ({ row }) => (
         <div className="d-flex justify-content-center">
-          <button 
+          <button
             className="btn btn-sm btn-outline-primary d-flex align-items-center gap-1"
             onClick={(e) => {
               e.stopPropagation();
@@ -187,7 +173,7 @@ export default function UsersTable() {
               const funcaoResponse = await axios.get(`/funcao/${colaborador.funcao_id}`);
               if (funcaoResponse.data) {
                 funcaoNome = funcaoResponse.data.nome;
-                
+
                 const departamentoResponse = await axios.get(`/departamento/${funcaoResponse.data.departamento_id}`);
                 if (departamentoResponse.data) {
                   departamentoNome = departamentoResponse.data.nome;
@@ -209,7 +195,8 @@ export default function UsersTable() {
       // Calculate statistics
       const departamentos = new Set(utilizadoresCompletos.map(u => u.departamento).filter(Boolean));
       const funcoes = new Set(utilizadoresCompletos.map(u => u.funcao).filter(Boolean));
-      
+      const loggedUserId = Number(sessionStorage.getItem('colaboradorid'));
+
       setStats({
         total: utilizadoresCompletos.length,
         departamentos: departamentos.size,
@@ -218,7 +205,7 @@ export default function UsersTable() {
       });
 
       setTableRows(
-        utilizadoresCompletos.map((colaborador) => ({
+        utilizadoresCompletos.filter(u => u.colaborador_id !== loggedUserId).map((colaborador) => ({
           id: colaborador.colaborador_id,
           nome: colaborador.nome,
           departamento: colaborador.departamento,
@@ -246,14 +233,6 @@ export default function UsersTable() {
     }
   }, [isNewModalOpen]);
 
-  const handleSearchChange = (event) => {
-    setSearchTerm(event.target.value);
-  };
-
-  const handleSearchClick = () => {
-    // Kept for compatibility with SearchBar component
-  };
-
   const toggleFilters = () => {
     setIsFiltersVisible(!isFiltersVisible);
   };
@@ -271,8 +250,15 @@ export default function UsersTable() {
 
   return (
     <div className="container py-4">
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <h3 className="mb-0">Lista de Colaboradores</h3>
+      <div className="forum-header">
+        <div className="forum-header-content">
+          <div className="forum-header-icon">
+            <MessageSquare size={32} />
+          </div>
+          <div className="forum-header-info">
+            <h1>Lista de colaboradores</h1>
+          </div>
+        </div>
       </div>
 
       {/* Stats Cards */}
@@ -339,16 +325,6 @@ export default function UsersTable() {
         </Col>
       </Row>
 
-      {/* Search and Filters */}
-      <div className="mb-4">
-        <SearchBar
-          searchTerm={searchTerm}
-          handleSearchChange={handleSearchChange}
-          handleSearchClick={handleSearchClick}
-          placeholder="Pesquisar colaboradores..."
-        />
-      </div>
-      
       {error && error.response && error.response.status === 403 ? (
         <Alert variant="danger">
           Sem permissão para visualizar a lista de colaboradores.
@@ -358,16 +334,17 @@ export default function UsersTable() {
           Erro ao carregar dados: {error.message}
         </Alert>
       ) : (
-        <DataTable 
-          columns={tableColumns} 
-          rows={filteredRows || []} 
-          title=" " 
-          showSearch={false} 
-          pageSize={10} 
+        <DataTable
+          columns={tableColumns}
+          rows={tableRows || []}
+          title=" "
+          showSearch={true}
+          showAddButton={false}
+          pageSize={10}
           emptyStateMessage="Nenhum colaborador encontrado"
         />
       )}
-  
+
       <NovoUser show={isNewModalOpen} onClose={() => setNewModalOpen(false)} />
       <EditUser show={showModal} onClose={() => setShowModal(false)} onSave={handleSave} initialData={selectedUser || {}} />
 

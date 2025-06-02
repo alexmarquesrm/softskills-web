@@ -3,14 +3,13 @@ import { Table, Pagination, Form, InputGroup, Badge, Button } from 'react-bootst
 import { Search, ArrowUp, ArrowDown, ChevronLeft, ChevronRight } from 'react-bootstrap-icons';
 import './dataTable.css';
 
-export default function DataTable({ columns, rows, pageSize = 10, title = "Data Table", showSearch = true, theme = "light", selectable = false, onRowSelect, emptyStateMessage = "No data found", headerActions, addButton })
-{
+export default function DataTable({ columns, rows, pageSize = 10, title = "Data Table", showSearch = true, theme = "light", selectable = false, onRowSelect, emptyStateMessage = "No data found", headerActions, addButton, showAddButton = true }) {
   const [currentPage, setCurrentPage] = useState(1);
   const [sortField, setSortField] = useState(null);
   const [sortDirection, setSortDirection] = useState('asc');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedRows, setSelectedRows] = useState([]);
-  
+
   useEffect(() => {
     setCurrentPage(1);
   }, [searchQuery]);
@@ -18,7 +17,7 @@ export default function DataTable({ columns, rows, pageSize = 10, title = "Data 
   // filtro de pesquisa
   const filteredRows = [...rows].filter(row => {
     if (!searchQuery) return true;
-    
+
     // pesquisa em todas as colunas
     return columns.some(column => {
       if (column.searchable === false) return false;
@@ -30,23 +29,23 @@ export default function DataTable({ columns, rows, pageSize = 10, title = "Data 
 
   const sortedRows = [...filteredRows].sort((a, b) => {
     if (!sortField) return 0;
-    
+
     const aValue = a[sortField];
     const bValue = b[sortField];
-    
+
     if (aValue === bValue) return 0;
-    
+
     if (aValue == null) return sortDirection === 'asc' ? -1 : 1;
     if (bValue == null) return sortDirection === 'asc' ? 1 : -1;
-    
+
     const isNumeric = !isNaN(parseFloat(aValue)) && !isNaN(parseFloat(bValue));
-    
+
     if (isNumeric) {
-      return sortDirection === 'asc' 
-        ? parseFloat(aValue) - parseFloat(bValue) 
+      return sortDirection === 'asc'
+        ? parseFloat(aValue) - parseFloat(bValue)
         : parseFloat(bValue) - parseFloat(aValue);
     }
-    
+
     const comparison = String(aValue).localeCompare(String(bValue));
     return sortDirection === 'asc' ? comparison : -comparison;
   });
@@ -68,7 +67,7 @@ export default function DataTable({ columns, rows, pageSize = 10, title = "Data 
     if (column.renderCell) {
       return column.renderCell({ row, selectedRows });
     }
-    
+
     if (column.type === 'status') {
       return (
         <Badge bg={getStatusColor(row[column.field])}>
@@ -76,37 +75,37 @@ export default function DataTable({ columns, rows, pageSize = 10, title = "Data 
         </Badge>
       );
     }
-    
+
     if (column.type === 'date' && row[column.field]) {
       return formatDate(row[column.field]);
     }
-    
+
     return row[column.field] ?? column.emptyValue ?? '-';
   };
-  
+
   const formatDate = (dateString) => {
     try {
       const date = new Date(dateString);
-      return date.toLocaleDateString('pt-BR', { 
-        day: '2-digit', 
-        month: '2-digit', 
+      return date.toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
         year: 'numeric'
       });
     } catch (e) {
       return dateString;
     }
   };
-  
+
   const getStatusColor = (status) => {
     if (!status) return 'secondary';
-    
+
     const statusLower = String(status).toLowerCase();
-    
+
     if (['active', 'aprovado', 'concluído', 'success'].includes(statusLower)) return 'success';
     if (['pending', 'pendente', 'em análise', 'warning'].includes(statusLower)) return 'warning';
     if (['inactive', 'cancelled', 'cancelado', 'error'].includes(statusLower)) return 'danger';
     if (['em progresso', 'processing'].includes(statusLower)) return 'info';
-    
+
     return 'secondary';
   };
 
@@ -124,10 +123,10 @@ export default function DataTable({ columns, rows, pageSize = 10, title = "Data 
 
   const renderPaginationItems = () => {
     let items = [];
-    
+
     items.push(
-      <Pagination.Item 
-        key="prev" 
+      <Pagination.Item
+        key="prev"
         onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
         disabled={currentPage === 1}
         className="prev-page"
@@ -135,13 +134,13 @@ export default function DataTable({ columns, rows, pageSize = 10, title = "Data 
         <ChevronLeft />
       </Pagination.Item>
     );
-    
+
     const maxPagesToShow = 5;
     let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
     const endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
-    
+
     startPage = Math.max(1, endPage - maxPagesToShow + 1);
-    
+
     if (startPage > 1) {
       items.push(
         <Pagination.Item key={1} onClick={() => setCurrentPage(1)}>1</Pagination.Item>
@@ -150,11 +149,11 @@ export default function DataTable({ columns, rows, pageSize = 10, title = "Data 
         items.push(<Pagination.Ellipsis key="ellipsis1" disabled />);
       }
     }
-    
+
     for (let i = startPage; i <= endPage; i++) {
       items.push(
-        <Pagination.Item 
-          key={i} 
+        <Pagination.Item
+          key={i}
           active={i === currentPage}
           onClick={() => setCurrentPage(i)}
         >
@@ -162,24 +161,24 @@ export default function DataTable({ columns, rows, pageSize = 10, title = "Data 
         </Pagination.Item>
       );
     }
-    
+
     if (endPage < totalPages) {
       if (endPage < totalPages - 1) {
         items.push(<Pagination.Ellipsis key="ellipsis2" disabled />);
       }
       items.push(
-        <Pagination.Item 
-          key={totalPages} 
+        <Pagination.Item
+          key={totalPages}
           onClick={() => setCurrentPage(totalPages)}
         >
           {totalPages}
         </Pagination.Item>
       );
     }
-    
+
     items.push(
-      <Pagination.Item 
-        key="next" 
+      <Pagination.Item
+        key="next"
         onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
         disabled={currentPage === totalPages}
         className="next-page"
@@ -187,7 +186,7 @@ export default function DataTable({ columns, rows, pageSize = 10, title = "Data 
         <ChevronRight />
       </Pagination.Item>
     );
-    
+
     return items;
   };
 
@@ -202,11 +201,11 @@ export default function DataTable({ columns, rows, pageSize = 10, title = "Data 
             </div>
           )}
         </div>
-        
+
         <div className="d-flex justify-content-between align-items-center mt-3">
-          <div style={{ minWidth: '200px' }}>
+          {showAddButton === true && <div style={{ minWidth: '200px' }}>
             {addButton}
-          </div>
+          </div>}
           <div className="flex-grow-1 d-flex justify-content-end">
             {showSearch && (
               <div className="table-search-wrapper">
@@ -214,16 +213,16 @@ export default function DataTable({ columns, rows, pageSize = 10, title = "Data 
                   <InputGroup.Text>
                     <Search />
                   </InputGroup.Text>
-                  <Form.Control 
-                    placeholder="Pesquisar..." 
-                    value={searchQuery} 
-                    onChange={(e) => setSearchQuery(e.target.value)} 
-                    aria-label="Search table" 
+                  <Form.Control
+                    placeholder="Pesquisar..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    aria-label="Search table"
                   />
-                  {searchQuery && ( 
-                    <Button 
-                      variant="outline-secondary" 
-                      onClick={() => setSearchQuery('')} 
+                  {searchQuery && (
+                    <Button
+                      variant="outline-secondary"
+                      onClick={() => setSearchQuery('')}
                       className="clear-search"
                     >
                       ×
@@ -235,7 +234,7 @@ export default function DataTable({ columns, rows, pageSize = 10, title = "Data 
           </div>
         </div>
       </div>
-      
+
       <div className="table-responsive">
         <Table hover className="bootstrap-data-table">
           <thead>
@@ -245,13 +244,13 @@ export default function DataTable({ columns, rows, pageSize = 10, title = "Data 
                 </th>
               )}
               {columns.map((column) => (
-                <th 
-                  key={column.field} 
+                <th
+                  key={column.field}
                   className={` 
                     ${column.headerAlign || 'center'}-aligned
                     ${column.sortable !== false ? 'sortable-header' : ''}
                   `}
-                  style={{ 
+                  style={{
                     width: column.width || 'auto',
                     minWidth: column.minWidth || 'auto'
                   }}
@@ -278,22 +277,22 @@ export default function DataTable({ columns, rows, pageSize = 10, title = "Data 
               paginatedRows.map((row) => {
                 const rowId = row.id || row.key;
                 const isSelected = selectedRows.includes(rowId);
-                
+
                 return (
-                  <tr 
-                    key={rowId} 
+                  <tr
+                    key={rowId}
                     className={isSelected ? 'selected-row' : ''}
                     onClick={() => selectable && handleRowSelect(row)}
                     style={selectable ? { cursor: 'pointer' } : {}}
                   >
                     {selectable && (
                       <td className="selection-column">
-                        <Form.Check type="checkbox" checked={isSelected} onChange={() => {}} onClick={(e) => e.stopPropagation()} aria-label="Select row" />
+                        <Form.Check type="checkbox" checked={isSelected} onChange={() => { }} onClick={(e) => e.stopPropagation()} aria-label="Select row" />
                       </td>
                     )}
                     {columns.map((column) => (
-                      <td 
-                        key={`${rowId}-${column.field}`} 
+                      <td
+                        key={`${rowId}-${column.field}`}
                         className={`${column.align || 'center'}-aligned ${column.type || ''}`} >
                         {renderCellContent(row, column)}
                       </td>
@@ -303,9 +302,8 @@ export default function DataTable({ columns, rows, pageSize = 10, title = "Data 
               })
             ) : (
               <tr>
-                <td 
-                  colSpan={selectable ? columns.length + 1 : columns.length} 
-                  className="empty-state" >
+                <td colSpan={selectable ? columns.length + 1 : columns.length}
+                  style={{ textAlign: 'center', backgroundColor: '#f0f0f0', color: '#718096', fontStyle: 'italic' }}>
                   {emptyStateMessage}
                 </td>
               </tr>
@@ -313,21 +311,21 @@ export default function DataTable({ columns, rows, pageSize = 10, title = "Data 
           </tbody>
         </Table>
       </div>
-      
+
       <div className="table-footer">
         <div className="pagination-info">
           {sortedRows.length > 0 ? (
             <>
               Showing {startIndex + 1} to {Math.min(startIndex + pageSize, sortedRows.length)} of {sortedRows.length} entries
-              {searchQuery && 
-               filteredRows.length !== rows.length && 
-               ` (filtered from ${rows.length} total entries)`}
+              {searchQuery &&
+                filteredRows.length !== rows.length &&
+                ` (filtered from ${rows.length} total entries)`}
             </>
           ) : (
             `No entries found${searchQuery ? ' matching search criteria' : ''}`
           )}
         </div>
-        
+
         {totalPages > 1 && (
           <Pagination className="mb-0">
             {renderPaginationItems()}

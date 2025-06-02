@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "../../config/configAxios";
-import { Gear, Flag, EnvelopeOpen, PersonCircle, BoxArrowRight, Book, PeopleFill, Building, Grid, ChevronRight, ChevronDown } from "react-bootstrap-icons";
+import { Flag, EnvelopeOpen, PersonCircle, BoxArrowRight, Book, PeopleFill, ChevronRight, ChevronDown } from "react-bootstrap-icons";
 import "./sidebar.css";
 import { useNavigate } from 'react-router-dom';
 
@@ -8,6 +8,8 @@ const Sidebar = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
   const tipoUtilizador = sessionStorage.getItem("tipo") || null;
   const [activeItem, setActiveItem] = useState("");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userType, setUserType] = useState(null);
   const [categorias, setCategorias] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -25,6 +27,43 @@ const Sidebar = ({ isOpen, onClose }) => {
 
   // Fetch categories from backend
   useEffect(() => {
+    const checkLoginStatus = () => {
+      const token = sessionStorage.getItem('token');
+      const isLoggedOut = localStorage.getItem('isLoggedOut');
+      const currentToken = localStorage.getItem('currentToken');
+      const storedUserType = sessionStorage.getItem('tipo');
+
+      // Primeiro verifica se há um token no localStorage
+      if (currentToken) {
+        // Se não houver token no sessionStorage, copia do localStorage
+        if (!token) {
+          sessionStorage.setItem('token', currentToken);
+          setIsLoggedIn(true);
+          setUserType(storedUserType);
+          return;
+        }
+        // Se já houver token no sessionStorage, mantém o estado
+        setIsLoggedIn(true);
+        setUserType(storedUserType);
+        return;
+      }
+
+      // Se não houver token no localStorage, verifica se é um logout
+      if (isLoggedOut === 'true') {
+        sessionStorage.clear();
+        localStorage.removeItem('isLoggedOut');
+        localStorage.removeItem('currentToken');
+        setIsLoggedIn(false);
+        setUserType(null);
+        navigate('/login');
+        return;
+      }
+
+      // Se não houver token em nenhum lugar, está deslogado
+      setIsLoggedIn(false);
+      setUserType(null);
+    };
+
     const fetchCategorias = async () => {
       setLoading(true);
       try {
@@ -76,7 +115,11 @@ const Sidebar = ({ isOpen, onClose }) => {
   // Funções para navegação programática
   const navigateToCategory = (categoryId, e) => {
     e.preventDefault();
-    navigate(`/utilizadores/lista/cursos?categoriaId=${categoryId}`);
+    if (isLoggedIn) {
+      navigate(`/utilizadores/lista/cursos?categoriaId=${categoryId}`);
+    }
+    else
+      navigate(`/cursos-view?categoriaId=${categoryId}`);
     onClose();
   };
 
@@ -85,7 +128,11 @@ const Sidebar = ({ isOpen, onClose }) => {
     const params = new URLSearchParams();
     if (categoriaSelecionada) params.append('categoriaId', categoriaSelecionada);
     params.append('areaId', areaId);
-    navigate(`/utilizadores/lista/cursos?${params.toString()}`);
+    if (isLoggedIn) {
+      navigate(`/utilizadores/lista/cursos?${params.toString()}`);
+    }
+    else
+      navigate(`/cursos-view?${params.toString()}`);
     onClose();
   };
 
@@ -103,7 +150,11 @@ const Sidebar = ({ isOpen, onClose }) => {
 
     params.append('topicoId', topicId);
 
-    navigate(`/utilizadores/lista/cursos?${params.toString()}`);
+    if (isLoggedIn) {
+      navigate(`/utilizadores/lista/cursos?${params.toString()}`);
+    }
+    else
+      navigate(`/cursos-view?${params.toString()}`);
     onClose();
   };
 
@@ -286,7 +337,7 @@ const Sidebar = ({ isOpen, onClose }) => {
             <span className="menu-heading">PRINCIPAIS</span>
 
             {/* Botão Categorias apenas para não-gestores */}
-            {tipoUtilizador !== "Gestor" && (
+            {(tipoUtilizador !== "Gestor" && tipoUtilizador !== "Formador") && (
               <>
                 <NavItem
                   href="#"
@@ -316,7 +367,6 @@ const Sidebar = ({ isOpen, onClose }) => {
                 <NavItem href="/gestor/lista/categorias" icon={<Book size={16} />} label="Gerir Categorias" itemName="categorias" />
                 <NavItem href="/gestor/lista/areas" icon={<Book size={16} />} label="Gerir Áreas" itemName="areas" />
                 <NavItem href="/gestor/lista/topicos" icon={<Book size={16} />} label="Gerir Tópicos" itemName="topicos" />
-                <NavItem href="/gestor/lista/denuncias" icon={<Flag size={18} />} label="Ver Denúncias" itemName="denuncias" />
                 <NavItem href="/gestor/lista/pedidos" icon={<EnvelopeOpen size={18} />} label="Ver Pedidos" itemName="pedidos" />
               </>
             )}

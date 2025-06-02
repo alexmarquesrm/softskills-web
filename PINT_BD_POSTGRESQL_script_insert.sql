@@ -33,7 +33,8 @@ INSERT INTO AREA (CATEGORIA_ID, DESCRICAO) VALUES
 (8, 'Mindfulness'),
 (8, 'Desenvolvimento Pessoal e Produtividade'),
 (9, 'Nutrição e Dieta'),
-(9, 'Exercícios Físicos');
+(10, 'Exercícios Físicos'),
+(10, 'Culinária Básica');
 
 -- Inserção na Tabela TOPICO
 INSERT INTO TOPICO (AREA_ID, DESCRICAO) VALUES
@@ -58,14 +59,16 @@ INSERT INTO TOPICO (AREA_ID, DESCRICAO) VALUES
 (8, 'Cibersegurança e Pentesting'),
 (9, 'Fotografia para Iniciantes'),
 (9, 'Edição de Vídeo no Adobe Premiere'),
-(10, 'Gestão de Projetos Agile'),
-(10, 'Marketing Digital para Pequenos Negócios'),
-(11, 'Teoria Musical Básica'),
-(11, 'Produção Musical no FL Studio'),
-(12, 'Mindfulness para Iniciantes'),
-(12, 'Produtividade e Gestão de Tempo'),
-(13, 'Nutrição e Dieta Balanceada'),
-(13, 'Exercícios Físicos em Casa');
+(14, 'Gestão de Projetos Agile'),
+(15, 'Marketing Digital para Pequenos Negócios'),
+(16, 'Teoria Musical Básica'),
+(16, 'Produção Musical no FL Studio'),
+(17, 'Mindfulness para Iniciantes'),
+(17, 'Produtividade e Gestão de Tempo'),
+(18, 'Nutrição e Dieta Balanceada'),
+(19, 'Exercícios Físicos em Casa'),
+(20, 'Culinária Básica'),
+(20, 'Receitas Saudáveis');
 
 -- Inserção na Tabela FORUM
 INSERT INTO FORUM (TOPICO_ID, DESCRICAO, APROVADO, PENDENTE) VALUES
@@ -75,20 +78,20 @@ INSERT INTO FORUM (TOPICO_ID, DESCRICAO, APROVADO, PENDENTE) VALUES
 (4, 'Node.js e Express', TRUE, FALSE),
 (5, 'Python para Iniciantes', FALSE, TRUE),
 (6, 'Desenvolvimento com Java', TRUE, FALSE),
-(7, 'Desenvolvimento de Jogos com Unity', FALSE, TRUE),
-(8, 'Fundamentos de IA', TRUE, FALSE),
-(9, 'Edição de Imagens no Photoshop', TRUE, FALSE),
-(10, 'Figma: Design de Interface', FALSE, TRUE),
-(11, 'SEO: Como otimizar seu site', TRUE, FALSE),
-(12, 'Segurança em Redes de Computadores', TRUE, FALSE),
-(13, 'Técnicas de Fotografia Profissional', FALSE, TRUE),
-(14, 'Edição de Vídeos Profissionais', TRUE, FALSE),
-(15, 'Liderança e Gestão de Equipes', TRUE, FALSE),
-(16, 'Produtividade Pessoal', TRUE, FALSE),
-(17, 'Gestão de Projetos com Scrum', TRUE, FALSE),
-(18, 'Estratégias para Aumentar suas Vendas no Instagram', TRUE, FALSE),
-(19, 'Como Criar Música no FL Studio', TRUE, FALSE),
-(20, 'Mindfulness e Meditação', TRUE, FALSE);
+(8, 'Desenvolvimento de Jogos com Unity', FALSE, TRUE),
+(10, 'Fundamentos de IA', TRUE, FALSE),
+(12, 'Edição de Imagens no Photoshop', TRUE, FALSE),
+(15, 'Figma: Design de Interface', FALSE, TRUE),
+(17, 'SEO: Como otimizar seu site', TRUE, FALSE),
+(18, 'Segurança em Redes de Computadores', TRUE, FALSE),
+(20, 'Técnicas de Fotografia Profissional', FALSE, TRUE),
+(21, 'Edição de Vídeos Profissionais', TRUE, FALSE),
+(14, 'Liderança e Gestão de Equipes', TRUE, FALSE),
+(25, 'Produtividade Pessoal', TRUE, FALSE),
+(23, 'Gestão de Projetos com Scrum', TRUE, FALSE),
+(16, 'Estratégias para Aumentar suas Vendas no Instagram', TRUE, FALSE),
+(24, 'Como Criar Música no FL Studio', TRUE, FALSE),
+(26, 'Mindfulness e Meditação', TRUE, FALSE);
    
 -- Inserção na Tabela DEPARTAMENTO
 INSERT INTO DEPARTAMENTO (NOME) VALUES
@@ -167,44 +170,44 @@ INSERT INTO FORMADOR (FORMADOR_ID, ESPECIALIDADE) VALUES
 INSERT INTO CURSO (GESTOR_ID, TOPICO_ID, TIPO, TOTAL_HORAS, TITULO, DESCRICAO, APROVADO, PENDENTE, CERTIFICADO, NIVEL) VALUES
 -- Cursos Síncronos (21)
 (1, 1, 'S', 40, 'Introdução ao JavaScript', 'Curso básico de JavaScript, para iniciantes.', TRUE, FALSE, TRUE, 1),
-(1, 2, 'S', 50, 'Fundamentos de Python', 'Curso para iniciantes em Python, abordando conceitos básicos.', TRUE, FALSE, TRUE, 1),
+(1, 5, 'S', 50, 'Fundamentos de Python', 'Curso para iniciantes em Python, abordando conceitos básicos.', TRUE, FALSE, TRUE, 1),
 (1, 3, 'S', 60, 'Desenvolvimento com React', 'Curso avançado de React para criar aplicações dinâmicas.', TRUE, FALSE, TRUE, 3),
-(1, 5, 'S', 70, 'Design Gráfico com Illustrator', 'Curso avançado de design gráfico usando o Illustrator.', TRUE, FALSE, FALSE, 3),
-(1, 10, 'S', 40, 'Gestão de Projetos com Scrum', 'Curso sobre gestão de projetos ágeis utilizando Scrum.', TRUE, FALSE, TRUE, 2),
-(1, 11, 'S', 45, 'Desenvolvimento Web Full Stack', 'Curso completo de desenvolvimento web frontend e backend.', TRUE, FALSE, TRUE, 3),
-(1, 12, 'S', 50, 'Python para Data Science', 'Introdução à análise de dados e machine learning com Python.', TRUE, FALSE, TRUE, 2),
-(1, 13, 'S', 55, 'Desenvolvimento Mobile com Flutter', 'Criação de aplicativos multiplataforma com Flutter.', TRUE, FALSE, TRUE, 3),
-(1, 14, 'S', 60, 'DevOps e CI/CD', 'Práticas modernas de desenvolvimento e entrega contínua.', TRUE, FALSE, TRUE, 3),
-(1, 15, 'S', 45, 'Segurança da Informação', 'Fundamentos de segurança em desenvolvimento de software.', TRUE, FALSE, TRUE, 2),
-(1, 16, 'S', 50, 'Cloud Computing com AWS', 'Introdução aos serviços cloud da Amazon Web Services.', TRUE, FALSE, TRUE, 2),
-(1, 17, 'S', 55, 'Desenvolvimento de APIs REST', 'Criação de APIs RESTful com Node.js e Express.', TRUE, FALSE, TRUE, 3),
-(1, 18, 'S', 60, 'Testes Automatizados', 'Implementação de testes unitários e de integração.', TRUE, FALSE, TRUE, 3),
-(1, 19, 'S', 45, 'UI/UX Design', 'Princípios de design de interface e experiência do usuário.', TRUE, FALSE, TRUE, 2),
-(1, 20, 'S', 50, 'Desenvolvimento de Jogos Unity', 'Criação de jogos 2D e 3D com Unity.', TRUE, FALSE, TRUE, 3),
-(1, 21, 'S', 55, 'Blockchain e Smart Contracts', 'Introdução ao desenvolvimento de aplicações blockchain.', TRUE, FALSE, TRUE, 3),
-(1, 22, 'S', 60, 'Machine Learning com Python', 'Implementação de algoritmos de machine learning.', TRUE, FALSE, TRUE, 4),
-(1, 23, 'S', 45, 'Desenvolvimento Android', 'Criação de aplicativos nativos para Android.', TRUE, FALSE, TRUE, 3),
-(1, 24, 'S', 50, 'Desenvolvimento iOS', 'Desenvolvimento de aplicativos para iOS com Swift.', TRUE, FALSE, TRUE, 3),
-(1, 25, 'S', 55, 'Microserviços com Spring Boot', 'Arquitetura de microserviços com Java e Spring.', TRUE, FALSE, TRUE, 4),
-(1, 26, 'S', 60, 'Desenvolvimento de Chatbots', 'Criação de chatbots com Python e NLP.', TRUE, FALSE, TRUE, 3),
+(1, 13, 'S', 70, 'Design Gráfico com Illustrator', 'Curso avançado de design gráfico usando o Illustrator.', TRUE, FALSE, FALSE, 3),
+(1, 23, 'S', 40, 'Gestão de Projetos com Scrum', 'Curso sobre gestão de projetos ágeis utilizando Scrum.', TRUE, FALSE, TRUE, 2),
+(1, 1, 'S', 45, 'Desenvolvimento Web Full Stack', 'Curso completo de desenvolvimento web frontend e backend.', TRUE, FALSE, TRUE, 3),
+(1, 11, 'S', 50, 'Python para Data Science', 'Introdução à análise de dados e machine learning com Python.', TRUE, FALSE, TRUE, 2),
+(1, 1, 'S', 55, 'Desenvolvimento Mobile com Flutter', 'Criação de aplicativos multiplataforma com Flutter.', TRUE, FALSE, TRUE, 3),
+(1, 18, 'S', 60, 'DevOps e CI/CD', 'Práticas modernas de desenvolvimento e entrega contínua.', TRUE, FALSE, TRUE, 3),
+(1, 18, 'S', 45, 'Segurança da Informação', 'Fundamentos de segurança em desenvolvimento de software.', TRUE, FALSE, TRUE, 2),
+(1, 1, 'S', 50, 'Cloud Computing com AWS', 'Introdução aos serviços cloud da Amazon Web Services.', TRUE, FALSE, TRUE, 2),
+(1, 4, 'S', 55, 'Desenvolvimento de APIs REST', 'Criação de APIs RESTful com Node.js e Express.', TRUE, FALSE, TRUE, 3),
+(1, 5, 'S', 60, 'Testes Automatizados', 'Implementação de testes unitários e de integração.', TRUE, FALSE, TRUE, 3),
+(1, 15, 'S', 45, 'UI/UX Design', 'Princípios de design de interface e experiência do usuário.', TRUE, FALSE, TRUE, 2),
+(1, 8, 'S', 50, 'Desenvolvimento de Jogos Unity', 'Criação de jogos 2D e 3D com Unity.', TRUE, FALSE, TRUE, 3),
+(1, 1, 'S', 55, 'Blockchain e Smart Contracts', 'Introdução ao desenvolvimento de aplicações blockchain.', TRUE, FALSE, TRUE, 3),
+(1, 11, 'S', 60, 'Machine Learning com Python', 'Implementação de algoritmos de machine learning.', TRUE, FALSE, TRUE, 4),
+(1, 6, 'S', 45, 'Desenvolvimento Android', 'Criação de aplicativos nativos para Android.', TRUE, FALSE, TRUE, 3),
+(1, 6, 'S', 50, 'Desenvolvimento iOS', 'Desenvolvimento de aplicativos para iOS com Swift.', TRUE, FALSE, TRUE, 3),
+(1, 6, 'S', 55, 'Microserviços com Spring Boot', 'Arquitetura de microserviços com Java e Spring.', TRUE, FALSE, TRUE, 4),
+(1, 5, 'S', 60, 'Desenvolvimento de Chatbots', 'Criação de chatbots com Python e NLP.', TRUE, FALSE, TRUE, 3),
 
 -- Cursos Assíncronos (14)
-(1, 4, 'A', 45, 'Introdução ao Node.js', 'Curso básico sobre Node.js e como utilizá-lo no desenvolvimento web.', FALSE, TRUE, FALSE, 1),
-(1, 6, 'A', 55, 'Introdução ao C#', 'Curso para iniciantes em C#, abordando sintaxe básica e estrutura de dados.', FALSE, TRUE, TRUE, 1),
-(1, 7, 'A', 65, 'Desenvolvimento de Jogos com Unity', 'Curso avançado de Unity para criação de jogos.', FALSE, TRUE, FALSE, 3),
-(1, 8, 'A', 80, 'Desenvolvimento de Jogos com Unreal Engine', 'Curso sobre o desenvolvimento de jogos usando Unreal Engine.', FALSE, TRUE, TRUE, 2),
-(1, 9, 'A', 90, 'Fotografia Digital Avançada', 'Curso avançado de técnicas de fotografia digital e edição de imagens.', FALSE, TRUE, FALSE, 4),
-(1, 1, 'A', 40, 'HTML5 e CSS3 Moderno', 'Aprenda as últimas features do HTML5 e CSS3.', TRUE, FALSE, TRUE, 1),
-(1, 3, 'A', 45, 'JavaScript Avançado', 'Conceitos avançados de JavaScript e ES6+.', TRUE, FALSE, TRUE, 3),
+(1, 4, 'A', 45, 'Introdução ao Node.js', 'Curso básico sobre Node.js e como utilizá-lo no desenvolvimento web.', TRUE, FALSE, FALSE, 1),
+(1, 7, 'A', 55, 'Introdução ao C#', 'Curso para iniciantes em C#, abordando sintaxe básica e estrutura de dados.', TRUE, FALSE, TRUE, 1),
+(1, 8, 'A', 65, 'Desenvolvimento de Jogos com Unity', 'Curso avançado de Unity para criação de jogos.', TRUE, FALSE, FALSE, 3),
+(1, 9, 'A', 80, 'Desenvolvimento de Jogos com Unreal Engine', 'Curso sobre o desenvolvimento de jogos usando Unreal Engine.', TRUE, FALSE, TRUE, 2),
+(1, 20, 'A', 90, 'Fotografia Digital Avançada', 'Curso avançado de técnicas de fotografia digital e edição de imagens.', TRUE, FALSE, FALSE, 4),
+(1, 2, 'A', 40, 'HTML5 e CSS3 Moderno', 'Aprenda as últimas features do HTML5 e CSS3.', TRUE, FALSE, TRUE, 1),
+(1, 1, 'A', 45, 'JavaScript Avançado', 'Conceitos avançados de JavaScript e ES6+.', TRUE, FALSE, TRUE, 3),
 (1, 5, 'A', 50, 'TypeScript para Desenvolvedores', 'Introdução ao TypeScript e suas vantagens.', TRUE, FALSE, TRUE, 2),
-(1, 10, 'A', 55, 'React Native', 'Desenvolvimento de aplicativos móveis com React Native.', TRUE, FALSE, TRUE, 3),
-(1, 11, 'A', 60, 'Vue.js Framework', 'Desenvolvimento de aplicações web com Vue.js.', TRUE, FALSE, TRUE, 2),
-(1, 12, 'A', 45, 'MongoDB e NoSQL', 'Banco de dados NoSQL e MongoDB.', TRUE, FALSE, TRUE, 2),
-(1, 13, 'A', 50, 'GraphQL', 'Desenvolvimento de APIs com GraphQL.', TRUE, FALSE, TRUE, 3),
-(1, 14, 'A', 55, 'Docker e Containers', 'Containerização de aplicações com Docker.', TRUE, FALSE, TRUE, 3),
-(1, 15, 'A', 60, 'Kubernetes', 'Orquestração de containers com Kubernetes.', TRUE, FALSE, TRUE, 4);
+(1, 3, 'A', 55, 'React Native', 'Desenvolvimento de aplicativos móveis com React Native.', TRUE, FALSE, TRUE, 3),
+(1, 1, 'A', 60, 'Vue.js Framework', 'Desenvolvimento de aplicações web com Vue.js.', TRUE, FALSE, TRUE, 2),
+(1, 5, 'A', 45, 'MongoDB e NoSQL', 'Banco de dados NoSQL e MongoDB.', TRUE, FALSE, TRUE, 2),
+(1, 4, 'A', 50, 'GraphQL', 'Desenvolvimento de APIs com GraphQL.', TRUE, FALSE, TRUE, 3),
+(1, 18, 'A', 55, 'Docker e Containers', 'Containerização de aplicações com Docker.', TRUE, FALSE, TRUE, 3),
+(1, 18, 'A', 60, 'Kubernetes', 'Orquestração de containers com Kubernetes.', TRUE, FALSE, TRUE, 4);
 
--- Inserção na Tabela ASSINCRONO (15 cursos)
+-- Inserção na Tabela ASSINCRONO (14 cursos)
 INSERT INTO ASSINCRONO (CURSO_ID) VALUES
 (22), (23), (24), (25), (26), (27), (28), (29), (30), (31), (32), (33), (34), (35);
 
@@ -213,7 +216,7 @@ INSERT INTO SINCRONO (CURSO_ID, FORMADOR_ID, LIMITE_VAGAS, DATA_LIMITE_INSCRICAO
 -- Cursos Concluídos (10)
 (1, 2, 30, '2024-01-15 23:59:59', '2024-02-01 09:00:00', '2024-02-28 18:00:00', TRUE),
 (2, 2, 25, '2024-01-20 23:59:59', '2024-02-05 09:00:00', '2024-03-05 18:00:00', TRUE),
-(3, 2, 25, '2024-02-01 23:59:59', '2024-02-15 09:00:00', '2024-03-15 18:00:00', TRUE),
+(3, 2, 25, '2025-04-01 23:59:59', '2025-04-15 09:00:00', '2025-06-30 18:00:00', FALSE),
 (5, 3, 40, '2024-03-01 23:59:59', '2024-03-15 09:00:00', '2024-04-15 18:00:00', TRUE),
 (10, 5, 35, '2024-04-01 23:59:59', '2024-04-15 09:00:00', '2024-05-15 18:00:00', TRUE),
 (11, 2, 30, '2024-05-01 23:59:59', '2024-05-15 09:00:00', '2024-06-15 18:00:00', TRUE),
@@ -253,21 +256,21 @@ INSERT INTO PEDIDOS (COLABORADOR_ID, TIPO, REFERENCIA_ID, DATA) VALUES
 
 -- Pedidos de Fóruns (antigos PEDIDO_FORUM)
 (2, 'FORUM', 1, CURRENT_TIMESTAMP),   -- Pedido de fórum para JavaScript
-(3, 'FORUM', 5, CURRENT_TIMESTAMP),   -- Pedido de fórum para Photoshop
-(4, 'FORUM', 7, CURRENT_TIMESTAMP),   -- Pedido de fórum para Marketing no Instagram
-(5, 'FORUM', 10, CURRENT_TIMESTAMP),  -- Pedido de fórum para Gestão de Projetos
+(3, 'FORUM', 9, CURRENT_TIMESTAMP),   -- Pedido de fórum para Photoshop
+(4, 'FORUM', 18, CURRENT_TIMESTAMP),  -- Pedido de fórum para Marketing no Instagram
+(5, 'FORUM', 15, CURRENT_TIMESTAMP),  -- Pedido de fórum para Gestão de Projetos
 (6, 'FORUM', 13, CURRENT_TIMESTAMP);  -- Pedido de fórum para Fotografia
 
 -- Inserção na Tabela AULA (Ajustando datas para dentro do período do curso)
 INSERT INTO AULA (FORMADOR_ID, SINCRONO_ID, DESCRICAO, HORA_INICIO, HORA_FIM) VALUES
-(2, 1, 'Aula de Introdução ao SQL', '2024-04-01 09:00:00+00', '2024-04-01 11:00:00+00'),
-(3, 3, 'Conceitos Avançados de Java', '2024-04-15 14:00:00+00', '2024-04-15 16:00:00+00'),
-(2, 1, 'Consultas SQL Avançadas', '2024-04-08 09:00:00+00', '2024-04-08 11:00:00+00'),
-(3, 3, 'Spring Framework', '2024-04-22 14:00:00+00', '2024-04-22 16:00:00+00'),
-(2, 1, 'Otimização de Queries', '2024-04-15 09:00:00+00', '2024-04-15 11:00:00+00'),
-(3, 3, 'Hibernate e JPA', '2024-04-29 14:00:00+00', '2024-04-29 16:00:00+00'),
-(2, 1, 'Transações e Concorrência', '2024-04-22 09:00:00+00', '2024-04-22 11:00:00+00'),
-(3, 3, 'Testes Unitários', '2024-05-06 14:00:00+00', '2024-05-06 16:00:00+00');
+(2, 1, 'Aula de Introdução ao JavaScript', '2024-02-05 09:00:00+00', '2024-02-05 11:00:00+00'),
+(2, 3, 'Conceitos Avançados de React', '2024-02-20 14:00:00+00', '2024-02-20 16:00:00+00'),
+(2, 1, 'Funções e Objetos em JavaScript', '2024-02-12 09:00:00+00', '2024-02-12 11:00:00+00'),
+(2, 3, 'Hooks em React', '2024-02-27 14:00:00+00', '2024-02-27 16:00:00+00'),
+(2, 1, 'DOM e Eventos', '2024-02-19 09:00:00+00', '2024-02-19 11:00:00+00'),
+(2, 3, 'Estado e Props', '2024-03-05 14:00:00+00', '2024-03-05 16:00:00+00'),
+(2, 1, 'Async/Await e Promises', '2024-02-26 09:00:00+00', '2024-02-26 11:00:00+00'),
+(2, 3, 'Projeto Final React', '2024-03-12 14:00:00+00', '2024-03-12 16:00:00+00');
 
 -- Inserção na Tabela PRESENCA_FORM_SINC
 INSERT INTO PRESENCA_FORM_SINC (FORMANDO_ID, AULA_ID) VALUES
@@ -276,49 +279,72 @@ INSERT INTO PRESENCA_FORM_SINC (FORMANDO_ID, AULA_ID) VALUES
 (8, 5), (9, 5), (10, 6), (1, 6),
 (2, 7), (3, 7), (4, 8), (5, 8);
 
--- Inserção na Tabela INSCRICAO (Ajustando datas para antes do início dos cursos)
+-- Inserção na Tabela INSCRICAO (Corrigindo inconsistências de datas e notas)
 INSERT INTO INSCRICAO (FORMANDO_ID, CURSO_ID, NOTA, DATA_CERTIFICADO, DATA_INSCRICAO, ESTADO) VALUES
--- Inscrições do Formando 3 (5 inscrições com estados diferentes)
-(3, 1, 17.0, '2024-02-28 10:00:00+00', '2024-01-10 10:00:00+00', TRUE),  -- Curso concluído
-(3, 3, 18.2, '2024-03-15 15:00:00+00', '2024-02-01 09:15:00+00', TRUE),  -- Curso concluído
-(3, 17, NULL, NULL, '2025-05-01 14:30:00+00', FALSE),  -- Curso ativo
-(3, 19, NULL, NULL, '2025-06-01 11:20:00+00', FALSE),  -- Curso pendente
-(3, 21, NULL, NULL, '2025-07-01 16:45:00+00', FALSE),  -- Curso pendente
+-- Inscrições em cursos CONCLUÍDOS (IDs 1, 2, 5, 10, 11, 12, 13, 14, 15, 16) - com notas e certificados
+(3, 1, 17.0, '2024-02-28 10:00:00+00', '2024-01-10 10:00:00+00', TRUE),  -- Curso 1 concluído
+(3, 2, 16.5, '2024-03-05 12:00:00+00', '2024-01-15 10:00:00+00', TRUE),  -- Curso 2 concluído
+(1, 1, 17.0, '2024-02-28 10:00:00+00', '2024-01-10 10:00:00+00', TRUE),  -- Curso 1 concluído
+(1, 2, 17.6, '2024-03-05 11:00:00+00', '2024-01-18 16:45:00+00', TRUE),  -- Curso 2 concluído
+(1, 5, 15.8, '2024-04-15 14:00:00+00', '2024-02-25 09:30:00+00', TRUE),  -- Curso 5 concluído
+(2, 1, 15.7, '2024-02-28 16:00:00+00', '2024-01-12 14:30:00+00', TRUE),  -- Curso 1 concluído
+(2, 10, 17.2, '2024-05-15 10:00:00+00', '2024-03-28 15:00:00+00', TRUE), -- Curso 10 concluído
+(4, 2, 17.6, '2024-03-05 11:00:00+00', '2024-01-20 16:45:00+00', TRUE),  -- Curso 2 concluído
+(4, 11, 16.8, '2024-06-15 13:00:00+00', '2024-04-28 12:00:00+00', TRUE), -- Curso 11 concluído
+(5, 12, 17.9, '2024-07-15 15:00:00+00', '2024-05-30 10:30:00+00', TRUE), -- Curso 12 concluído
+(6, 1, 15.2, '2024-02-28 18:00:00+00', '2024-01-25 15:30:00+00', TRUE),  -- Curso 1 concluído
+(6, 13, 16.4, '2024-08-15 11:00:00+00', '2024-06-28 14:20:00+00', TRUE), -- Curso 13 concluído
+(7, 2, 17.8, '2024-03-05 16:00:00+00', '2024-02-01 10:15:00+00', TRUE),  -- Curso 2 concluído
+(7, 14, 18.1, '2024-09-15 12:00:00+00', '2024-07-28 16:45:00+00', TRUE), -- Curso 14 concluído
+(8, 15, 17.3, '2024-10-15 14:00:00+00', '2024-08-30 11:15:00+00', TRUE), -- Curso 15 concluído
+(9, 1, 17.5, '2024-02-28 12:00:00+00', '2024-02-03 09:30:00+00', TRUE),  -- Curso 1 concluído
+(9, 16, 16.7, '2024-11-15 13:00:00+00', '2024-09-28 10:45:00+00', TRUE), -- Curso 16 concluído
+(10, 2, 18.0, '2024-03-05 15:00:00+00', '2024-02-04 11:15:00+00', TRUE), -- Curso 2 concluído
+(10, 5, 17.4, '2024-04-15 16:00:00+00', '2024-03-01 13:30:00+00', TRUE), -- Curso 5 concluído
 
--- Outras inscrições (todos com estado TRUE)
-(1, 1, 17.0, '2024-02-28 10:00:00+00', '2024-01-10 10:00:00+00', TRUE),
-(1, 2, 17.6, '2024-03-15 11:00:00+00', '2024-01-28 16:45:00+00', TRUE),
-(1, 17, NULL, NULL, '2025-05-01 14:30:00+00', TRUE),
-(2, 1, 15.7, NULL, '2024-01-12 14:30:00+00', TRUE),
-(2, 3, 18.5, '2024-03-15 14:00:00+00', '2024-01-30 11:20:00+00', TRUE),
-(2, 19, NULL, NULL, '2025-06-01 11:20:00+00', TRUE),
-(4, 2, 17.6, '2024-03-15 11:00:00+00', '2024-01-28 16:45:00+00', TRUE),
-(4, 21, NULL, NULL, '2025-07-01 16:45:00+00', TRUE),
-(5, 3, 18.5, '2024-03-15 14:00:00+00', '2024-01-30 11:20:00+00', TRUE),
-(5, 17, NULL, NULL, '2025-05-01 14:30:00+00', TRUE),
-(6, 1, 15.2, NULL, '2024-01-31 15:30:00+00', TRUE),
-(6, 19, NULL, NULL, '2025-06-01 11:20:00+00', TRUE),
-(7, 2, 17.8, '2024-03-15 16:00:00+00', '2024-02-01 10:15:00+00', TRUE),
-(7, 21, NULL, NULL, '2025-07-01 16:45:00+00', TRUE),
-(8, 3, 18.8, '2024-03-15 10:00:00+00', '2024-02-02 14:45:00+00', TRUE),
-(8, 17, NULL, NULL, '2025-05-01 14:30:00+00', TRUE),
-(9, 1, 17.5, NULL, '2024-02-03 09:30:00+00', TRUE),
-(9, 19, NULL, NULL, '2025-06-01 11:20:00+00', TRUE),
-(10, 2, 18.0, '2024-03-15 15:00:00+00', '2024-02-04 11:15:00+00', TRUE),
-(10, 21, NULL, NULL, '2025-07-01 16:45:00+00', TRUE);
+-- Inscrições em cursos EM ANDAMENTO ou FUTUROS (sem nota/certificado/estado TRUE)
+(3, 3, NULL, NULL, '2025-04-01 09:15:00+00', FALSE),  -- Curso 3 em andamento
+(2, 3, NULL, NULL, '2025-04-02 11:20:00+00', FALSE),  -- Curso 3 em andamento
+(5, 3, NULL, NULL, '2025-04-03 11:20:00+00', FALSE),  -- Curso 3 em andamento
+(8, 3, NULL, NULL, '2025-04-04 14:45:00+00', FALSE),  -- Curso 3 em andamento
+
+-- Inscrições em cursos ATIVOS/FUTUROS (sem notas nem certificados)
+-- Cursos a decorrer (17, 18, 19) - sem notas, logo ESTADO = FALSE
+(3, 17, NULL, NULL, '2025-04-10 14:30:00+00', FALSE),  -- Curso 17 a decorrer - sem nota, não terminou
+(1, 17, NULL, NULL, '2025-04-12 10:15:00+00', FALSE),  -- Curso 17 a decorrer - sem nota, não terminou
+(5, 17, NULL, NULL, '2025-04-14 16:20:00+00', FALSE),  -- Curso 17 a decorrer - sem nota, não terminou
+(8, 17, NULL, NULL, '2025-04-13 09:45:00+00', FALSE),  -- Curso 17 a decorrer - sem nota, não terminou
+(3, 18, NULL, NULL, '2025-04-15 11:20:00+00', FALSE),  -- Curso 18 a decorrer - sem nota, não terminou
+(2, 18, NULL, NULL, '2025-04-17 14:30:00+00', FALSE),  -- Curso 18 a decorrer - sem nota, não terminou
+(3, 19, NULL, NULL, '2025-04-20 11:20:00+00', FALSE),  -- Curso 19 a decorrer - aluno ainda não terminou
+(2, 19, NULL, NULL, '2025-04-22 15:45:00+00', FALSE),  -- Curso 19 a decorrer - aluno ainda não terminou
+(6, 19, NULL, NULL, '2025-04-23 10:30:00+00', FALSE),  -- Curso 19 a decorrer - aluno ainda não terminou
+(9, 19, NULL, NULL, '2025-04-24 13:15:00+00', FALSE),  -- Curso 19 a decorrer - aluno ainda não terminou
+
+-- Cursos futuros (20, 21, 6, 7, 8, 9, 4) - inscrições ainda não abertas ou pendentes
+(4, 20, NULL, NULL, '2025-06-25 16:45:00+00', FALSE), -- Curso 20 futuro - inscrição pendente
+(7, 20, NULL, NULL, '2025-06-28 12:30:00+00', FALSE), -- Curso 20 futuro - inscrição pendente
+(4, 21, NULL, NULL, '2025-07-10 16:45:00+00', FALSE), -- Curso 21 futuro - inscrição pendente
+(7, 21, NULL, NULL, '2025-07-12 14:20:00+00', FALSE), -- Curso 21 futuro - inscrição pendente
+(10, 21, NULL, NULL, '2025-07-14 11:30:00+00', FALSE), -- Curso 21 futuro - inscrição pendente
+(6, 6, NULL, NULL, '2025-07-28 15:30:00+00', FALSE),  -- Curso 6 futuro - inscrição pendente
+(1, 7, NULL, NULL, '2025-08-10 10:15:00+00', FALSE),  -- Curso 7 futuro - inscrição pendente
+(5, 8, NULL, NULL, '2025-08-28 14:45:00+00', FALSE),  -- Curso 8 futuro - inscrição pendente
+(9, 9, NULL, NULL, '2025-09-10 12:20:00+00', FALSE),  -- Curso 9 futuro - inscrição pendente
+(8, 4, NULL, NULL, '2025-09-28 16:30:00+00', FALSE);  -- Curso 4 futuro - inscrição pendente
 
 -- Inserção na Tabela TRABALHO
 INSERT INTO TRABALHO (SINCRONO_ID, FORMANDO_ID, DESCRICAO, NOTA, DATA) VALUES
-(1, 1, 'Trabalho Final - SQL', 17, '2025-04-15 23:59:00+00'),
-(3, 2, 'Projeto Java Modular', 18, '2025-04-18 23:59:00+00'),
-(1, 3, 'Exercício de Consultas SQL', 19, '2025-04-20 23:59:00+00'),
-(3, 4, 'Implementação Spring Boot', 16, '2025-04-22 23:59:00+00'),
-(1, 5, 'Projeto de Banco de Dados', 18.5, '2025-04-25 23:59:00+00'),
-(3, 6, 'API REST com Java', 15.5, '2025-04-28 23:59:00+00'),
-(1, 7, 'Trabalho Final - SQL', NULL, '2025-04-15 23:59:00+00'),
-(3, 8, 'Projeto Java Modular', NULL, '2025-04-18 23:59:00+00'),
-(1, 9, 'Exercício de Consultas SQL', NULL, '2025-04-20 23:59:00+00'),
-(3, 10, 'Implementação Spring Boot', NULL, '2025-04-22 23:59:00+00');
+(1, 1, 'Trabalho Final - JavaScript', 17, '2024-02-25 23:59:00+00'),
+(3, 2, 'Projeto React', 18, '2025-05-10 23:59:00+00'),
+(1, 3, 'Exercício de JavaScript', 19, '2024-02-20 23:59:00+00'),
+(3, 4, 'Implementação React', 16, '2025-05-25 23:59:00+00'),
+(1, 5, 'Projeto de JavaScript', 18.5, '2024-02-22 23:59:00+00'),
+(3, 6, 'Aplicação React', 15.5, '2025-06-10 23:59:00+00'),
+(1, 7, 'Trabalho Final - JavaScript', NULL, '2024-02-25 23:59:00+00'),
+(3, 8, 'Projeto React', NULL, '2025-06-25 23:59:00+00'),
+(1, 9, 'Exercício de JavaScript', NULL, '2024-02-20 23:59:00+00'),
+(3, 10, 'Implementação React', NULL, '2025-06-29 23:59:00+00');
 
 -- Inserção na Tabela NOTIFICACAO
 INSERT INTO NOTIFICACAO (FORMANDO_ID, CURSO_ID, DESCRICAO, DATA_CRIACAO, LIDA) VALUES
@@ -342,8 +368,8 @@ INSERT INTO PREFERENCIAS_CATEGORIA (FORMANDO_ID, DESIGNACAO) VALUES
 -- Inserção na Tabela THREADS (Adicionando mais threads)
 INSERT INTO THREADS (FORUM_ID, COLABORADOR_ID, TITULO, DESCRICAO) VALUES
 (1, 2, 'Introdução ao JavaScript', 'Discussão sobre os fundamentos do JavaScript e melhores práticas.'),
-(3, 4, 'SEO Avançado', 'Como otimizar um site para mecanismos de busca utilizando técnicas avançadas.'),
-(7, 6, 'Edição de Vídeo Profissional', 'Aprendendo as técnicas de edição no Adobe Premiere para profissionais.'),
+(11, 4, 'SEO Avançado', 'Como otimizar um site para mecanismos de busca utilizando técnicas avançadas.'),
+(14, 6, 'Edição de Vídeo Profissional', 'Aprendendo as técnicas de edição no Adobe Premiere para profissionais.'),
 (2, 3, 'HTML5 e CSS3 Moderno', 'Novas features e técnicas modernas de HTML5 e CSS3.'),
 (4, 5, 'Node.js e Express', 'Desenvolvimento de APIs RESTful com Node.js e Express.'),
 (6, 7, 'React Hooks', 'Como utilizar Hooks para gerenciar estado e efeitos colaterais.'),
@@ -404,13 +430,13 @@ INSERT INTO COMENTARIO_RESPOSTA (COMENTARIOPAI_ID, RESPOSTA_ID) VALUES
 (10, 20); -- Resposta ao comentário 10
 
 -- Inserção na Tabela QUIZZ
-INSERT INTO QUIZZ (CURSO_ID, GESTOR_ID, DESCRICAO, NOTA) VALUES
-(1, 1, 'Quiz Final de SQL', 10),
-(3, 1, 'Quiz Java Básico', 10),
-(1, 1, 'Quiz de Consultas SQL', 10),
-(3, 1, 'Quiz Spring Framework', 10),
-(1, 1, 'Quiz de Otimização', 10),
-(3, 1, 'Quiz Hibernate', 10);
+INSERT INTO QUIZZ (CURSO_ID, GESTOR_ID, DESCRICAO, NOTA, LIMITE_TEMPO) VALUES
+(1, 1, 'Quiz Final de SQL', 10, 45),
+(3, 1, 'Quiz Java Básico', 10, 30),
+(1, 1, 'Quiz de Consultas SQL', 10, 25),
+(3, 1, 'Quiz Spring Framework', 10, 40),
+(1, 1, 'Quiz de Otimização', 10, 35),
+(3, 1, 'Quiz Hibernate', 10, 30);
 
 -- Inserção na Tabela QUESTOES_QUIZZ
 INSERT INTO QUESTOES_QUIZZ (QUIZZ_ID, PERGUNTA) VALUES
@@ -514,19 +540,19 @@ INSERT INTO AVALIACAO_QUIZZ (QUIZZ_ID, FORMANDO_ID, NOTA) VALUES
 (4, 10, 93.0);
 
 -- Inserção na Tabela AVALIACAO_FORMADOR
-INSERT INTO AVALIACAO_FORMADOR (CURSO_ID, FORMADOR_ID, AVALIACAO) VALUES
-(1, 2, 5),  -- Avaliação do curso de JavaScript
-(2, 2, 4),  -- Avaliação do curso de Python
-(3, 2, 5),  -- Avaliação do curso de React
-(5, 3, 4),  -- Avaliação do curso de Design Gráfico
-(10, 5, 5), -- Avaliação do curso de Gestão de Projetos
-(11, 2, 4), -- Avaliação do curso de Desenvolvimento Web
-(12, 3, 5), -- Avaliação do curso de Python para Data Science
-(13, 2, 4), -- Avaliação do curso de Flutter
-(14, 3, 5), -- Avaliação do curso de DevOps
-(15, 2, 4); -- Avaliação do curso de Segurança
+INSERT INTO AVALIACAO_FORMADOR (CURSO_ID, FORMADOR_ID, FORMANDO_ID, AVALIACAO) VALUES
+(1, 2, 1, 5),  -- Formando 1 avaliou formador 2 no curso de JavaScript
+(1, 2, 2, 4),  -- Formando 2 avaliou formador 2 no curso de JavaScript
+(2, 2, 1, 4),  -- Formando 1 avaliou formador 2 no curso de Python
+(2, 2, 4, 5),  -- Formando 4 avaliou formador 2 no curso de Python
+(3, 2, 2, 5),  -- Formando 2 avaliou formador 2 no curso de React
+(3, 2, 3, 4),  -- Formando 3 avaliou formador 2 no curso de React
+(5, 3, 5, 4),  -- Formando 5 avaliou formador 3 no curso de Design Gráfico
+(10, 5, 1, 5), -- Formando 1 avaliou formador 5 no curso de Gestão de Projetos
+(11, 2, 5, 4), -- Formando 5 avaliou formador 2 no curso de Desenvolvimento Web
+(12, 3, 8, 5); -- Formando 8 avaliou formador 3 no curso de Python para Data Science
 
--- Inserção na Tabela MATERIAL
+-- Inserção na Tabela MATERIAL (Atualizado para refletir a estrutura correta)
 INSERT INTO MATERIAL (CURSO_ID, TITULO, DESCRICAO, TIPO, SECAO, DATA_ENTREGA, DATA_CRIACAO) VALUES
 -- Materiais para o curso de JavaScript (ID: 1)
 (1, 'Introdução ao JavaScript', 'Conceitos básicos de JavaScript', 'documento', 'Fundamentos', NULL, CURRENT_TIMESTAMP),
@@ -534,15 +560,134 @@ INSERT INTO MATERIAL (CURSO_ID, TITULO, DESCRICAO, TIPO, SECAO, DATA_ENTREGA, DA
 (1, 'Funções em JavaScript', 'Tutorial sobre funções e escopo', 'video', 'Funções', NULL, CURRENT_TIMESTAMP),
 (1, 'Arrays e Objetos', 'Manipulação de arrays e objetos em JavaScript', 'aula', 'Estruturas de Dados', NULL, CURRENT_TIMESTAMP),
 (1, 'Projeto Final JavaScript', 'Desenvolva uma aplicação web completa', 'trabalho', 'Projeto Final', '2024-12-31 23:59:59+00', CURRENT_TIMESTAMP),
+(1, 'Entrega Projeto Final JavaScript', 'Submissão do projeto final', 'entrega', 'Projeto Final', '2024-12-31 23:59:59+00', CURRENT_TIMESTAMP),
 
 -- Materiais para o curso de Python (ID: 2)
 (2, 'Introdução ao Python', 'Primeiros passos com Python', 'documento', 'Fundamentos', NULL, CURRENT_TIMESTAMP),
 (2, 'Estruturas de Controle', 'If, else, loops e mais', 'video', 'Controle de Fluxo', NULL, CURRENT_TIMESTAMP),
 (2, 'Manipulação de Arquivos', 'Como trabalhar com arquivos em Python', 'aula', 'I/O', NULL, CURRENT_TIMESTAMP),
-(2, 'Projeto Python', 'Desenvolva um script Python', 'entrega', 'Projeto', '2024-12-15 23:59:59+00', CURRENT_TIMESTAMP),
+(2, 'Projeto Python', 'Desenvolva um script Python', 'trabalho', 'Projeto', '2024-12-15 23:59:59+00', CURRENT_TIMESTAMP),
+(2, 'Entrega Projeto Python', 'Submissão do projeto Python', 'entrega', 'Projeto', '2024-12-15 23:59:59+00', CURRENT_TIMESTAMP),
 
 -- Materiais para o curso de React (ID: 3)
 (3, 'Introdução ao React', 'Conceitos básicos do React', 'documento', 'Fundamentos', NULL, CURRENT_TIMESTAMP),
 (3, 'Componentes React', 'Criando e usando componentes', 'video', 'Componentes', NULL, CURRENT_TIMESTAMP),
 (3, 'Hooks em React', 'UseState e useEffect', 'aula', 'Hooks', NULL, CURRENT_TIMESTAMP),
-(3, 'Projeto React', 'Desenvolva uma aplicação React', 'trabalho', 'Projeto Final', '2024-12-20 23:59:59+00', CURRENT_TIMESTAMP);
+(3, 'Projeto React', 'Desenvolva uma aplicação React', 'trabalho', 'Projeto Final', '2025-06-29 23:59:59+00', CURRENT_TIMESTAMP),
+(3, 'Entrega Projeto React', 'Submissão do projeto React', 'entrega', 'Projeto Final', '2025-06-29 23:59:59+00', CURRENT_TIMESTAMP);
+
+-- Inserção na Tabela OBJETO para materiais (IDs 1-13)
+INSERT INTO OBJETO (REGISTO_ID, ENTIDADE) VALUES
+(1, 'material'),
+(2, 'material'),
+(3, 'material'),
+(4, 'material'),
+(5, 'material'),
+(6, 'material'),
+(7, 'material'),
+(8, 'material'),
+(9, 'material'),
+(10, 'material'),
+(11, 'material'),
+(12, 'material'),
+(13, 'material');
+
+-- Inserção na Tabela OBJETO para TODOS os cursos (IDs 1-35)
+INSERT INTO OBJETO (REGISTO_ID, ENTIDADE) VALUES
+-- Cursos síncronos (IDs 1-21)
+(1, 'curso'),
+(2, 'curso'),
+(3, 'curso'),
+(4, 'curso'),
+(5, 'curso'),
+(6, 'curso'),
+(7, 'curso'),
+(8, 'curso'),
+(9, 'curso'),
+(10, 'curso'),
+(11, 'curso'),
+(12, 'curso'),
+(13, 'curso'),
+(14, 'curso'),
+(15, 'curso'),
+(16, 'curso'),
+(17, 'curso'),
+(18, 'curso'),
+(19, 'curso'),
+(20, 'curso'),
+(21, 'curso'),
+-- Cursos assíncronos (IDs 22-35)
+(22, 'curso'),
+(23, 'curso'),
+(24, 'curso'),
+(25, 'curso'),
+(26, 'curso'),
+(27, 'curso'),
+(28, 'curso'),
+(29, 'curso'),
+(30, 'curso'),
+(31, 'curso'),
+(32, 'curso'),
+(33, 'curso'),
+(34, 'curso'),
+(35, 'curso');
+
+-- Inserção na Tabela OBJETO para colaboradores (IDs 1-10)
+INSERT INTO OBJETO (REGISTO_ID, ENTIDADE) VALUES
+(1, 'colaborador'),
+(2, 'colaborador'),
+(3, 'colaborador'),
+(4, 'colaborador'),
+(5, 'colaborador'),
+(6, 'colaborador'),
+(7, 'colaborador'),
+(8, 'colaborador'),
+(9, 'colaborador'),
+(10, 'colaborador');
+
+-- Inserção na Tabela FICHEIRO para materiais
+INSERT INTO FICHEIRO (OBJETO_ID, NOME, EXTENSAO, TAMANHO, DATA_CRIACAO, DATA_ALTERACAO) VALUES
+(1, 'introducao_js.pdf', 'pdf', 1024, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(2, 'variaveis_js.pdf', 'pdf', 1536, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(3, 'funcoes_js.mp4', 'mp4', 5120, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(4, 'arrays_objetos.pdf', 'pdf', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(5, 'projeto_final.pdf', 'pdf', 4096, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(6, 'introducao_python.pdf', 'pdf', 1024, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(7, 'estruturas_controle.mp4', 'mp4', 4096, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(8, 'manipulacao_arquivos.pdf', 'pdf', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(9, 'projeto_python.pdf', 'pdf', 3072, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(10, 'introducao_react.pdf', 'pdf', 1024, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(11, 'componentes_react.mp4', 'mp4', 5120, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(12, 'hooks_react.pdf', 'pdf', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(13, 'projeto_react.pdf', 'pdf', 4096, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+-- Inserção na Tabela FICHEIRO para alguns cursos síncronos (IDs dos objetos curso)
+-- Assumindo que os objetos curso têm IDs sequenciais a partir do próximo ID disponível
+-- Materiais: 1-13, Cursos: 14-48, Colaboradores: 49-58
+INSERT INTO FICHEIRO (OBJETO_ID, NOME, EXTENSAO, TAMANHO, DATA_CRIACAO, DATA_ALTERACAO) VALUES
+(14, 'curso1_sincrono.jpg', 'jpg', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(15, 'curso2_sincrono.jpg', 'jpg', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(16, 'curso3_sincrono.jpg', 'jpg', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(17, 'curso4_sincrono.jpg', 'jpg', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(18, 'curso5_sincrono.jpg', 'jpg', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+-- Inserção na Tabela FICHEIRO para colaboradores (IDs dos objetos colaborador)
+INSERT INTO FICHEIRO (OBJETO_ID, NOME, EXTENSAO, TAMANHO, DATA_CRIACAO, DATA_ALTERACAO) VALUES
+(49, 'colaborador1.jpg', 'jpg', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(50, 'colaborador2.jpg', 'jpg', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(51, 'colaborador3.jpg', 'jpg', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(52, 'colaborador4.jpg', 'jpg', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(53, 'colaborador5.jpg', 'jpg', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(54, 'colaborador6.jpg', 'jpg', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(55, 'colaborador7.jpg', 'jpg', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(56, 'colaborador8.jpg', 'jpg', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(57, 'colaborador9.jpg', 'jpg', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(58, 'colaborador10.jpg', 'jpg', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+-- Inserção na Tabela FICHEIRO para alguns cursos assíncronos (IDs dos objetos curso)
+INSERT INTO FICHEIRO (OBJETO_ID, NOME, EXTENSAO, TAMANHO, DATA_CRIACAO, DATA_ALTERACAO) VALUES
+(35, 'curso22_assincrono.jpg', 'jpg', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(36, 'curso23_assincrono.jpg', 'jpg', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(37, 'curso24_assincrono.jpg', 'jpg', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(38, 'curso25_assincrono.jpg', 'jpg', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(39, 'curso26_assincrono.jpg', 'jpg', 2048, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);

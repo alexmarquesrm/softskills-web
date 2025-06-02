@@ -24,9 +24,16 @@ const departamentosRoutes = require('./routes/departamentosRoutes');
 const funcoesRoutes = require('./routes/funcoesRoutes');
 const trabalhosRoutes = require('./routes/trabalhosRoutes');
 const quizzRoutes = require('./routes/quizz');
+const fcmTokenRoutes = require('./routes/fcmTokenRoutes');
+const notificationWorker = require('./notificationWorker');
 
-// Importar o cron job de notificações
+// Importar os cron jobs
 require('./cron/notificationCron');
+//require('./cron/sincronoCron');
+const { processFinishedCourses } = require('./cron/processFinishedCourses');
+
+// Executar processamento de cursos terminados ao iniciar
+processFinishedCourses();
 
 // Use CORS middleware
 app.use(cors({
@@ -58,8 +65,14 @@ app.use('/notificacao', notificacaoRoutes);
 app.use('/avaliacao-formador', avaliacaoFormadorRoutes);
 app.use('/departamento', departamentosRoutes);
 app.use('/funcao', funcoesRoutes);
-app.use('/trabalhos', authenticate, trabalhosRoutes);
+app.use('/trabalhos', trabalhosRoutes);
 app.use('/quizz', quizzRoutes);
+app.use('/fcm-token', fcmTokenRoutes);
+
+// Rotas mobile
+app.use("/mobile/notificacoes", require("./routes/mobileNotificacoesRoutes"));
+
+notificationWorker.startWorker();
 
 app.listen(8000, () => {
   console.log("Servidor na porta 8000");

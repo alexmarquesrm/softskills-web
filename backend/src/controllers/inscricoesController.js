@@ -15,8 +15,84 @@ const controladorInscricoes = {
     try {
       // Validar os dados
       if (!formando_id || !curso_id) {
+        await transaction.rollback();
         return res.status(400).json({
           erro: "formando_id e curso_id são obrigatórios"
+        });
+      }
+
+      // Verificar se já existe inscrição com lock para evitar race conditions
+      const inscricaoExistente = await models.inscricao.findOne({
+        where: { 
+          formando_id: parseInt(formando_id),
+          curso_id: parseInt(curso_id)
+        },
+        lock: transaction.LOCK.UPDATE,
+        transaction
+      });
+
+      if (inscricaoExistente) {
+        await transaction.rollback();
+        return res.status(400).json({
+          erro: "Formando já está inscrito neste curso"
+        });
+      }
+
+      // Verificar se o formando é também formador deste curso
+      const cursoInfo = await models.curso.findOne({
+        where: { curso_id },
+        include: [
+          {
+            model: models.sincrono,
+            as: "curso_sincrono",
+            attributes: ["formador_id"]
+          }
+        ],
+        transaction
+      });
+
+      if (!cursoInfo) {
+        await transaction.rollback();
+        return res.status(404).json({
+          erro: "Curso não encontrado"
+        });
+      }
+
+      // Se o curso for síncrono, verificar se o formando é o formador
+      if (cursoInfo.tipo === 'S' && cursoInfo.curso_sincrono) {
+        const formandoInfo = await models.formando.findOne({
+          where: { formando_id },
+          include: [
+            {
+              model: models.colaborador,
+              as: "formando_colab",
+              attributes: ["colaborador_id"]
+            }
+          ],
+          transaction
+        });
+
+        if (formandoInfo && formandoInfo.formando_colab.colaborador_id === cursoInfo.curso_sincrono.formador_id) {
+          await transaction.rollback();
+          return res.status(400).json({
+            erro: "Um formador não pode se inscrever no próprio curso"
+          });
+        }
+      }
+      
+      // Verificar novamente se a inscrição foi criada durante o processo (double-check)
+      const verificacaoFinal = await models.inscricao.findOne({
+        where: { 
+          formando_id: parseInt(formando_id),
+          curso_id: parseInt(curso_id)
+        },
+        transaction
+      });
+
+      if (verificacaoFinal) {
+        await transaction.rollback();
+        return res.status(400).json({
+          erro: "Formando já está inscrito neste curso"
         });
       }
       
@@ -100,15 +176,23 @@ const controladorInscricoes = {
       
       console.error('Erro detalhado:', error);
       
-      // Tratar erros específicos do procedimento
+      // Tratar erros específicos do procedimento e de constraint violations
       if (error.message && typeof error.message === 'string') {
         if (error.message.includes('Curso não encontrado')) {
           return res.status(404).json({ erro: "Curso não encontrado" });
-        } else if (error.message.includes('Formando já está inscrito')) {
+        } else if (error.message.includes('Formando já está inscrito') || 
+                   error.message.includes('duplicate key') || 
+                   error.message.includes('unique constraint')) {
           return res.status(400).json({ erro: "Formando já está inscrito neste curso" });
         } else if (error.message.includes('limite de vagas')) {
           return res.status(400).json({ erro: "Curso já atingiu o limite de vagas" });
         }
+      }
+      
+      // Verificar se é erro de constraint de chave duplicada
+      if (error.name === 'SequelizeUniqueConstraintError' || 
+          error.original?.code === '23505') {
+        return res.status(400).json({ erro: "Formando já está inscrito neste curso" });
       }
       
       res.status(500).json({ 

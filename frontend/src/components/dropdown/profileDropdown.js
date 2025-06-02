@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Dropdown, Image } from "react-bootstrap";
-import { BsPersonCircle, BsGear, BsBoxArrowRight } from "react-icons/bs";
+import { BsPersonCircle, BsBoxArrowRight } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
 import "./profileDropdown.css";
 import defaultProfilePic from "../../logo.svg"; // Update this path to match your project structure
@@ -8,13 +8,14 @@ import axios from "../../config/configAxios";
 
 function ProfileDropdown({ onLogout }) {
   const navigate = useNavigate();
-  
+
   // Get current user type and all possible user types
   const currentUserType = sessionStorage.getItem("tipo");
   const userName = sessionStorage.getItem("nome");
   const userEmail = sessionStorage.getItem("email");
+  const userScore = sessionStorage.getItem("score");
   const [profilePhoto, setProfilePhoto] = useState(null);
-  
+
   const [userTypes, setUserTypes] = useState([]);
   const [activeType, setActiveType] = useState(currentUserType);
   const [show, setShow] = useState(false);
@@ -27,20 +28,20 @@ function ProfileDropdown({ onLogout }) {
         console.error("Token not found, cannot fetch profile photo");
         return;
       }
-      
+
       // Fetch current user data
       const response = await axios.get('/colaborador/me');
       const userData = response.data;
-      
+
       // Atualizar dados do usuário no sessionStorage
       if (userData.nome) sessionStorage.setItem("nome", userData.nome);
       if (userData.email) sessionStorage.setItem("email", userData.email);
-      
+
       // Check if photo URL exists and is valid
-      if (userData.fotoPerfilUrl && 
-          userData.fotoPerfilUrl !== "undefined" && 
-          userData.fotoPerfilUrl !== "null" && 
-          userData.fotoPerfilUrl !== "") {
+      if (userData.fotoPerfilUrl &&
+        userData.fotoPerfilUrl !== "undefined" &&
+        userData.fotoPerfilUrl !== "null" &&
+        userData.fotoPerfilUrl !== "") {
         // Verificar se a URL é válida
         try {
           const url = new URL(userData.fotoPerfilUrl);
@@ -60,7 +61,7 @@ function ProfileDropdown({ onLogout }) {
     } catch (error) {
       console.error("Error fetching profile data:", error);
       setProfilePhoto(null);
-      
+
       // Se o erro for 401 (não autorizado), fazer logout
       if (error.response && error.response.status === 401) {
         onLogout();
@@ -71,31 +72,31 @@ function ProfileDropdown({ onLogout }) {
   useEffect(() => {
     // Fetch user profile including photo on component mount
     fetchUserProfileData();
-    
+
     // Create a custom event listener for profile updates
     const handleProfileUpdate = () => {
       fetchUserProfileData();
     };
-    
+
     // Listen for custom profile-updated event
     window.addEventListener('profile-updated', handleProfileUpdate);
-    
+
     // Set interval to periodically check for profile updates
     // This helps in case the event is missed or when the user refreshes just one component
     const profileCheckInterval = setInterval(() => {
       fetchUserProfileData();
     }, 60000); // Check every minute
-    
+
     // Get all user types from session storage
     const allUserTypes = sessionStorage.getItem("allUserTypes");
-    
+
     if (allUserTypes) {
       setUserTypes(allUserTypes.split(","));
     } else {
       // If allUserTypes isn't set, use the current type
       setUserTypes(currentUserType ? [currentUserType] : []);
     }
-    
+
     setActiveType(currentUserType);
 
     // Cleanup event listener and interval
@@ -109,8 +110,8 @@ function ProfileDropdown({ onLogout }) {
     sessionStorage.setItem("tipo", type);
     setActiveType(type);
     setShow(false);
-    
-    switch(type) {
+
+    switch (type) {
       case "Formador":
         navigate("/formador/dashboard");
         break;
@@ -129,9 +130,9 @@ function ProfileDropdown({ onLogout }) {
 
   // Custom toggle component to handle clicks manually
   const CustomToggle = React.forwardRef(({ onClick }, ref) => (
-    <div 
+    <div
       ref={ref}
-      className="profile-dropdown-toggle" 
+      className="profile-dropdown-toggle"
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -140,10 +141,10 @@ function ProfileDropdown({ onLogout }) {
     >
       <div className="profile-avatar">
         {profilePhoto ? (
-          <Image 
-            src={profilePhoto} 
-            alt="Perfil" 
-            roundedCircle 
+          <Image
+            src={profilePhoto}
+            alt="Perfil"
+            roundedCircle
             className="profile-image"
             onError={(e) => {
               console.error("Error loading profile image:", e);
@@ -177,16 +178,16 @@ function ProfileDropdown({ onLogout }) {
 
   return (
     <div className="profile-dropdown-container">
-      <Dropdown 
+      <Dropdown
         show={show}
         onToggle={(isOpen) => setShow(isOpen)}
         align="end"
       >
         <Dropdown.Toggle as={CustomToggle} id="dropdown-profile" />
 
-        <Dropdown.Menu 
-          as={CustomMenu} 
-          className="profile-dropdown-menu" 
+        <Dropdown.Menu
+          as={CustomMenu}
+          className="profile-dropdown-menu"
           popperConfig={{
             modifiers: [
               {
@@ -201,38 +202,45 @@ function ProfileDropdown({ onLogout }) {
           <div className="profile-header">
             <div className="profile-info-container">
               {profilePhoto ? (
-                <div className="dropdown-profile-image-container">
-                  <Image 
-                    src={profilePhoto} 
-                    alt="Perfil" 
-                    roundedCircle 
-                    className="dropdown-profile-image"
-                    onError={(e) => {
-                      console.error("Error loading profile image:", e);
-                      e.target.src = defaultProfilePic;
-                      setProfilePhoto(null);
-                      // Tentar recarregar a foto após um erro
-                      setTimeout(fetchUserProfileData, 5000);
-                    }}
-                  />
+                <div className="profile-photo-wrapper">
+                  <div className="dropdown-profile-image-container">
+                    <Image
+                      src={profilePhoto}
+                      alt="Perfil"
+                      roundedCircle
+                      className="dropdown-profile-image"
+                      onError={(e) => {
+                        console.error("Error loading profile image:", e);
+                        e.target.src = defaultProfilePic;
+                        setProfilePhoto(null);
+                        // Tentar recarregar a foto após um erro
+                        setTimeout(fetchUserProfileData, 5000);
+                      }}
+                    />
+                  </div>
+                  <div className="profile-score" style={{ marginTop: '5px', fontWeight: '600', marginBottom: '2px', fontSize: '0.85rem', color: '#343a40' }}>
+                    Score: 
+                  </div>
+                  <div className="profile-score" style={{ fontWeight: '600', marginBottom: '2px', fontSize: '0.80rem', color: '#343a40' }}>
+                  {userScore || 0} </div>
                 </div>
               ) : (
                 <div className="dropdown-profile-icon">
                   <BsPersonCircle size={42} />
                 </div>
               )}
-              
+
               <div className="profile-info">
                 <p className="profile-name">{userName || "Utilizador"}</p>
                 <p className="profile-email">{userEmail || "email@exemplo.com"}</p>
-                
+
                 {hasMultipleRoles ? (
                   <div className="profile-roles-container">
                     <span className="roles-title">Mudar modo de visão</span>
                     <div className="roles-buttons">
                       {userTypes.map((type) => (
-                        <span 
-                          key={type} 
+                        <span
+                          key={type}
                           className={`profile-role ${type === activeType ? 'active-role' : ''}`}
                           onClick={() => handleSwitchUserType(type)}
                           title={type === activeType ? 'Modo ativo' : `Mudar para modo ${type}`}
@@ -248,27 +256,20 @@ function ProfileDropdown({ onLogout }) {
               </div>
             </div>
           </div>
-          
-          <Dropdown.Item 
-            href="/utilizadores/perfil" 
+
+          <Dropdown.Item
+            href="/utilizadores/perfil"
             className="profile-menu-item"
             onClick={() => setShow(false)}
           >
             <BsPersonCircle className="menu-icon" /> Perfil
           </Dropdown.Item>
-          <Dropdown.Item 
-            href="/utilizadores/settings" 
-            className="profile-menu-item"
-            onClick={() => setShow(false)}
-          >
-            <BsGear className="menu-icon" /> Definições
-          </Dropdown.Item>
           <Dropdown.Divider />
-          <Dropdown.Item 
+          <Dropdown.Item
             onClick={() => {
               setShow(false);
               onLogout();
-            }} 
+            }}
             className="profile-menu-item logout-item"
           >
             <BsBoxArrowRight className="menu-icon" /> Logout

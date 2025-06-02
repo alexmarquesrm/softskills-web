@@ -35,7 +35,7 @@ export default function CourseManage() {
             const response = await axios.get(`/curso`, {
                 headers: { Authorization: `${token}` }
             });
-
+            console.log(response.data);
             const cursos = response.data;
             setCurso(cursos);
         } catch (error) {

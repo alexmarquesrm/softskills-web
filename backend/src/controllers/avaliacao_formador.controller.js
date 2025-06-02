@@ -5,12 +5,28 @@ const models = initModels(sequelizeConn);
 const controladorAvaliacaoFormador = {
   // Criar uma nova avaliação
   createAvaliacao: async (req, res) => {
-    const { curso_id, formador_id, avaliacao } = req.body;
+    const { curso_id, formador_id, formando_id, avaliacao } = req.body;
 
     try {
+      // Verificar se o formando já avaliou este formador neste curso
+      const avaliacaoExistente = await models.avaliacao_formador.findOne({
+        where: {
+          curso_id,
+          formador_id,
+          formando_id
+        }
+      });
+
+      if (avaliacaoExistente) {
+        return res.status(400).json({ 
+          message: "Este formando já avaliou este formador neste curso" 
+        });
+      }
+
       const novaAvaliacao = await models.avaliacao_formador.create({
         curso_id,
         formador_id,
+        formando_id,
         avaliacao,
         data_avaliacao: new Date()
       });
@@ -25,6 +41,7 @@ const controladorAvaliacaoFormador = {
   getAllAvaliacoes: async (req, res) => {
     const curso_id = req.query.curso_id;
     const formador_id = req.query.formador_id;
+    const formando_id = req.query.formando_id;
     var condition = {};
 
     if (curso_id) {
@@ -32,6 +49,9 @@ const controladorAvaliacaoFormador = {
     }
     if (formador_id) {
       condition.formador_id = formador_id;
+    }
+    if (formando_id) {
+      condition.formando_id = formando_id;
     }
 
     try {
@@ -45,6 +65,17 @@ const controladorAvaliacaoFormador = {
           {
             model: models.formador,
             as: "avaformador_formador"
+          },
+          {
+            model: models.formando,
+            as: "avaformador_formando",
+            include: [
+              {
+                model: models.colaborador,
+                as: "formando_colab",
+                attributes: ["nome", "email"]
+              }
+            ]
           }
         ]
       });

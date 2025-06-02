@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 /* COMPONENTES */
 import CardInfo from "../../components/cards/cardDestaque";
 import CardPedido from '../../components/cards/cardPedido';
+import CardTrabalho from '../../components/cards/cardTrabalho';
 import CardRow from '../../components/cards/cardRow';
 import FeaturedCourses from "../../components/cards/cardCourses";
 import WelcomeNotification from "../../components/notifications/WelcomeNotification";
@@ -13,6 +14,7 @@ import WelcomeNotification from "../../components/notifications/WelcomeNotificat
 export default function PaginaGestor() {
   const [inscricao, setInscricao] = useState([]);
   const [cursos, setCursos] = useState([]);
+  const [trabalhosPendentes, setTrabalhosPendentes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [saudacao, setSaudacao] = useState('');
@@ -31,6 +33,21 @@ export default function PaginaGestor() {
       setSaudacao(response.data.saudacao);
     } catch (error) {
       console.error('Erro ao obter saudação:', error);
+    }
+  };
+
+  const fetchTrabalhosPendentes = async () => {
+    try {
+      const token = sessionStorage.getItem('token');
+
+      const response = await axios.get('/trabalhos/pendentes', {
+        headers: { Authorization: `${token}` }
+      });
+
+      setTrabalhosPendentes(response.data.data || []);
+    } catch (error) {
+      console.error('Erro ao obter trabalhos pendentes:', error);
+      setTrabalhosPendentes([]);
     }
   };
 
@@ -53,40 +70,41 @@ export default function PaginaGestor() {
   };
 
   const fetchCurso = async () => {
-  try {
-    const response = await axios.get("/curso/landing");
+    try {
+      const response = await axios.get("/curso/landing");
 
-    let todosCursos = [];
+      let todosCursos = [];
 
-    // Se já vierem separados por tipo
-    if (response.data.sincronos && response.data.assincronos) {
-      const sincronos = response.data.sincronos.slice(0, 4);
-      const assincronos = response.data.assincronos.slice(0, 4);
-      todosCursos = [...sincronos, ...assincronos];
-    } 
-    // Se vier num array plano
-    else if (Array.isArray(response.data)) {
-      const sincronos = response.data
-        .filter(curso => curso.tipo === "S")
-        .slice(0, 4);
+      // Se já vierem separados por tipo
+      if (response.data.sincronos && response.data.assincronos) {
+        const sincronos = response.data.sincronos.slice(0, 4);
+        const assincronos = response.data.assincronos.slice(0, 4);
+        todosCursos = [...sincronos, ...assincronos];
+      }
+      // Se vier num array plano
+      else if (Array.isArray(response.data)) {
+        const sincronos = response.data
+          .filter(curso => curso.tipo === "S")
+          .slice(0, 4);
 
-      const assincronos = response.data
-        .filter(curso => curso.tipo === "A")
-        .slice(0, 4);
+        const assincronos = response.data
+          .filter(curso => curso.tipo === "A")
+          .slice(0, 4);
 
-      todosCursos = [...sincronos, ...assincronos];
+        todosCursos = [...sincronos, ...assincronos];
+      }
+
+      setCursos(todosCursos);
+    } catch (error) {
+      console.error("Erro ao encontrar cursos:", error);
     }
-
-    setCursos(todosCursos);
-  } catch (error) {
-    console.error("Erro ao encontrar cursos:", error);
-  }
-};
+  };
 
   useEffect(() => {
     fetchInscricao();
     fetchCurso();
     fetchSaudacao();
+    fetchTrabalhosPendentes();
   }, []);
 
   const filteredInscricao = useMemo(() => {
@@ -107,10 +125,17 @@ export default function PaginaGestor() {
 
     return inscricao.filter(item => {
       // Verifica se já começou
-      const dataLimite = item.inscricao_curso?.curso_sincrono?.data_inicio;
-      if (!dataLimite || new Date(dataLimite) > new Date()) return false;
+      
+      if (item.inscricao_curso?.tipo === "S") {
+        const dataLimite = item.inscricao_curso?.curso_sincrono?.data_inicio;
+        if (!dataLimite || new Date(dataLimite) > new Date()) return false;
 
-      if (item.inscricao_curso?.curso_sincrono?.estado === true) return false;
+        if (item.inscricao_curso?.curso_sincrono?.estado === true) return false;
+      }
+
+      if (item.inscricao_curso?.tipo === "A") {
+        if (item.estado === true) return false;
+      }
 
       return true;
     });
@@ -118,6 +143,10 @@ export default function PaginaGestor() {
 
   const renderPedidoCard = (curso, index) => (
     <CardPedido index={index} curso={curso} />
+  );
+
+  const renderTrabalhoCard = (trabalho, index) => (
+    <CardTrabalho key={trabalho.material_id || index} trabalho={trabalho} index={index} />
   );
 
   const renderCoursesInscCard = (inscricao, index) => (
@@ -159,7 +188,7 @@ export default function PaginaGestor() {
         <div className="section-header">
           <h2 className="section-title">
             <FileEarmarkText className="section-icon" />
-            Trabalhos
+            Trabalhos Pendentes
           </h2>
           <div className="section-actions">
             <button className="btn btn-link section-link">
@@ -172,14 +201,14 @@ export default function PaginaGestor() {
           {loading ? (
             <div className="loading-container">
               <div className="loading-spinner"></div>
-              <p>A carregar cursos...</p>
+              <p>A carregar trabalhos...</p>
             </div>
-          ) : filteredInscricao.length > 0 ? (
-            <CardRow dados={[...filteredInscricao].sort((a, b) => new Date(a.curso_sincrono?.data_inicio) - new Date(b.curso_sincrono?.data_inicio))} renderCard={renderPedidoCard} scrollable={true} />
+          ) : trabalhosPendentes.length > 0 ? (
+            <CardRow dados={trabalhosPendentes} renderCard={renderTrabalhoCard} scrollable={true} />
           ) : (
             <div className="empty-state text-center">
               <FileEarmarkText size={40} className="empty-icon mb-3" />
-              <p>Não há trabalhos para entregar neste momento.</p>
+              <p>Não há trabalhos pendentes neste momento.</p>
             </div>
           )}
         </div>
@@ -192,7 +221,7 @@ export default function PaginaGestor() {
             Cursos ativos
           </h2>
           <div className="section-actions">
-            <button className="btn btn-link section-link" onClick={() => navToPage('/utilizadores/percursoFormativo')}>
+            <button className="btn btn-link section-link" onClick={() => { navToPage('/utilizadores/percursoFormativo'); window.scrollTo(0, 0); }}>
               Ver Todos <ArrowRightCircle size={16} className="ms-1" />
             </button>
           </div>
@@ -226,7 +255,7 @@ export default function PaginaGestor() {
             Cursos em Destaque
           </h2>
           <div className="section-actions">
-            <button className="btn btn-link section-link" onClick={() => navToPage('/utilizadores/lista/cursos')}>
+            <button className="btn btn-link section-link" onClick={() => { navToPage('/utilizadores/lista/cursos'); window.scrollTo(0, 0); }}>
               Ver Todos <ArrowRightCircle size={16} className="ms-1" />
             </button>
           </div>

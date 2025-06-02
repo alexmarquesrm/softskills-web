@@ -19,6 +19,7 @@ import EditButton from "../../components/buttons/editButton";
 import ModalAdicionarFicheiro from "../../modals/addFile";
 import ModalEditarFicheiro from "../../modals/edditFile";
 import ModalAdicionarQuiz from "../../modals/addQuiz";
+import ModalEditarQuiz from "../../modals/editQuiz";
 
 export default function CursoDetalhesGestor() {
     const { id } = useParams();
@@ -39,6 +40,8 @@ export default function CursoDetalhesGestor() {
     const [alunos, setAlunos] = useState([]);
     const [alunosLoading, setAlunosLoading] = useState(false);
     const [addQuiz, setAddQuiz] = useState(false);
+    const [editQuiz, setEditQuiz] = useState(false);
+    const [selectedQuizId, setSelectedQuizId] = useState(null);
     const [quizzes, setQuizzes] = useState([]);
     const [quizLoading, setQuizLoading] = useState(false);
 
@@ -190,6 +193,11 @@ export default function CursoDetalhesGestor() {
         } catch (error) {
             console.error('Erro ao atualizar lista de quizzes:', error);
         }
+    };
+
+    const handleEditQuiz = (quizId) => {
+        setSelectedQuizId(quizId);
+        setEditQuiz(true);
     };
 
     // Group materials by type
@@ -831,13 +839,13 @@ export default function CursoDetalhesGestor() {
                                                                     <div className="fw-bold">{quiz.descricao}</div>
                                                                 </div>
                                                             </div>
-                                                            <EditButton
-                                                                text=""
-                                                                Icon={BsPencilSquare}
-                                                                onClick={() => handleEditFile(quiz.quizz_id)}
-                                                                inline={true}
-                                                                className="btn-edit-small"
-                                                            />
+                                                                                                        <EditButton
+                                                text=""
+                                                Icon={BsPencilSquare}
+                                                onClick={() => handleEditQuiz(quiz.quizz_id)}
+                                                inline={true}
+                                                className="btn-edit-small"
+                                            />
                                                         </div>
                                                     </ListGroup.Item>
                                                 ))}
@@ -911,7 +919,7 @@ export default function CursoDetalhesGestor() {
                                 <div className="d-flex justify-content-between align-items-center mb-3">
                                     <div>
                                         <Badge bg="primary" className="me-2 py-2 px-3">
-                                            Total: {curso?.curso_sincrono?.[0]?.limite_vagas || 0} Vagas
+                                            Total: {curso?.curso_sincrono?.vagas_disponiveis + " de " + curso?.curso_sincrono?.limite_vagas || 0} Vagas
                                         </Badge>
                                         <Badge bg="success" className="me-2 py-2 px-3">
                                             Inscritos: {alunos.length} Alunos
@@ -995,6 +1003,16 @@ export default function CursoDetalhesGestor() {
                 show={addQuiz}
                 onHide={() => setAddQuiz(false)}
                 cursoId={cursoId}
+                onSuccess={handleQuizSuccess}
+            />
+
+            <ModalEditarQuiz
+                show={editQuiz}
+                onHide={() => {
+                    setEditQuiz(false);
+                    setSelectedQuizId(null);
+                }}
+                quizId={selectedQuizId}
                 onSuccess={handleQuizSuccess}
             />
         </div>

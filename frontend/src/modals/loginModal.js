@@ -76,6 +76,7 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
             sessionStorage.setItem('nome', utilizador.nome);
             sessionStorage.setItem('email', utilizador.email);
             sessionStorage.setItem('primeirologin', utilizador.ultimologin === null ? "true" : "false");
+            sessionStorage.setItem('score', utilizador.score);
             
             // Armazenar todos os tipos de usuário
             if (utilizador.allUserTypes && Array.isArray(utilizador.allUserTypes)) {
@@ -111,15 +112,15 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
             let redirectPath = '/';
             const userTypes = utilizador.allUserTypes || [utilizador.tipo];
             const isGestor = userTypes.includes('Gestor');
-            const isFormando = userTypes.includes('Formando');
             const isFormador = userTypes.includes('Formador');
+            const isFormando = userTypes.includes('Formando');
 
             if (isGestor) {
                 redirectPath = '/gestor/dashboard';
-            } else if (isFormando) {
-                redirectPath = '/utilizadores/dashboard';
             } else if (isFormador) {
                 redirectPath = '/formador/dashboard';
+            } else if (isFormando) {
+                redirectPath = '/utilizadores/dashboard';
             }
 
             // Fechar o modal e redirecionar com a mensagem de boas-vindas
@@ -173,11 +174,8 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
                 throw new Error('Firebase Auth não inicializado corretamente. Por favor, tente novamente mais tarde.');
             }
 
-            console.log('Iniciando login com Google...');
             const result = await signInWithPopup(auth, googleProvider);
             const user = result.user;
-            
-            console.log('Login com Google bem sucedido, enviando dados para o backend...');
             
             try {
                 // Send the Google user data to your backend
@@ -208,6 +206,7 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
                 sessionStorage.setItem('nome', utilizador.nome);
                 sessionStorage.setItem('email', utilizador.email);
                 sessionStorage.setItem('primeirologin', utilizador.ultimologin === null ? "true" : "false");
+                sessionStorage.setItem('score', utilizador.score);
                 
                 // Armazenar todos os tipos de usuário
                 if (utilizador.allUserTypes && Array.isArray(utilizador.allUserTypes)) {
@@ -243,15 +242,15 @@ const LoginModal = ({ open, handleClose, onLoginSuccess }) => {
                 let redirectPath = '/';
                 const userTypes = utilizador.allUserTypes || [utilizador.tipo];
                 const isGestor = userTypes.includes('Gestor');
-                const isFormando = userTypes.includes('Formando');
                 const isFormador = userTypes.includes('Formador');
+                const isFormando = userTypes.includes('Formando');
 
                 if (isGestor) {
                     redirectPath = '/gestor/dashboard';
-                } else if (isFormando) {
-                    redirectPath = '/utilizadores/dashboard';
                 } else if (isFormador) {
                     redirectPath = '/formador/dashboard';
+                } else if (isFormando) {
+                    redirectPath = '/utilizadores/dashboard';
                 }
 
                 // Fechar o modal e redirecionar com a mensagem de boas-vindas

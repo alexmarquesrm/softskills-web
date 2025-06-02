@@ -1,0 +1,346 @@
+/* About Us Page Styles */
+.microsite-about-us-page {
+  background-color: #f8f9fa;
+  min-height: 100vh;
+}
+
+/* Page Title */
+.microsite-page-title {
+  font-size: 3rem;
+  color: #6c757d;
+  font-weight: 300;
+  letter-spacing: 2px;
+  margin-bottom: 0;
+  text-align: left;
+}
+
+/* Hero Image */
+.microsite-hero-image-container {
+  width: 100%;
+  height: 350px;
+  overflow: hidden;
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  transition: transform 0.3s ease;
+}
+
+.microsite-hero-image-container:hover {
+  transform: translateY(-5px);
+}
+
+.microsite-hero-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.microsite-hero-image-container:hover .microsite-hero-image {
+  transform: scale(1.05);
+}
+
+/* Company Info Card */
+.microsite-company-info-card {
+  border: none;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.microsite-company-info-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+}
+
+.microsite-section-title {
+  font-size: 1.3rem;
+  color: #495057;
+  font-weight: 600;
+  letter-spacing: 1px;
+  margin-bottom: 25px;
+  position: relative;
+}
+
+.microsite-section-title::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 0;
+  width: 50px;
+  height: 3px;
+  background: linear-gradient(90deg, #007bff, #0056b3);
+  border-radius: 2px;
+}
+
+.microsite-company-description {
+  color: #6c757d;
+  line-height: 1.8;
+  margin-bottom: 20px;
+  text-align: justify;
+  font-size: 1rem;
+}
+
+/* Sidebar */
+.microsite-sidebar-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.microsite-info-card {
+  border: none;
+  box-shadow: 0 3px 15px rgba(0, 0, 0, 0.08);
+  border-radius: 10px;
+  transition: all 0.3s ease;
+  opacity: 0;
+  transform: translateX(30px);
+}
+
+.microsite-info-card:hover {
+  transform: translateY(-3px) translateX(0);
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15);
+}
+
+.microsite-info-title {
+  font-size: 1.1rem;
+  color: #343a40;
+  font-weight: 600;
+  margin-bottom: 15px;
+}
+
+.microsite-info-text {
+  color: #6c757d;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Team Section */
+.microsite-team-section {
+  margin-top: 4rem;
+}
+
+.microsite-team-member-card {
+  border: none;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  border-radius: 15px;
+  transition: all 0.4s ease;
+  opacity: 0;
+  transform: translateY(50px);
+  position: relative;
+  overflow: hidden;
+}
+
+.microsite-team-member-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #007bff, #28a745, #ffc107);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.microsite-team-member-card:hover::before {
+  opacity: 1;
+}
+
+.microsite-team-member-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+}
+
+/* Member Image */
+.microsite-member-image-container {
+  position: relative;
+  margin-bottom: 25px;
+}
+
+.microsite-member-image {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid #e9ecef;
+  transition: all 0.3s ease;
+}
+
+.microsite-team-member-card:hover .microsite-member-image {
+  border-color: #007bff;
+  transform: scale(1.1);
+}
+
+.microsite-connector-line {
+  position: absolute;
+  bottom: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #007bff, transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.microsite-team-member-card:hover .microsite-connector-line {
+  opacity: 1;
+}
+
+/* Member Info */
+.microsite-member-name {
+  font-size: 1.3rem;
+  color: #343a40;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.microsite-member-role {
+  font-size: 0.9rem;
+  color: #007bff;
+  font-weight: 500;
+  letter-spacing: 1px;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+}
+
+.microsite-member-bio {
+  color: #6c757d;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin-bottom: 25px;
+  text-align: justify;
+  padding: 0 10px;
+}
+
+/* Social Links */
+.microsite-social-links {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.microsite-social-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #f8f9fa;
+  color: #6c757d;
+  text-decoration: none;
+  font-size: 1.2rem;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.microsite-social-icon:hover {
+  transform: translateY(-3px) scale(1.1);
+  color: white;
+  text-decoration: none;
+}
+
+.microsite-social-icon.microsite-twitter:hover { background: #1da1f2; }
+.microsite-social-icon.microsite-linkedin:hover { background: #0077b5; }
+.microsite-social-icon.microsite-facebook:hover { background: #3b5998; }
+.microsite-social-icon.microsite-google:hover { background: #dd4b39; }
+.microsite-social-icon.microsite-youtube:hover { background: #ff0000; }
+.microsite-social-icon.microsite-tumblr:hover { background: #35465c; }
+.microsite-social-icon.microsite-pinterest:hover { background: #bd081c; }
+.microsite-social-icon.microsite-skype:hover { background: #00aff0; }
+
+/* Back Button */
+.microsite-back-button {
+  padding: 12px 30px;
+  font-size: 1.1rem;
+  font-weight: 500;
+  border-radius: 25px;
+  transition: all 0.3s ease;
+  border: 2px solid #007bff;
+  background: transparent;
+  color: #007bff;
+}
+
+.microsite-back-button:hover {
+  background: #007bff;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 123, 255, 0.3);
+}
+
+/* Animations */
+@keyframes microsite-fadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes microsite-slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.microsite-fade-in {
+  animation: microsite-fadeIn 0.6s ease forwards;
+}
+
+.microsite-slide-up {
+  animation: microsite-slideUp 0.6s ease forwards;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .microsite-page-title {
+    font-size: 2rem;
+    text-align: center;
+  }
+  
+  .microsite-hero-image-container {
+    height: 250px;
+  }
+  
+  .microsite-company-description {
+    text-align: left;
+  }
+  
+  .microsite-member-bio {
+    text-align: center;
+  }
+  
+  .microsite-sidebar-content {
+    margin-top: 2rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .microsite-page-title {
+    font-size: 1.8rem;
+  }
+  
+  .microsite-hero-image-container {
+    height: 200px;
+  }
+  
+  .microsite-social-links {
+    gap: 10px;
+  }
+  
+  .microsite-social-icon {
+    width: 35px;
+    height: 35px;
+    font-size: 1rem;
+  }
+}
