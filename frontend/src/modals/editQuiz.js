@@ -130,8 +130,15 @@ const ModalEditarQuiz = ({ show, onHide, quizId, onSuccess }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
         // Validação extra no frontend
+        
+        // Validação da nota
+        const nota = parseFloat(quizData.nota);
+        if (isNaN(nota) || nota < 0 || nota > 20) {
+            alert('A nota deve estar entre 0 e 20.');
+            return;
+        }
+
         for (const questao of quizData.questoes) {
             if (!questao.pergunta || questao.pergunta.trim() === '') {
                 alert('Todas as questões devem ter uma pergunta.');
@@ -208,7 +215,7 @@ const ModalEditarQuiz = ({ show, onHide, quizId, onSuccess }) => {
                                         value={quizData.nota}
                                         onChange={handleChange}
                                         min="0"
-                                        max="100"
+                                        max="20"
                                         required
                                     />
                                 </Form.Group>
