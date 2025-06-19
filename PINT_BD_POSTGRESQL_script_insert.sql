@@ -348,8 +348,6 @@ INSERT INTO TRABALHO (SINCRONO_ID, FORMANDO_ID, DESCRICAO, NOTA, DATA) VALUES
 
 -- Inserção na Tabela NOTIFICACAO
 INSERT INTO NOTIFICACAO (FORMANDO_ID, CURSO_ID, DESCRICAO, DATA_CRIACAO, LIDA) VALUES
-(1, 1, 'Nova aula marcada para amanhã às 9h.', CURRENT_TIMESTAMP, FALSE),
-(2, 1, 'Nova aula marcada para amanhã às 9h.', CURRENT_TIMESTAMP, FALSE),
 (3, 3, 'Entrega do projeto Java até sexta-feira.', CURRENT_TIMESTAMP, FALSE),
 (4, 2, 'Material novo disponível no curso.', CURRENT_TIMESTAMP, FALSE),
 (5, 3, 'Lembrete: Quiz amanhã às 14h.', CURRENT_TIMESTAMP, FALSE),
