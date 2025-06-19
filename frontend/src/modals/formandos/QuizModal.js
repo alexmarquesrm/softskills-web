@@ -267,7 +267,7 @@ export default function QuizModal({ show, onHide, quizId, onQuizCompleted }) {
                         <Col md={4}>
                           <div className="mb-2">
                             <Badge bg="success" className="p-2">
-                              {quiz.nota || 70}%
+                              {(quiz.nota || 10).toFixed(1)}
                             </Badge>
                           </div>
                           <small className="text-muted">Nota Mínima</small>
@@ -281,7 +281,7 @@ export default function QuizModal({ show, onHide, quizId, onQuizCompleted }) {
                       <BsCheckCircle className="me-2" />
                       <strong>Você já respondeu a este quiz!</strong>
                       <div className="mt-2">
-                        Nota obtida: <strong>{resultadoAnterior?.nota?.toFixed(1)}%</strong>
+                        Nota obtida: <strong>{resultadoAnterior?.nota?.toFixed(1)}</strong>
                       </div>
                     </Alert>
                   ) : (
@@ -312,7 +312,7 @@ export default function QuizModal({ show, onHide, quizId, onQuizCompleted }) {
                 <div className="text-center py-4">
                   {(() => {
                     const resultadoAtual = resultado || resultadoAnterior;
-                    const isApproved = resultadoAtual.nota >= (quiz.nota || 70);
+                    const isApproved = resultadoAtual.nota >= (quiz.nota || 10);
                     
                     return (
                       <>
@@ -334,7 +334,7 @@ export default function QuizModal({ show, onHide, quizId, onQuizCompleted }) {
                               <Col md={4}>
                                 <div className="mb-2">
                                   <h3 className={isApproved ? 'text-success' : 'text-danger'}>
-                                    {resultadoAtual.nota.toFixed(1)}%
+                                    {resultadoAtual.nota.toFixed(1)}
                                   </h3>
                                 </div>
                                 <small className="text-muted">Nota Final</small>
@@ -349,8 +349,8 @@ export default function QuizModal({ show, onHide, quizId, onQuizCompleted }) {
                               </Col>
                               <Col md={4}>
                                 <div className="mb-2">
-                                  <h3 className="text-info">
-                                    {quiz.nota || 70}%
+                                  <h3 className="text-info" >
+                                    {(quiz.nota || 10).toFixed(1)}
                                   </h3>
                                 </div>
                                 <small className="text-muted">Nota Mínima</small>
