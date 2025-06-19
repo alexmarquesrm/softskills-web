@@ -5,7 +5,7 @@ import axios from "../config/configAxios";
 const ModalAdicionarQuiz = ({ show, onHide, cursoId, onSuccess }) => {
     const [quizData, setQuizData] = useState({
         descricao: '',
-        nota: 70, // Nota mínima padrão para passar (70%)
+        nota: 10, // Nota mínima padrão para passar (50% de 20)
         questoes: [{
             pergunta: '',
             opcoes: ['', ''], // Começa com 2 opções
@@ -110,7 +110,7 @@ const ModalAdicionarQuiz = ({ show, onHide, cursoId, onSuccess }) => {
             // Reset form data
             setQuizData({
                 descricao: '',
-                nota: 70,
+                nota: 10,
                 questoes: [{
                     pergunta: '',
                     opcoes: ['', ''],
@@ -129,7 +129,7 @@ const ModalAdicionarQuiz = ({ show, onHide, cursoId, onSuccess }) => {
         // Reset form data when closing
         setQuizData({
             descricao: '',
-            nota: 70,
+            nota: 10,
             questoes: [{
                 pergunta: '',
                 opcoes: ['', ''],
