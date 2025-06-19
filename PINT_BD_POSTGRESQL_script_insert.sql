@@ -214,7 +214,7 @@ INSERT INTO ASSINCRONO (CURSO_ID) VALUES
 -- Inserção na Tabela SINCRONO (20 cursos)
 INSERT INTO SINCRONO (CURSO_ID, FORMADOR_ID, LIMITE_VAGAS, DATA_LIMITE_INSCRICAO, DATA_INICIO, DATA_FIM, ESTADO) VALUES
 -- Cursos Concluídos (10)
-(1, 2, 30, '2024-01-15 23:59:59', '2024-02-01 09:00:00', '2024-02-28 18:00:00', TRUE),
+(1, 2, 30, '2025-06-10 23:59:59', '2025-06-15 09:00:00', '2025-08-28 18:00:00', FALSE),
 (2, 2, 25, '2024-01-20 23:59:59', '2024-02-05 09:00:00', '2024-03-05 18:00:00', TRUE),
 (3, 2, 25, '2025-04-01 23:59:59', '2025-04-15 09:00:00', '2025-06-30 18:00:00', FALSE),
 (5, 3, 40, '2024-03-01 23:59:59', '2024-03-15 09:00:00', '2024-04-15 18:00:00', TRUE),
@@ -559,8 +559,8 @@ INSERT INTO MATERIAL (CURSO_ID, TITULO, DESCRICAO, TIPO, SECAO, DATA_ENTREGA, DA
 (1, 'Variáveis e Tipos de Dados', 'Aprenda sobre variáveis e tipos de dados em JavaScript', 'documento', 'Fundamentos', NULL, CURRENT_TIMESTAMP),
 (1, 'Funções em JavaScript', 'Tutorial sobre funções e escopo', 'video', 'Funções', NULL, CURRENT_TIMESTAMP),
 (1, 'Arrays e Objetos', 'Manipulação de arrays e objetos em JavaScript', 'aula', 'Estruturas de Dados', NULL, CURRENT_TIMESTAMP),
-(1, 'Projeto Final JavaScript', 'Desenvolva uma aplicação web completa', 'trabalho', 'Projeto Final', '2024-12-31 23:59:59+00', CURRENT_TIMESTAMP),
-(1, 'Entrega Projeto Final JavaScript', 'Submissão do projeto final', 'entrega', 'Projeto Final', '2024-12-31 23:59:59+00', CURRENT_TIMESTAMP),
+(1, 'Projeto Final JavaScript', 'Desenvolva uma aplicação web completa', 'trabalho', 'Projeto Final', '2025-08-21 23:59:59+00', CURRENT_TIMESTAMP),
+(1, 'Entrega Projeto Final JavaScript', 'Submissão do projeto final', 'entrega', 'Projeto Final', '2025-08-21 23:59:59+00', CURRENT_TIMESTAMP),
 
 -- Materiais para o curso de Python (ID: 2)
 (2, 'Introdução ao Python', 'Primeiros passos com Python', 'documento', 'Fundamentos', NULL, CURRENT_TIMESTAMP),
