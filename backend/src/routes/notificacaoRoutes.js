@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { authenticate } = require("../tokenUtils");
 const notificacaoController = require("../controllers/notificacaoController");
-const colaboradorController = require("../controllers/colaboradoresController");
+const { controladorMobile } = require("../controllers/colaboradoresController");
 
 // GET
 router.get("/formando/:formandoId", authenticate, notificacaoController.getNotificacoesFormando);
@@ -13,7 +13,7 @@ router.put("/marcar-todas-lidas", authenticate, notificacaoController.marcarToda
 
 // POST
 router.post("/processar-inicio-curso", authenticate, notificacaoController.processarNotificacoesInicioCurso);
-router.post('/registrar-fcm-token', colaboradorController.registrarFcmToken);
+router.post('/registrar-fcm-token', controladorMobile.registrarFcmToken);
 router.post('/teste-push', authenticate, notificacaoController.enviarNotificacaoTeste);
 
 module.exports = router; 

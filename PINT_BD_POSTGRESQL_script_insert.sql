@@ -214,7 +214,7 @@ INSERT INTO ASSINCRONO (CURSO_ID) VALUES
 -- Inserção na Tabela SINCRONO (20 cursos)
 INSERT INTO SINCRONO (CURSO_ID, FORMADOR_ID, LIMITE_VAGAS, DATA_LIMITE_INSCRICAO, DATA_INICIO, DATA_FIM, ESTADO) VALUES
 -- Cursos Concluídos (10)
-(1, 2, 30, '2024-01-15 23:59:59', '2024-02-01 09:00:00', '2024-02-28 18:00:00', TRUE),
+(1, 2, 30, '2025-06-10 23:59:59', '2025-06-15 09:00:00', '2025-08-28 18:00:00', FALSE),
 (2, 2, 25, '2024-01-20 23:59:59', '2024-02-05 09:00:00', '2024-03-05 18:00:00', TRUE),
 (3, 2, 25, '2025-04-01 23:59:59', '2025-04-15 09:00:00', '2025-06-30 18:00:00', FALSE),
 (5, 3, 40, '2024-03-01 23:59:59', '2024-03-15 09:00:00', '2024-04-15 18:00:00', TRUE),
@@ -348,8 +348,6 @@ INSERT INTO TRABALHO (SINCRONO_ID, FORMANDO_ID, DESCRICAO, NOTA, DATA) VALUES
 
 -- Inserção na Tabela NOTIFICACAO
 INSERT INTO NOTIFICACAO (FORMANDO_ID, CURSO_ID, DESCRICAO, DATA_CRIACAO, LIDA) VALUES
-(1, 1, 'Nova aula marcada para amanhã às 9h.', CURRENT_TIMESTAMP, FALSE),
-(2, 1, 'Nova aula marcada para amanhã às 9h.', CURRENT_TIMESTAMP, FALSE),
 (3, 3, 'Entrega do projeto Java até sexta-feira.', CURRENT_TIMESTAMP, FALSE),
 (4, 2, 'Material novo disponível no curso.', CURRENT_TIMESTAMP, FALSE),
 (5, 3, 'Lembrete: Quiz amanhã às 14h.', CURRENT_TIMESTAMP, FALSE),
@@ -528,16 +526,16 @@ INSERT INTO RESPOSTAS_QUIZZ (FORMANDO_ID, QUESTAO_ID, OPCAO_ID) VALUES
 
 -- Inserção na Tabela AVALIACAO_QUIZZ
 INSERT INTO AVALIACAO_QUIZZ (QUIZZ_ID, FORMANDO_ID, NOTA) VALUES
-(1, 1, 90.0),
-(2, 3, 95.0),
-(3, 2, 85.0),
-(4, 4, 88.0),
-(5, 5, 92.0),
-(6, 6, 87.0),
-(1, 7, 91.0),
-(2, 8, 89.0),
-(3, 9, 86.0),
-(4, 10, 93.0);
+(1, 1, 18.0),
+(2, 3, 18.7),
+(3, 2, 17.7),
+(4, 4, 17.9),
+(5, 5, 19.0),
+(6, 6, 18.0),
+(1, 7, 17.0),
+(2, 8, 16.0),
+(3, 9, 15.0),
+(4, 10, 18.0);
 
 -- Inserção na Tabela AVALIACAO_FORMADOR
 INSERT INTO AVALIACAO_FORMADOR (CURSO_ID, FORMADOR_ID, FORMANDO_ID, AVALIACAO) VALUES
@@ -559,8 +557,8 @@ INSERT INTO MATERIAL (CURSO_ID, TITULO, DESCRICAO, TIPO, SECAO, DATA_ENTREGA, DA
 (1, 'Variáveis e Tipos de Dados', 'Aprenda sobre variáveis e tipos de dados em JavaScript', 'documento', 'Fundamentos', NULL, CURRENT_TIMESTAMP),
 (1, 'Funções em JavaScript', 'Tutorial sobre funções e escopo', 'video', 'Funções', NULL, CURRENT_TIMESTAMP),
 (1, 'Arrays e Objetos', 'Manipulação de arrays e objetos em JavaScript', 'aula', 'Estruturas de Dados', NULL, CURRENT_TIMESTAMP),
-(1, 'Projeto Final JavaScript', 'Desenvolva uma aplicação web completa', 'trabalho', 'Projeto Final', '2024-12-31 23:59:59+00', CURRENT_TIMESTAMP),
-(1, 'Entrega Projeto Final JavaScript', 'Submissão do projeto final', 'entrega', 'Projeto Final', '2024-12-31 23:59:59+00', CURRENT_TIMESTAMP),
+(1, 'Projeto Final JavaScript', 'Desenvolva uma aplicação web completa', 'trabalho', 'Projeto Final', '2025-08-21 23:59:59+00', CURRENT_TIMESTAMP),
+(1, 'Entrega Projeto Final JavaScript', 'Submissão do projeto final', 'entrega', 'Projeto Final', '2025-08-21 23:59:59+00', CURRENT_TIMESTAMP),
 
 -- Materiais para o curso de Python (ID: 2)
 (2, 'Introdução ao Python', 'Primeiros passos com Python', 'documento', 'Fundamentos', NULL, CURRENT_TIMESTAMP),

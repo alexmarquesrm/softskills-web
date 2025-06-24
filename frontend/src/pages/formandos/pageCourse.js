@@ -143,7 +143,6 @@ export default function CursoFormando() {
         const response = await axios.get(`/material/curso/${id}/materiais`, {
           headers: { Authorization: `${token}` }
         });
-
         if (response.data.success) {
           const materialsData = response.data.data;
 
@@ -195,23 +194,18 @@ export default function CursoFormando() {
   // Add this new useEffect to fetch quizzes
   useEffect(() => {
     const fetchQuizzes = async () => {
-      console.log('Fetching quizzes...', { id, curso });
       if (!id || !curso) {
-        console.log('Missing id or curso, skipping quiz fetch');
         return;
       }
 
       try {
         setQuizLoading(true);
         const token = sessionStorage.getItem('token');
-        console.log('Making API call to fetch quizzes...');
         const response = await axios.get(`/quizz/curso/${id}`, {
           headers: { Authorization: `${token}` }
         });
 
         if (response.data.success) {
-          console.log('Quizzes loaded successfully:', response.data.data);
-          
           // Check completion status for each quiz
           const quizzesWithStatus = await Promise.all(
             response.data.data.map(async (quiz) => {
@@ -245,7 +239,6 @@ export default function CursoFormando() {
     };
 
     if (activeSection === "materiais" || inscricao) {
-      console.log('Active section is materiais, fetching quizzes...');
       fetchQuizzes();
     }
   }, [id, activeSection, curso]);

@@ -630,6 +630,28 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION processar_cursos_assincronos_terminados()
+RETURNS INTEGER AS $$
+DECLARE
+    cursos_processados INTEGER := 0;
+    curso_record RECORD;
+BEGIN
+    -- Buscar todos os cursos assíncronos que têm quizzes
+    FOR curso_record IN 
+        SELECT DISTINCT c.curso_id
+        FROM curso c
+        JOIN quizz q ON q.curso_id = c.curso_id
+        WHERE c.tipo = 'A'
+    LOOP
+        -- Atualizar notas para cada curso
+        PERFORM atualizar_notas_inscricao(curso_record.curso_id);
+        cursos_processados := cursos_processados + 1;
+    END LOOP;
+
+    RETURN cursos_processados;
+END;
+$$ LANGUAGE plpgsql;
+
 
 -------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------

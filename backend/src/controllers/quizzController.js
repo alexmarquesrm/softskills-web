@@ -70,7 +70,7 @@ const quizzController = {
                     curso_id,
                     gestor_id,
                     descricao,
-                    nota: 70.0 // Nota mínima padrão para passar no quiz (70%)
+                    nota: 10 
                 }, { transaction: t });
 
                 // Criar as questões e opções
@@ -115,7 +115,7 @@ const quizzController = {
 
                 await quiz.update({
                     descricao,
-                    nota: nota || 70.0 // Usar nota fornecida ou padrão de 70%
+                    nota: nota || 10
                 }, { transaction: t });
 
                 // Deletar opções e questões antigas (cascade delete)
@@ -252,8 +252,8 @@ const quizzController = {
                     }
                 }
 
-                // Calcular nota final (0-100)
-                const nota = (pontuacao / totalQuestoes) * 100;
+                // Calcular nota final (0-20)
+                const nota = (pontuacao / totalQuestoes) * 20;
 
                 // Salvar avaliação
                 await models.avaliacao_quizz.create({

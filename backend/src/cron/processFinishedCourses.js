@@ -10,7 +10,11 @@ async function processFinishedCourses() {
     // Executar a função do banco de dados para cursos síncronos
     const [resultSincrono] = await sequelizeConn.query('SELECT processar_cursos_sincronos_terminados()');
     
+    // Executar a função do banco de dados para cursos assíncronos
+    const [resultAssincrono] = await sequelizeConn.query('SELECT processar_cursos_assincronos_terminados()');
+    
     console.log('Verificação concluída. Cursos síncronos processados:', resultSincrono[0].processar_cursos_sincronos_terminados);
+    console.log('Verificação concluída. Cursos assíncronos processados:', resultAssincrono[0].processar_cursos_assincronos_terminados);
   } catch (error) {
     console.error('Erro na verificação de cursos terminados:', error);
   }

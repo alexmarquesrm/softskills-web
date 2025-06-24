@@ -197,12 +197,7 @@ function StatsSection() {
               </Card.Body>
             </Card>
           </Col>
-        </Row>
-
-        <div className="stats-footnote">
-          <p>Junta-te à nossa comunidade de formandos ainda hoje!</p>
-          <button className="btn btn-primary btn-lg stats-cta">Começar!</button>
-        </div>
+        </Row>  
       </Container>
     </section>
   );

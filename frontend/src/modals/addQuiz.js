@@ -5,7 +5,7 @@ import axios from "../config/configAxios";
 const ModalAdicionarQuiz = ({ show, onHide, cursoId, onSuccess }) => {
     const [quizData, setQuizData] = useState({
         descricao: '',
-        nota: 70, // Nota mínima padrão para passar (70%)
+        nota: 10, // Nota mínima padrão para passar (50% de 20)
         questoes: [{
             pergunta: '',
             opcoes: ['', ''], // Começa com 2 opções
@@ -84,6 +84,14 @@ const ModalAdicionarQuiz = ({ show, onHide, cursoId, onSuccess }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         // Validação extra no frontend
+
+        // Validação da nota
+        const nota = parseFloat(quizData.nota);
+        if (isNaN(nota) || nota < 0 || nota > 20) {
+            alert('A nota deve estar entre 0 e 20.');
+            return;
+        }
+        
         for (const questao of quizData.questoes) {
             if (!questao.pergunta || questao.pergunta.trim() === '') {
                 alert('Todas as questões devem ter uma pergunta.');
@@ -110,7 +118,7 @@ const ModalAdicionarQuiz = ({ show, onHide, cursoId, onSuccess }) => {
             // Reset form data
             setQuizData({
                 descricao: '',
-                nota: 70,
+                nota: 10,
                 questoes: [{
                     pergunta: '',
                     opcoes: ['', ''],
@@ -129,7 +137,7 @@ const ModalAdicionarQuiz = ({ show, onHide, cursoId, onSuccess }) => {
         // Reset form data when closing
         setQuizData({
             descricao: '',
-            nota: 70,
+            nota: 10,
             questoes: [{
                 pergunta: '',
                 opcoes: ['', ''],
@@ -168,7 +176,7 @@ const ModalAdicionarQuiz = ({ show, onHide, cursoId, onSuccess }) => {
                                         value={quizData.nota}
                                         onChange={handleChange}
                                         min="0"
-                                        max="100"
+                                        max="20"
                                         required
                                     />
                                 </Form.Group>
