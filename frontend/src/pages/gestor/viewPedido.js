@@ -61,7 +61,6 @@ export default function ViewPedido() {
                         headers: { Authorization: `${token}` }
                     });
                     setReferencia(forumRes.data);
-                    console.log(forumRes.data);
                     setTopico(forumRes.data);
                 }
 
