@@ -31,7 +31,23 @@ const controladorTopicos = {
     const { id } = req.params;
 
     try {
-      const topico = await models.topico.findByPk(id);
+      const topico = await models.topico.findByPk(
+        id,
+        {
+          include: [
+            {
+              model: models.area,
+              as: "topico_area",
+              include: [
+                {
+                  model: models.categoria,
+                  as: "area_categoria",
+                },
+              ],
+            },
+          ],
+        }
+      );
       if (!topico) {
         return res.status(404).json({ message: "Tópico não encontrado" });
       }
