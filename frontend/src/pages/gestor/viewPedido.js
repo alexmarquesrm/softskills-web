@@ -41,7 +41,7 @@ export default function ViewPedido() {
                         headers: { Authorization: `${token}` }
                     });
                     setReferencia(cursoRes.data);
-
+                    
                     if (cursoRes.data.tipo === "S" && cursoRes.data.curso_sincrono?.formador_id) {
                         const formadorRes = await axios.get(`/formador/${cursoRes.data.curso_sincrono.formador_id}`, {
                             headers: { Authorization: `${token}` }
@@ -208,13 +208,6 @@ export default function ViewPedido() {
                                         <p className="mb-0">{new Date(pedido?.data).toLocaleString()}</p>
                                     </div>
                                 </div>
-                                <div className="info-item">
-                                    <Info size={24} />
-                                    <div>
-                                        <strong>Estado:</strong>
-                                        <p className="mb-0">{getStatusBadge(pedido)}</p>
-                                    </div>
-                                </div>
                             </Col>
                         </Row>
                     </Card.Body>
@@ -304,15 +297,15 @@ export default function ViewPedido() {
                                     <div className="info-item">
                                         <Book size={24} />
                                         <div>
-                                            <strong>Nome do Tópico:</strong>
-                                            <p className="mb-0">{referencia.nome || referencia.descricao}</p>
+                                            <strong>Categoria:</strong>
+                                            <p className="mb-0">{referencia.topico_area.area_categoria.descricao || "N/A"}</p>
                                         </div>
                                     </div>
                                     <div className="info-item">
                                         <Info size={24} />
                                         <div>
-                                            <strong>ID do Tópico:</strong>
-                                            <p className="mb-0">{referencia.topico_id}</p>
+                                            <strong>Tópico:</strong>
+                                            <p className="mb-0">{referencia.topico_area.descricao || "N/A"}</p>
                                         </div>
                                     </div>
                                 </Col>
@@ -321,7 +314,7 @@ export default function ViewPedido() {
                                         <Info size={24} />
                                         <div>
                                             <strong>Área:</strong>
-                                            <p className="mb-0">{referencia.area_id ? `Área ID: ${referencia.area_id}` : "N/A"}</p>
+                                            <p className="mb-0">{referencia.descricao || "N/A"}</p>
                                         </div>
                                     </div>
                                 </Col>

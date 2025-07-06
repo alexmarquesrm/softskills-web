@@ -141,8 +141,8 @@ export default function AddCourse() {
                     data_inicio: formData.data_inicio,
                     data_fim: formData.data_fim,
                     estado: false
-
-                }
+                },
+                aprovado: true
             };
 
             const response = await axios.post('/curso/criar', cursoData, {
